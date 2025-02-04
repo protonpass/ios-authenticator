@@ -3,7 +3,8 @@ This repository contains the source code for the Proton Authenticator applicatio
 
 * [Installation](#installation)
 * [Technical Choices](#technical-choices)
-    * [UI](#ui)
+    * [Project Architecture Overview](#project-architecture-overview)
+    * [Architecture Diagram](#architecture-diagram)
     * [Dependency manager](#dependency-manager)
     * [Modularization](#modularization)
 * [Debug](#debug)
@@ -24,12 +25,54 @@ The app targets iOS 18 and above. Make sure you have Xcode 16+ installed, check 
 
 # Technical Choices
 
-## UI
+## Project Architecture Overview
 
-- All the views are written in SwiftUI
-<!--- Navigation between views are done using UIKit:-->
-<!--  - `UINavigationController` when running on iPhones-->
-<!--  - `UISplitViewController` when running on iPads-->
+This document outlines our project structure based on a layered (Clean Architecture) approach. The code is organized into local Swift packages to enforce separation of concerns and improve maintainability. The main layers are:
+    •    Entities: Core domain models (data structures).
+    •    Domain: Business logic including use cases and repository protocols.
+    •    Data: Concrete implementations for data operations (networking, persistence).
+    •    Presentation: UI components, views, and view models.
+    
+## Architecture Diagram
+
+Below is a Mermaid diagram that visualizes the dependency flow between the layers:
+
+```mermaid
+graph TD
+    %% Define Layers
+    subgraph Entities [Entities Package]
+      E[Entity Models]
+    end
+
+    subgraph Domain [Domain Package]
+      D1[Repository Protocols]
+      D2[Use Cases / Interactors]
+    end
+
+    subgraph Data [Data Package]
+      DA[Repository Implementations]
+      DB[Networking / Persistence]
+    end
+
+    subgraph Presentation [Presentation Package]
+      P1[Views]
+      P2[View Models]
+    end
+
+    %% Dependencies between layers
+    D1 --> E         
+    %% Domain uses Entities
+    D2 --> D1        
+    %% Use Cases depend on Repository Protocols
+    DA --> D1        
+    %% Data layer implements Domain protocols
+    DA --> DB       
+    %% Data layer handles external data (API, DB)
+    P2 --> D2        
+    %% Presentation layer (View Models) uses Use Cases
+    P1 --> P2        
+    %% Views bind to View Models
+```
 
 ## Dependency manager
 Swift Package Manager
