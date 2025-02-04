@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
+		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
+		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
+		5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765752D527F9C00B4CC30 /* PresentationLayer */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5B87652C2D52539E00B4CC30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +34,10 @@
 		5B8765172D52539D00B4CC30 /* Authenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Authenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B87652B2D52539E00B4CC30 /* AuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B87656A2D527F8700B4CC30 /* DataLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DataLayer; path = LocalPackages/DataLayer; sourceTree = "<group>"; };
+		5B87656B2D527F8700B4CC30 /* DomainLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DomainLayer; path = LocalPackages/DomainLayer; sourceTree = "<group>"; };
+		5B87656C2D527F8700B4CC30 /* Models */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Models; path = LocalPackages/Models; sourceTree = "<group>"; };
+		5B87656D2D527F8700B4CC30 /* PresentationLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PresentationLayer; path = LocalPackages/PresentationLayer; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +76,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B8765742D527F9C00B4CC30 /* Models in Frameworks */,
+				5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */,
+				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
+				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +106,11 @@
 				5B8765192D52539D00B4CC30 /* Authenticator */,
 				5B87652E2D52539E00B4CC30 /* AuthenticatorTests */,
 				5B8765382D52539E00B4CC30 /* AuthenticatorUITests */,
+				5B87656A2D527F8700B4CC30 /* DataLayer */,
+				5B87656B2D527F8700B4CC30 /* DomainLayer */,
+				5B87656C2D527F8700B4CC30 /* Models */,
+				5B87656D2D527F8700B4CC30 /* PresentationLayer */,
+				5B87656E2D527F9C00B4CC30 /* Frameworks */,
 				5B8765182D52539D00B4CC30 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +123,13 @@
 				5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5B87656E2D527F9C00B4CC30 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,6 +154,10 @@
 			);
 			name = Authenticator;
 			packageProductDependencies = (
+				5B87656F2D527F9C00B4CC30 /* DataLayer */,
+				5B8765712D527F9C00B4CC30 /* DomainLayer */,
+				5B8765732D527F9C00B4CC30 /* Models */,
+				5B8765752D527F9C00B4CC30 /* PresentationLayer */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -651,6 +682,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5B87656F2D527F9C00B4CC30 /* DataLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DataLayer;
+		};
+		5B8765712D527F9C00B4CC30 /* DomainLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DomainLayer;
+		};
+		5B8765732D527F9C00B4CC30 /* Models */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Models;
+		};
+		5B8765752D527F9C00B4CC30 /* PresentationLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresentationLayer;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B87650F2D52539D00B4CC30 /* Project object */;
 }
