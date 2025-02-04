@@ -5,14 +5,14 @@
 //  Created by martin on 04/02/2025.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct AuthenticatorApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Item.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

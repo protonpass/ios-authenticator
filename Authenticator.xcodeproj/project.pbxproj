@@ -33,7 +33,7 @@
 		5B87653D2D52539E00B4CC30 /* Exceptions for "Authenticator" folder in "Authenticator" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 5B8765162D52539D00B4CC30 /* Authenticator */;
 		};
@@ -112,9 +112,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5B87653E2D52539E00B4CC30 /* Build configuration list for PBXNativeTarget "Authenticator" */;
 			buildPhases = (
+				5B87655D2D527A0800B4CC30 /* Swiftformat */,
 				5B8765132D52539D00B4CC30 /* Sources */,
 				5B8765142D52539D00B4CC30 /* Frameworks */,
 				5B8765152D52539D00B4CC30 /* Resources */,
+				5B87655E2D527A4600B4CC30 /* Swiftlint */,
 			);
 			buildRules = (
 			);
@@ -244,6 +246,47 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		5B87655D2D527A0800B4CC30 /* Swiftformat */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftformat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "scripts/public/swiftformat.sh\n\n";
+		};
+		5B87655E2D527A4600B4CC30 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "scripts/public/swiftlint.sh\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5B8765132D52539D00B4CC30 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -287,15 +330,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Authenticator/Authenticator.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Authenticator/Info.plist;
+				INFOPLIST_FILE = Authenticator/App/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -327,15 +371,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Authenticator/Authenticator.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Authenticator/Info.plist;
+				INFOPLIST_FILE = Authenticator/App/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
