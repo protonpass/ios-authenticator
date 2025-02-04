@@ -1,0 +1,77 @@
+# ==================================================================
+# Xcode
+# ==================================================================
+
+# Build generated files
+build/
+DerivedData/
+*.hmap
+*.ipa
+
+# Xcode specific user settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Xcode workspace user data (workspace settings, window layouts, etc.)
+xcuserdata/
+*.xcuserstate
+
+# Xcode scheme files (if you want to share schemes, check in only the shared ones)
+*.xcscheme
+
+# Miscellaneous Xcode files
+*.moved-aside
+*.xcscmblueprint
+
+# ==================================================================
+# Dependency Managers
+# ==================================================================
+
+## Swift Package Manager
+.build/
+# Uncomment if you want to ignore Package.resolved (recommended for libraries, not apps)
+# Package.resolved
+
+# ==================================================================
+# Fastlane
+# ==================================================================
+
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# ==================================================================
+# Bundler
+# ==================================================================
+
+.bundle
+
+# ==================================================================
+# System Files
+# ==================================================================
+
+# macOS Finder metadata
+.DS_Store
+
+# Other temporary files
+*.swp
+*.tmp
+
+
+
+### Xcode Patch ###
+#*.xcodeproj/*
+#!*.xcodeproj/project.pbxproj
+#!*.xcodeproj/xcshareddata/
+#!*.xcworkspace/contents.xcworkspacedata
+#/*.gcno
+# End of https://www.gitignore.io/api/xcode,osx
+
+#tmp/
+#LocalPackages/PassRustCore
