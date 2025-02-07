@@ -1,0 +1,4 @@
+module RustFrameworkFFI {
+    header "RustFrameworkFFI.h"
+    export *
+}
