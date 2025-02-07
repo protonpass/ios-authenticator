@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 5B387F7B2D54CFD1006E0312 /* Factory */; };
 		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
 		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
@@ -31,6 +32,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5B387F7F2D550B1D006E0312 /* PassRustCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PassRustCore; path = LocalPackages/PassRustCore; sourceTree = "<group>"; };
+		5B5E0C5C2D5612D400E7BCD4 /* Macro */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Macro; path = LocalPackages/Macro; sourceTree = "<group>"; };
 		5B8765172D52539D00B4CC30 /* Authenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Authenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B87652B2D52539E00B4CC30 /* AuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,6 +80,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B8765742D527F9C00B4CC30 /* Models in Frameworks */,
+				5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */,
 				5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */,
 				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
 				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
@@ -110,6 +114,8 @@
 				5B87656B2D527F8700B4CC30 /* DomainLayer */,
 				5B87656C2D527F8700B4CC30 /* Models */,
 				5B87656D2D527F8700B4CC30 /* PresentationLayer */,
+				5B387F7F2D550B1D006E0312 /* PassRustCore */,
+				5B5E0C5C2D5612D400E7BCD4 /* Macro */,
 				5B87656E2D527F9C00B4CC30 /* Frameworks */,
 				5B8765182D52539D00B4CC30 /* Products */,
 			);
@@ -158,6 +164,7 @@
 				5B8765712D527F9C00B4CC30 /* DomainLayer */,
 				5B8765732D527F9C00B4CC30 /* Models */,
 				5B8765752D527F9C00B4CC30 /* PresentationLayer */,
+				5B387F7B2D54CFD1006E0312 /* Factory */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -238,9 +245,13 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 5B87650E2D52539D00B4CC30;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B8765182D52539D00B4CC30 /* Products */;
 			projectDirPath = "";
@@ -495,6 +506,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 			};
@@ -550,6 +562,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
@@ -685,7 +698,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		5B387F7B2D54CFD1006E0312 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
 		5B87656F2D527F9C00B4CC30 /* DataLayer */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DataLayer;
