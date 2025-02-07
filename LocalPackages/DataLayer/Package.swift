@@ -20,11 +20,20 @@ let package = Package(
             name: "DataLayer",
             targets: ["DataLayer"]),
     ],
+    dependencies: [
+        // Dependencies declare other packages that this package depends on.
+        .package(name: "Models", path: "../Models"),
+        .package(name: "DomainLayer", path: "../DomainLayer"),
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "DataLayer"),
+            name: "DataLayer",
+            dependencies: [
+                .product(name: "Models", package: "Models"),
+                .product(name: "DomainProtocols", package: "DomainLayer"),
+            ]),
         .testTarget(
             name: "DataLayerTests",
             dependencies: ["DataLayer"]
