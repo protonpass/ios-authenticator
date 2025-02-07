@@ -10,9 +10,9 @@ SCRIPT_DIR="$(dirname "$0")"
 source "${SCRIPT_DIR}/../../.rust-package"
 
 TMP_DIR_PATH="${SCRIPT_DIR}/../../tmp"
-LOCAL_PACKAGE_PATH="$SCRIPT_DIR/../../LocalPackages/PassRustCore"
+LOCAL_PACKAGE_PATH="$SCRIPT_DIR/../../LocalPackages/AuthenticatorRustCore"
 
-URL="https://github.com/protonpass/proton-pass-common/releases/download/${VERSION}/PassRustCode.swift.zip"
+URL="https://github.com/protonpass/proton-pass-common/releases/download/${VERSION}/AuthenticatorRustCode.swift.zip"
 
 if ! command -v wget &> /dev/null; then
     echo "wget is not installed, installing via Homebrew"
@@ -31,7 +31,7 @@ if [ -e "$LOCAL_VERSION_PATH" ]; then
         echo "Not matched local Rust package version $LOCAL_VERSION, getting the right one $VERSION."
     fi
 else
-    echo "No local package found. Downdoading Rust package version $VERSION..."
+    echo "No local package found. Downloading Rust package version $VERSION..."
 fi
 
 echo "Creating tmp directory if not exist"
@@ -40,7 +40,7 @@ mkdir -p $TMP_DIR_PATH
 echo -e "Downloading artifact\n"
 wget -N -P $TMP_DIR_PATH $URL
 
-ARTIFACT_PATH="${TMP_DIR_PATH}/PassRustCode.swift.zip"
+ARTIFACT_PATH="${TMP_DIR_PATH}/AuthenticatorRustCode.swift.zip"
 
 echo "Checksum verification for artifact"
 echo -n "${HASH}  ${ARTIFACT_PATH}" | shasum -a 256 -c
@@ -51,7 +51,7 @@ unzip -o $ARTIFACT_PATH -d $TMP_DIR_PATH
 rm -rf $LOCAL_PACKAGE_PATH
 mkdir $LOCAL_PACKAGE_PATH
 
-UNZIPPED_PACKAGE_PATH="${TMP_DIR_PATH}/builds/proton/clients/pass/proton-pass-common/proton-pass-mobile/iOS/PassRustCore/*"
+UNZIPPED_PACKAGE_PATH="${TMP_DIR_PATH}/builds/proton/clients/pass/proton-pass-common/proton-authenticator-mobile/iOS/AuthenticatorRustCore/*"
 
 echo -e "\nCopying unzipped package to local package directory"
 mv -f $UNZIPPED_PACKAGE_PATH $LOCAL_PACKAGE_PATH

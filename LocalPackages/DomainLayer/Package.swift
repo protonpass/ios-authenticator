@@ -3,8 +3,17 @@
 
 import PackageDescription
 
+var platforms: [SupportedPlatform] = [
+    .macOS(.v14),
+    .iOS(.v18),
+    .tvOS(.v16),
+    .watchOS(.v8),
+    .visionOS(.v2)
+]
+
 let package = Package(
     name: "DomainLayer",
+    platforms: platforms,
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
