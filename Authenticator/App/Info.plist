@@ -2,6 +2,34 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APP_VERSION_IDENTIFIER =
+	<string>$(APP_VERSION_IDENTIFIER =
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>me.proton.authenticator</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>otpauth</string>
+			</array>
+		</dict>
+	</array>
+	<key>IS_BETA_BUILD =
+	<string>$(IS_BETA_BUILD =
+	<key>IS_QA_BUILD =
+	<string>$(IS_QA_BUILD =
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict/>
+			<key>NSSendTypes</key>
+			<array/>
+		</dict>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
