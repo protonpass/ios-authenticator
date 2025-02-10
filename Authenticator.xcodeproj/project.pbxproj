@@ -10,6 +10,8 @@
 		5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 5B387F7B2D54CFD1006E0312 /* Factory */; };
 		5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C982D5618E500E7BCD4 /* Macro */; };
 		5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */; };
+		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
+		5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */; };
 		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
 		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
@@ -82,8 +84,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B8765742D527F9C00B4CC30 /* Models in Frameworks */,
+				5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */,
 				5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */,
 				5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */,
+				5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */,
 				5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */,
 				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
 				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
@@ -171,6 +175,8 @@
 				5B387F7B2D54CFD1006E0312 /* Factory */,
 				5B5E0C982D5618E500E7BCD4 /* Macro */,
 				5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */,
+				5B5E0D542D5A332D00E7BCD4 /* Sentry */,
+				5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -257,6 +263,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */,
+				5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B8765182D52539D00B4CC30 /* Products */;
@@ -870,6 +877,14 @@
 				minimumVersion = 2.4.3;
 			};
 		};
+		5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.44.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -885,6 +900,16 @@
 		5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AuthenticatorRustCore;
+		};
+		5B5E0D542D5A332D00E7BCD4 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+		5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = SentrySwiftUI;
 		};
 		5B87656F2D527F9C00B4CC30 /* DataLayer */ = {
 			isa = XCSwiftPackageProductDependency;

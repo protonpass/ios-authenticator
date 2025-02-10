@@ -24,6 +24,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(name: "Models", path: "../Models"),
         .package(name: "DomainLayer", path: "../DomainLayer"),
+        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", .upToNextMajor(from: "4.2.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -33,6 +34,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Models", package: "Models"),
                 .product(name: "DomainProtocols", package: "DomainLayer"),
+                .product(name: "KeychainAccess", package: "KeychainAccess"),
             ]),
         .testTarget(
             name: "DataLayerTests",
