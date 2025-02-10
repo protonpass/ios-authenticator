@@ -11,7 +11,7 @@ import Foundation
 import RustFrameworkFFI
 #endif
 
-private extension RustBuffer {
+fileprivate extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
@@ -21,14 +21,11 @@ private extension RustBuffer {
     }
 
     static func empty() -> RustBuffer {
-        RustBuffer(capacity: 0, len: 0, data: nil)
+        RustBuffer(capacity: 0, len:0, data: nil)
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall {
-            ffi_proton_authenticator_common_mobile_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr),
-                                                                         $0)
-        }
+        try! rustCall { ffi_proton_authenticator_common_mobile_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
@@ -38,7 +35,7 @@ private extension RustBuffer {
     }
 }
 
-private extension ForeignBytes {
+fileprivate extension ForeignBytes {
     init(bufferPointer: UnsafeBufferPointer<UInt8>) {
         self.init(len: Int32(bufferPointer.count), data: bufferPointer.baseAddress)
     }
@@ -51,11 +48,13 @@ private extension ForeignBytes {
 // Helper classes/extensions that don't change.
 // Someday, this will be in a library of its own.
 
-private extension Data {
+fileprivate extension Data {
     init(rustBuffer: RustBuffer) {
-        self.init(bytesNoCopy: rustBuffer.data!,
-                  count: Int(rustBuffer.len),
-                  deallocator: .none)
+        self.init(
+            bytesNoCopy: rustBuffer.data!,
+            count: Int(rustBuffer.len),
+            deallocator: .none
+        )
     }
 }
 
@@ -73,14 +72,14 @@ private extension Data {
 //
 // Instead, the read() method and these helper functions input a tuple of data
 
-private func createReader(data: Data) -> (data: Data, offset: Data.Index) {
+fileprivate func createReader(data: Data) -> (data: Data, offset: Data.Index) {
     (data: data, offset: 0)
 }
 
 // Reads an integer at the current offset, in big-endian order, and advances
 // the offset on success. Throws if reading the integer would move the
 // offset past the end of the buffer.
-private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
+fileprivate func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
     let range = reader.offset..<reader.offset + MemoryLayout<T>.size
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
@@ -91,50 +90,50 @@ private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: 
         return value as! T
     }
     var value: T = 0
-    let _ = withUnsafeMutableBytes(of: &value) { reader.data.copyBytes(to: $0, from: range) }
+    let _ = withUnsafeMutableBytes(of: &value, { reader.data.copyBytes(to: $0, from: range)})
     reader.offset = range.upperBound
     return value.bigEndian
 }
 
 // Reads an arbitrary number of bytes, to be used to read
 // raw bytes, this is useful when lifting strings
-private func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> [UInt8] {
-    let range = reader.offset..<(reader.offset + count)
+fileprivate func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> Array<UInt8> {
+    let range = reader.offset..<(reader.offset+count)
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
     }
     var value = [UInt8](repeating: 0, count: count)
-    value.withUnsafeMutableBufferPointer { buffer in
+    value.withUnsafeMutableBufferPointer({ buffer in
         reader.data.copyBytes(to: buffer, from: range)
-    }
+    })
     reader.offset = range.upperBound
     return value
 }
 
 // Reads a float at the current offset.
-private func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
-    try Float(bitPattern: readInt(&reader))
+fileprivate func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
+    return Float(bitPattern: try readInt(&reader))
 }
 
 // Reads a float at the current offset.
-private func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
-    try Double(bitPattern: readInt(&reader))
+fileprivate func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
+    return Double(bitPattern: try readInt(&reader))
 }
 
 // Indicates if the offset has reached the end of the buffer.
-private func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
-    reader.offset < reader.data.count
+fileprivate func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
+    return reader.offset < reader.data.count
 }
 
 // Define writer functionality.  Normally this would be defined in a class or
 // struct, but we use standalone functions instead in order to make external
 // types work.  See the above discussion on Readers for details.
 
-private func createWriter() -> [UInt8] {
-    []
+fileprivate func createWriter() -> [UInt8] {
+    return []
 }
 
-private func writeBytes(_ writer: inout [UInt8], _ byteArr: some Sequence<UInt8>) {
+fileprivate func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Sequence, S.Element == UInt8 {
     writer.append(contentsOf: byteArr)
 }
 
@@ -142,22 +141,22 @@ private func writeBytes(_ writer: inout [UInt8], _ byteArr: some Sequence<UInt8>
 //
 // Warning: make sure what you are trying to write
 // is in the correct type!
-private func writeInt(_ writer: inout [UInt8], _ value: some FixedWidthInteger) {
+fileprivate func writeInt<T: FixedWidthInteger>(_ writer: inout [UInt8], _ value: T) {
     var value = value.bigEndian
     withUnsafeBytes(of: &value) { writer.append(contentsOf: $0) }
 }
 
-private func writeFloat(_ writer: inout [UInt8], _ value: Float) {
+fileprivate func writeFloat(_ writer: inout [UInt8], _ value: Float) {
     writeInt(&writer, value.bitPattern)
 }
 
-private func writeDouble(_ writer: inout [UInt8], _ value: Double) {
+fileprivate func writeDouble(_ writer: inout [UInt8], _ value: Double) {
     writeInt(&writer, value.bitPattern)
 }
 
 // Protocol for types that transfer other types across the FFI. This is
 // analogous to the Rust trait of the same name.
-private protocol FfiConverter {
+fileprivate protocol FfiConverter {
     associatedtype FfiType
     associatedtype SwiftType
 
@@ -168,32 +167,32 @@ private protocol FfiConverter {
 }
 
 // Types conforming to `Primitive` pass themselves directly over the FFI.
-private protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType {}
+fileprivate protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType { }
 
 extension FfiConverterPrimitive {
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public static func lift(_ value: FfiType) throws -> SwiftType {
-        value
+        return value
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public static func lower(_ value: SwiftType) -> FfiType {
-        value
+        return value
     }
 }
 
 // Types conforming to `FfiConverterRustBuffer` lift and lower into a `RustBuffer`.
 // Used for complex types where it's hard to write a custom lift/lower.
-private protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
+fileprivate protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
 
 extension FfiConverterRustBuffer {
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public static func lift(_ buf: RustBuffer) throws -> SwiftType {
         var reader = createReader(data: Data(rustBuffer: buf))
         let value = try read(from: &reader)
@@ -204,19 +203,18 @@ extension FfiConverterRustBuffer {
         return value
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public static func lower(_ value: SwiftType) -> RustBuffer {
-        var writer = createWriter()
-        write(value, into: &writer)
-        return RustBuffer(bytes: writer)
+          var writer = createWriter()
+          write(value, into: &writer)
+          return RustBuffer(bytes: writer)
     }
 }
-
 // An error type for FFI errors. These errors occur at the UniFFI level, not
 // the library level.
-private enum UniffiInternalError: LocalizedError {
+fileprivate enum UniffiInternalError: LocalizedError {
     case bufferOverflow
     case incompleteData
     case unexpectedOptionalTag
@@ -229,38 +227,42 @@ private enum UniffiInternalError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .bufferOverflow: "Reading the requested value would read past the end of the buffer"
-        case .incompleteData: "The buffer still has data after lifting its containing value"
-        case .unexpectedOptionalTag: "Unexpected optional tag; should be 0 or 1"
-        case .unexpectedEnumCase: "Raw enum value doesn't match any cases"
-        case .unexpectedNullPointer: "Raw pointer value was null"
-        case .unexpectedRustCallStatusCode: "Unexpected RustCallStatus code"
-        case .unexpectedRustCallError: "CALL_ERROR but no errorClass specified"
-        case .unexpectedStaleHandle: "The object in the handle map has been dropped already"
-        case let .rustPanic(message): message
+        case .bufferOverflow: return "Reading the requested value would read past the end of the buffer"
+        case .incompleteData: return "The buffer still has data after lifting its containing value"
+        case .unexpectedOptionalTag: return "Unexpected optional tag; should be 0 or 1"
+        case .unexpectedEnumCase: return "Raw enum value doesn't match any cases"
+        case .unexpectedNullPointer: return "Raw pointer value was null"
+        case .unexpectedRustCallStatusCode: return "Unexpected RustCallStatus code"
+        case .unexpectedRustCallError: return "CALL_ERROR but no errorClass specified"
+        case .unexpectedStaleHandle: return "The object in the handle map has been dropped already"
+        case let .rustPanic(message): return message
         }
     }
 }
 
-private extension NSLock {
+fileprivate extension NSLock {
     func withLock<T>(f: () throws -> T) rethrows -> T {
-        lock()
+        self.lock()
         defer { self.unlock() }
         return try f()
     }
 }
 
-private let CALL_SUCCESS: Int8 = 0
-private let CALL_ERROR: Int8 = 1
-private let CALL_UNEXPECTED_ERROR: Int8 = 2
-private let CALL_CANCELLED: Int8 = 3
+fileprivate let CALL_SUCCESS: Int8 = 0
+fileprivate let CALL_ERROR: Int8 = 1
+fileprivate let CALL_UNEXPECTED_ERROR: Int8 = 2
+fileprivate let CALL_CANCELLED: Int8 = 3
 
-private extension RustCallStatus {
+fileprivate extension RustCallStatus {
     init() {
-        self.init(code: CALL_SUCCESS,
-                  errorBuf: RustBuffer(capacity: 0,
-                                       len: 0,
-                                       data: nil))
+        self.init(
+            code: CALL_SUCCESS,
+            errorBuf: RustBuffer.init(
+                capacity: 0,
+                len: 0,
+                data: nil
+            )
+        )
     }
 }
 
@@ -269,68 +271,77 @@ private func rustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) -> T
     return try makeRustCall(callback, errorHandler: neverThrow)
 }
 
-private func rustCallWithError<T>(_ errorHandler: @escaping (RustBuffer) throws -> some Swift.Error,
-                                  _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T) throws -> T {
+private func rustCallWithError<T, E: Swift.Error>(
+    _ errorHandler: @escaping (RustBuffer) throws -> E,
+    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T) throws -> T {
     try makeRustCall(callback, errorHandler: errorHandler)
 }
 
-private func makeRustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) -> T,
-                             errorHandler: ((RustBuffer) throws -> some Swift.Error)?) throws -> T {
-    uniffiEnsureInitialized()
-    var callStatus = RustCallStatus()
+private func makeRustCall<T, E: Swift.Error>(
+    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T,
+    errorHandler: ((RustBuffer) throws -> E)?
+) throws -> T {
+    uniffiEnsureProtonAuthenticatorCommonMobileInitialized()
+    var callStatus = RustCallStatus.init()
     let returnedVal = callback(&callStatus)
     try uniffiCheckCallStatus(callStatus: callStatus, errorHandler: errorHandler)
     return returnedVal
 }
 
-private func uniffiCheckCallStatus(callStatus: RustCallStatus,
-                                   errorHandler: ((RustBuffer) throws -> some Swift.Error)?) throws {
+private func uniffiCheckCallStatus<E: Swift.Error>(
+    callStatus: RustCallStatus,
+    errorHandler: ((RustBuffer) throws -> E)?
+) throws {
     switch callStatus.code {
-    case CALL_SUCCESS:
-        return
+        case CALL_SUCCESS:
+            return
 
-    case CALL_ERROR:
-        if let errorHandler {
-            throw try errorHandler(callStatus.errorBuf)
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.unexpectedRustCallError
-        }
+        case CALL_ERROR:
+            if let errorHandler = errorHandler {
+                throw try errorHandler(callStatus.errorBuf)
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.unexpectedRustCallError
+            }
 
-    case CALL_UNEXPECTED_ERROR:
-        // When the rust code sees a panic, it tries to construct a RustBuffer
-        // with the message.  But if that code panics, then it just sends back
-        // an empty buffer.
-        if callStatus.errorBuf.len > 0 {
-            throw try UniffiInternalError.rustPanic(FfiConverterString.lift(callStatus.errorBuf))
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.rustPanic("Rust panic")
-        }
+        case CALL_UNEXPECTED_ERROR:
+            // When the rust code sees a panic, it tries to construct a RustBuffer
+            // with the message.  But if that code panics, then it just sends back
+            // an empty buffer.
+            if callStatus.errorBuf.len > 0 {
+                throw UniffiInternalError.rustPanic(try FfiConverterString.lift(callStatus.errorBuf))
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.rustPanic("Rust panic")
+            }
 
-    case CALL_CANCELLED:
-        fatalError("Cancellation not supported yet")
+        case CALL_CANCELLED:
+            fatalError("Cancellation not supported yet")
 
-    default:
-        throw UniffiInternalError.unexpectedRustCallStatusCode
+        default:
+            throw UniffiInternalError.unexpectedRustCallStatusCode
     }
 }
 
-private func uniffiTraitInterfaceCall<T>(callStatus: UnsafeMutablePointer<RustCallStatus>,
-                                         makeCall: () throws -> T,
-                                         writeReturn: (T) -> Void) {
+private func uniffiTraitInterfaceCall<T>(
+    callStatus: UnsafeMutablePointer<RustCallStatus>,
+    makeCall: () throws -> T,
+    writeReturn: (T) -> ()
+) {
     do {
         try writeReturn(makeCall())
-    } catch {
+    } catch let error {
         callStatus.pointee.code = CALL_UNEXPECTED_ERROR
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
 
-private func uniffiTraitInterfaceCallWithError<T, E>(callStatus: UnsafeMutablePointer<RustCallStatus>,
-                                                     makeCall: () throws -> T,
-                                                     writeReturn: (T) -> Void,
-                                                     lowerError: (E) -> RustBuffer) {
+private func uniffiTraitInterfaceCallWithError<T, E>(
+    callStatus: UnsafeMutablePointer<RustCallStatus>,
+    makeCall: () throws -> T,
+    writeReturn: (T) -> (),
+    lowerError: (E) -> RustBuffer
+) {
     do {
         try writeReturn(makeCall())
     } catch let error as E {
@@ -341,10 +352,10 @@ private func uniffiTraitInterfaceCallWithError<T, E>(callStatus: UnsafeMutablePo
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
-
-private class UniffiHandleMap<T> {
-    private var map: [UInt64: T] = [:]
+fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
+    // All mutation happens with this lock held, which is why we implement @unchecked Sendable.
     private let lock = NSLock()
+    private var map: [UInt64: T] = [:]
     private var currentHandle: UInt64 = 1
 
     func insert(obj: T) -> UInt64 {
@@ -356,7 +367,7 @@ private class UniffiHandleMap<T> {
         }
     }
 
-    func get(handle: UInt64) throws -> T {
+     func get(handle: UInt64) throws -> T {
         try lock.withLock {
             guard let obj = map[handle] else {
                 throw UniffiInternalError.unexpectedStaleHandle
@@ -376,21 +387,25 @@ private class UniffiHandleMap<T> {
     }
 
     var count: Int {
-        map.count
+        get {
+            map.count
+        }
     }
 }
 
+
 // Public interface members begin here.
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterUInt8: FfiConverterPrimitive {
+fileprivate struct FfiConverterUInt8: FfiConverterPrimitive {
     typealias FfiType = UInt8
     typealias SwiftType = UInt8
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt8 {
-        try lift(readInt(&buf))
+        return try lift(readInt(&buf))
     }
 
     public static func write(_ value: UInt8, into buf: inout [UInt8]) {
@@ -401,12 +416,12 @@ private struct FfiConverterUInt8: FfiConverterPrimitive {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterUInt16: FfiConverterPrimitive {
+fileprivate struct FfiConverterUInt16: FfiConverterPrimitive {
     typealias FfiType = UInt16
     typealias SwiftType = UInt16
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt16 {
-        try lift(readInt(&buf))
+        return try lift(readInt(&buf))
     }
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -417,12 +432,12 @@ private struct FfiConverterUInt16: FfiConverterPrimitive {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterUInt64: FfiConverterPrimitive {
+fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
     typealias FfiType = UInt64
     typealias SwiftType = UInt64
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt64 {
-        try lift(readInt(&buf))
+        return try lift(readInt(&buf))
     }
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -433,7 +448,7 @@ private struct FfiConverterUInt64: FfiConverterPrimitive {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterString: FfiConverter {
+fileprivate struct FfiConverterString: FfiConverter {
     typealias SwiftType = String
     typealias FfiType = RustBuffer
 
@@ -449,7 +464,7 @@ private struct FfiConverterString: FfiConverter {
     }
 
     public static func lower(_ value: String) -> RustBuffer {
-        value.utf8CString.withUnsafeBufferPointer { ptr in
+        return value.utf8CString.withUnsafeBufferPointer { ptr in
             // The swift string gives us int8_t, we want uint8_t.
             ptr.withMemoryRebound(to: UInt8.self) { ptr in
                 // The swift string gives us a trailing null byte, we don't want it.
@@ -461,7 +476,7 @@ private struct FfiConverterString: FfiConverter {
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> String {
         let len: Int32 = try readInt(&buf)
-        return try String(bytes: readBytes(&buf, count: Int(len)), encoding: String.Encoding.utf8)!
+        return String(bytes: try readBytes(&buf, count: Int(len)), encoding: String.Encoding.utf8)!
     }
 
     public static func write(_ value: String, into buf: inout [UInt8]) {
@@ -474,12 +489,12 @@ private struct FfiConverterString: FfiConverter {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterData: FfiConverterRustBuffer {
+fileprivate struct FfiConverterData: FfiConverterRustBuffer {
     typealias SwiftType = Data
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Data {
         let len: Int32 = try readInt(&buf)
-        return try Data(readBytes(&buf, count: Int(len)))
+        return Data(try readBytes(&buf, count: Int(len)))
     }
 
     public static func write(_ value: Data, into buf: inout [UInt8]) {
@@ -489,22 +504,29 @@ private struct FfiConverterData: FfiConverterRustBuffer {
     }
 }
 
-public protocol AuthenticatorEntryActionsProtocol: AnyObject {
-    func entryType() -> String
 
-    func generateCode(time: UInt64) throws -> AuthenticatorCodeResponse
 
-    func serialize() throws -> Data
+
+public protocol AuthenticatorCryptoProtocol: AnyObject {
+    
+    func decryptEntry(ciphertext: Data, key: Data) throws  -> AuthenticatorEntryModel
+    
+    func decryptManyEntries(ciphertexts: [Data], key: Data) throws  -> [AuthenticatorEntryModel]
+    
+    func encryptEntry(model: AuthenticatorEntryModel, key: Data) throws  -> Data
+    
+    func encryptManyEntries(models: [AuthenticatorEntryModel], key: Data) throws  -> [Data]
+    
+    func generateKey()  -> Data
+    
 }
-
-open class AuthenticatorEntryActions:
-    AuthenticatorEntryActionsProtocol {
+open class AuthenticatorCrypto: AuthenticatorCryptoProtocol, @unchecked Sendable {
     fileprivate let pointer: UnsafeMutableRawPointer!
 
     /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public struct NoPointer {
         public init() {}
     }
@@ -512,134 +534,161 @@ open class AuthenticatorEntryActions:
     // TODO: We'd like this to be `private` but for Swifty reasons,
     // we can't implement `FfiConverter` without making this `required` and we can't
     // make it `required` without making it `public`.
-    public required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
 
     // This constructor can be used to instantiate a fake object.
-    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one
-    // that may be implemented for classes extending [FFIObject].
+    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
     //
     // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since
-    //     there isn't a backing [Pointer] the FFI lower functions will crash.
-    #if swift(>=5.8)
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
-    public init(noPointer _: NoPointer) {
-        pointer = nil
+#endif
+    public init(noPointer: NoPointer) {
+        self.pointer = nil
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public func uniffiClonePointer() -> UnsafeMutableRawPointer {
-        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorentryactions(self.pointer,
-                                                                                                     $0) }
+        return try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorcrypto(self.pointer, $0) }
     }
-
-    // No primary constructor declared for this class.
+public convenience init() {
+    let pointer =
+        try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_constructor_authenticatorcrypto_new($0
+    )
+}
+    self.init(unsafeFromRawPointer: pointer)
+}
 
     deinit {
-        guard let pointer else {
+        guard let pointer = pointer else {
             return
         }
 
-        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_free_authenticatorentryactions(pointer, $0) }
+        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_free_authenticatorcrypto(pointer, $0) }
     }
 
-    open func entryType() -> String {
-        try! FfiConverterString.lift(try! rustCall {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatorentryactions_entry_type(self
-                .uniffiClonePointer(),
-                $0)
-        })
-    }
+    
 
-    open func generateCode(time: UInt64) throws -> AuthenticatorCodeResponse {
-        try FfiConverterTypeAuthenticatorCodeResponse
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorentryactions_generate_code(self
-                    .uniffiClonePointer(),
-                    FfiConverterUInt64
-                        .lower(time),
-                    $0)
-            })
-    }
-
-    open func serialize() throws -> Data {
-        try FfiConverterData.lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatorentryactions_serialize(self
-                .uniffiClonePointer(),
-                $0)
-        })
-    }
+    
+open func decryptEntry(ciphertext: Data, key: Data)throws  -> AuthenticatorEntryModel  {
+    return try  FfiConverterTypeAuthenticatorEntryModel_lift(try rustCallWithError(FfiConverterTypeAuthenticatorCryptoError_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorcrypto_decrypt_entry(self.uniffiClonePointer(),
+        FfiConverterData.lower(ciphertext),
+        FfiConverterData.lower(key),$0
+    )
+})
 }
+    
+open func decryptManyEntries(ciphertexts: [Data], key: Data)throws  -> [AuthenticatorEntryModel]  {
+    return try  FfiConverterSequenceTypeAuthenticatorEntryModel.lift(try rustCallWithError(FfiConverterTypeAuthenticatorCryptoError_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorcrypto_decrypt_many_entries(self.uniffiClonePointer(),
+        FfiConverterSequenceData.lower(ciphertexts),
+        FfiConverterData.lower(key),$0
+    )
+})
+}
+    
+open func encryptEntry(model: AuthenticatorEntryModel, key: Data)throws  -> Data  {
+    return try  FfiConverterData.lift(try rustCallWithError(FfiConverterTypeAuthenticatorCryptoError_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorcrypto_encrypt_entry(self.uniffiClonePointer(),
+        FfiConverterTypeAuthenticatorEntryModel_lower(model),
+        FfiConverterData.lower(key),$0
+    )
+})
+}
+    
+open func encryptManyEntries(models: [AuthenticatorEntryModel], key: Data)throws  -> [Data]  {
+    return try  FfiConverterSequenceData.lift(try rustCallWithError(FfiConverterTypeAuthenticatorCryptoError_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorcrypto_encrypt_many_entries(self.uniffiClonePointer(),
+        FfiConverterSequenceTypeAuthenticatorEntryModel.lower(models),
+        FfiConverterData.lower(key),$0
+    )
+})
+}
+    
+open func generateKey() -> Data  {
+    return try!  FfiConverterData.lift(try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorcrypto_generate_key(self.uniffiClonePointer(),$0
+    )
+})
+}
+    
+
+}
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public struct FfiConverterTypeAuthenticatorEntryActions: FfiConverter {
+public struct FfiConverterTypeAuthenticatorCrypto: FfiConverter {
+
     typealias FfiType = UnsafeMutableRawPointer
-    typealias SwiftType = AuthenticatorEntryActions
+    typealias SwiftType = AuthenticatorCrypto
 
-    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorEntryActions {
-        AuthenticatorEntryActions(unsafeFromRawPointer: pointer)
+    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorCrypto {
+        return AuthenticatorCrypto(unsafeFromRawPointer: pointer)
     }
 
-    public static func lower(_ value: AuthenticatorEntryActions) -> UnsafeMutableRawPointer {
-        value.uniffiClonePointer()
+    public static func lower(_ value: AuthenticatorCrypto) -> UnsafeMutableRawPointer {
+        return value.uniffiClonePointer()
     }
 
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorEntryActions {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorCrypto {
         let v: UInt64 = try readInt(&buf)
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
     }
 
-    public static func write(_ value: AuthenticatorEntryActions, into buf: inout [UInt8]) {
+    public static func write(_ value: AuthenticatorCrypto, into buf: inout [UInt8]) {
         // This fiddling is because `Int` is the thing that's the same size as a pointer.
         // The Rust code won't compile if a pointer won't fit in a `UInt64`.
         writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntryActions_lift(_ pointer: UnsafeMutableRawPointer) throws
-    -> AuthenticatorEntryActions {
-    try FfiConverterTypeAuthenticatorEntryActions.lift(pointer)
+public func FfiConverterTypeAuthenticatorCrypto_lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorCrypto {
+    return try FfiConverterTypeAuthenticatorCrypto.lift(pointer)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntryActions_lower(_ value: AuthenticatorEntryActions)
-    -> UnsafeMutableRawPointer {
-    FfiConverterTypeAuthenticatorEntryActions.lower(value)
+public func FfiConverterTypeAuthenticatorCrypto_lower(_ value: AuthenticatorCrypto) -> UnsafeMutableRawPointer {
+    return FfiConverterTypeAuthenticatorCrypto.lower(value)
 }
+
+
+
+
+
 
 public protocol AuthenticatorErrorProtocol: AnyObject {
-    func message() -> String
+    
+    func message()  -> String
+    
 }
-
-open class AuthenticatorError:
-    CustomDebugStringConvertible,
-    Swift.Error,
-
-    AuthenticatorErrorProtocol {
+open class AuthenticatorError: AuthenticatorErrorProtocol, @unchecked Sendable {
     fileprivate let pointer: UnsafeMutableRawPointer!
 
     /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public struct NoPointer {
         public init() {}
     }
@@ -647,71 +696,77 @@ open class AuthenticatorError:
     // TODO: We'd like this to be `private` but for Swifty reasons,
     // we can't implement `FfiConverter` without making this `required` and we can't
     // make it `required` without making it `public`.
-    public required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
 
     // This constructor can be used to instantiate a fake object.
-    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one
-    // that may be implemented for classes extending [FFIObject].
+    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
     //
     // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since
-    //     there isn't a backing [Pointer] the FFI lower functions will crash.
-    #if swift(>=5.8)
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
-    public init(noPointer _: NoPointer) {
-        pointer = nil
+#endif
+    public init(noPointer: NoPointer) {
+        self.pointer = nil
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public func uniffiClonePointer() -> UnsafeMutableRawPointer {
-        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorerror(self.pointer, $0) }
+        return try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorerror(self.pointer, $0) }
     }
-
     // No primary constructor declared for this class.
 
     deinit {
-        guard let pointer else {
+        guard let pointer = pointer else {
             return
         }
 
         try! rustCall { uniffi_proton_authenticator_common_mobile_fn_free_authenticatorerror(pointer, $0) }
     }
 
-    open func message() -> String {
-        try! FfiConverterString.lift(try! rustCall {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatorerror_message(self
-                .uniffiClonePointer(),
-                $0)
-        })
+    
+
+    
+open func message() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorerror_message(self.uniffiClonePointer(),$0
+    )
+})
+}
+    
+    open var debugDescription: String {
+        return try!  FfiConverterString.lift(
+            try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorerror_uniffi_trait_debug(self.uniffiClonePointer(),$0
+    )
+}
+        )
     }
 
-    open var debugDescription: String {
-        try! FfiConverterString.lift(try! rustCall {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatorerror_uniffi_trait_debug(self
-                .uniffiClonePointer(),
-                $0)
-        })
-    }
 }
+extension AuthenticatorError: CustomDebugStringConvertible {}
+extension AuthenticatorError: Swift.Error {}
+
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorError: FfiConverter {
+
     typealias FfiType = UnsafeMutableRawPointer
     typealias SwiftType = AuthenticatorError
 
     public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorError {
-        AuthenticatorError(unsafeFromRawPointer: pointer)
+        return AuthenticatorError(unsafeFromRawPointer: pointer)
     }
 
     public static func lower(_ value: AuthenticatorError) -> UnsafeMutableRawPointer {
-        value.uniffiClonePointer()
+        return value.uniffiClonePointer()
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorError {
@@ -719,7 +774,7 @@ public struct FfiConverterTypeAuthenticatorError: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -732,11 +787,31 @@ public struct FfiConverterTypeAuthenticatorError: FfiConverter {
     }
 }
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorError_lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorError {
+    return try FfiConverterTypeAuthenticatorError.lift(pointer)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorError_lower(_ value: AuthenticatorError) -> UnsafeMutableRawPointer {
+    return FfiConverterTypeAuthenticatorError.lower(value)
+}
+
+
+
+
 extension AuthenticatorError: Foundation.LocalizedError {
     public var errorDescription: String? {
         String(reflecting: self)
     }
 }
+
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
@@ -747,62 +822,65 @@ public struct FfiConverterTypeAuthenticatorError__as_error: FfiConverterRustBuff
         return try FfiConverterTypeAuthenticatorError.read(from: &reader)
     }
 
-    public static func lower(_: AuthenticatorError) -> RustBuffer {
+    public static func lower(_ value: AuthenticatorError) -> RustBuffer {
         fatalError("not implemented")
     }
 
-    public static func read(from _: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorError {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorError {
         fatalError("not implemented")
     }
 
-    public static func write(_: AuthenticatorError, into _: inout [UInt8]) {
+    public static func write(_ value: AuthenticatorError, into buf: inout [UInt8]) {
         fatalError("not implemented")
     }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorError__as_error_lift(_ buf: RustBuffer) throws -> AuthenticatorError {
+    return try FfiConverterTypeAuthenticatorError__as_error.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorError_lift(_ pointer: UnsafeMutableRawPointer) throws
-    -> AuthenticatorError {
-    try FfiConverterTypeAuthenticatorError.lift(pointer)
+public func FfiConverterTypeAuthenticatorError__as_error_lower(_ value: AuthenticatorError) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorError__as_error.lower(value)
 }
 
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeAuthenticatorError_lower(_ value: AuthenticatorError) -> UnsafeMutableRawPointer {
-    FfiConverterTypeAuthenticatorError.lower(value)
-}
+
+
 
 public protocol AuthenticatorImporterProtocol: AnyObject {
-    func importFrom2fas(contents: String, password: String?) throws -> AuthenticatorImportResult
-
-    func importFromAegisJson(contents: String, password: String?) throws -> AuthenticatorImportResult
-
-    func importFromAegisTxt(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromBitwardenCsv(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromBitwardenJson(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromEnteTxt(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromGoogleQr(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromLastpassJson(contents: String) throws -> AuthenticatorImportResult
-
-    func importFromProtonAuthenticator(contents: String) throws -> AuthenticatorImportResult
+    
+    func importFrom2fas(contents: String, password: String?) throws  -> AuthenticatorImportResult
+    
+    func importFromAegisJson(contents: String, password: String?) throws  -> AuthenticatorImportResult
+    
+    func importFromAegisTxt(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromBitwardenCsv(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromBitwardenJson(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromEnteTxt(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromGoogleQr(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromLastpassJson(contents: String) throws  -> AuthenticatorImportResult
+    
+    func importFromProtonAuthenticator(contents: String) throws  -> AuthenticatorImportResult
+    
 }
-
-open class AuthenticatorImporter:
-    AuthenticatorImporterProtocol {
+open class AuthenticatorImporter: AuthenticatorImporterProtocol, @unchecked Sendable {
     fileprivate let pointer: UnsafeMutableRawPointer!
 
     /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public struct NoPointer {
         public init() {}
     }
@@ -810,165 +888,140 @@ open class AuthenticatorImporter:
     // TODO: We'd like this to be `private` but for Swifty reasons,
     // we can't implement `FfiConverter` without making this `required` and we can't
     // make it `required` without making it `public`.
-    public required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
 
     // This constructor can be used to instantiate a fake object.
-    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one
-    // that may be implemented for classes extending [FFIObject].
+    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
     //
     // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since
-    //     there isn't a backing [Pointer] the FFI lower functions will crash.
-    #if swift(>=5.8)
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
-    public init(noPointer _: NoPointer) {
-        pointer = nil
+#endif
+    public init(noPointer: NoPointer) {
+        self.pointer = nil
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public func uniffiClonePointer() -> UnsafeMutableRawPointer {
-        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorimporter(self.pointer, $0)
-        }
+        return try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatorimporter(self.pointer, $0) }
     }
-
-    public convenience init() {
-        let pointer =
-            try! rustCall {
-                uniffi_proton_authenticator_common_mobile_fn_constructor_authenticatorimporter_new($0)
-            }
-        self.init(unsafeFromRawPointer: pointer)
-    }
+public convenience init() {
+    let pointer =
+        try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_constructor_authenticatorimporter_new($0
+    )
+}
+    self.init(unsafeFromRawPointer: pointer)
+}
 
     deinit {
-        guard let pointer else {
+        guard let pointer = pointer else {
             return
         }
 
         try! rustCall { uniffi_proton_authenticator_common_mobile_fn_free_authenticatorimporter(pointer, $0) }
     }
 
-    open func importFrom2fas(contents: String, password: String?) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_2fas(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    FfiConverterOptionString
-                        .lower(password),
-                    $0)
-            })
-    }
+    
 
-    open func importFromAegisJson(contents: String, password: String?) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_aegis_json(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    FfiConverterOptionString
-                        .lower(password),
-                    $0)
-            })
-    }
-
-    open func importFromAegisTxt(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_aegis_txt(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromBitwardenCsv(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_bitwarden_csv(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromBitwardenJson(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_bitwarden_json(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromEnteTxt(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_ente_txt(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromGoogleQr(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_google_qr(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromLastpassJson(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_lastpass_json(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
-
-    open func importFromProtonAuthenticator(contents: String) throws -> AuthenticatorImportResult {
-        try FfiConverterTypeAuthenticatorImportResult
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorImportException.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_proton_authenticator(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(contents),
-                    $0)
-            })
-    }
+    
+open func importFrom2fas(contents: String, password: String?)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_2fas(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),
+        FfiConverterOptionString.lower(password),$0
+    )
+})
 }
+    
+open func importFromAegisJson(contents: String, password: String?)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_aegis_json(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),
+        FfiConverterOptionString.lower(password),$0
+    )
+})
+}
+    
+open func importFromAegisTxt(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_aegis_txt(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromBitwardenCsv(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_bitwarden_csv(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromBitwardenJson(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_bitwarden_json(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromEnteTxt(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_ente_txt(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromGoogleQr(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_google_qr(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromLastpassJson(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_lastpass_json(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+open func importFromProtonAuthenticator(contents: String)throws  -> AuthenticatorImportResult  {
+    return try  FfiConverterTypeAuthenticatorImportResult_lift(try rustCallWithError(FfiConverterTypeAuthenticatorImportException_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatorimporter_import_from_proton_authenticator(self.uniffiClonePointer(),
+        FfiConverterString.lower(contents),$0
+    )
+})
+}
+    
+
+}
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorImporter: FfiConverter {
+
     typealias FfiType = UnsafeMutableRawPointer
     typealias SwiftType = AuthenticatorImporter
 
     public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorImporter {
-        AuthenticatorImporter(unsafeFromRawPointer: pointer)
+        return AuthenticatorImporter(unsafeFromRawPointer: pointer)
     }
 
     public static func lower(_ value: AuthenticatorImporter) -> UnsafeMutableRawPointer {
-        value.uniffiClonePointer()
+        return value.uniffiClonePointer()
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorImporter {
@@ -976,7 +1029,7 @@ public struct FfiConverterTypeAuthenticatorImporter: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -989,46 +1042,50 @@ public struct FfiConverterTypeAuthenticatorImporter: FfiConverter {
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorImporter_lift(_ pointer: UnsafeMutableRawPointer) throws
-    -> AuthenticatorImporter {
-    try FfiConverterTypeAuthenticatorImporter.lift(pointer)
+public func FfiConverterTypeAuthenticatorImporter_lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorImporter {
+    return try FfiConverterTypeAuthenticatorImporter.lift(pointer)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorImporter_lower(_ value: AuthenticatorImporter)
-    -> UnsafeMutableRawPointer {
-    FfiConverterTypeAuthenticatorImporter.lower(value)
+public func FfiConverterTypeAuthenticatorImporter_lower(_ value: AuthenticatorImporter) -> UnsafeMutableRawPointer {
+    return FfiConverterTypeAuthenticatorImporter.lower(value)
 }
+
+
+
+
+
 
 public protocol AuthenticatorMobileClientProtocol: AnyObject {
-    func deserializeEntries(serialized: [Data]) throws -> [AuthenticatorEntryModel]
-
-    func entryFromUri(uri: String) throws -> AuthenticatorEntryModel
-
-    func exportEntries(entries: [AuthenticatorEntryModel]) throws -> String
-
-    func generateCodes(entries: [AuthenticatorEntryModel], time: UInt64) throws -> [AuthenticatorCodeResponse]
-
-    func newSteamEntryFromParams(params: AuthenticatorEntrySteamCreateParameters) throws -> AuthenticatorEntryModel
-
-    func newTotpEntryFromParams(params: AuthenticatorEntryTotpCreateParameters) throws -> AuthenticatorEntryModel
-
-    func serializeEntries(entries: [AuthenticatorEntryModel]) throws -> [Data]
+    
+    func deserializeEntries(serialized: [Data]) throws  -> [AuthenticatorEntryModel]
+    
+    func entryFromUri(uri: String) throws  -> AuthenticatorEntryModel
+    
+    func exportEntries(entries: [AuthenticatorEntryModel]) throws  -> String
+    
+    func generateCodes(entries: [AuthenticatorEntryModel], time: UInt64) throws  -> [AuthenticatorCodeResponse]
+    
+    func newSteamEntryFromParams(params: AuthenticatorEntrySteamCreateParameters) throws  -> AuthenticatorEntryModel
+    
+    func newTotpEntryFromParams(params: AuthenticatorEntryTotpCreateParameters) throws  -> AuthenticatorEntryModel
+    
+    func serializeEntries(entries: [AuthenticatorEntryModel]) throws  -> [Data]
+    
 }
-
-open class AuthenticatorMobileClient:
-    AuthenticatorMobileClientProtocol {
+open class AuthenticatorMobileClient: AuthenticatorMobileClientProtocol, @unchecked Sendable {
     fileprivate let pointer: UnsafeMutableRawPointer!
 
     /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public struct NoPointer {
         public init() {}
     }
@@ -1036,142 +1093,123 @@ open class AuthenticatorMobileClient:
     // TODO: We'd like this to be `private` but for Swifty reasons,
     // we can't implement `FfiConverter` without making this `required` and we can't
     // make it `required` without making it `public`.
-    public required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
         self.pointer = pointer
     }
 
     // This constructor can be used to instantiate a fake object.
-    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one
-    // that may be implemented for classes extending [FFIObject].
+    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
     //
     // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since
-    //     there isn't a backing [Pointer] the FFI lower functions will crash.
-    #if swift(>=5.8)
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
-    public init(noPointer _: NoPointer) {
-        pointer = nil
+#endif
+    public init(noPointer: NoPointer) {
+        self.pointer = nil
     }
 
-    #if swift(>=5.8)
+#if swift(>=5.8)
     @_documentation(visibility: private)
-    #endif
+#endif
     public func uniffiClonePointer() -> UnsafeMutableRawPointer {
-        try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatormobileclient(self.pointer,
-                                                                                                     $0) }
+        return try! rustCall { uniffi_proton_authenticator_common_mobile_fn_clone_authenticatormobileclient(self.pointer, $0) }
     }
-
-    public convenience init() {
-        let pointer =
-            try! rustCall {
-                uniffi_proton_authenticator_common_mobile_fn_constructor_authenticatormobileclient_new($0)
-            }
-        self.init(unsafeFromRawPointer: pointer)
-    }
+public convenience init() {
+    let pointer =
+        try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_constructor_authenticatormobileclient_new($0
+    )
+}
+    self.init(unsafeFromRawPointer: pointer)
+}
 
     deinit {
-        guard let pointer else {
+        guard let pointer = pointer else {
             return
         }
 
         try! rustCall { uniffi_proton_authenticator_common_mobile_fn_free_authenticatormobileclient(pointer, $0) }
     }
 
-    open func deserializeEntries(serialized: [Data]) throws -> [AuthenticatorEntryModel] {
-        try FfiConverterSequenceTypeAuthenticatorEntryModel
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_deserialize_entries(self
-                    .uniffiClonePointer(),
-                    FfiConverterSequenceData
-                        .lower(serialized),
-                    $0)
-            })
-    }
+    
 
-    open func entryFromUri(uri: String) throws -> AuthenticatorEntryModel {
-        try FfiConverterTypeAuthenticatorEntryModel
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_entry_from_uri(self
-                    .uniffiClonePointer(),
-                    FfiConverterString
-                        .lower(uri),
-                    $0)
-            })
-    }
-
-    open func exportEntries(entries: [AuthenticatorEntryModel]) throws -> String {
-        try FfiConverterString.lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_export_entries(self
-                .uniffiClonePointer(),
-                FfiConverterSequenceTypeAuthenticatorEntryModel
-                    .lower(entries),
-                $0)
-        })
-    }
-
-    open func generateCodes(entries: [AuthenticatorEntryModel],
-                            time: UInt64) throws -> [AuthenticatorCodeResponse] {
-        try FfiConverterSequenceTypeAuthenticatorCodeResponse
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_generate_codes(self
-                    .uniffiClonePointer(),
-                    FfiConverterSequenceTypeAuthenticatorEntryModel
-                        .lower(entries),
-                    FfiConverterUInt64
-                        .lower(time),
-                    $0)
-            })
-    }
-
-    open func newSteamEntryFromParams(params: AuthenticatorEntrySteamCreateParameters) throws
-        -> AuthenticatorEntryModel {
-        try FfiConverterTypeAuthenticatorEntryModel
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_new_steam_entry_from_params(self
-                    .uniffiClonePointer(),
-                    FfiConverterTypeAuthenticatorEntrySteamCreateParameters
-                        .lower(params),
-                    $0)
-            })
-    }
-
-    open func newTotpEntryFromParams(params: AuthenticatorEntryTotpCreateParameters) throws
-        -> AuthenticatorEntryModel {
-        try FfiConverterTypeAuthenticatorEntryModel
-            .lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-                uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_new_totp_entry_from_params(self
-                    .uniffiClonePointer(),
-                    FfiConverterTypeAuthenticatorEntryTotpCreateParameters
-                        .lower(params),
-                    $0)
-            })
-    }
-
-    open func serializeEntries(entries: [AuthenticatorEntryModel]) throws -> [Data] {
-        try FfiConverterSequenceData.lift(rustCallWithError(FfiConverterTypeAuthenticatorError__as_error.lift) {
-            uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_serialize_entries(self
-                .uniffiClonePointer(),
-                FfiConverterSequenceTypeAuthenticatorEntryModel
-                    .lower(entries),
-                $0)
-        })
-    }
+    
+open func deserializeEntries(serialized: [Data])throws  -> [AuthenticatorEntryModel]  {
+    return try  FfiConverterSequenceTypeAuthenticatorEntryModel.lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_deserialize_entries(self.uniffiClonePointer(),
+        FfiConverterSequenceData.lower(serialized),$0
+    )
+})
 }
+    
+open func entryFromUri(uri: String)throws  -> AuthenticatorEntryModel  {
+    return try  FfiConverterTypeAuthenticatorEntryModel_lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_entry_from_uri(self.uniffiClonePointer(),
+        FfiConverterString.lower(uri),$0
+    )
+})
+}
+    
+open func exportEntries(entries: [AuthenticatorEntryModel])throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_export_entries(self.uniffiClonePointer(),
+        FfiConverterSequenceTypeAuthenticatorEntryModel.lower(entries),$0
+    )
+})
+}
+    
+open func generateCodes(entries: [AuthenticatorEntryModel], time: UInt64)throws  -> [AuthenticatorCodeResponse]  {
+    return try  FfiConverterSequenceTypeAuthenticatorCodeResponse.lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_generate_codes(self.uniffiClonePointer(),
+        FfiConverterSequenceTypeAuthenticatorEntryModel.lower(entries),
+        FfiConverterUInt64.lower(time),$0
+    )
+})
+}
+    
+open func newSteamEntryFromParams(params: AuthenticatorEntrySteamCreateParameters)throws  -> AuthenticatorEntryModel  {
+    return try  FfiConverterTypeAuthenticatorEntryModel_lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_new_steam_entry_from_params(self.uniffiClonePointer(),
+        FfiConverterTypeAuthenticatorEntrySteamCreateParameters_lower(params),$0
+    )
+})
+}
+    
+open func newTotpEntryFromParams(params: AuthenticatorEntryTotpCreateParameters)throws  -> AuthenticatorEntryModel  {
+    return try  FfiConverterTypeAuthenticatorEntryModel_lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_new_totp_entry_from_params(self.uniffiClonePointer(),
+        FfiConverterTypeAuthenticatorEntryTotpCreateParameters_lower(params),$0
+    )
+})
+}
+    
+open func serializeEntries(entries: [AuthenticatorEntryModel])throws  -> [Data]  {
+    return try  FfiConverterSequenceData.lift(try rustCallWithError(FfiConverterTypeAuthenticatorError__as_error_lift) {
+    uniffi_proton_authenticator_common_mobile_fn_method_authenticatormobileclient_serialize_entries(self.uniffiClonePointer(),
+        FfiConverterSequenceTypeAuthenticatorEntryModel.lower(entries),$0
+    )
+})
+}
+    
+
+}
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorMobileClient: FfiConverter {
+
     typealias FfiType = UnsafeMutableRawPointer
     typealias SwiftType = AuthenticatorMobileClient
 
     public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorMobileClient {
-        AuthenticatorMobileClient(unsafeFromRawPointer: pointer)
+        return AuthenticatorMobileClient(unsafeFromRawPointer: pointer)
     }
 
     public static func lower(_ value: AuthenticatorMobileClient) -> UnsafeMutableRawPointer {
-        value.uniffiClonePointer()
+        return value.uniffiClonePointer()
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorMobileClient {
@@ -1179,7 +1217,7 @@ public struct FfiConverterTypeAuthenticatorMobileClient: FfiConverter {
         // The Rust code won't compile if a pointer won't fit in a UInt64.
         // We have to go via `UInt` because that's the thing that's the size of a pointer.
         let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if ptr == nil {
+        if (ptr == nil) {
             throw UniffiInternalError.unexpectedNullPointer
         }
         return try lift(ptr!)
@@ -1192,21 +1230,23 @@ public struct FfiConverterTypeAuthenticatorMobileClient: FfiConverter {
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorMobileClient_lift(_ pointer: UnsafeMutableRawPointer) throws
-    -> AuthenticatorMobileClient {
-    try FfiConverterTypeAuthenticatorMobileClient.lift(pointer)
+public func FfiConverterTypeAuthenticatorMobileClient_lift(_ pointer: UnsafeMutableRawPointer) throws -> AuthenticatorMobileClient {
+    return try FfiConverterTypeAuthenticatorMobileClient.lift(pointer)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorMobileClient_lower(_ value: AuthenticatorMobileClient)
-    -> UnsafeMutableRawPointer {
-    FfiConverterTypeAuthenticatorMobileClient.lower(value)
+public func FfiConverterTypeAuthenticatorMobileClient_lower(_ value: AuthenticatorMobileClient) -> UnsafeMutableRawPointer {
+    return FfiConverterTypeAuthenticatorMobileClient.lower(value)
 }
+
+
+
 
 public struct AuthenticatorCodeResponse {
     public var currentCode: String
@@ -1220,8 +1260,13 @@ public struct AuthenticatorCodeResponse {
     }
 }
 
+#if compiler(>=6)
+extension AuthenticatorCodeResponse: Sendable {}
+#endif
+
+
 extension AuthenticatorCodeResponse: Equatable, Hashable {
-    public static func == (lhs: AuthenticatorCodeResponse, rhs: AuthenticatorCodeResponse) -> Bool {
+    public static func ==(lhs: AuthenticatorCodeResponse, rhs: AuthenticatorCodeResponse) -> Bool {
         if lhs.currentCode != rhs.currentCode {
             return false
         }
@@ -1237,13 +1282,18 @@ extension AuthenticatorCodeResponse: Equatable, Hashable {
     }
 }
 
+
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorCodeResponse: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorCodeResponse {
-        try AuthenticatorCodeResponse(currentCode: FfiConverterString.read(from: &buf),
-                                      nextCode: FfiConverterString.read(from: &buf))
+        return
+            try AuthenticatorCodeResponse(
+                currentCode: FfiConverterString.read(from: &buf), 
+                nextCode: FfiConverterString.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorCodeResponse, into buf: inout [UInt8]) {
@@ -1252,48 +1302,89 @@ public struct FfiConverterTypeAuthenticatorCodeResponse: FfiConverterRustBuffer 
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorCodeResponse_lift(_ buf: RustBuffer) throws -> AuthenticatorCodeResponse {
-    try FfiConverterTypeAuthenticatorCodeResponse.lift(buf)
+    return try FfiConverterTypeAuthenticatorCodeResponse.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorCodeResponse_lower(_ value: AuthenticatorCodeResponse) -> RustBuffer {
-    FfiConverterTypeAuthenticatorCodeResponse.lower(value)
+    return FfiConverterTypeAuthenticatorCodeResponse.lower(value)
 }
+
 
 public struct AuthenticatorEntryModel {
     public var name: String
     public var uri: String
     public var period: UInt16
     public var note: String?
-    public var actions: AuthenticatorEntryActions
+    public var entryType: AuthenticatorEntryType
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(name: String, uri: String, period: UInt16, note: String?, actions: AuthenticatorEntryActions) {
+    public init(name: String, uri: String, period: UInt16, note: String?, entryType: AuthenticatorEntryType) {
         self.name = name
         self.uri = uri
         self.period = period
         self.note = note
-        self.actions = actions
+        self.entryType = entryType
     }
 }
+
+#if compiler(>=6)
+extension AuthenticatorEntryModel: Sendable {}
+#endif
+
+
+extension AuthenticatorEntryModel: Equatable, Hashable {
+    public static func ==(lhs: AuthenticatorEntryModel, rhs: AuthenticatorEntryModel) -> Bool {
+        if lhs.name != rhs.name {
+            return false
+        }
+        if lhs.uri != rhs.uri {
+            return false
+        }
+        if lhs.period != rhs.period {
+            return false
+        }
+        if lhs.note != rhs.note {
+            return false
+        }
+        if lhs.entryType != rhs.entryType {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(uri)
+        hasher.combine(period)
+        hasher.combine(note)
+        hasher.combine(entryType)
+    }
+}
+
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorEntryModel: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorEntryModel {
-        try AuthenticatorEntryModel(name: FfiConverterString.read(from: &buf),
-                                    uri: FfiConverterString.read(from: &buf),
-                                    period: FfiConverterUInt16.read(from: &buf),
-                                    note: FfiConverterOptionString.read(from: &buf),
-                                    actions: FfiConverterTypeAuthenticatorEntryActions.read(from: &buf))
+        return
+            try AuthenticatorEntryModel(
+                name: FfiConverterString.read(from: &buf), 
+                uri: FfiConverterString.read(from: &buf), 
+                period: FfiConverterUInt16.read(from: &buf), 
+                note: FfiConverterOptionString.read(from: &buf), 
+                entryType: FfiConverterTypeAuthenticatorEntryType.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorEntryModel, into buf: inout [UInt8]) {
@@ -1301,23 +1392,25 @@ public struct FfiConverterTypeAuthenticatorEntryModel: FfiConverterRustBuffer {
         FfiConverterString.write(value.uri, into: &buf)
         FfiConverterUInt16.write(value.period, into: &buf)
         FfiConverterOptionString.write(value.note, into: &buf)
-        FfiConverterTypeAuthenticatorEntryActions.write(value.actions, into: &buf)
+        FfiConverterTypeAuthenticatorEntryType.write(value.entryType, into: &buf)
     }
 }
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorEntryModel_lift(_ buf: RustBuffer) throws -> AuthenticatorEntryModel {
-    try FfiConverterTypeAuthenticatorEntryModel.lift(buf)
+    return try FfiConverterTypeAuthenticatorEntryModel.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorEntryModel_lower(_ value: AuthenticatorEntryModel) -> RustBuffer {
-    FfiConverterTypeAuthenticatorEntryModel.lower(value)
+    return FfiConverterTypeAuthenticatorEntryModel.lower(value)
 }
+
 
 public struct AuthenticatorEntrySteamCreateParameters {
     public var name: String
@@ -1333,9 +1426,13 @@ public struct AuthenticatorEntrySteamCreateParameters {
     }
 }
 
+#if compiler(>=6)
+extension AuthenticatorEntrySteamCreateParameters: Sendable {}
+#endif
+
+
 extension AuthenticatorEntrySteamCreateParameters: Equatable, Hashable {
-    public static func == (lhs: AuthenticatorEntrySteamCreateParameters,
-                           rhs: AuthenticatorEntrySteamCreateParameters) -> Bool {
+    public static func ==(lhs: AuthenticatorEntrySteamCreateParameters, rhs: AuthenticatorEntrySteamCreateParameters) -> Bool {
         if lhs.name != rhs.name {
             return false
         }
@@ -1355,15 +1452,19 @@ extension AuthenticatorEntrySteamCreateParameters: Equatable, Hashable {
     }
 }
 
+
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorEntrySteamCreateParameters: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> AuthenticatorEntrySteamCreateParameters {
-        try AuthenticatorEntrySteamCreateParameters(name: FfiConverterString.read(from: &buf),
-                                                    secret: FfiConverterString.read(from: &buf),
-                                                    note: FfiConverterOptionString.read(from: &buf))
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorEntrySteamCreateParameters {
+        return
+            try AuthenticatorEntrySteamCreateParameters(
+                name: FfiConverterString.read(from: &buf), 
+                secret: FfiConverterString.read(from: &buf), 
+                note: FfiConverterOptionString.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorEntrySteamCreateParameters, into buf: inout [UInt8]) {
@@ -1373,21 +1474,21 @@ public struct FfiConverterTypeAuthenticatorEntrySteamCreateParameters: FfiConver
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntrySteamCreateParameters_lift(_ buf: RustBuffer) throws
-    -> AuthenticatorEntrySteamCreateParameters {
-    try FfiConverterTypeAuthenticatorEntrySteamCreateParameters.lift(buf)
+public func FfiConverterTypeAuthenticatorEntrySteamCreateParameters_lift(_ buf: RustBuffer) throws -> AuthenticatorEntrySteamCreateParameters {
+    return try FfiConverterTypeAuthenticatorEntrySteamCreateParameters.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntrySteamCreateParameters_lower(_ value: AuthenticatorEntrySteamCreateParameters)
-    -> RustBuffer {
-    FfiConverterTypeAuthenticatorEntrySteamCreateParameters.lower(value)
+public func FfiConverterTypeAuthenticatorEntrySteamCreateParameters_lower(_ value: AuthenticatorEntrySteamCreateParameters) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorEntrySteamCreateParameters.lower(value)
 }
+
 
 public struct AuthenticatorEntryTotpCreateParameters {
     public var name: String
@@ -1400,8 +1501,7 @@ public struct AuthenticatorEntryTotpCreateParameters {
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(name: String, secret: String, issuer: String?, period: UInt16?, digits: UInt8?,
-                algorithm: AuthenticatorTotpAlgorithm?, note: String?) {
+    public init(name: String, secret: String, issuer: String?, period: UInt16?, digits: UInt8?, algorithm: AuthenticatorTotpAlgorithm?, note: String?) {
         self.name = name
         self.secret = secret
         self.issuer = issuer
@@ -1412,9 +1512,13 @@ public struct AuthenticatorEntryTotpCreateParameters {
     }
 }
 
+#if compiler(>=6)
+extension AuthenticatorEntryTotpCreateParameters: Sendable {}
+#endif
+
+
 extension AuthenticatorEntryTotpCreateParameters: Equatable, Hashable {
-    public static func == (lhs: AuthenticatorEntryTotpCreateParameters,
-                           rhs: AuthenticatorEntryTotpCreateParameters) -> Bool {
+    public static func ==(lhs: AuthenticatorEntryTotpCreateParameters, rhs: AuthenticatorEntryTotpCreateParameters) -> Bool {
         if lhs.name != rhs.name {
             return false
         }
@@ -1450,20 +1554,23 @@ extension AuthenticatorEntryTotpCreateParameters: Equatable, Hashable {
     }
 }
 
+
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorEntryTotpCreateParameters: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> AuthenticatorEntryTotpCreateParameters {
-        try AuthenticatorEntryTotpCreateParameters(name: FfiConverterString.read(from: &buf),
-                                                   secret: FfiConverterString.read(from: &buf),
-                                                   issuer: FfiConverterOptionString.read(from: &buf),
-                                                   period: FfiConverterOptionUInt16.read(from: &buf),
-                                                   digits: FfiConverterOptionUInt8.read(from: &buf),
-                                                   algorithm: FfiConverterOptionTypeAuthenticatorTotpAlgorithm
-                                                       .read(from: &buf),
-                                                   note: FfiConverterOptionString.read(from: &buf))
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorEntryTotpCreateParameters {
+        return
+            try AuthenticatorEntryTotpCreateParameters(
+                name: FfiConverterString.read(from: &buf), 
+                secret: FfiConverterString.read(from: &buf), 
+                issuer: FfiConverterOptionString.read(from: &buf), 
+                period: FfiConverterOptionUInt16.read(from: &buf), 
+                digits: FfiConverterOptionUInt8.read(from: &buf), 
+                algorithm: FfiConverterOptionTypeAuthenticatorTotpAlgorithm.read(from: &buf), 
+                note: FfiConverterOptionString.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorEntryTotpCreateParameters, into buf: inout [UInt8]) {
@@ -1477,21 +1584,21 @@ public struct FfiConverterTypeAuthenticatorEntryTotpCreateParameters: FfiConvert
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntryTotpCreateParameters_lift(_ buf: RustBuffer) throws
-    -> AuthenticatorEntryTotpCreateParameters {
-    try FfiConverterTypeAuthenticatorEntryTotpCreateParameters.lift(buf)
+public func FfiConverterTypeAuthenticatorEntryTotpCreateParameters_lift(_ buf: RustBuffer) throws -> AuthenticatorEntryTotpCreateParameters {
+    return try FfiConverterTypeAuthenticatorEntryTotpCreateParameters.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorEntryTotpCreateParameters_lower(_ value: AuthenticatorEntryTotpCreateParameters)
-    -> RustBuffer {
-    FfiConverterTypeAuthenticatorEntryTotpCreateParameters.lower(value)
+public func FfiConverterTypeAuthenticatorEntryTotpCreateParameters_lower(_ value: AuthenticatorEntryTotpCreateParameters) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorEntryTotpCreateParameters.lower(value)
 }
+
 
 public struct AuthenticatorImportError {
     public var context: String
@@ -1505,8 +1612,13 @@ public struct AuthenticatorImportError {
     }
 }
 
+#if compiler(>=6)
+extension AuthenticatorImportError: Sendable {}
+#endif
+
+
 extension AuthenticatorImportError: Equatable, Hashable {
-    public static func == (lhs: AuthenticatorImportError, rhs: AuthenticatorImportError) -> Bool {
+    public static func ==(lhs: AuthenticatorImportError, rhs: AuthenticatorImportError) -> Bool {
         if lhs.context != rhs.context {
             return false
         }
@@ -1522,13 +1634,18 @@ extension AuthenticatorImportError: Equatable, Hashable {
     }
 }
 
+
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorImportError: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorImportError {
-        try AuthenticatorImportError(context: FfiConverterString.read(from: &buf),
-                                     message: FfiConverterString.read(from: &buf))
+        return
+            try AuthenticatorImportError(
+                context: FfiConverterString.read(from: &buf), 
+                message: FfiConverterString.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorImportError, into buf: inout [UInt8]) {
@@ -1537,19 +1654,21 @@ public struct FfiConverterTypeAuthenticatorImportError: FfiConverterRustBuffer {
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorImportError_lift(_ buf: RustBuffer) throws -> AuthenticatorImportError {
-    try FfiConverterTypeAuthenticatorImportError.lift(buf)
+    return try FfiConverterTypeAuthenticatorImportError.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorImportError_lower(_ value: AuthenticatorImportError) -> RustBuffer {
-    FfiConverterTypeAuthenticatorImportError.lower(value)
+    return FfiConverterTypeAuthenticatorImportError.lower(value)
 }
+
 
 public struct AuthenticatorImportResult {
     public var entries: [AuthenticatorEntryModel]
@@ -1563,13 +1682,40 @@ public struct AuthenticatorImportResult {
     }
 }
 
+#if compiler(>=6)
+extension AuthenticatorImportResult: Sendable {}
+#endif
+
+
+extension AuthenticatorImportResult: Equatable, Hashable {
+    public static func ==(lhs: AuthenticatorImportResult, rhs: AuthenticatorImportResult) -> Bool {
+        if lhs.entries != rhs.entries {
+            return false
+        }
+        if lhs.errors != rhs.errors {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(entries)
+        hasher.combine(errors)
+    }
+}
+
+
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeAuthenticatorImportResult: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorImportResult {
-        try AuthenticatorImportResult(entries: FfiConverterSequenceTypeAuthenticatorEntryModel.read(from: &buf),
-                                      errors: FfiConverterSequenceTypeAuthenticatorImportError.read(from: &buf))
+        return
+            try AuthenticatorImportResult(
+                entries: FfiConverterSequenceTypeAuthenticatorEntryModel.read(from: &buf), 
+                errors: FfiConverterSequenceTypeAuthenticatorImportError.read(from: &buf)
+        )
     }
 
     public static func write(_ value: AuthenticatorImportResult, into buf: inout [UInt8]) {
@@ -1578,29 +1724,176 @@ public struct FfiConverterTypeAuthenticatorImportResult: FfiConverterRustBuffer 
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorImportResult_lift(_ buf: RustBuffer) throws -> AuthenticatorImportResult {
-    try FfiConverterTypeAuthenticatorImportResult.lift(buf)
+    return try FfiConverterTypeAuthenticatorImportResult.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorImportResult_lower(_ value: AuthenticatorImportResult) -> RustBuffer {
-    FfiConverterTypeAuthenticatorImportResult.lower(value)
+    return FfiConverterTypeAuthenticatorImportResult.lower(value)
 }
+
+
+public enum AuthenticatorCryptoError {
+
+    
+    
+    case CryptoError(message: String)
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeAuthenticatorCryptoError: FfiConverterRustBuffer {
+    typealias SwiftType = AuthenticatorCryptoError
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorCryptoError {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+
+        
+
+        
+        case 1: return .CryptoError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: AuthenticatorCryptoError, into buf: inout [UInt8]) {
+        switch value {
+
+        
+
+        
+        case .CryptoError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(1))
+
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorCryptoError_lift(_ buf: RustBuffer) throws -> AuthenticatorCryptoError {
+    return try FfiConverterTypeAuthenticatorCryptoError.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorCryptoError_lower(_ value: AuthenticatorCryptoError) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorCryptoError.lower(value)
+}
+
+
+extension AuthenticatorCryptoError: Equatable, Hashable {}
+
+
+
+extension AuthenticatorCryptoError: Foundation.LocalizedError {
+    public var errorDescription: String? {
+        String(reflecting: self)
+    }
+}
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum AuthenticatorEntryType {
+    
+    case totp
+    case steam
+}
+
+
+#if compiler(>=6)
+extension AuthenticatorEntryType: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeAuthenticatorEntryType: FfiConverterRustBuffer {
+    typealias SwiftType = AuthenticatorEntryType
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorEntryType {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .totp
+        
+        case 2: return .steam
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: AuthenticatorEntryType, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .totp:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .steam:
+            writeInt(&buf, Int32(2))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorEntryType_lift(_ buf: RustBuffer) throws -> AuthenticatorEntryType {
+    return try FfiConverterTypeAuthenticatorEntryType.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorEntryType_lower(_ value: AuthenticatorEntryType) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorEntryType.lower(value)
+}
+
+
+extension AuthenticatorEntryType: Equatable, Hashable {}
+
+
+
 
 public enum AuthenticatorImportException {
+
+    
+    
     case BadContent(message: String)
-
+    
     case BadPassword(message: String)
-
+    
     case MissingPassword(message: String)
-
+    
     case DecryptionFailed(message: String)
+    
 }
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
@@ -1608,17 +1901,29 @@ public enum AuthenticatorImportException {
 public struct FfiConverterTypeAuthenticatorImportException: FfiConverterRustBuffer {
     typealias SwiftType = AuthenticatorImportException
 
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> AuthenticatorImportException {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorImportException {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-        case 1: return try .BadContent(message: FfiConverterString.read(from: &buf))
 
-        case 2: return try .BadPassword(message: FfiConverterString.read(from: &buf))
+        
 
-        case 3: return try .MissingPassword(message: FfiConverterString.read(from: &buf))
-
-        case 4: return try .DecryptionFailed(message: FfiConverterString.read(from: &buf))
+        
+        case 1: return .BadContent(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 2: return .BadPassword(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 3: return .MissingPassword(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 4: return .DecryptionFailed(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
 
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -1626,19 +1931,43 @@ public struct FfiConverterTypeAuthenticatorImportException: FfiConverterRustBuff
 
     public static func write(_ value: AuthenticatorImportException, into buf: inout [UInt8]) {
         switch value {
-        case .BadContent(_ /* message is ignored*/ ):
+
+        
+
+        
+        case .BadContent(_ /* message is ignored*/):
             writeInt(&buf, Int32(1))
-        case .BadPassword(_ /* message is ignored*/ ):
+        case .BadPassword(_ /* message is ignored*/):
             writeInt(&buf, Int32(2))
-        case .MissingPassword(_ /* message is ignored*/ ):
+        case .MissingPassword(_ /* message is ignored*/):
             writeInt(&buf, Int32(3))
-        case .DecryptionFailed(_ /* message is ignored*/ ):
+        case .DecryptionFailed(_ /* message is ignored*/):
             writeInt(&buf, Int32(4))
+
+        
         }
     }
 }
 
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorImportException_lift(_ buf: RustBuffer) throws -> AuthenticatorImportException {
+    return try FfiConverterTypeAuthenticatorImportException.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAuthenticatorImportException_lower(_ value: AuthenticatorImportException) -> RustBuffer {
+    return FfiConverterTypeAuthenticatorImportException.lower(value)
+}
+
+
 extension AuthenticatorImportException: Equatable, Hashable {}
+
+
 
 extension AuthenticatorImportException: Foundation.LocalizedError {
     public var errorDescription: String? {
@@ -1646,14 +1975,21 @@ extension AuthenticatorImportException: Foundation.LocalizedError {
     }
 }
 
+
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
 public enum AuthenticatorTotpAlgorithm {
+    
     case sha1
     case sha256
     case sha512
 }
+
+
+#if compiler(>=6)
+extension AuthenticatorTotpAlgorithm: Sendable {}
+#endif
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
@@ -1661,59 +1997,67 @@ public enum AuthenticatorTotpAlgorithm {
 public struct FfiConverterTypeAuthenticatorTotpAlgorithm: FfiConverterRustBuffer {
     typealias SwiftType = AuthenticatorTotpAlgorithm
 
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> AuthenticatorTotpAlgorithm {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AuthenticatorTotpAlgorithm {
         let variant: Int32 = try readInt(&buf)
         switch variant {
+        
         case 1: return .sha1
-
+        
         case 2: return .sha256
-
+        
         case 3: return .sha512
-
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: AuthenticatorTotpAlgorithm, into buf: inout [UInt8]) {
         switch value {
+        
+        
         case .sha1:
             writeInt(&buf, Int32(1))
-
+        
+        
         case .sha256:
             writeInt(&buf, Int32(2))
-
+        
+        
         case .sha512:
             writeInt(&buf, Int32(3))
+        
         }
     }
 }
 
+
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAuthenticatorTotpAlgorithm_lift(_ buf: RustBuffer) throws
-    -> AuthenticatorTotpAlgorithm {
-    try FfiConverterTypeAuthenticatorTotpAlgorithm.lift(buf)
+public func FfiConverterTypeAuthenticatorTotpAlgorithm_lift(_ buf: RustBuffer) throws -> AuthenticatorTotpAlgorithm {
+    return try FfiConverterTypeAuthenticatorTotpAlgorithm.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
 public func FfiConverterTypeAuthenticatorTotpAlgorithm_lower(_ value: AuthenticatorTotpAlgorithm) -> RustBuffer {
-    FfiConverterTypeAuthenticatorTotpAlgorithm.lower(value)
+    return FfiConverterTypeAuthenticatorTotpAlgorithm.lower(value)
 }
 
+
 extension AuthenticatorTotpAlgorithm: Equatable, Hashable {}
+
+
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterOptionUInt8: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionUInt8: FfiConverterRustBuffer {
     typealias SwiftType = UInt8?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
-        guard let value else {
+        guard let value = value else {
             writeInt(&buf, Int8(0))
             return
         }
@@ -1733,11 +2077,11 @@ private struct FfiConverterOptionUInt8: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterOptionUInt16: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionUInt16: FfiConverterRustBuffer {
     typealias SwiftType = UInt16?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
-        guard let value else {
+        guard let value = value else {
             writeInt(&buf, Int8(0))
             return
         }
@@ -1757,11 +2101,11 @@ private struct FfiConverterOptionUInt16: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterOptionString: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
     typealias SwiftType = String?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
-        guard let value else {
+        guard let value = value else {
             writeInt(&buf, Int8(0))
             return
         }
@@ -1781,11 +2125,11 @@ private struct FfiConverterOptionString: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterOptionTypeAuthenticatorTotpAlgorithm: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionTypeAuthenticatorTotpAlgorithm: FfiConverterRustBuffer {
     typealias SwiftType = AuthenticatorTotpAlgorithm?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
-        guard let value else {
+        guard let value = value else {
             writeInt(&buf, Int8(0))
             return
         }
@@ -1805,7 +2149,7 @@ private struct FfiConverterOptionTypeAuthenticatorTotpAlgorithm: FfiConverterRus
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterSequenceData: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceData: FfiConverterRustBuffer {
     typealias SwiftType = [Data]
 
     public static func write(_ value: [Data], into buf: inout [UInt8]) {
@@ -1820,8 +2164,8 @@ private struct FfiConverterSequenceData: FfiConverterRustBuffer {
         let len: Int32 = try readInt(&buf)
         var seq = [Data]()
         seq.reserveCapacity(Int(len))
-        for _ in 0..<len {
-            try seq.append(FfiConverterData.read(from: &buf))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterData.read(from: &buf))
         }
         return seq
     }
@@ -1830,7 +2174,7 @@ private struct FfiConverterSequenceData: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterSequenceTypeAuthenticatorCodeResponse: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeAuthenticatorCodeResponse: FfiConverterRustBuffer {
     typealias SwiftType = [AuthenticatorCodeResponse]
 
     public static func write(_ value: [AuthenticatorCodeResponse], into buf: inout [UInt8]) {
@@ -1841,13 +2185,12 @@ private struct FfiConverterSequenceTypeAuthenticatorCodeResponse: FfiConverterRu
         }
     }
 
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> [AuthenticatorCodeResponse] {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [AuthenticatorCodeResponse] {
         let len: Int32 = try readInt(&buf)
         var seq = [AuthenticatorCodeResponse]()
         seq.reserveCapacity(Int(len))
-        for _ in 0..<len {
-            try seq.append(FfiConverterTypeAuthenticatorCodeResponse.read(from: &buf))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeAuthenticatorCodeResponse.read(from: &buf))
         }
         return seq
     }
@@ -1856,7 +2199,7 @@ private struct FfiConverterSequenceTypeAuthenticatorCodeResponse: FfiConverterRu
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterSequenceTypeAuthenticatorEntryModel: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeAuthenticatorEntryModel: FfiConverterRustBuffer {
     typealias SwiftType = [AuthenticatorEntryModel]
 
     public static func write(_ value: [AuthenticatorEntryModel], into buf: inout [UInt8]) {
@@ -1871,8 +2214,8 @@ private struct FfiConverterSequenceTypeAuthenticatorEntryModel: FfiConverterRust
         let len: Int32 = try readInt(&buf)
         var seq = [AuthenticatorEntryModel]()
         seq.reserveCapacity(Int(len))
-        for _ in 0..<len {
-            try seq.append(FfiConverterTypeAuthenticatorEntryModel.read(from: &buf))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeAuthenticatorEntryModel.read(from: &buf))
         }
         return seq
     }
@@ -1881,7 +2224,7 @@ private struct FfiConverterSequenceTypeAuthenticatorEntryModel: FfiConverterRust
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-private struct FfiConverterSequenceTypeAuthenticatorImportError: FfiConverterRustBuffer {
+fileprivate struct FfiConverterSequenceTypeAuthenticatorImportError: FfiConverterRustBuffer {
     typealias SwiftType = [AuthenticatorImportError]
 
     public static func write(_ value: [AuthenticatorImportError], into buf: inout [UInt8]) {
@@ -1892,22 +2235,21 @@ private struct FfiConverterSequenceTypeAuthenticatorImportError: FfiConverterRus
         }
     }
 
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws
-        -> [AuthenticatorImportError] {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [AuthenticatorImportError] {
         let len: Int32 = try readInt(&buf)
         var seq = [AuthenticatorImportError]()
         seq.reserveCapacity(Int(len))
-        for _ in 0..<len {
-            try seq.append(FfiConverterTypeAuthenticatorImportError.read(from: &buf))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeAuthenticatorImportError.read(from: &buf))
         }
         return seq
     }
 }
-
-public func libraryVersion() -> String {
-    try! FfiConverterString.lift(try! rustCall {
-        uniffi_proton_authenticator_common_mobile_fn_func_library_version($0)
-    })
+public func libraryVersion() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_proton_authenticator_common_mobile_fn_func_library_version($0
+    )
+})
 }
 
 private enum InitializationResult {
@@ -1915,108 +2257,101 @@ private enum InitializationResult {
     case contractVersionMismatch
     case apiChecksumMismatch
 }
-
 // Use a global variable to perform the versioning checks. Swift ensures that
 // the code inside is only computed once.
-private var initializationResult: InitializationResult = {
+private let initializationResult: InitializationResult = {
     // Get the bindings contract version from our ComponentInterface
-    let bindings_contract_version = 26
+    let bindings_contract_version = 29
     // Get the scaffolding contract version by calling the into the dylib
     let scaffolding_contract_version = ffi_proton_authenticator_common_mobile_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_func_library_version() != 16_647 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_func_library_version() != 16647) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorentryactions_entry_type() != 43_624 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorcrypto_decrypt_entry() != 21438) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorentryactions_generate_code() !=
-        63_537 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorcrypto_decrypt_many_entries() != 41489) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorentryactions_serialize() != 36_911 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorcrypto_encrypt_entry() != 64217) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorerror_message() != 43_994 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorcrypto_encrypt_many_entries() != 45111) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_2fas() !=
-        43_563 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorcrypto_generate_key() != 11780) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_aegis_json() !=
-        6_942 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorerror_message() != 43994) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_aegis_txt() !=
-        38_459 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_2fas() != 43563) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_bitwarden_csv() !=
-        44_378 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_aegis_json() != 6942) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_bitwarden_json() !=
-        53_330 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_aegis_txt() != 38459) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_ente_txt() !=
-        62_264 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_bitwarden_csv() != 44378) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_google_qr() !=
-        19_900 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_bitwarden_json() != 53330) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_lastpass_json() !=
-        59_647 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_ente_txt() != 62264) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_proton_authenticator() !=
-        43_905 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_google_qr() != 19900) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_deserialize_entries() !=
-        37_808 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_lastpass_json() != 59647) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_entry_from_uri() !=
-        5_714 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatorimporter_import_from_proton_authenticator() != 43905) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_export_entries() !=
-        5_906 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_deserialize_entries() != 37808) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_generate_codes() !=
-        51_132 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_entry_from_uri() != 5714) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_new_steam_entry_from_params() !=
-        1_987 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_export_entries() != 5906) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_new_totp_entry_from_params() !=
-        4_121 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_generate_codes() != 51132) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_serialize_entries() !=
-        42_768 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_new_steam_entry_from_params() != 1987) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_constructor_authenticatorimporter_new() != 46_821 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_new_totp_entry_from_params() != 4121) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_proton_authenticator_common_mobile_checksum_constructor_authenticatormobileclient_new() != 23_343 {
+    if (uniffi_proton_authenticator_common_mobile_checksum_method_authenticatormobileclient_serialize_entries() != 42768) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_proton_authenticator_common_mobile_checksum_constructor_authenticatorcrypto_new() != 57379) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_proton_authenticator_common_mobile_checksum_constructor_authenticatorimporter_new() != 37417) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_proton_authenticator_common_mobile_checksum_constructor_authenticatormobileclient_new() != 45355) {
         return InitializationResult.apiChecksumMismatch
     }
 
     return InitializationResult.ok
 }()
 
-private func uniffiEnsureInitialized() {
+// Make the ensure init function public so that other modules which have external type references to
+// our types can call it.
+public func uniffiEnsureProtonAuthenticatorCommonMobileInitialized() {
     switch initializationResult {
     case .ok:
         break

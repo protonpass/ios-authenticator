@@ -22,12 +22,16 @@ let package = Package(
         .library(name: "DomainProtocols",
                  targets: ["DomainProtocols"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/Matejkob/swift-spyable", .upToNextMajor(from: "0.8.0")),
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(name: "DomainLayer",
                 dependencies: [
-                    "DomainProtocols"
+                    "DomainProtocols",
+                    .product(name: "Spyable", package: "swift-spyable"),
                 ]),
         .target(name: "DomainProtocols"),
         .testTarget(
