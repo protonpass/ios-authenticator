@@ -63,6 +63,7 @@
 		5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AuthenticatorRustCore; path = LocalPackages/AuthenticatorRustCore; sourceTree = "<group>"; };
 		5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Autofill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		5B5E0DC22D5A50EB00E7BCD4 /* CommonUtilities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CommonUtilities; path = LocalPackages/CommonUtilities; sourceTree = "<group>"; };
 		5B8765172D52539D00B4CC30 /* Authenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Authenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B87652B2D52539E00B4CC30 /* AuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -166,13 +167,14 @@
 				5B8765192D52539D00B4CC30 /* Authenticator */,
 				5B87652E2D52539E00B4CC30 /* AuthenticatorTests */,
 				5B8765382D52539E00B4CC30 /* AuthenticatorUITests */,
+				5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */,
 				5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */,
+				5B5E0DC22D5A50EB00E7BCD4 /* CommonUtilities */,
 				5B87656A2D527F8700B4CC30 /* DataLayer */,
 				5B87656B2D527F8700B4CC30 /* DomainLayer */,
 				5B87656C2D527F8700B4CC30 /* Models */,
 				5B87656D2D527F8700B4CC30 /* PresentationLayer */,
 				5B5E0C5C2D5612D400E7BCD4 /* Macro */,
-				5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */,
 				5B87656E2D527F9C00B4CC30 /* Frameworks */,
 				5B8765182D52539D00B4CC30 /* Products */,
 			);

@@ -61,6 +61,10 @@ graph TD
       P1[Views]
       P2[View Models]
     end
+    
+    subgraph Shared [Shared Modules]
+      S1[Common Utilities]
+    end
 
     %% Dependencies between layers
     D1 --> E         
@@ -75,6 +79,10 @@ graph TD
     %% Presentation layer (View Models) uses Use Cases
     P1 --> P2        
     %% Views bind to View Models
+    
+    %% Shared modules dependencies
+    D1 & D2 & DA & P1 & P2 --> S1  
+    %% All layers can use common utilities
 ```
 
 ## Package Functions
@@ -179,6 +187,11 @@ This layer depends on the Domain layer (via use cases) to drive its data and act
     •    Views: SwiftUI views or UIKit view controllers.
     •    View Models: Components that bind the UI to the underlying domain logic. They often call the use cases from the Domain layer and handle state updates for the view.
 
+### Common Utilities
+
+- Purpose:
+Provides cross-cutting extensions and utility functions (e.g., extensions on String, Date, etc.) that are useful across multiple packages.
+Holds configuration files (e.g., JSON, plist, or YAML) and loader logic that provide environment-specific settings such as API endpoints or feature toggles.
 
 ## Dependency manager
 Swift Package Manager
