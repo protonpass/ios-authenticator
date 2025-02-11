@@ -132,9 +132,9 @@ final class TokenListCellModel {
     @ObservationIgnored
     var update = false
     @ObservationIgnored
-    @LazyInjected(\.timerService) private(set) var timerService
+    @LazyInjected(\ServiceContainer.timerService) private(set) var timerService
     @ObservationIgnored
-    @LazyInjected(\.tokenRepository) private(set) var tokenRepository
+    @LazyInjected(\RepositoryContainer.tokenRepository) private(set) var tokenRepository
 
     init(token: Token) {
         self.token = token

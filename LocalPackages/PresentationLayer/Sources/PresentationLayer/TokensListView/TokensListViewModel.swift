@@ -25,12 +25,7 @@ import Models
 
 @Observable @MainActor
 final class TokensListViewModel {
-    private(set) var tokens: [Token] = [
-        Token(name: "This is the name", uri: "plop@plop.com", period: 30,
-              type: .totp, note: nil),
-        Token(name: "This is the name2", uri: "plop2@plop2.com", period: 30,
-              type: .totp, note: nil)
-    ]
+    private(set) var tokens: [Token] = []
     var search = ""
 
     init() {

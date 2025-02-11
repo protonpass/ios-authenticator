@@ -54,10 +54,15 @@ private extension TokensListView {
                 } description: {
                     Text("No token found. Please consider adding one.")
                 } actions: {
-                    Button("Add a new token") {
-                        addToken()
+                    VStack {
+                        Button("Add a new token") {
+                            addToken()
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button("Import tokens") {}
+                            .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
                 }
                 .foregroundStyle(.textNorm)
                 .background(.backgroundGradient)

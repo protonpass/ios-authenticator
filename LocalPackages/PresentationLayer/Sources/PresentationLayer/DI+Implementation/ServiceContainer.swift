@@ -1,5 +1,5 @@
 //
-// DI+Declaration.swift
+// ServiceContainer.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -21,16 +21,17 @@
 import DataLayer
 import Factory
 
-public extension Container {
+final class ServiceContainer: SharedContainer, AutoRegistering {
+    static let shared = ServiceContainer()
+    let manager = ContainerManager()
+
+    func autoRegister() {
+        manager.defaultScope = .singleton
+    }
+
     var timerService: Factory<TimerServicing> {
         self {
             TimerService()
         }
-        .singleton
-    }
-
-    var tokenRepository: Factory<TokenRepositoryProtocol> {
-        self { TokenRepository() }
-            .singleton
     }
 }

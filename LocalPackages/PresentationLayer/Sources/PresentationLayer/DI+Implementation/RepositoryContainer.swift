@@ -1,5 +1,5 @@
 //
-// DI+Implementation.swift
+// RepositoryContainer.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -21,8 +21,17 @@
 import DataLayer
 import Factory
 
-extension Container: @retroactive AutoRegistering {
-    public func autoRegister() {
-        timerService.register { TimerService() }
+final class RepositoryContainer: SharedContainer, AutoRegistering {
+    static let shared = RepositoryContainer()
+    let manager = ContainerManager()
+
+    func autoRegister() {
+        manager.defaultScope = .singleton
+    }
+
+    var tokenRepository: Factory<TokenRepositoryProtocol> {
+        self { TokenRepository() }
     }
 }
+
+
