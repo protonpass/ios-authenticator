@@ -84,6 +84,7 @@ extension AuthenticatorCodeResponse {
 }
 
 extension SteamParams {
+    // swiftlint:disable:next identifier_name
     var toAuthenticatorEntrySteamCreateParameters: AuthenticatorEntrySteamCreateParameters {
         AuthenticatorEntrySteamCreateParameters(name: name, secret: secret, note: note)
     }

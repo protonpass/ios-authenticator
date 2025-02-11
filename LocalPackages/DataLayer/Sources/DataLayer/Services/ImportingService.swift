@@ -1,4 +1,4 @@
-//  
+//
 // ImportingService.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -20,4 +20,4 @@
 
 import Foundation
 
-//TODO: need to wrap rust improting service
+// TODO: need to wrap rust improting service

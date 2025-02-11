@@ -1,4 +1,4 @@
-//  
+//
 // AppConstants.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG

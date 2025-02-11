@@ -24,6 +24,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(name: "Models", path: "../Models"),
         .package(name: "DomainLayer", path: "../DomainLayer"),
+        .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", .upToNextMajor(from: "4.2.0")),
     ],
@@ -36,6 +37,7 @@ let package = Package(
                 .product(name: "Models", package: "Models"),
                 .product(name: "DomainProtocols", package: "DomainLayer"),
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
+                .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
             ]),
         .testTarget(

@@ -1,4 +1,4 @@
-//  
+//
 // EncryptionService.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -19,29 +19,73 @@
 // along with Proton Pass. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
+import CommonUtilities
 import CryptoKit
 import Foundation
-import CommonUtilities
 @preconcurrency import KeychainAccess
-
-//TODO: need to wrap rust encryption
+import Models
 
 public protocol EncryptionServicing: Sendable {
-
+    func decrypt(ciphertext: Data) throws -> Token
+    func decryptMany(ciphertexts: [Data]) throws -> [Token]
+    func encrypt(model: Token) throws -> Data
+    func encrypt(models: [Token]) throws -> [Data]
 }
 
 public final class EncryptionService: EncryptionServicing {
     private let keychain: Keychain
+    private let authenticatorCrypto: AuthenticatorCrypto
     private let key = "encryptionKey"
 
-    public init(keychain: Keychain = Keychain(service: AppConstants.service,
+    public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
+                keychain: Keychain = Keychain(service: AppConstants.service,
                                               accessGroup: AppConstants.keychainGroup)
-            .synchronizable(true)) {
+                    .synchronizable(true)) {
         self.keychain = keychain
+        self.authenticatorCrypto = authenticatorCrypto
         if keychain[data: key] == nil {
-
-            keychain[data: key] = keyData
+            keychain[data: key] = authenticatorCrypto.generateKey()
         }
     }
 
+    private var encryptionKey: Data {
+        get throws {
+            if let key = try keychain.getData(key) {
+                return key
+            }
+            let newKey = authenticatorCrypto.generateKey()
+            keychain[data: key] = newKey
+            return newKey
+        }
+    }
+
+    public func decrypt(ciphertext: Data) throws -> Token {
+        try authenticatorCrypto.decryptEntry(ciphertext: ciphertext, key: encryptionKey).toToken
+    }
+
+    public func decryptMany(ciphertexts: [Data]) throws -> [Token] {
+        try authenticatorCrypto.decryptManyEntries(ciphertexts: ciphertexts, key: encryptionKey).toTokens
+    }
+
+    public func encrypt(model: Token) throws -> Data {
+        try authenticatorCrypto.encryptEntry(model: model.toAuthenticatorEntryModel, key: encryptionKey)
+    }
+
+    public func encrypt(models: [Token]) throws -> [Data] {
+        try authenticatorCrypto.encryptManyEntries(models: models.toAuthenticatorEntries, key: encryptionKey)
+    }
 }
+
+// public protocol AuthenticatorCryptoProtocol : AnyObject {
+//
+//    func decryptEntry(ciphertext: Data, key: Data) throws -> AuthenticatorRustCore.AuthenticatorEntryModel
+//
+//    func decryptManyEntries(ciphertexts: [Data], key: Data) throws ->
+//    [AuthenticatorRustCore.AuthenticatorEntryModel]
+//
+//    func encryptEntry(model: AuthenticatorRustCore.AuthenticatorEntryModel, key: Data) throws -> Data
+//
+//    func encryptManyEntries(models: [AuthenticatorRustCore.AuthenticatorEntryModel], key: Data) throws -> [Data]
+//
+//    func generateKey() -> Data
+// }
