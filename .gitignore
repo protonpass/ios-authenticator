@@ -74,4 +74,4 @@ fastlane/screenshots
 # End of https://www.gitignore.io/api/xcode,osx
 
 #tmp/
-#LocalPackages/PassRustCore
+#LocalPackages/AuthenticatorRustCore
