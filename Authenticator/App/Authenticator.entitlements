@@ -30,7 +30,7 @@
 	<true/>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)me.proton.authenticator</string>
+		<string>$(AppIdentifierPrefix)group.me.proton.authenticator</string>
 	</array>
 </dict>
 </plist>

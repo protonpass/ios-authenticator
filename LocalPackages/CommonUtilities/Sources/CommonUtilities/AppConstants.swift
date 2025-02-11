@@ -20,4 +20,9 @@
 
 import Foundation
 
-//TODO: need to add info for service and keychain access
+public enum AppConstants {
+    public static let teamId = "2SB5Z68H26"
+    public static let service = "me.proton.authenticator"
+    public static let accessGroup = "group.me.proton.authenticator"
+    public static let keychainGroup = "\(teamId).\(accessGroup)"
+}
