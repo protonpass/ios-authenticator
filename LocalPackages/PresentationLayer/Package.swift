@@ -5,7 +5,7 @@ import PackageDescription
 
 var platforms: [SupportedPlatform] = [
     .macOS(.v14),
-    .iOS(.v18),
+    .iOS(.v17),
     .tvOS(.v16),
     .watchOS(.v8),
     .visionOS(.v2)

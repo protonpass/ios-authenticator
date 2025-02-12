@@ -92,12 +92,15 @@ public struct TokenListCell: View {
             .padding(.bottom, 13)
             .padding(.horizontal, 16)
         }
-        .onScrollVisibilityChange(threshold: 0) { visible in
-            viewModel.update = visible
-            if visible {
-                viewModel.updateTOTP()
-            }
-        }
+        // TODO: find a workaround for < iOS 18
+        /*
+         .onScrollVisibilityChange(threshold: 0) { visible in
+             viewModel.update = visible
+             if visible {
+                 viewModel.updateTOTP()
+             }
+         }
+          */
         .background(.purple)
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
