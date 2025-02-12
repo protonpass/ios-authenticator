@@ -66,12 +66,12 @@ fastlane/screenshots
 
 
 ### Xcode Patch ###
-#*.xcodeproj/*
-#!*.xcodeproj/project.pbxproj
-#!*.xcodeproj/xcshareddata/
-#!*.xcworkspace/contents.xcworkspacedata
-#/*.gcno
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
 # End of https://www.gitignore.io/api/xcode,osx
 
 #tmp/
-#LocalPackages/PassRustCore
+LocalPackages/AuthenticatorRustCore

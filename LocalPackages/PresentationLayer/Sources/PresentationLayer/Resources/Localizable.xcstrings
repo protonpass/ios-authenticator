@@ -1,0 +1,87 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%lld" : {
+
+    },
+    "Add a new token" : {
+
+    },
+    "Add some view here" : {
+
+    },
+    "App" : {
+
+    },
+    "APPEARANCE" : {
+
+    },
+    "appeareance" : {
+
+    },
+    "barcode scanner" : {
+
+    },
+    "Close" : {
+
+    },
+    "Delete" : {
+
+    },
+    "DISCOVER PROTON" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Export" : {
+
+    },
+    "Feedback" : {
+
+    },
+    "How to use Proton Authenticator" : {
+
+    },
+    "Import" : {
+
+    },
+    "Import tokens" : {
+
+    },
+    "List style" : {
+
+    },
+    "MANAGE YOUR DATA" : {
+
+    },
+    "Next" : {
+
+    },
+    "No token" : {
+
+    },
+    "No token found. Please consider adding one." : {
+
+    },
+    "Search" : {
+
+    },
+    "SECURITY" : {
+
+    },
+    "Settings" : {
+
+    },
+    "SUPPORT" : {
+
+    },
+    "Theme" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,0 +1,243 @@
+# You can find the documentation here :
+# https://realm.github.io/SwiftLint/rule-directory.html
+
+################
+#Included Folder#
+################
+
+included: # paths to include during linting. `--path` is ignored if present.
+  - Authenticator
+  - LocalPackages/DataLayer
+  - LocalPackages/DomainLayer
+  - LocalPackages/Models
+  - LocalPackages/PresentationLayer
+  
+################
+#Excluded Folder & Files#
+################
+
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - AuthenticatorTests
+  - LocalPackages/DataLayer/Tests
+  - LocalPackages/DomainLayer/Tests
+  - LocalPackages/Models/Tests
+  - LocalPackages/PresentationLayer/Tests
+  - fastlane/*
+  - misc/*
+  - LocalPackages/**/Package.swift
+
+##############
+#Disabled rules#
+##############
+
+disabled_rules:
+  # - private_over_fileprivate
+  # - cyclomatic_complexity
+  # - function_body_length
+  # - redundant_string_enum_value
+#  - nesting
+
+##############
+#Opted in rules#
+##############
+
+opt_in_rules:
+  - array_init
+#  - attributes
+  - closure_spacing
+  - collection_alignment
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - convenience_type
+  - discouraged_assert
+  - discouraged_object_literal
+  - discouraged_optional_boolean
+  - discouraged_none_name
+  - empty_collection_literal
+  - empty_count
+  - empty_xctest_method
+  - enum_case_associated_values_count
+  - expiring_todo
+  - empty_string
+  # - explicit_enum_raw_value
+  - explicit_init
+#  - explicit_self
+  - extension_access_modifier
+  - fallthrough
+  - fatal_error_message
+  - file_name_no_space
+  - first_where
+  - flatmap_over_map_reduce
+  - force_unwrapping
+#  - function_default_parameter_at_end
+  - ibinspectable_in_extension
+  - identical_operands
+  - implicit_return
+  - joined_default_parameter
+  - last_where
+  - legacy_multiple
+  - legacy_random
+  - let_var_whitespace
+  - literal_expression_end_indentation
+  - lower_acl_than_parent
+  # - missing_docs
+  - modifier_order
+  - multiline_arguments
+  - multiline_function_chains
+#  - multiline_parameters_brackets
+  # - multiline_literal_brackets
+  - multiline_parameters
+  - nimble_operator
+  - nslocalizedstring_key
+  - nslocalizedstring_require_bundle
+  - number_separator
+  - operator_usage_whitespace
+  - optional_enum_case_matching
+  - overridden_super_call
+  - override_in_extension
+  - pattern_matching_keywords
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - prefixed_toplevel_constant
+  - private_action
+  - private_outlet
+  - prohibited_super_call
+  - quick_discouraged_call
+  - quick_discouraged_focused_test
+  - quick_discouraged_pending_test
+  - raw_value_for_camel_cased_codable_enum
+  - reduce_into
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - required_enum_case
+  - self_binding
+  - single_test_class
+  - sorted_first_last
+  - sorted_imports
+  - shorthand_optional_binding
+  - static_operator
+  - toggle_bool
+  - trailing_closure
+  - unavailable_function
+  - unowned_variable_capture
+  - unneeded_parentheses_in_closure_argument
+  - untyped_error_in_catch
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+  - xct_specific_matcher
+  - yoda_condition
+  - unhandled_throwing_task
+  - weak_delegate
+
+##############
+#Specific analyzer rules#
+##############
+  
+analyzer_rules: # Rules run by `swiftlint analyze`
+  - explicit_self
+  - unused_declaration
+  - unused_import
+  
+################
+#Customed rules#
+################
+  
+# configurable rules can be customized from this configuration file
+# binary rules can set their severity level
+#force_cast: warning # implicitly
+
+#force_try:
+#  severity: warning # explicitly
+#
+# rules that have both warning and error levels, can set just the warning level
+# implicitly
+line_length:
+  warning: 120
+  error: 200
+  ignores_urls: true
+  ignores_comments: true
+
+# they can set both implicitly with an array
+type_body_length:
+  warning: 300
+  error: 400
+  
+trailing_closure:
+  only_single_muted_parameter: true
+
+trailing_whitespace:
+  ignores_empty_lines: true
+
+# or they can set both explicitly
+file_length:
+  warning: 700
+  error: 1200
+  
+function_body_length: # Functions bodies should not span too many lines.
+ warning: 100
+ error: 200
+
+# naming rules can set warnings/errors for min_length and max_length
+# additionally they can set excluded names
+type_name:
+  min_length: 3 # only warning
+  max_length: # warning and error
+    warning: 45
+    error: 50
+  excluded: iPhone # excluded via string
+  allowed_symbols: ["_"] # these are allowed in type names
+
+identifier_name:
+  min_length: # only min_length
+    warning: 2
+  excluded: # excluded via string array
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji, sonarqube, markdown)
+
+custom_rules:
+  drop_first_one:
+    name: "Drop first one"
+    message: "Implicitly drop first one element"
+    regex: "(\\.dropFirst\\(1\\))"
+
+  discouraged_optional_self:
+    name: "Discouraged optional self"
+    message: "Unwrap self via guard let and use implicit self instead of optional self"
+    regex: "(self\\?\\.)"
+
+  discouraged_previewprovider:
+    name: "Discouraged PreviewProvider"
+    message: "Use #Preview macro insteaf of PreviewProvider"
+    regex: "(PreviewProvider)"
+
+  discouraged_anyview:
+    name: "Discouraged AnyView"
+    message: "Avoid using AnyView for better performance"
+    regex: "(AnyView)"
+
+  discouraged_body_font:
+    name: "Discouraged body font"
+    message: "Prefer implicit body font"
+    regex: "(\\.font\\(\\.body\\))"
+  
+  discouraged_regular_font_weight:
+    name: "Discouraged regular font weight"
+    message: "Prefer implicit regular font weight"
+    regex: "(\\.fontWeight\\(\\.regular\\))"
+
+  discouraged_verbose_contentshape_rectangle:
+    name: "Discouraged verbose .contentShape(Rectangle())"
+    message: "Prefer static member lookup version .contentShape(.rectangle)"
+    regex: "(\\.contentShape\\(Rectangle\\(\\))"
+
+  deprecated_foregroundcolor_modifier:
+    name: "Deprecated foregroundColor modifier"
+    message: "Prefer foregroundStyle over deprecated foregroundColor"
+    regex: "(foregroundColor\\()"
+
+  nil_if_empty:
+    name: "Nil if empty"
+    message: "Use Collection's computed property nilIfEmpty"
+    regex: "\\.isEmpty \\? nil"

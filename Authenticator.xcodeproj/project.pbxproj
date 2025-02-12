@@ -6,7 +6,28 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 5B387F7B2D54CFD1006E0312 /* Factory */; };
+		5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C982D5618E500E7BCD4 /* Macro */; };
+		5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */; };
+		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
+		5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */; };
+		5B5E0D5E2D5A38DD00E7BCD4 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */; };
+		5B5E0D692D5A38DD00E7BCD4 /* Autofill.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
+		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
+		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
+		5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765752D527F9C00B4CC30 /* PresentationLayer */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		5B5E0D672D5A38DD00E7BCD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B5E0D5B2D5A38DD00E7BCD4;
+			remoteInfo = Autofill;
+		};
 		5B87652C2D52539E00B4CC30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
@@ -23,23 +44,61 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		5B5E0D6F2D5A38DD00E7BCD4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5B5E0D692D5A38DD00E7BCD4 /* Autofill.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		5B5E0C5C2D5612D400E7BCD4 /* Macro */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Macro; path = LocalPackages/Macro; sourceTree = "<group>"; };
+		5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AuthenticatorRustCore; path = LocalPackages/AuthenticatorRustCore; sourceTree = "<group>"; };
+		5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Autofill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		5B5E0DC22D5A50EB00E7BCD4 /* CommonUtilities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CommonUtilities; path = LocalPackages/CommonUtilities; sourceTree = "<group>"; };
 		5B8765172D52539D00B4CC30 /* Authenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Authenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B87652B2D52539E00B4CC30 /* AuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B87656A2D527F8700B4CC30 /* DataLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DataLayer; path = LocalPackages/DataLayer; sourceTree = "<group>"; };
+		5B87656B2D527F8700B4CC30 /* DomainLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DomainLayer; path = LocalPackages/DomainLayer; sourceTree = "<group>"; };
+		5B87656C2D527F8700B4CC30 /* Models */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Models; path = LocalPackages/Models; sourceTree = "<group>"; };
+		5B87656D2D527F8700B4CC30 /* PresentationLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PresentationLayer; path = LocalPackages/PresentationLayer; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		5B87653D2D52539E00B4CC30 /* Exceptions for "Authenticator" folder in "Authenticator" target */ = {
+		5B5E0D6E2D5A38DD00E7BCD4 /* Exceptions for "Autofill" folder in "Autofill" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+			);
+			target = 5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */;
+		};
+		5B87653D2D52539E00B4CC30 /* Exceptions for "Authenticator" folder in "Authenticator" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App/Info.plist,
 			);
 			target = 5B8765162D52539D00B4CC30 /* Authenticator */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5B5E0D6E2D5A38DD00E7BCD4 /* Exceptions for "Autofill" folder in "Autofill" target */,
+			);
+			path = Autofill;
+			sourceTree = "<group>";
+		};
 		5B8765192D52539D00B4CC30 /* Authenticator */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -61,10 +120,27 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5B5E0D592D5A38DD00E7BCD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B5E0D5E2D5A38DD00E7BCD4 /* AuthenticationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B8765142D52539D00B4CC30 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B8765742D527F9C00B4CC30 /* Models in Frameworks */,
+				5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */,
+				5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */,
+				5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */,
+				5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */,
+				5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */,
+				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
+				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
+				5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +167,15 @@
 				5B8765192D52539D00B4CC30 /* Authenticator */,
 				5B87652E2D52539E00B4CC30 /* AuthenticatorTests */,
 				5B8765382D52539E00B4CC30 /* AuthenticatorUITests */,
+				5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */,
+				5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */,
+				5B5E0DC22D5A50EB00E7BCD4 /* CommonUtilities */,
+				5B87656A2D527F8700B4CC30 /* DataLayer */,
+				5B87656B2D527F8700B4CC30 /* DomainLayer */,
+				5B87656C2D527F8700B4CC30 /* Models */,
+				5B87656D2D527F8700B4CC30 /* PresentationLayer */,
+				5B5E0C5C2D5612D400E7BCD4 /* Macro */,
+				5B87656E2D527F9C00B4CC30 /* Frameworks */,
 				5B8765182D52539D00B4CC30 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,30 +186,74 @@
 				5B8765172D52539D00B4CC30 /* Authenticator.app */,
 				5B87652B2D52539E00B4CC30 /* AuthenticatorTests.xctest */,
 				5B8765352D52539E00B4CC30 /* AuthenticatorUITests.xctest */,
+				5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5B87656E2D527F9C00B4CC30 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5B8765162D52539D00B4CC30 /* Authenticator */ = {
+		5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5B87653E2D52539E00B4CC30 /* Build configuration list for PBXNativeTarget "Authenticator" */;
+			buildConfigurationList = 5B5E0D6A2D5A38DD00E7BCD4 /* Build configuration list for PBXNativeTarget "Autofill" */;
 			buildPhases = (
-				5B8765132D52539D00B4CC30 /* Sources */,
-				5B8765142D52539D00B4CC30 /* Frameworks */,
-				5B8765152D52539D00B4CC30 /* Resources */,
+				5B5E0D582D5A38DD00E7BCD4 /* Sources */,
+				5B5E0D592D5A38DD00E7BCD4 /* Frameworks */,
+				5B5E0D5A2D5A38DD00E7BCD4 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */,
+			);
+			name = Autofill;
+			packageProductDependencies = (
+			);
+			productName = Autofill;
+			productReference = 5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5B8765162D52539D00B4CC30 /* Authenticator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B87653E2D52539E00B4CC30 /* Build configuration list for PBXNativeTarget "Authenticator" */;
+			buildPhases = (
+				5B87655D2D527A0800B4CC30 /* Swiftformat */,
+				5B8765132D52539D00B4CC30 /* Sources */,
+				5B8765142D52539D00B4CC30 /* Frameworks */,
+				5B8765152D52539D00B4CC30 /* Resources */,
+				5B87655E2D527A4600B4CC30 /* Swiftlint */,
+				5B5E0D6F2D5A38DD00E7BCD4 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B5E0D682D5A38DD00E7BCD4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
 				5B8765192D52539D00B4CC30 /* Authenticator */,
 			);
 			name = Authenticator;
 			packageProductDependencies = (
+				5B87656F2D527F9C00B4CC30 /* DataLayer */,
+				5B8765712D527F9C00B4CC30 /* DomainLayer */,
+				5B8765732D527F9C00B4CC30 /* Models */,
+				5B8765752D527F9C00B4CC30 /* PresentationLayer */,
+				5B387F7B2D54CFD1006E0312 /* Factory */,
+				5B5E0C982D5618E500E7BCD4 /* Macro */,
+				5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */,
+				5B5E0D542D5A332D00E7BCD4 /* Sentry */,
+				5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -186,6 +315,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					5B5E0D5B2D5A38DD00E7BCD4 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					5B8765162D52539D00B4CC30 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -205,9 +337,14 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 5B87650E2D52539D00B4CC30;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */,
+				5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B8765182D52539D00B4CC30 /* Products */;
 			projectDirPath = "";
@@ -216,11 +353,19 @@
 				5B8765162D52539D00B4CC30 /* Authenticator */,
 				5B87652A2D52539E00B4CC30 /* AuthenticatorTests */,
 				5B8765342D52539E00B4CC30 /* AuthenticatorUITests */,
+				5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5B5E0D5A2D5A38DD00E7BCD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B8765152D52539D00B4CC30 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -244,7 +389,55 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		5B87655D2D527A0800B4CC30 /* Swiftformat */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftformat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "scripts/public/swiftformat.sh\n\n";
+		};
+		5B87655E2D527A4600B4CC30 /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "scripts/public/swiftlint.sh\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		5B5E0D582D5A38DD00E7BCD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B8765132D52539D00B4CC30 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -269,6 +462,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5B5E0D682D5A38DD00E7BCD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */;
+			targetProxy = 5B5E0D672D5A38DD00E7BCD4 /* PBXContainerItemProxy */;
+		};
 		5B87652D2D52539E00B4CC30 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5B8765162D52539D00B4CC30 /* Authenticator */;
@@ -282,20 +480,80 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		5B87653F2D52539E00B4CC30 /* Debug */ = {
+		5B5E0D432D5A2CBF00E7BCD4 /* Release-QA */ = {
 			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = "Release-QA";
+		};
+		5B5E0D442D5A2CBF00E7BCD4 /* Release-QA */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 5B8765192D52539D00B4CC30 /* Authenticator */;
+			baseConfigurationReferenceRelativePath = "App/BuildConfigs/Release-QA.xcconfig";
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Authenticator/Authenticator.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Authenticator/Info.plist;
+				INFOPLIST_FILE = Authenticator/App/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -311,12 +569,188 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.proton.Authenticator;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = "Release-QA";
+		};
+		5B5E0D452D5A2CBF00E7BCD4 /* Release-QA */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.AuthenticatorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = "Release-QA";
+		};
+		5B5E0D462D5A2CBF00E7BCD4 /* Release-QA */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.AuthenticatorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Authenticator;
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = "Release-QA";
+		};
+		5B5E0D6B2D5A38DD00E7BCD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Autofill/Autofill.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Autofill/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Autofill;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5B5E0D6C2D5A38DD00E7BCD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Autofill/Autofill.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Autofill/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Autofill;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5B5E0D6D2D5A38DD00E7BCD4 /* Release-QA */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Autofill/Autofill.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Autofill/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Autofill;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-QA";
+		};
+		5B87653F2D52539E00B4CC30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 5B8765192D52539D00B4CC30 /* Authenticator */;
+			baseConfigurationReferenceRelativePath = App/BuildConfigs/Debug.xcconfig;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Authenticator/App/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -324,18 +758,23 @@
 		};
 		5B8765402D52539E00B4CC30 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 5B8765192D52539D00B4CC30 /* Authenticator */;
+			baseConfigurationReferenceRelativePath = App/BuildConfigs/Release.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Authenticator/Authenticator.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Authenticator/Info.plist;
+				INFOPLIST_FILE = Authenticator/App/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -351,12 +790,12 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.proton.Authenticator;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -419,7 +858,9 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -473,6 +914,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -492,7 +935,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator";
 				XROS_DEPLOYMENT_TARGET = 2.2;
@@ -515,7 +958,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator";
 				XROS_DEPLOYMENT_TARGET = 2.2;
@@ -537,7 +980,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_TARGET_NAME = Authenticator;
 				XROS_DEPLOYMENT_TARGET = 2.2;
@@ -559,7 +1002,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_TARGET_NAME = Authenticator;
 				XROS_DEPLOYMENT_TARGET = 2.2;
@@ -569,11 +1012,22 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5B5E0D6A2D5A38DD00E7BCD4 /* Build configuration list for PBXNativeTarget "Autofill" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B5E0D6B2D5A38DD00E7BCD4 /* Debug */,
+				5B5E0D6C2D5A38DD00E7BCD4 /* Release */,
+				5B5E0D6D2D5A38DD00E7BCD4 /* Release-QA */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5B8765122D52539D00B4CC30 /* Build configuration list for PBXProject "Authenticator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5B8765412D52539E00B4CC30 /* Debug */,
 				5B8765422D52539E00B4CC30 /* Release */,
+				5B5E0D432D5A2CBF00E7BCD4 /* Release-QA */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -583,6 +1037,7 @@
 			buildConfigurations = (
 				5B87653F2D52539E00B4CC30 /* Debug */,
 				5B8765402D52539E00B4CC30 /* Release */,
+				5B5E0D442D5A2CBF00E7BCD4 /* Release-QA */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -592,6 +1047,7 @@
 			buildConfigurations = (
 				5B8765442D52539E00B4CC30 /* Debug */,
 				5B8765452D52539E00B4CC30 /* Release */,
+				5B5E0D452D5A2CBF00E7BCD4 /* Release-QA */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -601,11 +1057,73 @@
 			buildConfigurations = (
 				5B8765472D52539E00B4CC30 /* Debug */,
 				5B8765482D52539E00B4CC30 /* Release */,
+				5B5E0D462D5A2CBF00E7BCD4 /* Release-QA */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.3;
+			};
+		};
+		5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.44.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5B387F7B2D54CFD1006E0312 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
+		5B5E0C982D5618E500E7BCD4 /* Macro */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Macro;
+		};
+		5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AuthenticatorRustCore;
+		};
+		5B5E0D542D5A332D00E7BCD4 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+		5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = SentrySwiftUI;
+		};
+		5B87656F2D527F9C00B4CC30 /* DataLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DataLayer;
+		};
+		5B8765712D527F9C00B4CC30 /* DomainLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DomainLayer;
+		};
+		5B8765732D527F9C00B4CC30 /* Models */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Models;
+		};
+		5B8765752D527F9C00B4CC30 /* PresentationLayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PresentationLayer;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B87650F2D52539D00B4CC30 /* Project object */;
 }
