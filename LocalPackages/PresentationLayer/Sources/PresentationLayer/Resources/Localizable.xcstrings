@@ -28,6 +28,9 @@
     "Close" : {
 
     },
+    "Dark" : {
+
+    },
     "Delete" : {
 
     },
@@ -58,10 +61,16 @@
     "Import tokens" : {
 
     },
+    "Light" : {
+
+    },
     "List style" : {
 
     },
     "MANAGE YOUR DATA" : {
+
+    },
+    "Match system" : {
 
     },
     "Next" : {

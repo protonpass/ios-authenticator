@@ -26,6 +26,7 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
+    @State private var showEditTheme = false
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -82,6 +83,10 @@ struct SettingsView: View {
             .toolbarBackground(.visible, for: .navigationBar, .tabBar)
             #endif
             .accentColor(.gradientStart)
+            .sheet(isPresented: $showEditTheme) {
+                EditThemeView(currentTheme: viewModel.theme,
+                              onUpdate: viewModel.updateTheme)
+            }
         }
     }
 }
@@ -103,7 +108,7 @@ private extension SettingsView {
             SettingDivider()
 
             SettingRow(title: .localized("App lock"),
-                       trailingMode: .detailChevron("Face ID", onTap: {}))
+                       trailingMode: .detailChevron(.verbatim("Face ID"), onTap: {}))
 
             SettingDivider()
 
@@ -116,12 +121,13 @@ private extension SettingsView {
     var appearanceSection: some View {
         section("APPEARANCE") {
             SettingRow(title: .localized("Theme"),
-                       trailingMode: .detailChevron("Dark", onTap: {}))
+                       trailingMode: .detailChevron(.localized(viewModel.theme.title),
+                                                    onTap: { showEditTheme.toggle() }))
 
             SettingDivider()
 
             SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevron("Regular", onTap: {}))
+                       trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
         }
     }
 
@@ -222,28 +228,14 @@ private struct SettingDivider: View {
 
 private struct SettingRow: View {
     var icon: ImageResource?
-    let title: Title
+    let title: TextContent
     var subtitle: LocalizedStringKey?
     let trailingMode: TrailingMode
-
-    enum Title {
-        case verbatim(String)
-        case localized(LocalizedStringKey)
-
-        var value: String {
-            switch self {
-            case let .verbatim(value):
-                value
-            case let .localized(value):
-                "\(value)"
-            }
-        }
-    }
 
     enum TrailingMode {
         case toggle(isOn: Bool, onToggle: () -> Void)
         case chevron(onTap: () -> Void)
-        case detailChevron(String, onTap: () -> Void)
+        case detailChevron(TextContent, onTap: () -> Void)
 
         var onTap: (() -> Void)? {
             switch self {
@@ -267,16 +259,9 @@ private struct SettingRow: View {
             }
 
             VStack(alignment: .leading) {
-                switch title {
-                case let .verbatim(value):
-                    Text(value)
-                        .foregroundStyle(.textNorm)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                case let .localized(value):
-                    Text(value)
-                        .foregroundStyle(.textNorm)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                }
+                Text(title)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 if let subtitle {
                     Text(subtitle)

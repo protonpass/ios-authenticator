@@ -1,6 +1,5 @@
 //
-//
-// SettingsViewModel.swift
+// Text+Extensions.swift
 // Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,42 +17,21 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
-import Foundation
-import Models
+import SwiftUI
 
-@Observable @MainActor
-final class SettingsViewModel {
-    private(set) var showPassBanner = true
-    private(set) var backUpEnabled = false
-    private(set) var syncEnabled = false
-    private(set) var tapToRevealCodeEnabled = false
-    private(set) var theme: Theme = .dark
-
-    init() {}
+enum TextContent {
+    case verbatim(String)
+    case localized(LocalizedStringKey)
 }
 
-extension SettingsViewModel {
-    func setUp() async {}
-
-    func togglePassBanner() {
-        showPassBanner.toggle()
-    }
-
-    func toggleBackUp() {
-        backUpEnabled.toggle()
-    }
-
-    func toggleSync() {
-        syncEnabled.toggle()
-    }
-
-    func toggleTapToRevealCode() {
-        tapToRevealCodeEnabled.toggle()
-    }
-
-    func updateTheme(_ newValue: Theme) {
-        theme = newValue
+extension Text {
+    init(_ content: TextContent) {
+        switch content {
+        case let .verbatim(value):
+            self.init(verbatim: value)
+        case let .localized(value):
+            self.init(value)
+        }
     }
 }
