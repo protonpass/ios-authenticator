@@ -13,7 +13,7 @@
     "Add some view here" : {
 
     },
-    "App" : {
+    "App lock" : {
 
     },
     "APPEARANCE" : {
@@ -22,7 +22,7 @@
     "appeareance" : {
 
     },
-    "barcode scanner" : {
+    "Backup" : {
 
     },
     "Close" : {
@@ -67,6 +67,27 @@
     "No token found. Please consider adding one." : {
 
     },
+    "Proton Authenticator will periodically save all the data to iCloud." : {
+
+    },
+    "Proton Calendar" : {
+
+    },
+    "Proton Drive" : {
+
+    },
+    "Proton Mail" : {
+
+    },
+    "Proton Pass" : {
+
+    },
+    "Proton VPN" : {
+
+    },
+    "Proton Wallet" : {
+
+    },
     "Search" : {
 
     },
@@ -77,6 +98,12 @@
 
     },
     "SUPPORT" : {
+
+    },
+    "Sync between devices" : {
+
+    },
+    "Tap to reveal codes" : {
 
     },
     "Theme" : {

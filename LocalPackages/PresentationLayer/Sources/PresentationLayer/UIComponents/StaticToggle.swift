@@ -1,7 +1,6 @@
 //
-//
-// TokensListViewModel.swift
-// Proton Authenticator - Created on 10/02/2025.
+// StaticToggle.swift
+// Proton Authenticator - Created on 12/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,19 +19,19 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import Foundation
-import Models
+import SwiftUI
 
-@Observable @MainActor
-final class TokensListViewModel {
-    private(set) var tokens: [Token] = []
-    var search = ""
+struct StaticToggle<Label: View>: View {
+    let isOn: Bool
+    let label: () -> Label
+    let onToggle: () -> Void
 
-    init() {
-        setUp()
+    var body: some View {
+        Toggle(isOn: .constant(isOn), label: { label() })
+            .simultaneousGesture(TapGesture().onEnded {
+                onToggle()
+            })
+            .tint(Color.success)
+            .fixedSize(horizontal: true, vertical: true)
     }
-}
-
-private extension TokensListViewModel {
-    func setUp() {}
 }

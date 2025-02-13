@@ -1,6 +1,6 @@
 //
-// TimerService.swift
-// Proton Authenticator - Created on 11/02/2025.
+// TokensListViewModel.swift
+// Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,26 +17,26 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+//
 
-import Combine
 import Foundation
+import Models
 
-public protocol TimerServicing {
-    var timer: Timer.TimerPublisher { get }
+@Observable @MainActor
+final class TokensListViewModel {
+    private(set) var tokens: [Token] = []
+    var search = ""
+
+    init() {
+        tokens.append(.init(name: "Test name",
+                            uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGDB&amp;issuer=SimpleLogin",
+                            period: 30,
+                            type: .totp,
+                            note: "test note"))
+        setUp()
+    }
 }
 
-public final class TimerService: TimerServicing {
-    public let timer: Timer.TimerPublisher
-    private let cancellable: AnyCancellable?
-
-    public init(timer: Timer.TimerPublisher = Timer.TimerPublisher(interval: 1,
-                                                                   runLoop: .main,
-                                                                   mode: .common)) {
-        self.timer = timer
-        cancellable = timer.connect() as? AnyCancellable
-    }
-
-    deinit {
-        cancellable?.cancel()
-    }
+private extension TokensListViewModel {
+    func setUp() {}
 }

@@ -134,7 +134,7 @@ private extension TokensListView {
                             .foregroundStyle(.textWeak)
                     }
                     // The actual text field.
-                    TextField("", text: $viewModel.search)
+                    TextField(text: $viewModel.search, label: { EmptyView() })
                         .focused($isTextFieldFocused)
                         .foregroundStyle(.textNorm)
                         .onSubmit {

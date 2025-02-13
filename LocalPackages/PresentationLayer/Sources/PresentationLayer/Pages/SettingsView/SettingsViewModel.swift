@@ -24,6 +24,10 @@ import Foundation
 
 @Observable @MainActor
 final class SettingsViewModel {
+    private(set) var backUpEnabled = false
+    private(set) var syncEnabled = false
+    private(set) var tapToRevealCodeEnabled = false
+
     init() {
         setUp()
     }
@@ -31,4 +35,18 @@ final class SettingsViewModel {
 
 private extension SettingsViewModel {
     func setUp() {}
+}
+
+extension SettingsViewModel {
+    func toggleBackUp() {
+        backUpEnabled.toggle()
+    }
+
+    func toggleSync() {
+        syncEnabled.toggle()
+    }
+
+    func toggleTapToRevealCode() {
+        tapToRevealCodeEnabled.toggle()
+    }
 }
