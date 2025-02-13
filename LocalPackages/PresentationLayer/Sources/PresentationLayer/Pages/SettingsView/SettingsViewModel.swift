@@ -24,20 +24,21 @@ import Foundation
 
 @Observable @MainActor
 final class SettingsViewModel {
+    private(set) var showPassBanner = true
     private(set) var backUpEnabled = false
     private(set) var syncEnabled = false
     private(set) var tapToRevealCodeEnabled = false
 
-    init() {
-        setUp()
-    }
-}
-
-private extension SettingsViewModel {
-    func setUp() {}
+    init() {}
 }
 
 extension SettingsViewModel {
+    func setUp() async {}
+
+    func togglePassBanner() {
+        showPassBanner.toggle()
+    }
+
     func toggleBackUp() {
         backUpEnabled.toggle()
     }

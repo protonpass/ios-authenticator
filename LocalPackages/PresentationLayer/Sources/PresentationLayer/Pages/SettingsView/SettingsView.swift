@@ -1,5 +1,4 @@
 //
-//
 // SettingsView.swift
 // Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -31,46 +30,58 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             List {
+                if viewModel.showPassBanner {
+                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {})
+                        .padding(.horizontal, 16)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets())
+                }
                 securitySection
                 appearanceSection
                 dataSection
                 supportSection
                 discoverySection
             }
+            .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
             .routingProvided
             .navigationTitle("Settings")
+            .task {
+                await viewModel.setUp()
+            }
             #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
             #endif
-                .background(.backgroundGradient)
-                .toolbar {
-                    #if os(iOS)
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Close")
-                                .foregroundStyle(.textWeak)
-                        }
+            .background(.backgroundGradient)
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Close")
+                            .foregroundStyle(.textWeak)
                     }
-                    #elseif os(macOS)
-                    ToolbarItem(placement: .navigation) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Close")
-                                .foregroundStyle(.textWeak)
-                        }
-                    }
-                    #endif
                 }
+                #elseif os(macOS)
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Close")
+                            .foregroundStyle(.textWeak)
+                    }
+                }
+                #endif
+            }
             #if os(iOS)
-                .toolbarColorScheme(.dark, for: .navigationBar, .tabBar)
-                .toolbarBackground(.gradientStart, for: .navigationBar, .tabBar)
-                .toolbarBackground(.visible, for: .navigationBar, .tabBar)
+            .toolbarColorScheme(.dark, for: .navigationBar, .tabBar)
+            .toolbarBackground(.gradientStart, for: .navigationBar, .tabBar)
+            .toolbarBackground(.visible, for: .navigationBar, .tabBar)
             #endif
-                .accentColor(.gradientStart)
+            .accentColor(.gradientStart)
         }
     }
 }
