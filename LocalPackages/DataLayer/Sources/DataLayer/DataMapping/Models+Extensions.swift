@@ -22,14 +22,14 @@ import AuthenticatorRustCore
 import Models
 
 extension AuthenticatorEntryModel {
-    var toToken: Token {
-        Token(name: name, uri: uri, period: Int(period), type: entryType.toType, note: note)
+    var toEntry: Entry {
+        Entry(name: name, uri: uri, period: Int(period), type: entryType.toType, note: note)
     }
 }
 
 extension [AuthenticatorEntryModel] {
-    var toTokens: [Token] {
-        map(\.toToken)
+    var toEntries: [Entry] {
+        map(\.toEntry)
     }
 }
 
@@ -44,13 +44,13 @@ extension AuthenticatorEntryType {
     }
 }
 
-extension [Token] {
+extension [Entry] {
     var toAuthenticatorEntries: [AuthenticatorEntryModel] {
         map(\.toAuthenticatorEntryModel)
     }
 }
 
-extension Token {
+extension Entry {
     var toAuthenticatorEntryModel: AuthenticatorEntryModel {
         AuthenticatorEntryModel(name: name,
                                 uri: uri,

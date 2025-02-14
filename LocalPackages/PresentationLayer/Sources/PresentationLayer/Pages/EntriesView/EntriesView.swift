@@ -1,6 +1,5 @@
 //
-//
-// TokensListView.swift
+// EntriesView.swift
 // Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -22,9 +21,10 @@
 
 import SwiftUI
 
-public struct TokensListView: View {
-    @State private var viewModel = TokensListViewModel()
-    @State private var router: Router = .init()
+public struct EntriesView: View {
+    @State private var viewModel = EntriesViewModel()
+    @State private var router = Router()
+    @State private var showCreationOptions = false
     @FocusState private var isTextFieldFocused: Bool
 
     public init() {}
@@ -34,11 +34,28 @@ public struct TokensListView: View {
             mainContainer
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
+                .confirmationDialog("Create",
+                                    isPresented: $showCreationOptions,
+                                    actions: {
+                                        #if os(iOS)
+                                        Button(action: {
+                                            router.presentedSheet = .qrCodeScanner
+                                        }, label: {
+                                            Text("Scan")
+                                        })
+                                        #endif
+
+                                        Button(action: {
+                                            router.presentedSheet = .createEditEntry(nil)
+                                        }, label: {
+                                            Text("Enter manually")
+                                        })
+                                    })
         }
     }
 }
 
-private extension TokensListView {
+private extension EntriesView {
     var mainContainer: some View {
         ZStack(alignment: .bottom) {
             // TODO: grid for ipad and mac
@@ -46,7 +63,7 @@ private extension TokensListView {
             actionBar
         }
         .overlay {
-            if viewModel.tokens.isEmpty {
+            if viewModel.entries.isEmpty {
                 /// In case there aren't any search results, we can
                 /// show the new content unavailable view.
                 ContentUnavailableView {
@@ -71,16 +88,16 @@ private extension TokensListView {
     }
 }
 
-private extension TokensListView {
+private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.tokens, id: \.self) { token in
-                TokenListCell(token: token)
+            ForEach(viewModel.entries, id: \.self) { entry in
+                EntryCell(entry: entry)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .swipeActions {
                         Button {
-                            router.presentedSheet = .createEditToken(token)
+                            router.presentedSheet = .createEditEntry(entry)
                         } label: {
                             Label("Edit", systemImage: "pencil")
                         }
@@ -169,16 +186,14 @@ private extension TokensListView {
     }
 
     func addToken() {
-        router.presentedSheet = {
-            #if os(iOS)
-            return .barcodeScanner
-            #else
-            return .createEditToken(nil)
-            #endif
-        }()
+        #if os(iOS)
+        showCreationOptions.toggle()
+        #else
+        router.presentedSheet = .createEditToken(nil)
+        #endif
     }
 }
 
 #Preview {
-    TokensListView()
+    EntriesView()
 }

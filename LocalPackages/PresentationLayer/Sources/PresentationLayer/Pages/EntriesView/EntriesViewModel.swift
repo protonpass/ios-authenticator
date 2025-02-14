@@ -1,6 +1,6 @@
 //
-// AuthenticatorApp.swift
-// Proton Authenticator - Created on 12/02/2025.
+// EntriesViewModel.swift
+// Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,31 +17,26 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-
-import PresentationLayer
-import SwiftData
-import SwiftUI
-
-@main
-struct AuthenticatorApp: App {
-//    var sharedModelContainer: ModelContainer = {
-//        let schema = Schema([
-//            Item.self
-//        ])
-//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 //
-//        do {
-//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-//        } catch {
-//            fatalError("Could not create ModelContainer: \(error)")
-//        }
-//    }()
 
-    var body: some Scene {
-        WindowGroup {
-            EntriesView()
-//            ContentView()
-        }
-//        .modelContainer(sharedModelContainer)
+import Foundation
+import Models
+
+@Observable @MainActor
+final class EntriesViewModel {
+    private(set) var entries: [Entry] = []
+    var search = ""
+
+    init() {
+        entries.append(.init(name: "Test name",
+                             uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGDB&amp;issuer=SimpleLogin",
+                             period: 30,
+                             type: .totp,
+                             note: "test note"))
+        setUp()
     }
+}
+
+private extension EntriesViewModel {
+    func setUp() {}
 }

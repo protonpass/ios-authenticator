@@ -28,6 +28,9 @@
     "Close" : {
 
     },
+    "Create" : {
+
+    },
     "Dark" : {
 
     },
@@ -38,6 +41,9 @@
 
     },
     "Edit" : {
+
+    },
+    "Enter manually" : {
 
     },
     "Export" : {
@@ -101,6 +107,9 @@
 
     },
     "Proton Wallet" : {
+
+    },
+    "Scan" : {
 
     },
     "Search" : {

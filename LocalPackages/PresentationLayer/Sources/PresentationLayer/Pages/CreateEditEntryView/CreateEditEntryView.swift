@@ -1,5 +1,5 @@
 //
-// TokensListViewModel.swift
+// CreateEditEntryView.swift
 // Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -19,24 +19,21 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import Foundation
 import Models
+import SwiftUI
 
-@Observable @MainActor
-final class TokensListViewModel {
-    private(set) var tokens: [Token] = []
-    var search = ""
+struct CreateEditEntryView: View {
+    @State private var viewModel: CreateEditEntryViewModel
 
-    init() {
-        tokens.append(.init(name: "Test name",
-                            uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGDB&amp;issuer=SimpleLogin",
-                            period: 30,
-                            type: .totp,
-                            note: "test note"))
-        setUp()
+    init(entry: Entry?) {
+        _viewModel = .init(wrappedValue: CreateEditEntryViewModel(entry: entry))
+    }
+
+    var body: some View {
+        Text("Add some view here")
     }
 }
 
-private extension TokensListViewModel {
-    func setUp() {}
+#Preview {
+    CreateEditEntryView(entry: nil)
 }

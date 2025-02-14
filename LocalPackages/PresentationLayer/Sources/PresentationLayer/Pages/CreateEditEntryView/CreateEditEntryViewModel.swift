@@ -1,6 +1,5 @@
 //
-//
-// CreateEditTokenViewModel.swift
+// CreateEditEntryViewModel.swift
 // Proton Authenticator - Created on 10/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -24,12 +23,6 @@ import Foundation
 import Models
 
 @Observable @MainActor
-final class CreateEditTokenViewModel {
-    init(item: Token?) {
-        setUp(item: item)
-    }
-}
-
-private extension CreateEditTokenViewModel {
-    func setUp(item: Token?) {}
+final class CreateEditEntryViewModel {
+    init(entry: Entry?) {}
 }

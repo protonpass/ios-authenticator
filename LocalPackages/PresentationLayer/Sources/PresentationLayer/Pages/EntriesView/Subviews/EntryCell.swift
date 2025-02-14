@@ -1,5 +1,5 @@
 //
-// TokenListCell.swift
+// EntryCell.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -24,11 +24,11 @@ import Factory
 import Models
 import SwiftUI
 
-public struct TokenListCell: View {
-    @State private var viewModel: TokenListCellModel
+struct EntryCell: View {
+    @State private var viewModel: EntryCellModel
 
-    public init(token: Token) {
-        _viewModel = .init(wrappedValue: TokenListCellModel(token: token))
+    public init(entry: Entry) {
+        _viewModel = .init(wrappedValue: EntryCellModel(entry: entry))
     }
 
     public var body: some View {
@@ -46,11 +46,11 @@ public struct TokenListCell: View {
                         .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
-                    Text(viewModel.token.name)
+                    Text(viewModel.entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(viewModel.token.uri)
+                    Text(viewModel.entry.uri)
                         .foregroundStyle(.textWeak)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,18 +117,22 @@ public struct TokenListCell: View {
 }
 
 #Preview {
-    TokenListCell(token: Token(name: "This is the name", uri: "plop@plop.com", period: 30, type: .totp, note: nil))
+    EntryCell(entry: Entry(name: "This is the name",
+                           uri: "plop@plop.com",
+                           period: 30,
+                           type: .totp,
+                           note: nil))
 }
 
 @MainActor
 @Observable
-final class TokenListCellModel {
+private final class EntryCellModel {
     private(set) var code: Code = .default
     private(set) var remainingTime: TimeInterval = 0
     private(set) var progress: Double = 1.0
     private(set) var countdown: Int = 0
 
-    private(set) var token: Token
+    let entry: Entry
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
@@ -137,24 +141,24 @@ final class TokenListCellModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.timerService) private(set) var timerService
     @ObservationIgnored
-    @LazyInjected(\RepositoryContainer.tokenRepository) private(set) var tokenRepository
+    @LazyInjected(\RepositoryContainer.entryRepository) private(set) var entryRepository
 
-    init(token: Token) {
-        self.token = token
+    init(entry: Entry) {
+        self.entry = entry
         code = getCode()
         setup()
     }
 }
 
-private extension TokenListCellModel {
+private extension EntryCellModel {
     func updateTOTP() {
-        let remaining = token.remainingTime
-        remainingTime = remaining > 0 ? remaining : Double(token.period)
-        if remainingTime >= Double(token.period) - 1 {
+        let remaining = entry.remainingTime
+        remainingTime = remaining > 0 ? remaining : Double(entry.period)
+        if remainingTime >= Double(entry.period) - 1 {
             // Code has expired, generate a new one
             code = getCode()
         }
-        progress = remainingTime / Double(token.period)
+        progress = remainingTime / Double(entry.period)
         // Delayed countdown logic
         countdown = Int(remainingTime)
     }
@@ -175,7 +179,8 @@ private extension TokenListCellModel {
     }
 
     func getCode() -> Code {
-        (try? tokenRepository.generateCodes(entries: [token]).first) ??
+        // TODO: Handle error
+        (try? entryRepository.generateCodes(entries: [entry]).first) ??
             Code.default
     }
 }

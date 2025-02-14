@@ -26,10 +26,10 @@ import Foundation
 import Models
 
 public protocol EncryptionServicing: Sendable {
-    func decrypt(ciphertext: Data) throws -> Token
-    func decryptMany(ciphertexts: [Data]) throws -> [Token]
-    func encrypt(model: Token) throws -> Data
-    func encrypt(models: [Token]) throws -> [Data]
+    func decrypt(ciphertext: Data) throws -> Entry
+    func decryptMany(ciphertexts: [Data]) throws -> [Entry]
+    func encrypt(model: Entry) throws -> Data
+    func encrypt(models: [Entry]) throws -> [Data]
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -59,19 +59,19 @@ public final class EncryptionService: EncryptionServicing {
         }
     }
 
-    public func decrypt(ciphertext: Data) throws -> Token {
-        try authenticatorCrypto.decryptEntry(ciphertext: ciphertext, key: encryptionKey).toToken
+    public func decrypt(ciphertext: Data) throws -> Entry {
+        try authenticatorCrypto.decryptEntry(ciphertext: ciphertext, key: encryptionKey).toEntry
     }
 
-    public func decryptMany(ciphertexts: [Data]) throws -> [Token] {
-        try authenticatorCrypto.decryptManyEntries(ciphertexts: ciphertexts, key: encryptionKey).toTokens
+    public func decryptMany(ciphertexts: [Data]) throws -> [Entry] {
+        try authenticatorCrypto.decryptManyEntries(ciphertexts: ciphertexts, key: encryptionKey).toEntries
     }
 
-    public func encrypt(model: Token) throws -> Data {
+    public func encrypt(model: Entry) throws -> Data {
         try authenticatorCrypto.encryptEntry(model: model.toAuthenticatorEntryModel, key: encryptionKey)
     }
 
-    public func encrypt(models: [Token]) throws -> [Data] {
+    public func encrypt(models: [Entry]) throws -> [Data] {
         try authenticatorCrypto.encryptManyEntries(models: models.toAuthenticatorEntries, key: encryptionKey)
     }
 }

@@ -28,10 +28,10 @@ public enum RouterDestination: Hashable {
 public enum SheetDestination: Hashable, Identifiable {
     public var id: Int { hashValue }
 
-    case createEditToken(Token?)
+    case createEditEntry(Entry?)
     case settings
     #if os(iOS)
-    case barcodeScanner
+    case qrCodeScanner
     #endif
 }
 
@@ -76,13 +76,13 @@ public extension View {
     func withSheetDestinations(sheetDestinations: Binding<SheetDestination?>) -> some View {
         sheet(item: sheetDestinations) { destination in
             switch destination {
-            case let .createEditToken(token):
-                CreateEditTokenView(item: token)
+            case let .createEditEntry(entry):
+                CreateEditEntryView(entry: entry)
             case .settings:
                 SettingsView()
             #if os(iOS)
-            case .barcodeScanner:
-                Text(verbatim: "barcode scanner")
+            case .qrCodeScanner:
+                Text(verbatim: "scanner")
 
 //                ScannerView()
             #endif

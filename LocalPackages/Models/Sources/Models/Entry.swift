@@ -1,5 +1,5 @@
 //
-// Token.swift
+// Entry.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct Token: Identifiable, Sendable, Hashable, Equatable, Codable {
+public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     public let id: String
     public let name: String
     public let uri: String
@@ -41,12 +41,8 @@ public struct Token: Identifiable, Sendable, Hashable, Equatable, Codable {
         self.period = period
         self.note = note
         self.type = type
-        precomputedHash = Self.computeHash(id: id,
-                                           name: name,
-                                           uri: uri,
-                                           period: period,
-                                           note: note,
-                                           type: type)
+        var hasher = Hasher()
+        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, note, type)
     }
 
     public var remainingTime: TimeInterval {
@@ -56,29 +52,8 @@ public struct Token: Identifiable, Sendable, Hashable, Equatable, Codable {
 
 // MARK: - Hashable
 
-// swiftlint:disable function_parameter_count
-extension Token {
-    public func hash(into hasher: inout Hasher) {
+public extension Entry {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(precomputedHash)
     }
-
-    // MARK: - Static Helper for Hash Pre computation
-
-    private static func computeHash(id: String,
-                                    name: String?,
-                                    uri: String,
-                                    period: Int,
-                                    note: String?,
-                                    type: TotpType) -> Int {
-        var hasher = Hasher()
-        hasher.combine(id)
-        hasher.combine(name)
-        hasher.combine(uri)
-        hasher.combine(period)
-        hasher.combine(note)
-        hasher.combine(type)
-        return hasher.finalize()
-    }
 }
-
-// swiftlint:enable function_parameter_count

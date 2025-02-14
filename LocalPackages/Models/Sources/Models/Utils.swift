@@ -1,7 +1,6 @@
 //
-//
-// CreateEditTokenView.swift
-// Proton Authenticator - Created on 10/02/2025.
+// Utils.swift
+// Proton Authenticator - Created on 14/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,23 +17,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
-import Models
-import SwiftUI
+import Foundation
 
-struct CreateEditTokenView: View {
-    @State private var viewModel: CreateEditTokenViewModel
-
-    init(item: Token? = nil) {
-        _viewModel = .init(wrappedValue: CreateEditTokenViewModel(item: item))
+extension Hasher {
+    mutating func combineAndFinalize(_ values: (any Hashable)...) -> Int {
+        for value in values {
+            combine(value)
+        }
+        return finalize()
     }
-
-    var body: some View {
-        Text("Add some view here")
-    }
-}
-
-#Preview {
-    CreateEditTokenView()
 }

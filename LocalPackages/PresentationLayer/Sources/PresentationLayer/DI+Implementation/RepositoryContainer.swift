@@ -29,7 +29,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
         manager.defaultScope = .singleton
     }
 
-    var tokenRepository: Factory<TokenRepositoryProtocol> {
-        self { TokenRepository() }
+    var entryRepository: Factory<any EntryRepositoryProtocol> {
+        self { EntryRepository() }
     }
 }
