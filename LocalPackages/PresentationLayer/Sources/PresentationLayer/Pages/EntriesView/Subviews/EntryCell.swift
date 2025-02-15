@@ -27,11 +27,11 @@ import SwiftUI
 struct EntryCell: View {
     @State private var viewModel: EntryCellModel
 
-    public init(entry: Entry) {
+    init(entry: Entry) {
         _viewModel = .init(wrappedValue: EntryCellModel(entry: entry))
     }
 
-    public var body: some View {
+    var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {}
@@ -107,6 +107,9 @@ struct EntryCell: View {
         .overlay(RoundedRectangle(cornerRadius: 18)
             .inset(by: 0.5)
             .stroke(Color(red: 0.92, green: 0.92, blue: 0.92).opacity(0.5), lineWidth: 1))
+        .task {
+            viewModel.updateTOTP()
+        }
         .onTapGesture {
             viewModel.copyToClipboard()
         }
@@ -137,7 +140,7 @@ private final class EntryCellModel {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
-    var update = false
+    var update = true
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.timerService) private(set) var timerService
     @ObservationIgnored
@@ -174,6 +177,7 @@ private extension EntryCellModel {
     }
 
     func copyToClipboard() {
+        // TODO: Take into account user settings (expiration, share with other devices...)
         let pasteboard = UIPasteboard.general
         pasteboard.string = code.current
     }
@@ -218,16 +222,25 @@ private struct CircularProgressView: View {
             Text("\(countdown)")
                 .font(.caption)
                 .foregroundStyle(.textNorm)
+                .monospacedDigit()
         }
+        .animation(.default, value: progress)
     }
 
     var progressColor: Color {
-        if countdown > 10 {
-            Color.success
-        } else if 5...10 ~= countdown {
-            .warning
-        } else {
-            .danger
+        switch progress {
+        case 0.0...0.08:
+            .timerLevel1
+        case 0.08...0.16:
+            .timerLevel2
+        case 0.16...0.25:
+            .timerLevel3
+        case 0.25...0.33:
+            .timerLevel4
+        case 0.33...0.4:
+            .timerLevel5
+        default:
+            .timerLevel6
         }
     }
 }
