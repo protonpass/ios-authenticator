@@ -27,7 +27,7 @@ let package = Package(
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
-
+        .package(name: "Macro", path: "../Macro")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -38,7 +38,8 @@ let package = Package(
                 .product(name: "DocScanner", package: "DocScanner"),
                 .product(name: "Factory", package: "Factory"),
                 .product(name: "Models", package: "Models"),
-                .product(name: "DataLayer", package: "DataLayer")
+                .product(name: "DataLayer", package: "DataLayer"),
+                .product(name: "Macro", package: "Macro")
             ],
             resources: [.process("Resources")]),
         .testTarget(

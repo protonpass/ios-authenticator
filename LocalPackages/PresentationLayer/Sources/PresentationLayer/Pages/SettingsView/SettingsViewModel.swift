@@ -21,6 +21,7 @@
 //
 
 import Foundation
+import Macro
 import Models
 
 @Observable @MainActor
@@ -30,12 +31,24 @@ final class SettingsViewModel {
     private(set) var syncEnabled = false
     private(set) var tapToRevealCodeEnabled = false
     private(set) var theme: Theme = .dark
+    private(set) var versionString: String?
 
-    init() {}
+    @ObservationIgnored
+    private let bundle: Bundle
+
+    var isQaBuild: Bool {
+        bundle.isQaBuild
+    }
+
+    init(bundle: Bundle = .main) {
+        self.bundle = bundle
+    }
 }
 
 extension SettingsViewModel {
-    func setUp() async {}
+    func setUp() async {
+        versionString = #localized("Version %@", bundle.displayedAppVersion)
+    }
 
     func togglePassBanner() {
         showPassBanner.toggle()

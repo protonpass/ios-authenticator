@@ -49,3 +49,11 @@ public extension View {
         }
     }
 }
+
+public extension View {
+    func plainListRow() -> some View {
+        listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets())
+    }
+}

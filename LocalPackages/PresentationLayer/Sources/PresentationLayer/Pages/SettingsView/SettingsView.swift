@@ -26,6 +26,7 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
+    @State private var showQaMenu = false
     @State private var showEditTheme = false
 
     var body: some View {
@@ -34,16 +35,16 @@ struct SettingsView: View {
                 if viewModel.showPassBanner {
                     PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {})
                         .padding(.horizontal, 16)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
                         .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets())
+                        .plainListRow()
                 }
                 securitySection
                 appearanceSection
                 dataSection
                 supportSection
                 discoverySection
+                versionLabel
+                    .padding(.top, 32)
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
@@ -83,6 +84,9 @@ struct SettingsView: View {
             .toolbarBackground(.visible, for: .navigationBar, .tabBar)
             #endif
             .accentColor(.gradientStart)
+            .sheet(isPresented: $showQaMenu) {
+                QAMeuView()
+            }
             .sheet(isPresented: $showEditTheme) {
                 EditThemeView(currentTheme: viewModel.theme,
                               onUpdate: viewModel.updateTheme)
@@ -174,6 +178,22 @@ private extension SettingsView {
                    trailingMode: .chevron(onTap: { open(urlString: "https://proton.me/\(path)") }))
     }
 
+    @ViewBuilder
+    var versionLabel: some View {
+        if let version = viewModel.versionString {
+            Text(version)
+                .font(.callout)
+                .foregroundStyle(.textWeak)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .plainListRow()
+                .if(viewModel.isQaBuild) { view in
+                    view.onTapGesture(count: 3) {
+                        showQaMenu.toggle()
+                    }
+                }
+        }
+    }
+
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         Section {
             VStack(alignment: .leading, spacing: 0) {
@@ -194,10 +214,8 @@ private extension SettingsView {
                 .padding(.leading)
                 .foregroundStyle(.textWeak)
         }
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
+        .plainListRow()
         .padding(.horizontal, 16)
-        .listRowInsets(EdgeInsets())
     }
 
     func open(urlString: String) {
