@@ -1,6 +1,6 @@
 //
-// EntriesViewModel.swift
-// Proton Authenticator - Created on 10/02/2025.
+// String+Extensions.swift
+// Proton Authenticator - Created on 15/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,31 +17,24 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
 import Foundation
-import Models
 
-@Observable @MainActor
-final class EntriesViewModel {
-    private(set) var entries: [Entry] = []
-    var search = ""
+public extension StringProtocol {
+    func separatedByGroup(_ charCount: Int, delimiter: Character) -> String {
+        guard charCount > 0 else { return String(self) }
 
-    init() {
-        #if DEBUG
-        for index in 0..<40 {
-            entries.append(.init(name: "Test #\(index)",
-                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGDB\(index)&amp;issuer=SimpleLogin",
-                                 period: 30,
-                                 type: .totp,
-                                 note: "Note #\(index)"))
+        var result = ""
+        let reversedString = String(reversed())
+
+        for (index, character) in reversedString.enumerated() {
+            result.append(character)
+
+            if (index + 1) % charCount == 0, index + 1 != reversedString.count {
+                result.append(delimiter)
+            }
         }
-        #endif
 
-        setUp()
+        return String(result.reversed())
     }
-}
-
-private extension EntriesViewModel {
-    func setUp() {}
 }

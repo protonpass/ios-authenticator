@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Combine
+import CommonUtilities
 import DataLayer
 import Factory
 import Models
@@ -51,6 +52,7 @@ struct EntryCell: View {
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
                     Text(viewModel.entry.uri)
+                        .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -67,8 +69,9 @@ struct EntryCell: View {
                 ForEach(Array(viewModel.code.current.enumerated()), id: \.offset) { _, char in
                     HStack(alignment: .center, spacing: 10) {
                         Text("\(char)")
-                            .font(Font.custom("SF Mono", size: 28)
-                                .weight(.semibold))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .monospaced()
                             .foregroundStyle(.textNorm)
                     }
                     .padding(.horizontal, 5)
@@ -84,7 +87,8 @@ struct EntryCell: View {
                 VStack(alignment: .trailing) {
                     Text("Next")
                         .foregroundStyle(.textWeak)
-                    Text(viewModel.code.next)
+                    Text(viewModel.code.next.separatedByGroup(3, delimiter: " "))
+                        .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
                 }
@@ -93,6 +97,7 @@ struct EntryCell: View {
             .padding(.horizontal, 16)
         }
         // TODO: find a workaround for < iOS 18
+        // Maybe we could use https://developer.apple.com/documentation/swiftui/visualeffect
         /*
          .onScrollVisibilityChange(threshold: 0) { visible in
              viewModel.update = visible
