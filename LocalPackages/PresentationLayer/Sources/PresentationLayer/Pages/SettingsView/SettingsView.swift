@@ -45,6 +45,7 @@ struct SettingsView: View {
                 discoverySection
                 versionLabel
                     .padding(.top, 32)
+                    .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)

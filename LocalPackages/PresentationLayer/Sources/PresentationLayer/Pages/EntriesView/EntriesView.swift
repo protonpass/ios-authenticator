@@ -160,16 +160,21 @@ private extension EntriesView {
                             .foregroundStyle(.textWeak)
                     }
                     // The actual text field.
-                    TextField(text: $viewModel.search, label: { EmptyView() })
-                        .focused($isTextFieldFocused)
-                        .foregroundStyle(.textNorm)
-                        .onSubmit {
-                            isTextFieldFocused = false
-                        }
+                    TextField(text: $viewModel.search,
+                              label: {
+                                  if isTextFieldFocused {
+                                      Text("Search")
+                                  }
+                              })
+                              .focused($isTextFieldFocused)
+                              .foregroundStyle(.textNorm)
+                              .submitLabel(.done)
+                              .onSubmit {
+                                  isTextFieldFocused = false
+                              }
                 }
                 .padding(.leading, 8)
             }
-            .animation(.default, value: isTextFieldFocused)
 
             if !isTextFieldFocused {
                 Button {
@@ -181,17 +186,26 @@ private extension EntriesView {
                 }
             }
         }
+        .animation(.default, value: isTextFieldFocused)
         .foregroundStyle(.textWeak)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(Color(red: 0.1, green: 0.1, blue: 0.15).opacity(0.5))
+        .background(Color(red: 0.1, green: 0.1, blue: 0.15))
         .cornerRadius(12)
-        .overlay(RoundedRectangle(cornerRadius: 12)
+        .background(RoundedRectangle(cornerRadius: 12)
             .inset(by: 0.25)
+            .offset(y: 1)
             .stroke(.white.opacity(0.2), lineWidth: 0.5))
         .padding(.horizontal, 22)
-        .padding(.bottom, 15)
+        .padding(.vertical, 8)
+        .background(.gradientStart)
+        .overlay(alignment: .top) {
+            // Top border line
+            Rectangle()
+                .frame(height: 1)
+                .foregroundStyle(.gradientEnd)
+        }
     }
 
     func addToken() {
