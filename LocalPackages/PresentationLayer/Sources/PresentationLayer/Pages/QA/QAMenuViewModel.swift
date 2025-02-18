@@ -1,0 +1,51 @@
+//
+// QAMenuViewModel.swift
+// Proton Authenticator - Created on 18/02/2025.
+// Copyright (c) 2025 Proton Technologies AG
+//
+// This file is part of Proton Authenticator.
+//
+// Proton Authenticator is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Proton Authenticator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+//
+
+import CommonUtilities
+import Foundation
+
+@MainActor
+@Observable
+final class QAMenuViewModel {
+    var mockEntriesDisplay: Bool {
+        didSet {
+            userDefaults.setValue(mockEntriesDisplay, forKey: AppConstants.QA.mockEntriesDisplay)
+        }
+    }
+
+    var mockEntriesCount: Int {
+        didSet {
+            userDefaults.setValue(mockEntriesCount, forKey: AppConstants.QA.mockEntriesCount)
+        }
+    }
+
+    @ObservationIgnored
+    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200]
+
+    @ObservationIgnored
+    private let userDefaults: UserDefaults
+
+    init(userDefaults: UserDefaults = kSharedUserDefaults) {
+        self.userDefaults = userDefaults
+        mockEntriesDisplay = userDefaults.bool(forKey: AppConstants.QA.mockEntriesDisplay)
+        mockEntriesCount = userDefaults.integer(forKey: AppConstants.QA.mockEntriesCount)
+    }
+}

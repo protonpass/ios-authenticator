@@ -85,7 +85,7 @@ struct SettingsView: View {
             #endif
             .accentColor(.gradientStart)
             .sheet(isPresented: $showQaMenu) {
-                QAMeuView()
+                QAMenuView()
             }
             .sheet(isPresented: $showEditTheme) {
                 EditThemeView(currentTheme: viewModel.theme,
@@ -296,6 +296,7 @@ private struct SettingRow: View {
             switch trailingMode {
             case let .toggle(isOn, onToggle):
                 StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
+                    .fixedSize(horizontal: true, vertical: false)
 
             case .chevron:
                 Image(systemName: "chevron.right")

@@ -45,7 +45,8 @@ struct PassBanner: View {
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(.black.opacity(0.5))
-        .background(EllipticalGradient(stops: [
+        .background(EllipticalGradient(stops:
+            [
                 Gradient.Stop(color: Color(red: 1, green: 0.83, blue: 0.5), location: 0.00),
                 Gradient.Stop(color: Color(red: 0.96, green: 0.77, blue: 0.57), location: 0.09),
                 Gradient.Stop(color: Color(red: 0.92, green: 0.71, blue: 0.64), location: 0.20),

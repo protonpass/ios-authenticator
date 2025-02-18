@@ -32,6 +32,5 @@ struct StaticToggle<Label: View>: View {
                 onToggle()
             })
             .tint(Color.success)
-            .fixedSize(horizontal: true, vertical: true)
     }
 }

@@ -34,6 +34,9 @@ public struct EntriesView: View {
             mainContainer
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
+                .task {
+                    await viewModel.setUp()
+                }
                 .confirmationDialog("Create",
                                     isPresented: $showCreationOptions,
                                     actions: {
@@ -79,6 +82,12 @@ private extension EntriesView {
 
                         Button("Import tokens") {}
                             .buttonStyle(.bordered)
+
+                        Button(action: {
+                            router.presentedSheet = .settings
+                        }, label: {
+                            Text(verbatim: "Settings")
+                        })
                     }
                 }
                 .foregroundStyle(.textNorm)

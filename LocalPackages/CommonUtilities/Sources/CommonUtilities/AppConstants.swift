@@ -20,9 +20,23 @@
 
 import Foundation
 
+public nonisolated(unsafe) let kSharedUserDefaults: UserDefaults = {
+    if let userDefaults = UserDefaults(suiteName: AppConstants.accessGroup) {
+        return userDefaults
+    } else {
+        assertionFailure("Shared UserDefaults could not be initialized. Verify app group set up.")
+        return .standard
+    }
+}()
+
 public enum AppConstants {
     public static let teamId = "2SB5Z68H26"
     public static let service = "me.proton.authenticator"
     public static let accessGroup = "group.me.proton.authenticator"
     public static let keychainGroup = "\(teamId).\(accessGroup)"
+
+    public enum QA {
+        public static let mockEntriesDisplay = "MockEntriesDisplay"
+        public static let mockEntriesCount = "MockEntriesCount"
+    }
 }

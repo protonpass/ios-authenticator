@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Foundation
 import Models
 
@@ -27,21 +28,43 @@ final class EntriesViewModel {
     private(set) var entries: [Entry] = []
     var search = ""
 
-    init() {
-        #if DEBUG
-        for index in 0..<1_000 {
+    @ObservationIgnored
+    private let bundle: Bundle
+    @ObservationIgnored
+    private let userDefaults: UserDefaults
+
+    init(bundle: Bundle = .main,
+         userDefaults: UserDefaults = kSharedUserDefaults) {
+        self.bundle = bundle
+        self.userDefaults = userDefaults
+    }
+}
+
+extension EntriesViewModel {
+    func setUp() async {
+        if !mockEntries() {
+            // Fetch real data
+        }
+    }
+}
+
+private extension EntriesViewModel {
+    func mockEntries() -> Bool {
+        guard bundle.isQaBuild, userDefaults.bool(forKey: AppConstants.QA.mockEntriesDisplay) else {
+            return false
+        }
+        let count = max(5, userDefaults.integer(forKey: AppConstants.QA.mockEntriesCount))
+
+        var entries = [Entry]()
+        for index in 0..<count {
             entries.append(.init(name: "Test #\(index)",
                                  uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
                                  period: 30,
                                  type: .totp,
                                  note: "Note #\(index)"))
         }
-        #endif
 
-        setUp()
+        self.entries = entries
+        return true
     }
-}
-
-private extension EntriesViewModel {
-    func setUp() {}
 }
