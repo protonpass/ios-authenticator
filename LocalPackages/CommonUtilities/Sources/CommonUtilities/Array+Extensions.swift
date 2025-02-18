@@ -1,6 +1,6 @@
 //
-// EntriesViewModel.swift
-// Proton Authenticator - Created on 10/02/2025.
+// Array+Extensions.swift
+// Proton Authenticator - Created on 17/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,31 +17,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
 import Foundation
-import Models
 
-@Observable @MainActor
-final class EntriesViewModel {
-    private(set) var entries: [Entry] = []
-    var search = ""
-
-    init() {
-        #if DEBUG
-        for index in 0..<1_000 {
-            entries.append(.init(name: "Test #\(index)",
-                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
-                                 period: 30,
-                                 type: .totp,
-                                 note: "Note #\(index)"))
+public extension Array {
+    subscript(safeIndex index: Int) -> Element? {
+        guard index >= 0, index < endIndex else {
+            return nil
         }
-        #endif
-
-        setUp()
+        return self[index]
     }
-}
-
-private extension EntriesViewModel {
-    func setUp() {}
 }

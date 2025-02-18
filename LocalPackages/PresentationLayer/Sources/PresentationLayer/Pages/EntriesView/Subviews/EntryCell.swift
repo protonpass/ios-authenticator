@@ -57,7 +57,9 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                CircularProgressView(progress: viewModel.progress, countdown: viewModel.countdown)
+                if let uiModel = viewModel.uiModel {
+                    CircularProgressView(progress: uiModel.progress, countdown: uiModel.countdown)
+                }
             }
             .padding(.top, 13)
             .padding(.horizontal, 16)
@@ -66,61 +68,53 @@ struct EntryCell: View {
                 .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: -1)
 
             HStack {
-                ForEach(Array(viewModel.code.current.enumerated()), id: \.offset) { _, char in
-                    HStack(alignment: .center, spacing: 10) {
-                        Text("\(char)")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                if let uiModel = viewModel.uiModel {
+                    ForEach(Array(uiModel.code.current.enumerated()), id: \.offset) { _, char in
+                        HStack(alignment: .center, spacing: 10) {
+                            Text("\(char)")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .monospaced()
+                                .foregroundStyle(.textNorm)
+                        }
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 4)
+                        .background(.black.opacity(0.16))
+                        .cornerRadius(8)
+                        .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                        .overlay(RoundedRectangle(cornerRadius: 8)
+                            .inset(by: -0.5)
+                            .stroke(.black.opacity(0.23), lineWidth: 1))
+                    }
+
+                    Spacer()
+
+                    VStack(alignment: .trailing) {
+                        Text("Next")
+                            .foregroundStyle(.textWeak)
+                        Text(uiModel.code.next.separatedByGroup(3, delimiter: " "))
                             .monospaced()
                             .foregroundStyle(.textNorm)
+                            .fontWeight(.semibold)
                     }
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 4)
-                    .background(.black.opacity(0.16))
-                    .cornerRadius(8)
-                    .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                    .overlay(RoundedRectangle(cornerRadius: 8)
-                        .inset(by: -0.5)
-                        .stroke(.black.opacity(0.23), lineWidth: 1))
-                }
-                Spacer()
-                VStack(alignment: .trailing) {
-                    Text("Next")
-                        .foregroundStyle(.textWeak)
-                    Text(viewModel.code.next.separatedByGroup(3, delimiter: " "))
-                        .monospaced()
-                        .foregroundStyle(.textNorm)
-                        .fontWeight(.semibold)
                 }
             }
             .padding(.bottom, 13)
             .padding(.horizontal, 16)
         }
-        // TODO: find a workaround for < iOS 18
-        // Maybe we could use https://developer.apple.com/documentation/swiftui/visualeffect
-        /*
-         .onScrollVisibilityChange(threshold: 0) { visible in
-             viewModel.update = visible
-             if visible {
-                 viewModel.updateTOTP()
-             }
-         }
-          */
+        .animation(.default, value: viewModel.uiModel)
         .background(.purple)
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .inset(by: 0.5)
             .stroke(Color(red: 0.92, green: 0.92, blue: 0.92).opacity(0.5), lineWidth: 1))
-        .task {
-            viewModel.updateTOTP()
-        }
         .onTapGesture {
             viewModel.copyToClipboard()
         }
-        //                        .simultaneousGesture(onTapGesture {
-        //                            viewModel.copyToClipboard(code: token.totp)
-        //                        })
+        .task {
+            viewModel.updateToken()
+        }
     }
 }
 
@@ -134,63 +128,52 @@ struct EntryCell: View {
 
 @MainActor
 @Observable
-private final class EntryCellModel {
-    private(set) var code: Code = .default
-    private(set) var remainingTime: TimeInterval = 0
-    private(set) var progress: Double = 1.0
-    private(set) var countdown: Int = 0
+private final class EntryCellModel: ObservableObject {
+    private(set) var uiModel: TokenUiModel?
 
+    @ObservationIgnored
     let entry: Entry
 
     @ObservationIgnored
-    private var cancellables = Set<AnyCancellable>()
-    @ObservationIgnored
-    var update = true
+    @LazyInjected(\ServiceContainer.tokenService) private(set) var tokenService
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.timerService) private(set) var timerService
+
     @ObservationIgnored
-    @LazyInjected(\RepositoryContainer.entryRepository) private(set) var entryRepository
+    private var cancellables = Set<AnyCancellable>()
 
     init(entry: Entry) {
         self.entry = entry
-        code = getCode()
-        setup()
-    }
-}
 
-private extension EntryCellModel {
-    func updateTOTP() {
-        let remaining = entry.remainingTime
-        remainingTime = remaining > 0 ? remaining : Double(entry.period)
-        if remainingTime >= Double(entry.period) - 1 {
-            // Code has expired, generate a new one
-            code = getCode()
-        }
-        progress = remainingTime / Double(entry.period)
-        // Delayed countdown logic
-        countdown = Int(remainingTime)
-    }
-
-    func setup() {
         timerService.timer
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                guard let self, update else { return }
-                updateTOTP()
+                guard let self else { return }
+                updateToken()
             }
             .store(in: &cancellables)
     }
 
+    func updateToken() {
+        do {
+            uiModel = try tokenService.getToken(for: entry)
+        } catch {
+            handle(error)
+        }
+    }
+}
+
+private extension EntryCellModel {
     func copyToClipboard() {
         // TODO: Take into account user settings (expiration, share with other devices...)
+        guard let uiModel else { return }
         let pasteboard = UIPasteboard.general
-        pasteboard.string = code.current
+        pasteboard.string = uiModel.code.current
     }
 
-    func getCode() -> Code {
+    func handle(_ error: any Error) {
         // TODO: Handle error
-        (try? entryRepository.generateCodes(entries: [entry]).first) ??
-            Code.default
+        print(error.localizedDescription)
     }
 }
 

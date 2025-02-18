@@ -29,9 +29,11 @@ final class ServiceContainer: SharedContainer, AutoRegistering {
         manager.defaultScope = .singleton
     }
 
-    var timerService: Factory<TimerServicing> {
-        self {
-            TimerService()
-        }
+    var timerService: Factory<any TimerServicing> {
+        self { TimerService() }
+    }
+
+    var tokenService: Factory<any TokenServiceProtocol> {
+        self { TokenService() }
     }
 }

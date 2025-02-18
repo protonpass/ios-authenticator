@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct Code: Sendable {
+public struct Code: Sendable, Hashable {
     public let current: String
     public let next: String
 
