@@ -56,4 +56,16 @@ public extension View {
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets())
     }
+
+    /// Show as confirmation dialog on iPhone, as alert on iPad because iPad doesn't support confirmation dialog
+    @ViewBuilder
+    func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
+                                    isPresented: Binding<Bool>,
+                                    @ViewBuilder actions: () -> some View) -> some View {
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            confirmationDialog(title, isPresented: isPresented, actions: actions)
+        } else {
+            alert(title, isPresented: isPresented, actions: actions)
+        }
+    }
 }

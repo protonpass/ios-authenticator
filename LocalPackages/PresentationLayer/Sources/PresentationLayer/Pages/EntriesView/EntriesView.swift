@@ -19,51 +19,58 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Models
 import SwiftUI
 
 public struct EntriesView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var showCreationOptions = false
     @FocusState private var isTextFieldFocused: Bool
+
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    private var searchBarAlignment: VerticalAlignment {
+        isPhone ? .bottom : .top
+    }
 
     public init() {}
 
     public var body: some View {
         NavigationStack {
             mainContainer
+                .background(.backgroundGradient)
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
                 .task {
                     await viewModel.setUp()
                 }
-                .confirmationDialog("Create",
-                                    isPresented: $showCreationOptions,
-                                    actions: {
-                                        #if os(iOS)
-                                        Button(action: {
-                                            router.presentedSheet = .qrCodeScanner
-                                        }, label: {
-                                            Text("Scan")
-                                        })
-                                        #endif
+                .adaptiveConfirmationDialog("Create",
+                                            isPresented: $showCreationOptions,
+                                            actions: {
+                                                #if os(iOS)
+                                                scanQrCodeButton
+                                                #endif
 
-                                        Button(action: {
-                                            router.presentedSheet = .createEditEntry(nil)
-                                        }, label: {
-                                            Text("Enter manually")
-                                        })
-                                    })
+                                                manuallyAddEntryButton
+                                            })
         }
     }
 }
 
 private extension EntriesView {
     var mainContainer: some View {
-        ZStack(alignment: .bottom) {
-            // TODO: grid for ipad and mac
-            list
+        DynamicContainer(type: searchBarAlignment == .bottom ? .zStack(alignment: .bottom) : .vStack()) {
             actionBar
+                .zIndex(1)
+            if horizontalSizeClass == .compact {
+                list
+            } else {
+                grid
+            }
         }
         .overlay {
             if viewModel.entries.isEmpty {
@@ -75,8 +82,12 @@ private extension EntriesView {
                     Text("No token found. Please consider adding one.")
                 } actions: {
                     VStack {
-                        Button("Add a new token") {
-                            addToken()
+                        Button("Add a new entry") {
+                            #if os(iOS)
+                            showCreationOptions.toggle()
+                            #else
+                            router.presentedSheet = .createEditEntry(nil)
+                            #endif
                         }
                         .buttonStyle(.bordered)
 
@@ -91,7 +102,6 @@ private extension EntriesView {
                     }
                 }
                 .foregroundStyle(.textNorm)
-                .background(.backgroundGradient)
             }
         }
     }
@@ -101,22 +111,7 @@ private extension EntriesView {
     var list: some View {
         List {
             ForEach(viewModel.entries, id: \.self) { entry in
-                EntryCell(entry: entry)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .swipeActions {
-                        Button {
-                            router.presentedSheet = .createEditEntry(entry)
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(.yellow)
-
-                        Button {} label: {
-                            Label("Delete", systemImage: "trash.fill")
-                        }
-                        .tint(.red)
-                    }
+                cell(for: entry)
             }
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
@@ -129,6 +124,36 @@ private extension EntriesView {
             .animation(.default, value: isTextFieldFocused)
             .onTapGesture {
                 isTextFieldFocused = false
+            }
+    }
+
+    var grid: some View {
+        ScrollView {
+            LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
+                ForEach(viewModel.entries) { entry in
+                    cell(for: entry)
+                }
+            }
+            .padding()
+        }
+    }
+
+    func cell(for entry: Entry) -> some View {
+        EntryCell(entry: entry)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .swipeActions {
+                Button {
+                    router.presentedSheet = .createEditEntry(entry)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .tint(.yellow)
+
+                Button {} label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+                .tint(.red)
             }
     }
 
@@ -177,13 +202,29 @@ private extension EntriesView {
             }
 
             if !isTextFieldFocused {
-                Button {
-                    addToken()
-                } label: {
-                    Image(systemName: "plus")
-                        .resizable()
-                        .frame(width: 20, height: 20)
+                #if os(iOS)
+                if isPhone {
+                    Button(action: {
+                        showCreationOptions.toggle()
+                        router.presentedSheet = .createEditEntry(nil)
+                    }, label: {
+                        plusIcon
+                    })
+                } else {
+                    Menu(content: {
+                        scanQrCodeButton
+                        manuallyAddEntryButton
+                    }, label: {
+                        plusIcon
+                    })
                 }
+                #else
+                Button(action: {
+                    router.presentedSheet = .createEditToken(nil)
+                }, label: {
+                    plusIcon
+                })
+                #endif
             }
         }
         .animation(.default, value: isTextFieldFocused)
@@ -201,19 +242,35 @@ private extension EntriesView {
         .padding(.vertical, 8)
         .background(.gradientStart)
         .overlay(alignment: .top) {
-            // Top border line
-            Rectangle()
-                .frame(height: 1)
-                .foregroundStyle(.gradientEnd)
+            if searchBarAlignment == .bottom {
+                // Top border line
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundStyle(.gradientEnd)
+            }
         }
     }
 
-    func addToken() {
-        #if os(iOS)
-        showCreationOptions.toggle()
-        #else
-        router.presentedSheet = .createEditToken(nil)
-        #endif
+    var plusIcon: some View {
+        Image(systemName: "plus")
+            .resizable()
+            .frame(width: 20, height: 20)
+    }
+
+    var scanQrCodeButton: some View {
+        Button(action: {
+            router.presentedSheet = .qrCodeScanner
+        }, label: {
+            Label("Scan", systemImage: "qrcode.viewfinder")
+        })
+    }
+
+    var manuallyAddEntryButton: some View {
+        Button(action: {
+            router.presentedSheet = .createEditEntry(nil)
+        }, label: {
+            Label("Enter manually", systemImage: "character.cursor.ibeam")
+        })
     }
 }
 
