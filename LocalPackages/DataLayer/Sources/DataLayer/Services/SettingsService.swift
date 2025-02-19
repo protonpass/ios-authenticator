@@ -25,10 +25,14 @@ import Models
 
 public enum SettingUpdateEvent: Sendable {
     case searchBarMode(SearchBarMode)
+    case theme(Theme)
 }
 
 public protocol SettingsServicing: Sendable {
     var updateEventStream: PassthroughSubject<SettingUpdateEvent, Never> { get }
+
+    func getTheme() -> Theme
+    func setTheme(_ value: Theme)
 
     func getSearchBarMode() -> SearchBarMode?
     func setSearchBarMode(_ value: SearchBarMode)
@@ -52,12 +56,26 @@ public final class SettingsService: SettingsServicing {
 }
 
 public extension SettingsService {
+    func getTheme() -> Theme {
+        guard let rawValue = store.value(forKey: AppConstants.Settings.theme) as? Int else {
+            return .default
+        }
+        return Theme(rawValue: rawValue) ?? .default
+    }
+
+    func setTheme(_ value: Theme) {
+        store.set(value.rawValue, forKey: AppConstants.Settings.theme)
+    }
+
     func getSearchBarMode() -> SearchBarMode? {
-        store.value(forKey: AppConstants.Settings.searchBarMode) as? SearchBarMode
+        guard let rawValue = store.value(forKey: AppConstants.Settings.searchBarMode) as? Int else {
+            return nil
+        }
+        return SearchBarMode(rawValue: rawValue)
     }
 
     func setSearchBarMode(_ value: SearchBarMode) {
-        store.set(value, forKey: AppConstants.Settings.searchBarMode)
+        store.set(value.rawValue, forKey: AppConstants.Settings.searchBarMode)
         updateEventStream.send(.searchBarMode(value))
     }
 

@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Models
 import SwiftUI
 
 struct SettingsView: View {
@@ -125,15 +126,47 @@ private extension SettingsView {
 
     var appearanceSection: some View {
         section("APPEARANCE") {
-            SettingRow(title: .localized("Theme"),
-                       trailingMode: .detailChevron(.localized(viewModel.theme.title),
-                                                    onTap: { showEditTheme.toggle() }))
+            if useMenuForTheme {
+                Menu(content: {
+                    ForEach(Theme.allCases, id: \.self) { theme in
+                        Button(action: {
+                            viewModel.updateTheme(theme)
+                        }, label: {
+                            if theme == viewModel.theme {
+                                Label(theme.title, systemImage: "checkmark")
+                            } else {
+                                Text(theme.title)
+                            }
+                        })
+                    }
+                }, label: {
+                    themeRow()
+                })
+            } else {
+                themeRow {
+                    showEditTheme.toggle()
+                }
+            }
 
             SettingDivider()
 
             SettingRow(title: .localized("List style"),
                        trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
         }
+    }
+
+    func themeRow(_ onTap: (() -> Void)? = nil) -> some View {
+        SettingRow(title: .localized("Theme"),
+                   trailingMode: .detailChevron(.localized(viewModel.theme.title),
+                                                onTap: { onTap?() }))
+    }
+
+    var useMenuForTheme: Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .pad
+        #else
+        true
+        #endif
     }
 
     var dataSection: some View {

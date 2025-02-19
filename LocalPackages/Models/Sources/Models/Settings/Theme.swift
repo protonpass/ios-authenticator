@@ -20,6 +20,8 @@
 
 import Foundation
 
-public enum Theme: Sendable, CaseIterable {
+public enum Theme: Int, Sendable, CaseIterable {
     case dark, light, matchSystem
+
+    public static var `default`: Theme { .dark }
 }

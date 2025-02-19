@@ -42,5 +42,6 @@ public enum AppConstants {
 
     public enum Settings {
         public static let searchBarMode = "SearchBarMode"
+        public static let theme = "Theme"
     }
 }

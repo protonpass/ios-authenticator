@@ -20,6 +20,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Factory
 import Foundation
 import Macro
 import Models
@@ -30,11 +31,14 @@ final class SettingsViewModel {
     private(set) var backUpEnabled = false
     private(set) var syncEnabled = false
     private(set) var tapToRevealCodeEnabled = false
-    private(set) var theme: Theme = .dark
+    private(set) var theme: Theme
     private(set) var versionString: String?
 
     @ObservationIgnored
     private let bundle: Bundle
+
+    @ObservationIgnored
+    private let settingsService = resolve(\ServiceContainer.settingsService)
 
     var isQaBuild: Bool {
         bundle.isQaBuild
@@ -42,6 +46,7 @@ final class SettingsViewModel {
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
+        theme = settingsService.getTheme()
     }
 }
 
@@ -67,6 +72,8 @@ extension SettingsViewModel {
     }
 
     func updateTheme(_ newValue: Theme) {
+        guard newValue != theme else { return }
+        settingsService.setTheme(newValue)
         theme = newValue
     }
 }

@@ -18,6 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public enum SearchBarMode: Hashable, Sendable {
+public enum SearchBarMode: Int, Sendable {
     case bottom, top
 }
