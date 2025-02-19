@@ -28,12 +28,4 @@ final class ServiceContainer: SharedContainer, AutoRegistering {
     func autoRegister() {
         manager.defaultScope = .singleton
     }
-
-    var timerService: Factory<any TimerServicing> {
-        self { TimerService() }
-    }
-
-    var tokenService: Factory<any TokenServiceProtocol> {
-        self { TokenService() }
-    }
 }

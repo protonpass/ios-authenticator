@@ -44,10 +44,6 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         var hasher = Hasher()
         precomputedHash = hasher.combineAndFinalize(id, name, uri, period, note, type)
     }
-
-    public var remainingTime: TimeInterval {
-        Double(period) - Date().timeIntervalSince1970.truncatingRemainder(dividingBy: TimeInterval(period))
-    }
 }
 
 // MARK: - Hashable

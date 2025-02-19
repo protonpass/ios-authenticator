@@ -26,11 +26,8 @@ import Models
 import SwiftUI
 
 struct EntryCell: View {
-    @State private var viewModel: EntryCellModel
-
-    init(entry: Entry) {
-        _viewModel = .init(wrappedValue: EntryCellModel(entry: entry))
-    }
+    let entry: EntryUiModel
+    let onCopyToken: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
@@ -47,19 +44,18 @@ struct EntryCell: View {
                         .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
-                    Text(viewModel.entry.name)
+                    Text(entry.entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(viewModel.entry.uri)
+                    Text(entry.entry.uri)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                if let uiModel = viewModel.uiModel {
-                    CircularProgressView(progress: uiModel.progress, countdown: uiModel.countdown)
-                }
+                CircularProgressView(progress: entry.progress,
+                                     countdown: entry.countdown)
             }
             .padding(.top, 13)
             .padding(.horizontal, 16)
@@ -68,113 +64,57 @@ struct EntryCell: View {
                 .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: -1)
 
             HStack {
-                if let uiModel = viewModel.uiModel {
-                    ForEach(Array(uiModel.code.current.enumerated()), id: \.offset) { _, char in
-                        HStack(alignment: .center, spacing: 10) {
-                            Text("\(char)")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .monospaced()
-                                .foregroundStyle(.textNorm)
-                        }
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 4)
-                        .background(.black.opacity(0.16))
-                        .cornerRadius(8)
-                        .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                        .overlay(RoundedRectangle(cornerRadius: 8)
-                            .inset(by: -0.5)
-                            .stroke(.black.opacity(0.23), lineWidth: 1))
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing) {
-                        Text("Next")
-                            .foregroundStyle(.textWeak)
-                        Text(uiModel.code.next.separatedByGroup(3, delimiter: " "))
+                ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
+                    HStack(alignment: .center, spacing: 10) {
+                        Text("\(char)")
+                            .font(.title2)
+                            .fontWeight(.semibold)
                             .monospaced()
                             .foregroundStyle(.textNorm)
-                            .fontWeight(.semibold)
                     }
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 4)
+                    .background(.black.opacity(0.16))
+                    .cornerRadius(8)
+                    .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                    .overlay(RoundedRectangle(cornerRadius: 8)
+                        .inset(by: -0.5)
+                        .stroke(.black.opacity(0.23), lineWidth: 1))
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing) {
+                    Text("Next")
+                        .foregroundStyle(.textWeak)
+                    Text(entry.code.next.separatedByGroup(3, delimiter: " "))
+                        .monospaced()
+                        .foregroundStyle(.textNorm)
+                        .fontWeight(.semibold)
                 }
             }
             .padding(.bottom, 13)
             .padding(.horizontal, 16)
         }
-        .animation(.default, value: viewModel.uiModel)
         .background(.purple)
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .inset(by: 0.5)
             .stroke(Color(red: 0.92, green: 0.92, blue: 0.92).opacity(0.5), lineWidth: 1))
-        .onTapGesture {
-            viewModel.copyToClipboard()
-        }
-        .task {
-            viewModel.updateToken()
-        }
+        .onTapGesture(perform: onCopyToken)
     }
 }
 
 #Preview {
-    EntryCell(entry: Entry(name: "This is the name",
-                           uri: "plop@plop.com",
-                           period: 30,
-                           type: .totp,
-                           note: nil))
-}
-
-@MainActor
-@Observable
-private final class EntryCellModel: ObservableObject {
-    private(set) var uiModel: TokenUiModel?
-
-    @ObservationIgnored
-    let entry: Entry
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.tokenService) private(set) var tokenService
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.timerService) private(set) var timerService
-
-    @ObservationIgnored
-    private var cancellables = Set<AnyCancellable>()
-
-    init(entry: Entry) {
-        self.entry = entry
-
-        timerService.timer
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                updateToken()
-            }
-            .store(in: &cancellables)
-    }
-
-    func updateToken() {
-        do {
-            uiModel = try tokenService.getToken(for: entry)
-        } catch {
-            handle(error)
-        }
-    }
-}
-
-private extension EntryCellModel {
-    func copyToClipboard() {
-        // TODO: Take into account user settings (expiration, share with other devices...)
-        guard let uiModel else { return }
-        let pasteboard = UIPasteboard.general
-        pasteboard.string = uiModel.code.current
-    }
-
-    func handle(_ error: any Error) {
-        // TODO: Handle error
-        print(error.localizedDescription)
-    }
+    EntryCell(entry: .init(entry: .init(name: "John Doe",
+                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
+                                        period: 30,
+                                        type: .totp,
+                                        note: "Note for John Doe"),
+                           code: .init(current: "123456", next: "456789"),
+                           date: .now),
+              onCopyToken: {})
 }
 
 private struct CircularProgressView: View {
@@ -183,7 +123,10 @@ private struct CircularProgressView: View {
     let size: CGFloat // Diameter of the circle
     let lineWidth: CGFloat // Thickness of the progress bar
 
-    init(progress: Double, countdown: Int, size: CGFloat = 32, lineWidth: CGFloat = 4) {
+    init(progress: Double,
+         countdown: Int,
+         size: CGFloat = 32,
+         lineWidth: CGFloat = 4) {
         self.progress = progress
         self.countdown = countdown
         self.size = size

@@ -38,7 +38,7 @@ final class QAMenuViewModel {
     }
 
     @ObservationIgnored
-    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200]
+    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
     @ObservationIgnored
     private let userDefaults: UserDefaults

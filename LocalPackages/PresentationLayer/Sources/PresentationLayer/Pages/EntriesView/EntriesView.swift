@@ -45,8 +45,12 @@ public struct EntriesView: View {
                 .background(.backgroundGradient)
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
+                .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                    viewModel.refreshTokens()
+                }
                 .task {
                     await viewModel.setUp()
+                    viewModel.refreshTokens()
                 }
                 .adaptiveConfirmationDialog("Create",
                                             isPresented: $showCreationOptions,
@@ -73,7 +77,7 @@ private extension EntriesView {
             }
         }
         .overlay {
-            if viewModel.entries.isEmpty {
+            if viewModel.uiModels.isEmpty {
                 /// In case there aren't any search results, we can
                 /// show the new content unavailable view.
                 ContentUnavailableView {
@@ -97,7 +101,7 @@ private extension EntriesView {
                         Button(action: {
                             router.presentedSheet = .settings
                         }, label: {
-                            Text(verbatim: "Settings")
+                            Text("Settings")
                         })
                     }
                 }
@@ -110,7 +114,7 @@ private extension EntriesView {
 private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.entries, id: \.self) { entry in
+            ForEach(viewModel.uiModels) { entry in
                 cell(for: entry)
             }
             .padding(.horizontal)
@@ -130,7 +134,7 @@ private extension EntriesView {
     var grid: some View {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
-                ForEach(viewModel.entries) { entry in
+                ForEach(viewModel.uiModels) { entry in
                     cell(for: entry)
                 }
             }
@@ -138,13 +142,14 @@ private extension EntriesView {
         }
     }
 
-    func cell(for entry: Entry) -> some View {
-        EntryCell(entry: entry)
+    func cell(for entry: EntryUiModel) -> some View {
+        EntryCell(entry: entry,
+                  onCopyToken: { viewModel.copyTokenToClipboard(entry) })
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .swipeActions {
                 Button {
-                    router.presentedSheet = .createEditEntry(entry)
+                    router.presentedSheet = .createEditEntry(entry.entry)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }

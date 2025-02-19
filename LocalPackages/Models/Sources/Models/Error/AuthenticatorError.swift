@@ -21,12 +21,15 @@
 import Foundation
 
 public enum AuthenticatorError: Sendable, Error, CustomDebugStringConvertible {
-    case failedToCalculateToken(Entry)
+    case missingGeneratedCodes(codeCount: Int, entryCount: Int)
+    case missingEntryForGeneratedCode
 
     public var debugDescription: String {
         switch self {
-        case let .failedToCalculateToken(entry):
-            "Failed to calculate token for entry \(entry.name)"
+        case let .missingGeneratedCodes(codeCount, entryCount):
+            "Missing generated codes: \(codeCount) instead of \(entryCount)"
+        case .missingEntryForGeneratedCode:
+            "Missing entry for generated code"
         }
     }
 }

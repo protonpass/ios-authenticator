@@ -20,18 +20,34 @@
 //
 
 import CommonUtilities
+import Factory
 import Foundation
 import Models
 
 @Observable @MainActor
 final class EntriesViewModel {
-    private(set) var entries: [Entry] = []
+    private(set) var uiModels: [EntryUiModel] = []
     var search = ""
 
     @ObservationIgnored
+    private var entries: [Entry] = []
+
+    @ObservationIgnored
     private let bundle: Bundle
+
     @ObservationIgnored
     private let userDefaults: UserDefaults
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.copyTextToClipboard)
+    private var copyTextToClipboard
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.generateEntryUiModels)
+    private var generateEntryUiModels
+
+    @ObservationIgnored
+    private var generateTokensTask: Task<Void, Never>?
 
     init(bundle: Bundle = .main,
          userDefaults: UserDefaults = kSharedUserDefaults) {
@@ -42,16 +58,40 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func setUp() async {
-        if !mockEntries() {
-            // Fetch real data
+        do {
+            entries = if let mocked = mockedEntries() {
+                mocked
+            } else {
+                try await getEntries()
+            }
+        } catch {
+            handle(error)
         }
+    }
+
+    func refreshTokens() {
+        generateTokensTask?.cancel()
+        generateTokensTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                uiModels = try await generateEntryUiModels(from: entries, on: .now)
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
+    func copyTokenToClipboard(_ entry: EntryUiModel) {
+        let code = entry.code.current
+        assert(!code.isEmpty, "Code should not be empty")
+        copyTextToClipboard(code)
     }
 }
 
 private extension EntriesViewModel {
-    func mockEntries() -> Bool {
+    func mockedEntries() -> [Entry]? {
         guard bundle.isQaBuild, userDefaults.bool(forKey: AppConstants.QA.mockEntriesDisplay) else {
-            return false
+            return nil
         }
         let count = max(5, userDefaults.integer(forKey: AppConstants.QA.mockEntriesCount))
 
@@ -64,7 +104,16 @@ private extension EntriesViewModel {
                                  note: "Note #\(index)"))
         }
 
-        self.entries = entries
-        return true
+        return entries
+    }
+
+    func getEntries() async throws -> [Entry] {
+        // Get entries from database
+        []
+    }
+
+    func handle(_ error: any Error) {
+        // TODO: Log and display error to the users
+        print(error.localizedDescription)
     }
 }

@@ -1,6 +1,6 @@
 //
-// TimerService.swift
-// Proton Authenticator - Created on 11/02/2025.
+// UseCaseContainer.swift
+// Proton Authenticator - Created on 19/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,25 +18,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Combine
-import Foundation
+import Factory
 
-public protocol TimerServicing {
-    var timer: Timer.TimerPublisher { get }
-}
+final class UseCaseContainer: SharedContainer, AutoRegistering {
+    static let shared = UseCaseContainer()
+    let manager = ContainerManager()
 
-public final class TimerService: TimerServicing {
-    public let timer: Timer.TimerPublisher
-    private let cancellable: AnyCancellable?
-
-    public init(timer: Timer.TimerPublisher = Timer.TimerPublisher(interval: 1,
-                                                                   runLoop: .main,
-                                                                   mode: .common)) {
-        self.timer = timer
-        cancellable = timer.connect() as? AnyCancellable
+    func autoRegister() {
+        manager.defaultScope = .singleton
     }
 
-    deinit {
-        cancellable?.cancel()
+    var copyTextToClipboard: Factory<any CopyTextToClipboardUseCase> {
+        self { CopyTextToClipboard() }
+    }
+
+    var generateEntryUiModels: Factory<any GenerateEntryUiModelsUseCase> {
+        self { GenerateEntryUiModels(repository: RepositoryContainer.shared.entryRepository()) }
     }
 }
