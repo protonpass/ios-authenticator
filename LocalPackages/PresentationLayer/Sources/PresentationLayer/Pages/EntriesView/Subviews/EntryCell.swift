@@ -30,7 +30,7 @@ struct EntryCell: View {
     let onCopyToken: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             HStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {}
                     .padding(.horizontal, 5)
@@ -57,12 +57,19 @@ struct EntryCell: View {
                 CircularProgressView(progress: entry.progress.value,
                                      countdown: entry.progress.countdown,
                                      color: entry.progress.color)
+                    .id(entry.id)
             }
-            .padding(.top, 13)
+            .padding(.vertical, 12)
             .padding(.horizontal, 16)
+            .background(backgroundColor)
 
-            Divider()
-                .shadow(color: .black.opacity(0.2), radius: 0, x: 0, y: -1)
+            Color.clear
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+
+            borderColor
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
 
             HStack {
                 ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
@@ -94,16 +101,24 @@ struct EntryCell: View {
                         .fontWeight(.semibold)
                 }
             }
-            .padding(.bottom, 13)
+            .padding(.vertical, 12)
             .padding(.horizontal, 16)
+            .background(backgroundColor)
         }
-        .background(.purple)
         .cornerRadius(18)
-        .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
-            .inset(by: 0.5)
-            .stroke(Color(red: 0.92, green: 0.92, blue: 0.92).opacity(0.5), lineWidth: 1))
+            .stroke(borderColor, lineWidth: 1))
         .onTapGesture(perform: onCopyToken)
+    }
+}
+
+private extension EntryCell {
+    var borderColor: Color {
+        Color.passPurple.opacity(0.5)
+    }
+
+    var backgroundColor: Color {
+        borderColor.opacity(0.5)
     }
 }
 

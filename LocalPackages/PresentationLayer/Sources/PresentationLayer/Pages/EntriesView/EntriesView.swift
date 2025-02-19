@@ -26,6 +26,7 @@ public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
+    @State private var pauseRefreshing = false
     @State private var showCreationOptions = false
     @FocusState private var isTextFieldFocused: Bool
 
@@ -46,7 +47,9 @@ public struct EntriesView: View {
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
                 .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                    viewModel.refreshTokens()
+                    if !pauseRefreshing {
+                        viewModel.refreshTokens()
+                    }
                 }
                 .task {
                     await viewModel.setUp()
@@ -58,9 +61,17 @@ public struct EntriesView: View {
                                                 #if os(iOS)
                                                 scanQrCodeButton
                                                 #endif
-
                                                 manuallyAddEntryButton
                                             })
+                .onChange(of: router.presentedSheet) { _, newValue in
+                    // Pause refreshing when a sheet is presented
+                    // Only applicable to iPad because sheets on iPad are not full screen
+                    guard horizontalSizeClass == .regular else { return }
+                    pauseRefreshing = newValue != nil
+                    if !pauseRefreshing {
+                        viewModel.refreshTokens()
+                    }
+                }
         }
     }
 }
@@ -76,6 +87,8 @@ private extension EntriesView {
                 grid
             }
         }
+        .blur(radius: pauseRefreshing ? 4 : 0)
+        .animation(.default, value: pauseRefreshing)
         .overlay {
             if viewModel.uiModels.isEmpty {
                 /// In case there aren't any search results, we can
@@ -160,6 +173,7 @@ private extension EntriesView {
                 }
                 .tint(.red)
             }
+            .id(entry.entry.id)
     }
 
     var actionBar: some View {
