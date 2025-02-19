@@ -36,7 +36,8 @@ final class EntriesViewModel {
     private let bundle: Bundle
 
     @ObservationIgnored
-    private let userDefaults: UserDefaults
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var settingsService
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
@@ -49,10 +50,8 @@ final class EntriesViewModel {
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
-    init(bundle: Bundle = .main,
-         userDefaults: UserDefaults = kSharedUserDefaults) {
+    init(bundle: Bundle = .main) {
         self.bundle = bundle
-        self.userDefaults = userDefaults
     }
 }
 
@@ -90,10 +89,10 @@ extension EntriesViewModel {
 
 private extension EntriesViewModel {
     func mockedEntries() -> [Entry]? {
-        guard bundle.isQaBuild, userDefaults.bool(forKey: AppConstants.QA.mockEntriesDisplay) else {
+        guard bundle.isQaBuild, settingsService.getMockEntriesDisplay() else {
             return nil
         }
-        let count = max(5, userDefaults.integer(forKey: AppConstants.QA.mockEntriesCount))
+        let count = max(5, settingsService.getMockEntriesCount())
 
         var entries = [Entry]()
         for index in 0..<count {

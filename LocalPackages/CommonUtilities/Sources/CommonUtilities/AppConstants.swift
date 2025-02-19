@@ -39,4 +39,8 @@ public enum AppConstants {
         public static let mockEntriesDisplay = "MockEntriesDisplay"
         public static let mockEntriesCount = "MockEntriesCount"
     }
+
+    public enum Settings {
+        public static let searchBarMode = "SearchBarMode"
+    }
 }

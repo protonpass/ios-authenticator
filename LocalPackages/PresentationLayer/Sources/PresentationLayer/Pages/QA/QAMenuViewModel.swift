@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import CommonUtilities
+import Factory
 import Foundation
 
 @MainActor
@@ -27,13 +27,13 @@ import Foundation
 final class QAMenuViewModel {
     var mockEntriesDisplay: Bool {
         didSet {
-            userDefaults.setValue(mockEntriesDisplay, forKey: AppConstants.QA.mockEntriesDisplay)
+            settingsService.setMockEntriesDisplay(mockEntriesDisplay)
         }
     }
 
     var mockEntriesCount: Int {
         didSet {
-            userDefaults.setValue(mockEntriesCount, forKey: AppConstants.QA.mockEntriesCount)
+            settingsService.setMockEntriesCount(mockEntriesCount)
         }
     }
 
@@ -41,11 +41,10 @@ final class QAMenuViewModel {
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
     @ObservationIgnored
-    private let userDefaults: UserDefaults
+    private let settingsService = resolve(\ServiceContainer.settingsService)
 
-    init(userDefaults: UserDefaults = kSharedUserDefaults) {
-        self.userDefaults = userDefaults
-        mockEntriesDisplay = userDefaults.bool(forKey: AppConstants.QA.mockEntriesDisplay)
-        mockEntriesCount = userDefaults.integer(forKey: AppConstants.QA.mockEntriesCount)
+    init() {
+        mockEntriesDisplay = settingsService.getMockEntriesDisplay()
+        mockEntriesCount = settingsService.getMockEntriesCount()
     }
 }

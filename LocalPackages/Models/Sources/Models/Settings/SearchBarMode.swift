@@ -1,6 +1,6 @@
 //
-// ServiceContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// SearchBarMode.swift
+// Proton Authenticator - Created on 19/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,19 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import CommonUtilities
-import DataLayer
-import Factory
-
-final class ServiceContainer: SharedContainer, AutoRegistering {
-    static let shared = ServiceContainer()
-    let manager = ContainerManager()
-
-    func autoRegister() {
-        manager.defaultScope = .singleton
-    }
-
-    var settingsService: Factory<any SettingsServicing> {
-        self { SettingsService(store: kSharedUserDefaults) }
-    }
+public enum SearchBarMode: Hashable, Sendable {
+    case bottom, top
 }
