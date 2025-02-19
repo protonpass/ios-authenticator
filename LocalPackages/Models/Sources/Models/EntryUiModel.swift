@@ -23,8 +23,7 @@ import Foundation
 public struct EntryUiModel: Sendable, Identifiable {
     public let entry: Entry
     public let code: Code
-    public let progress: Double
-    public let countdown: Int
+    public let progress: ProgressUiModel
 
     public var id: String {
         entry.id
@@ -32,12 +31,10 @@ public struct EntryUiModel: Sendable, Identifiable {
 
     public init(entry: Entry,
                 code: Code,
-                progress: Double,
-                countdown: Int) {
+                progress: ProgressUiModel) {
         self.entry = entry
         self.code = code
         self.progress = progress
-        self.countdown = countdown
     }
 }
 
@@ -49,7 +46,39 @@ public extension EntryUiModel {
 
         self.entry = entry
         self.code = code
-        progress = remaining / Double(entry.period)
-        countdown = Int(remaining)
+        progress = .init(value: remaining / Double(entry.period), countdown: Int(remaining))
+    }
+}
+
+public struct ProgressUiModel: Sendable {
+    /// From 0.0 to 1.0
+    public let value: Double
+    public let level: Level
+    /// Number of second left
+    public let countdown: Int
+
+    /// The less the level, the more critical it is
+    public enum Level: Sendable {
+        case level1, level2, level3, level4, level5, level6
+    }
+
+    public init(value: Double, countdown: Int) {
+        self.value = value
+        self.countdown = countdown
+
+        level = switch value {
+        case 0.0...0.08:
+            .level1
+        case 0.08...0.16:
+            .level2
+        case 0.16...0.25:
+            .level3
+        case 0.25...0.33:
+            .level4
+        case 0.33...0.4:
+            .level5
+        default:
+            .level6
+        }
     }
 }

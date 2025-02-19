@@ -54,8 +54,9 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                CircularProgressView(progress: entry.progress,
-                                     countdown: entry.countdown)
+                CircularProgressView(progress: entry.progress.value,
+                                     countdown: entry.progress.countdown,
+                                     color: entry.progress.color)
             }
             .padding(.top, 13)
             .padding(.horizontal, 16)
@@ -120,15 +121,18 @@ struct EntryCell: View {
 private struct CircularProgressView: View {
     let progress: Double // Progress between 0 and 1
     let countdown: Int
+    let color: Color
     let size: CGFloat // Diameter of the circle
     let lineWidth: CGFloat // Thickness of the progress bar
 
     init(progress: Double,
          countdown: Int,
+         color: Color,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4) {
         self.progress = progress
         self.countdown = countdown
+        self.color = color
         self.size = size
         self.lineWidth = lineWidth
     }
@@ -137,41 +141,35 @@ private struct CircularProgressView: View {
         ZStack {
             // Background Circle
             Circle()
-                .stroke(progressColor.opacity(0.3),
-                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .frame(width: size, height: size)
 
             // Progress Circle
             Circle()
                 .trim(from: 1 - progress, to: 1)
-                .stroke(progressColor,
-                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .frame(width: size, height: size)
 
             // Timer Text
-            Text("\(countdown)")
+            Text(verbatim: "\(countdown)")
                 .font(.caption)
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
         }
         .animation(.default, value: progress)
     }
+}
 
-    var progressColor: Color {
-        switch progress {
-        case 0.0...0.08:
-            .timerLevel1
-        case 0.08...0.16:
-            .timerLevel2
-        case 0.16...0.25:
-            .timerLevel3
-        case 0.25...0.33:
-            .timerLevel4
-        case 0.33...0.4:
-            .timerLevel5
-        default:
-            .timerLevel6
+private extension ProgressUiModel {
+    var color: Color {
+        switch level {
+        case .level1: .timerLevel1
+        case .level2: .timerLevel2
+        case .level3: .timerLevel3
+        case .level4: .timerLevel4
+        case .level5: .timerLevel5
+        case .level6: .timerLevel6
         }
     }
 }
