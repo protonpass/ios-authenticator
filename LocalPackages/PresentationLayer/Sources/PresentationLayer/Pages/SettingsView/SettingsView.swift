@@ -192,24 +192,16 @@ private extension SettingsView {
 
     var discoverySection: some View {
         section("DISCOVER PROTON") {
-            productRow("Proton Pass", logo: .logoPass, path: "pass")
-            SettingDivider()
-            productRow("Proton VPN", logo: .logoVPN, path: "vpn")
-            SettingDivider()
-            productRow("Proton Mail", logo: .logoMail, path: "mail")
-            SettingDivider()
-            productRow("Proton Drive", logo: .logoDrive, path: "drive")
-            SettingDivider()
-            productRow("Proton Calendar", logo: .logoCalendar, path: "calendar")
-            SettingDivider()
-            productRow("Proton Wallet", logo: .logoWallet, path: "wallet")
-        }
-    }
+            ForEach(ProtonProduct.allCases, id: \.self) { product in
+                SettingRow(icon: product.logo,
+                           title: .verbatim(product.name),
+                           trailingMode: .chevron(onTap: { open(urlString: product.finalUrl) }))
 
-    func productRow(_ name: String, logo: ImageResource, path: String) -> some View {
-        SettingRow(icon: logo,
-                   title: .verbatim(name),
-                   trailingMode: .chevron(onTap: { open(urlString: "https://proton.me/\(path)") }))
+                if product != ProtonProduct.allCases.last {
+                    SettingDivider()
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -350,5 +342,26 @@ private struct SettingRow: View {
         .if(trailingMode.onTap) { view, onTap in
             view.onTapGesture(perform: onTap)
         }
+    }
+}
+
+private extension ProtonProduct {
+    var logo: ImageResource {
+        switch self {
+        case .pass: .logoPass
+        case .vpn: .logoVPN
+        case .mail: .logoMail
+        case .drive: .logoDrive
+        case .calendar: .logoCalendar
+        case .wallet: .logoWallet
+        }
+    }
+
+    var finalUrl: String {
+        #if os(iOS)
+        iOSAppUrl
+        #else
+        homepageUrl
+        #endif
     }
 }

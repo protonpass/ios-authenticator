@@ -24,6 +24,9 @@ import Factory
 import Foundation
 import Macro
 import Models
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @Observable @MainActor
 final class SettingsViewModel {
@@ -32,6 +35,7 @@ final class SettingsViewModel {
     private(set) var syncEnabled = false
     private(set) var tapToRevealCodeEnabled = false
     private(set) var theme: Theme
+    private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
 
     @ObservationIgnored
@@ -47,6 +51,16 @@ final class SettingsViewModel {
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         theme = settingsService.getTheme()
+
+        products = ProtonProduct.allCases.filter { product in
+            #if canImport(UIKit)
+            if let url = URL(string: product.iOSAppUrl),
+               UIApplication.shared.canOpenURL(url) {
+                return false
+            }
+            #endif
+            return true
+        }
     }
 }
 
