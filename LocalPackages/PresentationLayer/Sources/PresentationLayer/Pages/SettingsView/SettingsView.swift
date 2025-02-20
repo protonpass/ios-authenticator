@@ -192,22 +192,22 @@ private extension SettingsView {
 
     var discoverySection: some View {
         section("DISCOVER PROTON") {
-            productRow("Proton Pass", logoName: "logoPass", path: "pass")
+            productRow("Proton Pass", logo: .logoPass, path: "pass")
             SettingDivider()
-            productRow("Proton VPN", logoName: "logoVPN", path: "vpn")
+            productRow("Proton VPN", logo: .logoVPN, path: "vpn")
             SettingDivider()
-            productRow("Proton Mail", logoName: "logoMail", path: "mail")
+            productRow("Proton Mail", logo: .logoMail, path: "mail")
             SettingDivider()
-            productRow("Proton Drive", logoName: "logoDrive", path: "drive")
+            productRow("Proton Drive", logo: .logoDrive, path: "drive")
             SettingDivider()
-            productRow("Proton Calendar", logoName: "logoCalendar", path: "calendar")
+            productRow("Proton Calendar", logo: .logoCalendar, path: "calendar")
             SettingDivider()
-            productRow("Proton Wallet", logoName: "logoWallet", path: "wallet")
+            productRow("Proton Wallet", logo: .logoWallet, path: "wallet")
         }
     }
 
-    func productRow(_ name: String, logoName: String, path: String) -> some View {
-        SettingRow(icon: ImageResource(name: logoName, bundle: .module),
+    func productRow(_ name: String, logo: ImageResource, path: String) -> some View {
+        SettingRow(icon: logo,
                    title: .verbatim(name),
                    trailingMode: .chevron(onTap: { open(urlString: "https://proton.me/\(path)") }))
     }
