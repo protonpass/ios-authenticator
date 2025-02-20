@@ -62,10 +62,14 @@ public extension View {
     func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
                                     isPresented: Binding<Bool>,
                                     @ViewBuilder actions: () -> some View) -> some View {
+        #if canImport(UIKit)
         if UIDevice.current.userInterfaceIdiom == .phone {
             confirmationDialog(title, isPresented: isPresented, actions: actions)
         } else {
             alert(title, isPresented: isPresented, actions: actions)
         }
+        #else
+        alert(title, isPresented: isPresented, actions: actions)
+        #endif
     }
 }

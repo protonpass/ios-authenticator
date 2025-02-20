@@ -33,11 +33,19 @@ struct QAMenuView: View {
             .animation(.default, value: viewModel.mockEntriesDisplay)
             .navigationTitle(Text(verbatim: "QA menu"))
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: dismiss.callAsFunction) {
                         Text(verbatim: "Close")
                     }
                 }
+                #else
+                ToolbarItem(placement: .navigation) {
+                    Button(action: dismiss.callAsFunction) {
+                        Text(verbatim: "Close")
+                    }
+                }
+                #endif
             }
         }
         .tint(Color.success)

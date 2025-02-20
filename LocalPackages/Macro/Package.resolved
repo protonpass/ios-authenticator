@@ -1,15 +1,6 @@
 {
-  "originHash" : "df422518b14697fad264a0b77728afbdd21e960c679e1263e6645e74af72e8c2",
+  "originHash" : "a813d59f222897415377206f79f082562ee994625548d4304b68a199dfe8c970",
   "pins" : [
-    {
-      "identity" : "docscanner",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/lukacs-m/DocScanner",
-      "state" : {
-        "branch" : "main",
-        "revision" : "e1a1216ae4f9e38793ab2dbe21035fd46749a8c3"
-      }
-    },
     {
       "identity" : "factory",
       "kind" : "remoteSourceControl",

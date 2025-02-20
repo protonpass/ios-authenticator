@@ -31,7 +31,11 @@ public struct EntriesView: View {
     @FocusState private var isTextFieldFocused: Bool
 
     private var isPhone: Bool {
+        #if canImport(UIKit)
         UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
+        #endif
     }
 
     private var searchBarAlignment: VerticalAlignment {
@@ -239,7 +243,7 @@ private extension EntriesView {
                 }
                 #else
                 Button(action: {
-                    router.presentedSheet = .createEditToken(nil)
+                    router.presentedSheet = .createEditEntry(nil)
                 }, label: {
                     plusIcon
                 })
@@ -276,6 +280,7 @@ private extension EntriesView {
             .frame(width: 20, height: 20)
     }
 
+    #if os(iOS)
     var scanQrCodeButton: some View {
         Button(action: {
             router.presentedSheet = .qrCodeScanner
@@ -283,6 +288,7 @@ private extension EntriesView {
             Label("Scan", systemImage: "qrcode.viewfinder")
         })
     }
+    #endif
 
     var manuallyAddEntryButton: some View {
         Button(action: {
