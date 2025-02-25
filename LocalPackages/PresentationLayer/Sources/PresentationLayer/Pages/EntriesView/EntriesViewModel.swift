@@ -55,9 +55,12 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.generateEntryUiModels)
     private var generateEntryUiModels
-    
+
     @ObservationIgnored
     private var cancellable: (any Cancellable)?
+
+    @ObservationIgnored
+    private var generateTokensTask: Task<Void, Never>?
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
@@ -87,10 +90,14 @@ extension EntriesViewModel {
     }
 
     func refreshTokens() {
-        do {
-            uiModels = try generateEntryUiModels(from: entries, on: .now)
-        } catch {
-            handle(error)
+        generateTokensTask?.cancel()
+        generateTokensTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                uiModels = try await generateEntryUiModels(from: entries, on: .now)
+            } catch {
+                handle(error)
+            }
         }
     }
 

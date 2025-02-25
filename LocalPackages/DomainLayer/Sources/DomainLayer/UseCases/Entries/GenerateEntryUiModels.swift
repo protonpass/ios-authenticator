@@ -24,12 +24,12 @@ import Foundation
 import Models
 
 public protocol GenerateEntryUiModelsUseCase: Sendable {
-    func execute(from entries: [Entry], on date: Date) throws -> [EntryUiModel]
+    func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel]
 }
 
 public extension GenerateEntryUiModelsUseCase {
-    nonisolated func callAsFunction(from entries: [Entry], on date: Date) throws -> [EntryUiModel] {
-        try execute(from: entries, on: date)
+    func callAsFunction(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
+        try await execute(from: entries, on: date)
     }
 }
 
@@ -42,7 +42,7 @@ public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
         self.repository = repository
     }
 
-    public nonisolated func execute(from entries: [Entry], on date: Date) throws -> [EntryUiModel] {
+    public func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,

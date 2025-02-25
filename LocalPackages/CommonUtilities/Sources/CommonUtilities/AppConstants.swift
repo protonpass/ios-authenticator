@@ -19,6 +19,9 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public nonisolated(unsafe) let kSharedUserDefaults: UserDefaults = {
     if let userDefaults = UserDefaults(suiteName: AppConstants.accessGroup) {
@@ -45,6 +48,7 @@ public enum AppConstants {
         public static let theme = "Theme"
     }
 
+    @MainActor
     public static var isPhone: Bool {
         #if canImport(UIKit)
         UIDevice.current.userInterfaceIdiom == .phone
