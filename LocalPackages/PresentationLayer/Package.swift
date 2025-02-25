@@ -5,7 +5,7 @@ import PackageDescription
 
 var platforms: [SupportedPlatform] = [
     .macOS(.v14),
-    .iOS(.v18),
+    .iOS(.v17),
     .tvOS(.v16),
     .watchOS(.v8),
     .visionOS(.v2)
@@ -23,11 +23,13 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
+//        .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
-
+        .package(name: "DomainLayer", path: "../DomainLayer"),
+        .package(name: "Macro", path: "../Macro"),
+        .package(name: "CommonUtilities", path: "../CommonUtilities")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -35,10 +37,13 @@ let package = Package(
         .target(
             name: "PresentationLayer",
             dependencies: [
-                .product(name: "DocScanner", package: "DocScanner"),
+//                .product(name: "DocScanner", package: "DocScanner"),
                 .product(name: "Factory", package: "Factory"),
                 .product(name: "Models", package: "Models"),
-                .product(name: "DataLayer", package: "DataLayer")
+                .product(name: "DataLayer", package: "DataLayer"),
+                .product(name: "DomainLayer", package: "DomainLayer"),
+                .product(name: "Macro", package: "Macro"),
+                .product(name: "CommonUtilities", package: "CommonUtilities")
             ],
             resources: [.process("Resources")]),
         .testTarget(

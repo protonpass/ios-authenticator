@@ -7,13 +7,13 @@
     "%lld" : {
 
     },
-    "Add a new token" : {
+    "Add a new entry" : {
 
     },
     "Add some view here" : {
 
     },
-    "App" : {
+    "App lock" : {
 
     },
     "APPEARANCE" : {
@@ -22,10 +22,16 @@
     "appeareance" : {
 
     },
-    "barcode scanner" : {
+    "Backup" : {
 
     },
     "Close" : {
+
+    },
+    "Create" : {
+
+    },
+    "Dark" : {
 
     },
     "Delete" : {
@@ -37,10 +43,19 @@
     "Edit" : {
 
     },
+    "Enter manually" : {
+
+    },
     "Export" : {
 
     },
     "Feedback" : {
+
+    },
+    "Free password manager with identity protection." : {
+
+    },
+    "Get Proton Pass" : {
 
     },
     "How to use Proton Authenticator" : {
@@ -52,10 +67,16 @@
     "Import tokens" : {
 
     },
+    "Light" : {
+
+    },
     "List style" : {
 
     },
     "MANAGE YOUR DATA" : {
+
+    },
+    "Match system" : {
 
     },
     "Next" : {
@@ -65,6 +86,12 @@
 
     },
     "No token found. Please consider adding one." : {
+
+    },
+    "Proton Authenticator will periodically save all the data to iCloud." : {
+
+    },
+    "Scan" : {
 
     },
     "Search" : {
@@ -79,7 +106,16 @@
     "SUPPORT" : {
 
     },
+    "Sync between devices" : {
+
+    },
+    "Tap to reveal codes" : {
+
+    },
     "Theme" : {
+
+    },
+    "Version %@" : {
 
     }
   },

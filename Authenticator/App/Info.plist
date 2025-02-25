@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>IS_QA_BUILD =
+	<string>$(IS_QA_BUILD =
 	<key>APP_VERSION_IDENTIFIER =
 	<string>$(APP_VERSION_IDENTIFIER =
 	<key>CFBundleURLTypes</key>
@@ -17,10 +19,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>IS_BETA_BUILD =
-	<string>$(IS_BETA_BUILD =
-	<key>IS_QA_BUILD =
-	<string>$(IS_QA_BUILD =
 	<key>NSServices</key>
 	<array>
 		<dict>
