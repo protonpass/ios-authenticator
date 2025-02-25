@@ -40,6 +40,10 @@ final class EntriesViewModel {
     private var settingsService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.qaService)
+    private var qaService
+
+    @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
 
@@ -89,10 +93,10 @@ extension EntriesViewModel {
 
 private extension EntriesViewModel {
     func mockedEntries() -> [Entry]? {
-        guard bundle.isQaBuild, settingsService.getMockEntriesDisplay() else {
+        guard bundle.isQaBuild, qaService.showMockEntries else {
             return nil
         }
-        let count = max(5, settingsService.getMockEntriesCount())
+        let count = max(5, qaService.numberOfMockEntries)
 
         var entries = [Entry]()
         for index in 0..<count {

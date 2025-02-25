@@ -34,7 +34,6 @@ final class SettingsViewModel {
     private(set) var backUpEnabled = false
     private(set) var syncEnabled = false
     private(set) var tapToRevealCodeEnabled = false
-    private(set) var theme: Theme
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
 
@@ -42,7 +41,11 @@ final class SettingsViewModel {
     private let bundle: Bundle
 
     @ObservationIgnored
-    private let settingsService = resolve(\ServiceContainer.settingsService)
+    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    var theme: Theme {
+        settingsService.theme
+    }
 
     var isQaBuild: Bool {
         bundle.isQaBuild
@@ -50,8 +53,6 @@ final class SettingsViewModel {
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
-        theme = settingsService.getTheme()
-
         products = ProtonProduct.allCases.filter { product in
             #if canImport(UIKit)
             if let url = URL(string: product.iOSAppUrl),
@@ -86,8 +87,7 @@ extension SettingsViewModel {
     }
 
     func updateTheme(_ newValue: Theme) {
-        guard newValue != theme else { return }
+        guard newValue != settingsService.theme else { return }
         settingsService.setTheme(newValue)
-        theme = newValue
     }
 }

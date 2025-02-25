@@ -69,7 +69,7 @@ extension Theme {
             "Dark"
         case .light:
             "Light"
-        case .matchSystem:
+        case .system:
             "Match system"
         }
     }

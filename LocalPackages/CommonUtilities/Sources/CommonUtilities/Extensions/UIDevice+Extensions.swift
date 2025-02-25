@@ -1,9 +1,9 @@
 //
-// AuthenticatorApp.swift
-// Proton Authenticator - Created on 12/02/2025.
+// UIDevice+Extensions.swift
+// Proton Authenticator - Created on 21/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
-// This file is part of Proton Authenticator.
+// This file is part of Proton Pass.
 //
 // Proton Authenticator is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,21 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import PresentationLayer
-import SwiftData
 import SwiftUI
 
-@main
-struct AuthenticatorApp: App {
-    @State private var appSettings = ServiceContainer.shared.settingsService()
-
-    var body: some Scene {
-        WindowGroup {
-            EntriesView()
-                .preferredColorScheme(appSettings.theme.preferredColorScheme)
-        }
-        #if os(macOS)
-        .windowResizability(.contentMinSize)
+public extension UIDevice {
+    static var isPhone: Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
         #endif
     }
 }

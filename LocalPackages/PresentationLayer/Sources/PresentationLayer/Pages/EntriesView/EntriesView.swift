@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Models
 import SwiftUI
 
@@ -31,11 +32,7 @@ public struct EntriesView: View {
     @FocusState private var isTextFieldFocused: Bool
 
     private var isPhone: Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .phone
-        #else
-        false
-        #endif
+        UIDevice.isPhone
     }
 
     private var searchBarAlignment: VerticalAlignment {

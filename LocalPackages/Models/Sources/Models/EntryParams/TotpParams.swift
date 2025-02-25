@@ -20,12 +20,6 @@
 
 import Foundation
 
-public enum TotpAlgorithm: Sendable {
-    case sha1
-    case sha256
-    case sha512
-}
-
 public struct TotpParams: Sendable {
     public let name: String
     public let secret: String

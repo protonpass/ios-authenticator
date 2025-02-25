@@ -19,9 +19,21 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import SwiftUICore
 
 public enum Theme: Int, Sendable, CaseIterable {
-    case dark, light, matchSystem
+    case dark, light, system
 
     public static var `default`: Theme { .dark }
+
+    public var preferredColorScheme: ColorScheme? {
+        switch self {
+        case .system:
+            nil
+        case .light:
+            .light
+        case .dark:
+            .dark
+        }
+    }
 }

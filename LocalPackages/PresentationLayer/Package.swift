@@ -27,6 +27,7 @@ let package = Package(
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
+        .package(name: "DomainLayer", path: "../DomainLayer"),
         .package(name: "Macro", path: "../Macro"),
         .package(name: "CommonUtilities", path: "../CommonUtilities")
     ],
@@ -40,6 +41,7 @@ let package = Package(
                 .product(name: "Factory", package: "Factory"),
                 .product(name: "Models", package: "Models"),
                 .product(name: "DataLayer", package: "DataLayer"),
+                .product(name: "DomainLayer", package: "DomainLayer"),
                 .product(name: "Macro", package: "Macro"),
                 .product(name: "CommonUtilities", package: "CommonUtilities")
             ],

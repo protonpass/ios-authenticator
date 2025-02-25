@@ -1,5 +1,5 @@
 //
-// SearchBarMode.swift
+// SearchBarDisplayMode.swift
 // Proton Authenticator - Created on 19/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,6 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public enum SearchBarMode: Int, Sendable {
+public enum SearchBarDisplayMode: Int, Sendable {
     case bottom, top
 }
