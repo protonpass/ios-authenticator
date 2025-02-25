@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct EntryUiModel: Sendable, Identifiable {
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
     public let entry: Entry
     public let code: Code
     public let progress: ProgressUiModel
@@ -42,7 +42,7 @@ public extension EntryUiModel {
     init(entry: Entry, code: Code, date: Date) {
         let timeInterval = date.timeIntervalSince1970
         let period = Double(entry.period)
-        let remaining = min(period - timeInterval.truncatingRemainder(dividingBy: period), period)
+        let remaining = (period - timeInterval.truncatingRemainder(dividingBy: period)).rounded(.down)
 
         self.entry = entry
         self.code = code
@@ -50,7 +50,7 @@ public extension EntryUiModel {
     }
 }
 
-public struct ProgressUiModel: Sendable {
+public struct ProgressUiModel: Sendable, Equatable, Hashable {
     /// From 0.0 to 1.0
     public let value: Double
     public let level: Level

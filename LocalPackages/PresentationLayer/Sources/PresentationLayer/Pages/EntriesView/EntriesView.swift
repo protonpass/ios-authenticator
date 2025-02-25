@@ -174,7 +174,6 @@ private extension EntriesView {
                 }
                 .tint(.red)
             }
-            .id(entry.entry.id)
     }
 
     var actionBar: some View {

@@ -57,7 +57,6 @@ struct EntryCell: View {
                 CircularProgressView(progress: entry.progress.value,
                                      countdown: entry.progress.countdown,
                                      color: entry.progress.color)
-                    .id(entry.id)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -162,7 +161,7 @@ private struct CircularProgressView: View {
             // Progress Circle
             Circle()
                 .trim(from: 1 - progress, to: 1)
-                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .rotationEffect(.degrees(-90))
                 .frame(width: size, height: size)
 
@@ -172,7 +171,6 @@ private struct CircularProgressView: View {
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
         }
-        .animation(.default, value: progress)
     }
 }
 
