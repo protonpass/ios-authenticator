@@ -22,15 +22,19 @@ import CommonUtilities
 import DataLayer
 import Factory
 
-final class ServiceContainer: SharedContainer, AutoRegistering {
-    static let shared = ServiceContainer()
-    let manager = ContainerManager()
+public final class ServiceContainer: SharedContainer, AutoRegistering {
+    public static let shared = ServiceContainer()
+    public let manager = ContainerManager()
 
-    func autoRegister() {
+    public func autoRegister() {
         manager.defaultScope = .singleton
     }
 
-    var settingsService: Factory<any SettingsServicing> {
-        self { SettingsService(store: kSharedUserDefaults) }
+    public var settingsService: Factory<any SettingsServicing> {
+        self { @MainActor in SettingsService(store: kSharedUserDefaults) }
+    }
+
+    var qaService: Factory<any QAServicing> {
+        self { @MainActor in QAService(store: kSharedUserDefaults) }
     }
 }

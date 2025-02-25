@@ -25,26 +25,11 @@ import Foundation
 @MainActor
 @Observable
 final class QAMenuViewModel {
-    var mockEntriesDisplay: Bool {
-        didSet {
-            settingsService.setMockEntriesDisplay(mockEntriesDisplay)
-        }
-    }
-
-    var mockEntriesCount: Int {
-        didSet {
-            settingsService.setMockEntriesCount(mockEntriesCount)
-        }
-    }
-
     @ObservationIgnored
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
     @ObservationIgnored
-    private let settingsService = resolve(\ServiceContainer.settingsService)
+    @LazyInjected(\ServiceContainer.qaService) var qaService
 
-    init() {
-        mockEntriesDisplay = settingsService.getMockEntriesDisplay()
-        mockEntriesCount = settingsService.getMockEntriesCount()
-    }
+    init() {}
 }

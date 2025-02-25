@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
+import DomainProtocols
 import Factory
 
 final class RepositoryContainer: SharedContainer, AutoRegistering {

@@ -1,6 +1,6 @@
 //
-// CopyTextToClipboard.swift
-// Proton Authenticator - Created on 18/02/2025.
+// Hasher+Extensions.swift
+// Proton Authenticator - Created on 14/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,34 +17,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
 import Foundation
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
 
-protocol CopyTextToClipboardUseCase: Sendable {
-    func execute(_ text: String)
-}
-
-extension CopyTextToClipboardUseCase {
-    func callAsFunction(_ text: String) {
-        execute(text)
-    }
-}
-
-final class CopyTextToClipboard: CopyTextToClipboardUseCase {
-    init() {}
-
-    func execute(_ text: String) {
-        #if canImport(UIKit)
-        UIPasteboard.general.string = text
-        #elseif canImport(AppKit)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
-        #endif
+extension Hasher {
+    mutating func combineAndFinalize(_ values: (any Hashable)...) -> Int {
+        for value in values {
+            combine(value)
+        }
+        return finalize()
     }
 }

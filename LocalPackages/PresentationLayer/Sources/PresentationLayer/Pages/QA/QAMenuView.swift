@@ -30,36 +30,36 @@ struct QAMenuView: View {
             List {
                 mockEntriesSection
             }
-            .animation(.default, value: viewModel.mockEntriesDisplay)
+            .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: toolbarItemPlacement) {
                     Button(action: dismiss.callAsFunction) {
                         Text(verbatim: "Close")
                     }
                 }
-                #else
-                ToolbarItem(placement: .navigation) {
-                    Button(action: dismiss.callAsFunction) {
-                        Text(verbatim: "Close")
-                    }
-                }
-                #endif
             }
         }
         .tint(Color.success)
+    }
+
+    private var toolbarItemPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .navigation
+        #endif
     }
 }
 
 private extension QAMenuView {
     var mockEntriesSection: some View {
         Section(content: {
-            Toggle(isOn: $viewModel.mockEntriesDisplay,
+            Toggle(isOn: $viewModel.qaService.showMockEntries,
                    label: { Text(verbatim: "Display mocked entries") })
 
-            if viewModel.mockEntriesDisplay {
-                Picker(selection: $viewModel.mockEntriesCount,
+            if viewModel.qaService.showMockEntries {
+                Picker(selection: $viewModel.qaService.numberOfMockEntries,
                        content: {
                            ForEach(viewModel.allowedEntriesCount, id: \.self) { count in
                                Text(verbatim: "\(count)")

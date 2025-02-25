@@ -1,6 +1,6 @@
 //
-// Utils.swift
-// Proton Authenticator - Created on 14/02/2025.
+// EntryRepositoryProtocol.swift
+// Proton Authenticator - Created on 25/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,12 +19,20 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Models
 
-extension Hasher {
-    mutating func combineAndFinalize(_ values: (any Hashable)...) -> Int {
-        for value in values {
-            combine(value)
-        }
-        return finalize()
+public protocol EntryRepositoryProtocol: Sendable {
+    func entry(for uri: String) throws -> Entry
+    func export(entries: [Entry]) throws -> String
+    func deserialize(serializedData: [Data]) throws -> [Entry]
+    func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]
+    func createSteamEntry(params: SteamParams) throws -> Entry
+    func createTotpEntry(params: TotpParams) throws -> Entry
+    func serialize(entries: [Entry]) throws -> [Data]
+}
+
+public extension EntryRepositoryProtocol {
+    func generateCodes(entries: [Entry]) throws -> [Code] {
+        try generateCodes(entries: entries, time: Date().timeIntervalSince1970)
     }
 }

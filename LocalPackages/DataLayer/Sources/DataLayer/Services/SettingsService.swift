@@ -23,75 +23,49 @@ import CommonUtilities
 import Foundation
 import Models
 
-public enum SettingUpdateEvent: Sendable {
-    case searchBarMode(SearchBarMode)
-    case theme(Theme)
-}
+@MainActor
+public protocol SettingsServicing: Sendable, Observable {
+    var theme: Theme { get }
+    var searchBarDisplayMode: SearchBarDisplayMode { get }
 
-public protocol SettingsServicing: Sendable {
-    var updateEventStream: PassthroughSubject<SettingUpdateEvent, Never> { get }
-
-    func getTheme() -> Theme
     func setTheme(_ value: Theme)
-
-    func getSearchBarMode() -> SearchBarMode?
-    func setSearchBarMode(_ value: SearchBarMode)
-
-    // QA
-    func getMockEntriesDisplay() -> Bool
-    func setMockEntriesDisplay(_ value: Bool)
-
-    func getMockEntriesCount() -> Int
-    func setMockEntriesCount(_ value: Int)
+    func setSearchBarMode(_ value: SearchBarDisplayMode)
 }
 
+@MainActor
+@Observable
 public final class SettingsService: SettingsServicing {
-    private nonisolated(unsafe) let store: UserDefaults
+    @ObservationIgnored
+    private let store: UserDefaults
 
-    public nonisolated(unsafe) let updateEventStream = PassthroughSubject<SettingUpdateEvent, Never>()
+    public var searchBarDisplayMode: SearchBarDisplayMode
+    public var theme: Theme
 
     public init(store: UserDefaults) {
         self.store = store
+        theme = Theme(rawValue: store.integer(forKey: AppConstants.Settings.theme)) ?? .default
+        searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
+            .integer(forKey: AppConstants.Settings.searchBarMode)) ??
+            .bottom
     }
 }
 
+// MARK: - Setter
+
 public extension SettingsService {
-    func getTheme() -> Theme {
-        guard let rawValue = store.value(forKey: AppConstants.Settings.theme) as? Int else {
-            return .default
-        }
-        return Theme(rawValue: rawValue) ?? .default
-    }
-
     func setTheme(_ value: Theme) {
-        store.set(value.rawValue, forKey: AppConstants.Settings.theme)
-    }
-
-    func getSearchBarMode() -> SearchBarMode? {
-        guard let rawValue = store.value(forKey: AppConstants.Settings.searchBarMode) as? Int else {
-            return nil
+        guard theme != value else {
+            return
         }
-        return SearchBarMode(rawValue: rawValue)
+        store.set(value.rawValue, forKey: AppConstants.Settings.theme)
+        theme = value
     }
 
-    func setSearchBarMode(_ value: SearchBarMode) {
+    func setSearchBarMode(_ value: SearchBarDisplayMode) {
+        guard searchBarDisplayMode != value else {
+            return
+        }
         store.set(value.rawValue, forKey: AppConstants.Settings.searchBarMode)
-        updateEventStream.send(.searchBarMode(value))
-    }
-
-    func getMockEntriesDisplay() -> Bool {
-        store.bool(forKey: AppConstants.QA.mockEntriesDisplay)
-    }
-
-    func setMockEntriesDisplay(_ value: Bool) {
-        store.set(value, forKey: AppConstants.QA.mockEntriesDisplay)
-    }
-
-    func getMockEntriesCount() -> Int {
-        store.integer(forKey: AppConstants.QA.mockEntriesCount)
-    }
-
-    func setMockEntriesCount(_ value: Int) {
-        store.set(value, forKey: AppConstants.QA.mockEntriesCount)
+        searchBarDisplayMode = value
     }
 }

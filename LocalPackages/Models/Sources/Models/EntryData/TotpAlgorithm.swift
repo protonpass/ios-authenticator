@@ -1,6 +1,6 @@
 //
-// Item.swift
-// Proton Authenticator - Created on 12/02/2025.
+// TotpAlgorithm.swift
+// Proton Authenticator - Created on 25/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,13 +19,9 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import SwiftData
 
-@Model
-final class Item {
-    var timestamp = Date.now
-
-    init(timestamp: Date) {
-        self.timestamp = timestamp
-    }
+public enum TotpAlgorithm: Sendable, Equatable {
+    case sha1
+    case sha256
+    case sha512
 }

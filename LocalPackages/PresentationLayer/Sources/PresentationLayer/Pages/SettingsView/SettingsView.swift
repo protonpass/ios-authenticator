@@ -50,6 +50,7 @@ struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             .routingProvided
             .navigationTitle("Settings")
             .task {
@@ -60,8 +61,7 @@ struct SettingsView: View {
             #endif
             .background(.backgroundGradient)
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
                         dismiss()
                     } label: {
@@ -69,16 +69,6 @@ struct SettingsView: View {
                             .foregroundStyle(.textWeak)
                     }
                 }
-                #elseif os(macOS)
-                ToolbarItem(placement: .navigation) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close")
-                            .foregroundStyle(.textWeak)
-                    }
-                }
-                #endif
             }
             #if os(iOS)
             .toolbarColorScheme(.dark, for: .navigationBar, .tabBar)
@@ -95,7 +85,17 @@ struct SettingsView: View {
             }
         }
     }
+
+    private var toolbarItemPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .navigation
+        #endif
+    }
 }
+
+// MARK: - Sections
 
 private extension SettingsView {
     var securitySection: some View {
@@ -219,7 +219,11 @@ private extension SettingsView {
                 }
         }
     }
+}
 
+// MARK: - Utils
+
+private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         Section {
             VStack(alignment: .leading, spacing: 0) {
@@ -268,81 +272,6 @@ private struct SettingDivider: View {
 
 #Preview {
     SettingsView()
-}
-
-private struct SettingRow: View {
-    var icon: ImageResource?
-    let title: TextContent
-    var subtitle: LocalizedStringKey?
-    let trailingMode: TrailingMode
-
-    enum TrailingMode {
-        case toggle(isOn: Bool, onToggle: () -> Void)
-        case chevron(onTap: () -> Void)
-        case detailChevron(TextContent, onTap: () -> Void)
-
-        var onTap: (() -> Void)? {
-            switch self {
-            case let .chevron(onTap):
-                onTap
-            case let .detailChevron(_, onTap):
-                onTap
-            default:
-                nil
-            }
-        }
-    }
-
-    var body: some View {
-        HStack {
-            if let icon {
-                Image(icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: 24)
-            }
-
-            VStack(alignment: .leading) {
-                Text(title)
-                    .foregroundStyle(.textNorm)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-
-                if let subtitle {
-                    Text(subtitle)
-                        .font(.callout)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
-
-            Spacer()
-
-            switch trailingMode {
-            case let .toggle(isOn, onToggle):
-                StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
-                    .fixedSize(horizontal: true, vertical: false)
-
-            case .chevron:
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.textWeak)
-
-            case let .detailChevron(detail, _):
-                Text(detail)
-                    .foregroundStyle(.textNorm)
-
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.textWeak)
-            }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(.rect)
-        .if(trailingMode.onTap) { view, onTap in
-            view.onTapGesture(perform: onTap)
-        }
-    }
 }
 
 private extension ProtonProduct {

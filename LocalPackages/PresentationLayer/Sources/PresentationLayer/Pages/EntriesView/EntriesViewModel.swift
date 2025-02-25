@@ -19,15 +19,20 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Combine
 import CommonUtilities
 import Factory
 import Foundation
 import Models
 
-@Observable @MainActor
+@Observable
+@MainActor
 final class EntriesViewModel {
     private(set) var uiModels: [EntryUiModel] = []
     var search = ""
+
+    @ObservationIgnored
+    private var pauseRefreshing = false
 
     @ObservationIgnored
     private var entries: [Entry] = []
@@ -40,6 +45,10 @@ final class EntriesViewModel {
     private var settingsService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.qaService)
+    private var qaService
+
+    @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
 
@@ -48,10 +57,22 @@ final class EntriesViewModel {
     private var generateEntryUiModels
 
     @ObservationIgnored
+    private var cancellable: (any Cancellable)?
+
+    @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
     init(bundle: Bundle = .main) {
         self.bundle = bundle
+        cancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self, !pauseRefreshing else {
+                    return
+                }
+                refreshTokens()
+            }
     }
 }
 
@@ -85,14 +106,21 @@ extension EntriesViewModel {
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
     }
+
+    func toggleCodeRefresh(_ shouldPause: Bool) {
+        pauseRefreshing = shouldPause
+        if !pauseRefreshing {
+            refreshTokens()
+        }
+    }
 }
 
 private extension EntriesViewModel {
     func mockedEntries() -> [Entry]? {
-        guard bundle.isQaBuild, settingsService.getMockEntriesDisplay() else {
+        guard bundle.isQaBuild, qaService.showMockEntries else {
             return nil
         }
-        let count = max(5, settingsService.getMockEntriesCount())
+        let count = max(5, qaService.numberOfMockEntries)
 
         var entries = [Entry]()
         for index in 0..<count {
