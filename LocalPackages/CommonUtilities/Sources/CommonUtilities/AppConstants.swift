@@ -44,4 +44,12 @@ public enum AppConstants {
         public static let searchBarMode = "SearchBarMode"
         public static let theme = "Theme"
     }
+
+    public static var isPhone: Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        false
+        #endif
+    }
 }

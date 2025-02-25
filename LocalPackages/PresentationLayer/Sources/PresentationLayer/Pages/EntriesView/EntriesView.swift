@@ -31,7 +31,7 @@ public struct EntriesView: View {
     @FocusState private var isTextFieldFocused: Bool
 
     private var isPhone: Bool {
-        UIDevice.isPhone
+        AppConstants.isPhone
     }
 
     private var searchBarAlignment: VerticalAlignment {

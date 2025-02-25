@@ -26,7 +26,7 @@ import Models
 @MainActor
 public protocol SettingsServicing: Sendable, Observable {
     var theme: Theme { get }
-    var searchBarDisplay: SearchBarDisplayMode { get }
+    var searchBarDisplayMode: SearchBarDisplayMode { get }
 
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
@@ -38,13 +38,13 @@ public final class SettingsService: SettingsServicing {
     @ObservationIgnored
     private let store: UserDefaults
 
-    public var searchBarDisplay: SearchBarDisplayMode
+    public var searchBarDisplayMode: SearchBarDisplayMode
     public var theme: Theme
 
     public init(store: UserDefaults) {
         self.store = store
         theme = Theme(rawValue: store.integer(forKey: AppConstants.Settings.theme)) ?? .default
-        searchBarDisplay = SearchBarDisplayMode(rawValue: store
+        searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
             .integer(forKey: AppConstants.Settings.searchBarMode)) ??
             .bottom
     }
@@ -62,10 +62,10 @@ public extension SettingsService {
     }
 
     func setSearchBarMode(_ value: SearchBarDisplayMode) {
-        guard searchBarDisplay != value else {
+        guard searchBarDisplayMode != value else {
             return
         }
         store.set(value.rawValue, forKey: AppConstants.Settings.searchBarMode)
-        searchBarDisplay = value
+        searchBarDisplayMode = value
     }
 }

@@ -55,7 +55,7 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.generateEntryUiModels)
     private var generateEntryUiModels
-
+    
     @ObservationIgnored
     private var cancellable: (any Cancellable)?
 
