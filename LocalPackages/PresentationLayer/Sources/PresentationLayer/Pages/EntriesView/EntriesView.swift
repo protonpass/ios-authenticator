@@ -27,7 +27,6 @@ public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
-    @State private var pauseRefreshing = false
     @State private var showCreationOptions = false
     @FocusState private var isTextFieldFocused: Bool
 
@@ -47,11 +46,6 @@ public struct EntriesView: View {
                 .background(.backgroundGradient)
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
-                .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                    if !pauseRefreshing {
-                        viewModel.refreshTokens()
-                    }
-                }
                 .task {
                     await viewModel.setUp()
                     viewModel.refreshTokens()
@@ -68,10 +62,7 @@ public struct EntriesView: View {
                     // Pause refreshing when a sheet is presented
                     // Only applicable to iPad because sheets on iPad are not full screen
                     guard horizontalSizeClass == .regular else { return }
-                    pauseRefreshing = newValue != nil
-                    if !pauseRefreshing {
-                        viewModel.refreshTokens()
-                    }
+                    viewModel.toggleCodeRefresh(newValue != nil)
                 }
         }
     }
@@ -88,8 +79,6 @@ private extension EntriesView {
                 grid
             }
         }
-        .blur(radius: pauseRefreshing ? 4 : 0)
-        .animation(.default, value: pauseRefreshing)
         .overlay {
             if viewModel.uiModels.isEmpty {
                 /// In case there aren't any search results, we can

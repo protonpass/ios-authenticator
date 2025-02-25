@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Combine
 import CommonUtilities
 import Factory
 import Foundation
@@ -29,6 +30,9 @@ import Models
 final class EntriesViewModel {
     private(set) var uiModels: [EntryUiModel] = []
     var search = ""
+
+    @ObservationIgnored
+    private var pauseRefreshing = false
 
     @ObservationIgnored
     private var entries: [Entry] = []
@@ -52,8 +56,20 @@ final class EntriesViewModel {
     @LazyInjected(\UseCaseContainer.generateEntryUiModels)
     private var generateEntryUiModels
 
+    @ObservationIgnored
+    private var cancellable: (any Cancellable)?
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
+        cancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self, !pauseRefreshing else {
+                    return
+                }
+                refreshTokens()
+            }
     }
 }
 
@@ -82,6 +98,13 @@ extension EntriesViewModel {
         let code = entry.code.current
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
+    }
+
+    func toggleCodeRefresh(_ shouldPause: Bool) {
+        pauseRefreshing = shouldPause
+        if !pauseRefreshing {
+            refreshTokens()
+        }
     }
 }
 
