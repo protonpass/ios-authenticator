@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// EntryRepositoryProtocol.swift
+// Proton Authenticator - Created on 25/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,19 +18,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import DomainProtocols
-import Factory
+import Foundation
+import Models
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
+public protocol EntryRepositoryProtocol: Sendable {
+    func entry(for uri: String) throws -> Entry
+    func export(entries: [Entry]) throws -> String
+    func deserialize(serializedData: [Data]) throws -> [Entry]
+    func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]
+    func createSteamEntry(params: SteamParams) throws -> Entry
+    func createTotpEntry(params: TotpParams) throws -> Entry
+    func serialize(entries: [Entry]) throws -> [Data]
+}
 
-    func autoRegister() {
-        manager.defaultScope = .singleton
-    }
-
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository() }
+public extension EntryRepositoryProtocol {
+    func generateCodes(entries: [Entry]) throws -> [Code] {
+        try generateCodes(entries: entries, time: Date().timeIntervalSince1970)
     }
 }

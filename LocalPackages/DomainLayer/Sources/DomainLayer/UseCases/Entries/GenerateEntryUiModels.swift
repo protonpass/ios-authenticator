@@ -1,6 +1,6 @@
 //
 // GenerateEntryUiModels.swift
-// Proton Authenticator - Created on 18/02/2025.
+// Proton Authenticator - Created on 25/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,30 +17,32 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
 import DataLayer
+import DomainProtocols
 import Foundation
 import Models
 
-protocol GenerateEntryUiModelsUseCase: Sendable {
-    func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel]
+public protocol GenerateEntryUiModelsUseCase: Sendable {
+    func execute(from entries: [Entry], on date: Date) throws -> [EntryUiModel]
 }
 
-extension GenerateEntryUiModelsUseCase {
-    func callAsFunction(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
-        try await execute(from: entries, on: date)
+public extension GenerateEntryUiModelsUseCase {
+    func callAsFunction(from entries: [Entry], on date: Date) throws -> [EntryUiModel] {
+        try execute(from: entries, on: date)
     }
 }
 
-actor GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
+// TODO: maybe move this in a service ?
+
+public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
     private let repository: any EntryRepositoryProtocol
 
-    init(repository: any EntryRepositoryProtocol) {
+    public init(repository: any EntryRepositoryProtocol) {
         self.repository = repository
     }
 
-    func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
+    public func execute(from entries: [Entry], on date: Date) throws -> [EntryUiModel] {
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,

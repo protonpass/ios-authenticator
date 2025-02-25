@@ -26,8 +26,8 @@ import Foundation
 import Models
 
 public protocol EncryptionServicing: Sendable {
-    func decrypt(ciphertext: Data) throws -> Entry
-    func decryptMany(ciphertexts: [Data]) throws -> [Entry]
+    func decrypt(entry: Data) throws -> Entry
+    func decryptMany(entries: [Data]) throws -> [Entry]
     func encrypt(model: Entry) throws -> Data
     func encrypt(models: [Entry]) throws -> [Data]
 }
@@ -59,12 +59,12 @@ public final class EncryptionService: EncryptionServicing {
         }
     }
 
-    public func decrypt(ciphertext: Data) throws -> Entry {
-        try authenticatorCrypto.decryptEntry(ciphertext: ciphertext, key: encryptionKey).toEntry
+    public func decrypt(entry: Data) throws -> Entry {
+        try authenticatorCrypto.decryptEntry(ciphertext: entry, key: encryptionKey).toEntry
     }
 
-    public func decryptMany(ciphertexts: [Data]) throws -> [Entry] {
-        try authenticatorCrypto.decryptManyEntries(ciphertexts: ciphertexts, key: encryptionKey).toEntries
+    public func decryptMany(entries: [Data]) throws -> [Entry] {
+        try authenticatorCrypto.decryptManyEntries(ciphertexts: entries, key: encryptionKey).toEntries
     }
 
     public func encrypt(model: Entry) throws -> Data {
@@ -75,17 +75,3 @@ public final class EncryptionService: EncryptionServicing {
         try authenticatorCrypto.encryptManyEntries(models: models.toAuthenticatorEntries, key: encryptionKey)
     }
 }
-
-// public protocol AuthenticatorCryptoProtocol : AnyObject {
-//
-//    func decryptEntry(ciphertext: Data, key: Data) throws -> AuthenticatorRustCore.AuthenticatorEntryModel
-//
-//    func decryptManyEntries(ciphertexts: [Data], key: Data) throws ->
-//    [AuthenticatorRustCore.AuthenticatorEntryModel]
-//
-//    func encryptEntry(model: AuthenticatorRustCore.AuthenticatorEntryModel, key: Data) throws -> Data
-//
-//    func encryptManyEntries(models: [AuthenticatorRustCore.AuthenticatorEntryModel], key: Data) throws -> [Data]
-//
-//    func generateKey() -> Data
-// }

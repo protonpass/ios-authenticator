@@ -24,7 +24,8 @@ import Factory
 import Foundation
 import Models
 
-@Observable @MainActor
+@Observable
+@MainActor
 final class EntriesViewModel {
     private(set) var uiModels: [EntryUiModel] = []
     var search = ""
@@ -51,9 +52,6 @@ final class EntriesViewModel {
     @LazyInjected(\UseCaseContainer.generateEntryUiModels)
     private var generateEntryUiModels
 
-    @ObservationIgnored
-    private var generateTokensTask: Task<Void, Never>?
-
     init(bundle: Bundle = .main) {
         self.bundle = bundle
     }
@@ -73,14 +71,10 @@ extension EntriesViewModel {
     }
 
     func refreshTokens() {
-        generateTokensTask?.cancel()
-        generateTokensTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                uiModels = try await generateEntryUiModels(from: entries, on: .now)
-            } catch {
-                handle(error)
-            }
+        do {
+            uiModels = try generateEntryUiModels(from: entries, on: .now)
+        } catch {
+            handle(error)
         }
     }
 
