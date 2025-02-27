@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
+import CommonUtilities
 import DomainProtocols
 import Foundation
 import Models
@@ -33,6 +33,7 @@ public extension GenerateEntryUiModelsUseCase {
     }
 }
 
+// swiftlint:disable:next todo
 // TODO: maybe move this in a service ?
 
 public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {

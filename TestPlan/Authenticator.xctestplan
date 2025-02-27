@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "4CAA49CD-11D4-4138-B8B9-BFD6B41B0D14",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Authenticator.xcodeproj",
+      "identifier" : "5B8765162D52539D00B4CC30",
+      "name" : "Authenticator"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "5B87652A2D52539E00B4CC30",
+        "name" : "AuthenticatorTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "5B8765342D52539E00B4CC30",
+        "name" : "AuthenticatorUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

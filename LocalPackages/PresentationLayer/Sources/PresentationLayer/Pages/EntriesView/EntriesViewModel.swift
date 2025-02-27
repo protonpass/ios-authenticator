@@ -140,6 +140,7 @@ private extension EntriesViewModel {
     }
 
     func handle(_ error: any Error) {
+        // swiftlint:disable:next todo
         // TODO: Log and display error to the users
         print(error.localizedDescription)
     }
