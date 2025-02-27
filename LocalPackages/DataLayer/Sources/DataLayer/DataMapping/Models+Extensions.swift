@@ -124,3 +124,23 @@ extension TotpAlgorithm {
         }
     }
 }
+
+// MARK: - Import
+
+extension AuthenticatorImportResult {
+    var toImportResult: ImportResult {
+        ImportResult(entries: entries.toEntries, errors: errors.toImportErrors)
+    }
+}
+
+extension AuthenticatorImportError {
+    var toImportError: ImportError {
+        ImportError(context: context, message: message)
+    }
+}
+
+extension [AuthenticatorImportError] {
+    var toImportErrors: [ImportError] {
+        map(\.toImportError)
+    }
+}

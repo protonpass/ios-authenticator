@@ -38,3 +38,33 @@ public extension StringProtocol {
         return String(result.reversed())
     }
 }
+
+// MARK: - Variables
+
+public extension StringProtocol {
+    var isValidJSON: Bool {
+        if let data = data(using: .utf8) {
+            do {
+                _ = try JSONSerialization.jsonObject(with: data, options: [])
+                return true
+            } catch {
+                return false
+            }
+        }
+        return false
+    }
+
+    var isValidCSV: Bool {
+        let rows = components(separatedBy: .newlines)
+        guard !rows.isEmpty else { return false }
+
+        let columnCount = rows[0].components(separatedBy: ",").count
+        for row in rows {
+            let columns = row.components(separatedBy: ",")
+            if columns.count != columnCount {
+                return false
+            }
+        }
+        return true
+    }
+}

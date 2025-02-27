@@ -1,8 +1,8 @@
 {
   "configurations" : [
     {
-      "id" : "1BCD9BD8-F318-4737-A9C4-8235FE1CA2F9",
-      "name" : "Test Scheme Action",
+      "id" : "12FB4AFB-14DD-4513-9E5B-ABAEF1E66149",
+      "name" : "Configuration 1",
       "options" : {
 
       }
@@ -12,14 +12,7 @@
 
   },
   "testTargets" : [
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "CommonUtilitiesTests",
-        "name" : "CommonUtilitiesTests"
-      }
-    }
+
   ],
   "version" : 1
 }
