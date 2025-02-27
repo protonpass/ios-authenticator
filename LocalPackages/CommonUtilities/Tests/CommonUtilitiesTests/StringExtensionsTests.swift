@@ -60,6 +60,6 @@ struct StringExtensionsTests {
 
     @Test("Check invalid csv string")
     func invalidCsv() async throws {
-        #expect("plop".isValidCSV == false)
+        #expect(jsonString.isValidCSV == false)
     }
 }

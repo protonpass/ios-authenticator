@@ -24,8 +24,6 @@ import CryptoKit
 import Foundation
 import Models
 
-// public typealias ImportResult = AuthenticatorImportResult
-
 public protocol ImportingServicing: Sendable {
     func importEntries(from destination: TwofaImportDestination) throws -> ImportResult
 }
