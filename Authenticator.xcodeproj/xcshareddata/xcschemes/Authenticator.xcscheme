@@ -78,9 +78,6 @@
             reference = "container:TestPlan/Authenticator.xctestplan"
             default = "YES">
          </TestPlanReference>
-         <TestPlanReference
-            reference = "container:TestPlan/CommonUtilities.xctestplan">
-         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
