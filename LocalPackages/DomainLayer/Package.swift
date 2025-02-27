@@ -24,6 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Matejkob/swift-spyable", .upToNextMajor(from: "0.8.0")),
+        .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "Models", path: "../Models"),
     ],
     targets: [
@@ -33,6 +34,7 @@ let package = Package(
                 dependencies: [
                     "DomainProtocols",
                     .product(name: "Spyable", package: "swift-spyable"),
+                    .product(name: "CommonUtilities", package: "CommonUtilities")
                 ]),
         .target(name: "DomainProtocols",
                 dependencies: [

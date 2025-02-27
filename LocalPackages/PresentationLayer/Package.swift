@@ -23,7 +23,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-//        .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
+        .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
@@ -37,7 +37,7 @@ let package = Package(
         .target(
             name: "PresentationLayer",
             dependencies: [
-//                .product(name: "DocScanner", package: "DocScanner"),
+                .product(name: "DocScanner", package: "DocScanner", condition: .when(platforms: [.iOS])),
                 .product(name: "Factory", package: "Factory"),
                 .product(name: "Models", package: "Models"),
                 .product(name: "DataLayer", package: "DataLayer"),

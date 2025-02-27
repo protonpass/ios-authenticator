@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 public enum Theme: Int, Sendable, CaseIterable {
     case dark, light, system
