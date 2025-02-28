@@ -108,7 +108,7 @@ private extension ImportingService {
         if content.isValidJSON {
             return try importer.importFromBitwardenJson(contents: content)
         }
-        
+
         return try importer.importFromBitwardenCsv(contents: content)
     }
 
