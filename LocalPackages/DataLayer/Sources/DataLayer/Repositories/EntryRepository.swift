@@ -61,10 +61,10 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     public func serialize(entries: [Entry]) throws -> [Data] {
         try rustClient.serializeEntries(entries: entries.toAuthenticatorEntries)
     }
-    
+
     public func getTotpParams(entry: Entry) throws -> TotpParams {
         let params = try rustClient.getTotpParams(entry: entry.toAuthenticatorEntryModel)
-        
+
         return TotpParams(name: entry.name,
                           secret: params.secret,
                           issuer: params.issuer,

@@ -129,11 +129,11 @@ extension AuthenticatorTotpAlgorithm {
     var toTotpAlgorithm: TotpAlgorithm {
         switch self {
         case .sha1:
-                .sha1
+            .sha1
         case .sha256:
-                .sha256
+            .sha256
         case .sha512:
-                .sha512
+            .sha512
         }
     }
 }

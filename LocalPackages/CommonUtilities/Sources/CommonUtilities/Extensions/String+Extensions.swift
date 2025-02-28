@@ -55,53 +55,53 @@ public extension StringProtocol {
     }
 
     var isValidCSV: Bool {
-          // Split the string into rows
-          let rows = self.components(separatedBy: .newlines)
-              .filter { !$0.isEmpty } // Remove empty lines
-          
-          // Ensure there are rows to process
-          guard !rows.isEmpty else { return false }
-          
-          // Get the number of columns from the header row
-          let headerColumns = parseCSVRow(rows[0])
-          let columnCount = headerColumns.count
-          
-          // Validate each row
-          for row in rows {
-              let columns = parseCSVRow(row)
-              if columns.count != columnCount {
-                  return false
-              }
-          }
-          
-          return true
-      }
-      
-      private func parseCSVRow(_ row: String) -> [String] {
-          var columns: [String] = []
-          var currentColumn = ""
-          var insideQuotes = false
-          let scanner = Scanner(string: row)
-          scanner.charactersToBeSkipped = nil
-          
-          while !scanner.isAtEnd {
-              if let text = scanner.scanUpToString("\"") {
-                  currentColumn += text
-              }
-              
-              if scanner.scanString("\"") != nil {
-                  insideQuotes.toggle()
-                  currentColumn += "\""
-              }
-              
-              if !insideQuotes, (scanner.scanString(",") != nil) {
-                  columns.append(currentColumn)
-                  currentColumn = ""
-              } else if scanner.isAtEnd {
-                  columns.append(currentColumn)
-              }
-          }
-          
-          return columns
-      }
+        // Split the string into rows
+        let rows = components(separatedBy: .newlines)
+            .filter { !$0.isEmpty } // Remove empty lines
+
+        // Ensure there are rows to process
+        guard !rows.isEmpty else { return false }
+
+        // Get the number of columns from the header row
+        let headerColumns = parseCSVRow(rows[0])
+        let columnCount = headerColumns.count
+
+        // Validate each row
+        for row in rows {
+            let columns = parseCSVRow(row)
+            if columns.count != columnCount {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private func parseCSVRow(_ row: String) -> [String] {
+        var columns: [String] = []
+        var currentColumn = ""
+        var insideQuotes = false
+        let scanner = Scanner(string: row)
+        scanner.charactersToBeSkipped = nil
+
+        while !scanner.isAtEnd {
+            if let text = scanner.scanUpToString("\"") {
+                currentColumn += text
+            }
+
+            if scanner.scanString("\"") != nil {
+                insideQuotes.toggle()
+                currentColumn += "\""
+            }
+
+            if !insideQuotes, scanner.scanString(",") != nil {
+                columns.append(currentColumn)
+                currentColumn = ""
+            } else if scanner.isAtEnd {
+                columns.append(currentColumn)
+            }
+        }
+
+        return columns
+    }
 }
