@@ -101,7 +101,7 @@ struct ImportingServiceTests {
         #expect(result.entries.count == 2)
         #expect(result.errors.count == 0)
         #expect(result.entries.first?.name == "mylabeldefault")
-        #expect(result.entries.last?.name == "")
+        #expect(result.entries.last?.name == "Steam")
     }
     
     
@@ -127,21 +127,161 @@ struct ImportingServiceTests {
         #expect(result.entries.count == 2)
         #expect(result.errors.count == 0)
         #expect(result.entries.first?.name == "mylabeldefault")
-        #expect(result.entries.last?.name == "")
+        #expect(result.entries.last?.name == "Steam")
+    }
+    
+    @Test("Test fail import from entries from 2fas")
+    func failimportEntriesFrom2fas() async throws {
+       let stringData = """
+  {
+    "services": [],
+    "groups": [],
+    "updatedAt": 1738060518498,
+    "schemaVersion": 4,
+    "appVersionCode": 5000029,
+    "appVersionName": "5.4.8",
+    "appOrigin": "android",
+    "servicesEncrypted": "vHaJlrtehS0Si1YIFI+DsdZMirSjqi3P+KtY+sHZCjVFg2YdJTftO6iCdQFLSYP9r7rNG8DBWFx4FUBMm9sMGdEB8D+GZ6RikXDGhdm4jUUb0Nl3fVQJzivmeHPe8e73j49qqsqRicTH1IilMpRbgN33DaxoNYI/ziJNtCaYlKS+Y7XVMsaZuPR9cQSmPZhLUc68uU3KMYNHEqQd8Om/+LWOvKb1V4rq4QPWHZyh+JzBGQ3QbkhlQf9y+VND0bwM5cTKzhs/jnudpAiQU8acOJSNq5OyA2vaschYJs3kvg41i7k/dYku/TeoGpSwbnomE6JIHkSX08OrV4RxibHt1+DEyruU3HaCMSdJ3FtfY8SsU8tzgTMbxqyQwkDJ6RdXiKtLgGsy7PSwo5JCDn5+akALpuI0UYlbwgP1B0UKfR/kc11r/sfzp9+jISzU3FPhkx205aKn03g3VcTNFBdIakl3sqWDDjKJJ1uprg2AsvVNk7AJJIUPiOVQ2b51JJmMCmq1PdJrK1DxJz3ZkXkt26C/Z36gdzMJYkHnZWpQh2umbqhd7PtTWnUSBQiIF9SVA0kQx7hjax5hCssrqBARWWskvr/rBTgbeWrHMhjknS084gLK/DFsvKSrNplKAbQNaLV40OV0EYOhD8G1Ikgk/bivlb0Yp28I8oQFyIetNZnYWHNUAYDjZpFHjK9DKhEuBUIi8yZhhdG0Fgx3K8TUzDSjJ+TujI9PTqL7mBFedDv1SWll9b/9FYff8O8mF2+B6cnRd7pLFHMcI4grB8eDhIO2nZuzObnAw/niJxvbbmFkPLHQnUHsQs7OroOox0hqj7VFgalEHrVAi1DbOgRnAou38n+APEQy3PJiHTPZk54gZ7jWrEkk+K/w3GbXvyzCnACTOSmDmOyaIdv5FA1gmm5OExwN9ltrm11yh7NWsofQDI+QGrrB7V4aksqwS0qz8il/1vhSH4P6/EhuC92h0ky2zud5NdOfBsJ8:JFpdtsTBX31A+tYxmLikSmPM/amVh7rOZL0gTu2iUBzO12cBBMIm/t+VCSGacSMS4lluwQjlSWFE4lJ7sCmZxTGxDh1GcQd31speMzWxWPu6FSnt4kD1N16NX9yqKd3hkxbKZ0jyK04IW+uNBItMoH2GvmZF2p9NZ3Xs9oRljXoffrq8fLD7Are/J+N2PGekbT/XY9CEKgBWfi04xFfMKJ8lZy8DEmR013F8PbOTEEmujnXznoiltfWKy1z8x25IRL30Ak86EJgtmQ6qRCY74iU59T/MW5EBKBWStqdYlOBtnHzZ8KSGEkpy9TK2MiSQeSRX9oLKpzAqUPKLu4G4Xg==:pYsYDrS0dv9uWJPU",
+    "reference": "vwIh3XpwPDbXX4aGXV9T6k3WFVbPlwd9/DYTQEEabLWdsGAOfuNJrt5gJbXPjAP88rF/g7X6hYm+Ib89dveDRhmixF6N4KdjOswePkgi2nUZCFH5cwkGh7UmdbrbIBw/60EDmPvYO+koJYQSZVXYIBsBnYCEVc6/JoxcOcWi9YcYVWAA02+bChDqQ6GrNW78O4eh+TRz7ZxF2VuN23I2sA4Z2ccIlPTK2LhZchOCFO2UVFgvUlZzAB6vv78Kf4cCxWrlYh2NmaEGNRfY6zB7G/L2WYRL3pkXe4HgTYltjDJlQjfV6YP0e8cDvAbY+kFtfgE2fyjy0o/SrDaTJ5GaTAuJT1/TfURPPepntF2vM9M=:JFpdtsTBX31A+tYxmLikSmPM/amVh7rOZL0gTu2iUBzO12cBBMIm/t+VCSGacSMS4lluwQjlSWFE4lJ7sCmZxTGxDh1GcQd31speMzWxWPu6FSnt4kD1N16NX9yqKd3hkxbKZ0jyK04IW+uNBItMoH2GvmZF2p9NZ3Xs9oRljXoffrq8fLD7Are/J+N2PGekbT/XY9CEKgBWfi04xFfMKJ8lZy8DEmR013F8PbOTEEmujnXznoiltfWKy1z8x25IRL30Ak86EJgtmQ6qRCY74iU59T/MW5EBKBWStqdYlOBtnHzZ8KSGEkpy9TK2MiSQeSRX9oLKpzAqUPKLu4G4Xg==:DJtLQp1wy4PbZufx"
+  }
+"""
+
+        #expect(throws: AuthenticatorImportException.BadPassword(message: "BadPassword")) {
+            try sut.importEntries(from: .twofas(contents: stringData, password: "wrong"))
+        }
+
+        #expect(throws: AuthenticatorImportException.MissingPassword(message: "MissingPassword")) {
+            try sut.importEntries(from: .twofas(contents: stringData, password: nil))
+        }
+        
+        #expect(throws: ImportingServiceError.contentIsEmpty) {
+            try sut.importEntries(from: .twofas(contents: "", password: nil))
+        }
     }
 
+    @Test("Test import json from Aegis")
+    func importJsonEntriesFromAegis() throws {
+       let stringData = """
+{
+    "version": 1,
+    "header": {
+        "slots": null,
+        "params": null
+    },
+    "db": {
+        "version": 3,
+        "entries": [
+            {
+                "type": "totp",
+                "uuid": "641e6db3-296a-49ad-ab75-9f4069ba0e53",
+                "name": "mylabel815256",
+                "issuer": "myissuer",
+                "note": "",
+                "favorite": false,
+                "icon": null,
+                "info": {
+                    "secret": "MYSECRET",
+                    "algo": "SHA256",
+                    "digits": 8,
+                    "period": 15
+                },
+                "groups": []
+            },
+            {
+                "type": "totp",
+                "uuid": "c3d22748-1cd9-4a3e-a655-23a872e3eee2",
+                "name": "mylabeldefault",
+                "issuer": "myissuer",
+                "note": "",
+                "favorite": false,
+                "icon": null,
+                "info": {
+                    "secret": "MYSECRET",
+                    "algo": "SHA1",
+                    "digits": 6,
+                    "period": 30
+                },
+                "groups": []
+            },
+            {
+                "type": "steam",
+                "uuid": "776e9abf-a0b5-4d60-98ae-6e06664e5b1e",
+                "name": "Steam",
+                "issuer": "Steam",
+                "note": "",
+                "favorite": false,
+                "icon": null,
+                "info": {
+                    "secret": "STEAMKEY",
+                    "algo": "SHA1",
+                    "digits": 5,
+                    "period": 30
+                },
+                "groups": []
+            }
+        ],
+        "groups": [],
+        "icons_optimized": true
+    }
+}
+"""
+        // Act
+        let result = try sut.importEntries(from: .aegis(contents: stringData, password: nil))
+
+        // Assert
+        #expect(result.entries.count == 3)
+        #expect(result.errors.count == 0)
+        #expect(result.entries.first?.name == "mylabel815256")
+        #expect(result.entries.last?.name == "")
+    }
     
-//    @Test
-//    func testImportEntriesFrom2fasWithEmptyContent() throws {
-//        // Arrange
-//        importingService = ImportingService(importer: mockImporter)
-//
-//        // Act & Assert
-//        try #expect(throws: ImportingServiceError.contentIsEmpty) {
-//            try importingService.importEntries(from: .twofas(contents: "", password: "password"))
-//        }
-//    }
-//
+    @Test("Test import encrypted json from Aegis")
+    func importEncryptedJsonEntriesFromAegis() throws {
+        let db = #"""
+        "IvZKCAJ69YeNwkMtNEDXP2jfsTdLkYz3QU+wiXrcOyXTKumGySOlm987eQNnNVxpXcKkRNJwOFVZOk\/8dYCDYYYjmFwpWwlmBwJ8oa1GyXw+hhY0V6x22a\/yHrEnfsibJxnI27w8Rl2ThjRi68+ts43jpoR72VVCDb559m5Xb5cOWdTX2hE0Doj73OanKV2hlXY6kE2CWR41oA4l17MRiv\/iCBvHszMd2Xkt7q8gjG17\/zvvuM4Vrn2zDFnE\/OPUSm3NBx0fOk+PjDvfHLPFqPSbRh6+ozj8NTFZrsi8QNPjKSvhjjnH56DOoSOm7bZ\/9BsCHd+n6sZegtC50atOo5Ar5Q3x9Ssb3jwXtkYGU1uxYnbUrHz+eBlCuZrt1dVoy3Y4XWWN7ti2F0TwMPWECqwytxHDqIAFFWsQUDoUNMDFdJX7n0U7IlRfCm5DUGyo2UlSSViIKlDTSXGFuzvz5Kag4fDVYi2oxvCef4LiS5our4+48kcj8ZomW\/dt5F5HtnlydxhiLlrKeOfl9jKPuTSp2Z2vnAPjBh9dt9gElQxEQHUfh6XjAZIV8sAV0kbp8O5DtHidi9iB1JgsJ+YgX6ii9XIqWBiEOxf0iUUZZmFstFptcfCu2gbvRaXxNHp378B5PyAmXThYVEjOAL\/Nr8Kx3UQrg2Eu+YTT5hzCNoEXLnzoSRPWzj77OilWRLWL4Bc\/46F1OE+wJUWlx+bVov80G5mzSE7TSRl5xGZTXwzQ7m+A2m6sTByhi6U2DxX1pyuqOVzom5GIXvxW7TEwUDp5bxAzP\/Y\/MV1Lor+HhDoVdTScuwXeFIadRJBzwkPh+d++UYajomgEsoOpSF3iak54vM\/V54mCF8Lk4OE5vh7LPyJTls4fECGbpR0WSX8ummkbeNqZ6FVbuh+BvMN+U4An4+22HxGGgaLAIfqsxZnvOnis9lQa54zFd9i0XhiBylfC33hcmRbPBZAiApvjkrnvwA\/fnH3XGz\/zcCxbdjmQFGAwXdRbJhSKPjsEQB0F7LlAbjeHmTDOXUYgbhEyFqo3Qn0EIQr4jn9wjyyJz7oll0iA+wyugT\/\/o1I33R+wYL5xYPMqueriQ1U0Zifrf7vyGrF6LBDsoy+0f2qVDZo1NpEJntWcmNBJ1FciO9+xvuJnfOXBTEflbK5439qBPzn6Zr5bWaUopqwUChzSqrEQjIRzHsGXsr5FxXkMRlQKm\/w1B+juywe\/LlbVzots2XPPPq\/aW90Rl149GrXL5H6qDKISEbwCXreEp\/Hw0MvYLux29piMo+NBy6SrY3WoSBAvKeqFaOdtO+Ci5oU6ri\/QhjtHqABgybudZItcjHK1iPDI+d5TZtiIjHoWyLv1UTdNxDBYNXTa80oS0aWYDJtF+eIt6Fzr\/vzfQQ1p5kD8idAAGFX8buP0zo9hQClHUDFvEDyEetL4KujAOz3YBIfAlyocBozusdFwbAf7uGC6uQrWWiDVeBf3OAxmjHm9Vp9QYFjTAT8wwZKsjNKxPswTPKjCrcQMOeuc+6VjM6TAv4vHdUsTOBt0FCkaFREpsMSnep3WiKdcS7aXX91YuM8CWm\/\/mc1oGzMHHt9jNGC1le4M\/QiPJRSL4fpcbhHCoiFuuj9PhgG6fs41dt6LMuaqfUJoRkjraCPIKWbcYjMzbwp3B1YkPdjJ681JNCw4Hx63mFl7Uc9hoiyY3GRHolVccsJL0SivUtYEsYnsLomdTBVcQ1KhHpDAYpHuWNw57RY25XnewLMrkNHe\/xMKkEy6qbvq+Y2izALgD+VUvN\/s9BFpLt3w9iCz9+DaJT4dTkGvI19FclXzCYxGWobU2WgFNkcGeCI\/ljhuVcg0m17q5H24r4fpeD0uqWoGmeYV37JWefxxJBhnfDrZwaWIc0c5OU4EohW8xqob9JE="
+        """#
+        
+       let stringData = """
+{
+    "version": 1,
+    "header": {
+        "slots": [
+            {
+                "type": 1,
+                "uuid": "12dc9537-e949-4a74-81ed-9a9d1dd627a1",
+                "key": "4b12b03b214c6a50fbdecf29463f43e3b68f9d14536ceba418f65f6d03a25e31",
+                "key_params": {
+                    "nonce": "e5c83664c38a64175b021edb",
+                    "tag": "847f4dd400614f21cd81c9b9793f89ea"
+                },
+                "n": 32768,
+                "r": 8,
+                "p": 1,
+                "salt": "133b37b6b6ce7e8bbd7980e520a94bf9ba041ac5dfbf8bb6df07728c5f57f0d7",
+                "repaired": true,
+                "is_backup": false
+            }
+        ],
+        "params": {
+            "nonce": "795324d644a585e5ff6d11a1",
+            "tag": "8097bfbb663b97bbaca30912df65cbe4"
+        }
+    },
+      "db": \(db)
+}
+"""
+        print(stringData)
+        // Act
+        let result = try sut.importEntries(from: .aegis(contents: stringData, password: "test"))
+
+        // Assert
+        #expect(result.entries.count == 3)
+        #expect(result.errors.count == 0)
+        #expect(result.entries.first?.name == "mylabel815256")
+        #expect(result.entries.last?.name == "")
+    }
+    
+
 //    @Test
 //    func testImportEntriesFromAegis() throws {
 //        // Arrange

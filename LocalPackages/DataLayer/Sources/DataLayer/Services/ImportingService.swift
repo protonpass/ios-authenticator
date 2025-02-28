@@ -38,19 +38,19 @@ final class ImportingService: ImportingServicing {
     public func importEntries(from destination: TwofaImportDestination) throws -> ImportResult {
         let result = switch destination {
         case let .twofas(contents: contents, password: password):
-            try   parse2fas(contents, password: password)
+            try parse2fas(contents, password: password)
         case let .aegis(contents: contents, password: password):
-            try   parseAegis(contents, password: password)
+            try parseAegis(contents, password: password)
         case let .bitwarden(contents: contents):
-            try  parseBitwarden(contents)
+            try parseBitwarden(contents)
         case let .ente(contents: contents):
-            try   parseEnte(contents)
+            try parseEnte(contents)
         case let .googleQr(contents: contents):
-            try   parseGoogleQr(contents)
+            try parseGoogleQr(contents)
         case let .lasstpass(contents: contents):
-            try   parseLastpass(contents)
+            try parseLastpass(contents)
         case let .protonAuthenticator(contents: contents):
-            try   parseAuthenticator(contents)
+            try parseAuthenticator(contents)
         }
 
         return result.toImportResult
@@ -65,14 +65,14 @@ private extension ImportingService {
         return try importer.importFrom2fas(contents: content, password: password)
     }
 
-    func parseAuthenticator(_ content: String)  throws -> AuthenticatorImportResult {
+    func parseAuthenticator(_ content: String) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }
         return try importer.importFromProtonAuthenticator(contents: content)
     }
 
-    func parseLastpass(_ content: String)  throws -> AuthenticatorImportResult {
+    func parseLastpass(_ content: String) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }
@@ -84,7 +84,7 @@ private extension ImportingService {
         return try importer.importFromLastpassJson(contents: content)
     }
 
-    func parseGoogleQr(_ content: String)  throws -> AuthenticatorImportResult {
+    func parseGoogleQr(_ content: String) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }
@@ -92,7 +92,7 @@ private extension ImportingService {
         return try importer.importFromGoogleQr(contents: content)
     }
 
-    func parseEnte(_ content: String)  throws -> AuthenticatorImportResult {
+    func parseEnte(_ content: String) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }
@@ -100,7 +100,7 @@ private extension ImportingService {
         return try importer.importFromEnteTxt(contents: content)
     }
 
-    func parseBitwarden(_ content: String)  throws -> AuthenticatorImportResult {
+    func parseBitwarden(_ content: String) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }
@@ -114,7 +114,7 @@ private extension ImportingService {
         }
     }
 
-    func parseAegis(_ content: String, password: String?)  throws -> AuthenticatorImportResult {
+    func parseAegis(_ content: String, password: String?) throws -> AuthenticatorImportResult {
         guard !content.isEmpty else {
             throw ImportingServiceError.contentIsEmpty
         }

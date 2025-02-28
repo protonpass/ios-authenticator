@@ -29,6 +29,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func createSteamEntry(params: SteamParams) throws -> Entry
     func createTotpEntry(params: TotpParams) throws -> Entry
     func serialize(entries: [Entry]) throws -> [Data]
+    func getTotpParams(entry: Entry) throws  -> TotpParams
 }
 
 public extension EntryRepositoryProtocol {
@@ -36,3 +37,4 @@ public extension EntryRepositoryProtocol {
         try generateCodes(entries: entries, time: Date().timeIntervalSince1970)
     }
 }
+

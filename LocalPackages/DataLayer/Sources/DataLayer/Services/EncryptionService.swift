@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import AuthenticatorRustCore
+@_exported import AuthenticatorRustCore
 import CommonUtilities
 import CryptoKit
 import Foundation
