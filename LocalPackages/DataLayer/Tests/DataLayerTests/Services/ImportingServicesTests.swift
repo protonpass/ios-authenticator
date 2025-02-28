@@ -147,6 +147,18 @@ struct ImportingServiceTests {
         #expect(result.entries.last?.name == "Seven digit username")
     }
     
+    @Test("Test import wrong csv from bitwarden")
+    func failImportCsvEntriesFromBitwarden() throws {
+        // Act
+        let result = try sut.importEntries(from: .bitwarden(contents:"plop, plop\nplop"))
+
+        // Assert
+        #expect(result.entries.count == 0)
+        #expect(result.errors.count == 2)
+        #expect(result.entries.first?.name == nil)
+        #expect(result.entries.last?.name == nil)
+    }
+    
     @Test("Test import txt from ente")
     func importTxtEntriesFromEnte() throws {
         // Act

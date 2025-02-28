@@ -52,14 +52,4 @@ struct StringExtensionsTests {
     func invalidJson() async throws {
         #expect("plop".isValidJSON == false)
     }
-
-    @Test("Check valid csv string")
-    func validCsv() async throws {
-        #expect(csvString.isValidCSV == true)
-    }
-
-    @Test("Check invalid csv string")
-    func invalidCsv() async throws {
-        #expect(jsonString.isValidCSV == false)
-    }
 }

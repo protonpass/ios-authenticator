@@ -107,11 +107,9 @@ private extension ImportingService {
 
         if content.isValidJSON {
             return try importer.importFromBitwardenJson(contents: content)
-        } else if content.isValidCSV {
-            return try importer.importFromBitwardenCsv(contents: content)
-        } else {
-            throw ImportingServiceError.wrongFormat
         }
+        
+        return try importer.importFromBitwardenCsv(contents: content)
     }
 
     func parseAegis(_ content: String, password: String?) throws -> AuthenticatorImportResult {
