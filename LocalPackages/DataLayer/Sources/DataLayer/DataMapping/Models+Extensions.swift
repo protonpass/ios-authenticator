@@ -124,3 +124,36 @@ extension TotpAlgorithm {
         }
     }
 }
+
+extension AuthenticatorTotpAlgorithm {
+    var toTotpAlgorithm: TotpAlgorithm {
+        switch self {
+        case .sha1:
+            .sha1
+        case .sha256:
+            .sha256
+        case .sha512:
+            .sha512
+        }
+    }
+}
+
+// MARK: - Import
+
+extension AuthenticatorImportResult {
+    var toImportResult: ImportResult {
+        ImportResult(entries: entries.toEntries, errors: errors.toImportErrors)
+    }
+}
+
+extension AuthenticatorImportError {
+    var toImportError: ImportError {
+        ImportError(context: context, message: message)
+    }
+}
+
+extension [AuthenticatorImportError] {
+    var toImportErrors: [ImportError] {
+        map(\.toImportError)
+    }
+}

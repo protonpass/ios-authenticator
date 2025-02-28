@@ -38,3 +38,19 @@ public extension StringProtocol {
         return String(result.reversed())
     }
 }
+
+// MARK: - Variables
+
+public extension StringProtocol {
+    var isValidJSON: Bool {
+        if let data = data(using: .utf8) {
+            do {
+                _ = try JSONSerialization.jsonObject(with: data, options: [])
+                return true
+            } catch {
+                return false
+            }
+        }
+        return false
+    }
+}
