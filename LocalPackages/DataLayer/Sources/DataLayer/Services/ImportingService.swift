@@ -20,7 +20,6 @@
 
 import AuthenticatorRustCore
 import CommonUtilities
-import CryptoKit
 import Foundation
 import Models
 
