@@ -28,7 +28,7 @@ public protocol ImportingServicing: Sendable {
     func importEntries(from destination: TwofaImportDestination) throws -> ImportResult
 }
 
-final class ImportingService: ImportingServicing {
+public final class ImportingService: ImportingServicing {
     private let importer: AuthenticatorImporter
 
     public init(importer: AuthenticatorImporter = AuthenticatorImporter()) {

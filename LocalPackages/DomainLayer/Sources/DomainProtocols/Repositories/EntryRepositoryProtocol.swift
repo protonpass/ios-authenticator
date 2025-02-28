@@ -37,4 +37,3 @@ public extension EntryRepositoryProtocol {
         try generateCodes(entries: entries, time: Date().timeIntervalSince1970)
     }
 }
-
