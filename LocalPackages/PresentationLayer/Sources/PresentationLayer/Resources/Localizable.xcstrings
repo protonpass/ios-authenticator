@@ -46,6 +46,9 @@
     "Enter manually" : {
 
     },
+    "Error occurred while parsing the Qr code" : {
+
+    },
     "Export" : {
 
     },
@@ -86,6 +89,12 @@
 
     },
     "No token found. Please consider adding one." : {
+
+    },
+    "OK" : {
+
+    },
+    "Point your camera at the Qr code" : {
 
     },
     "Proton Authenticator will periodically save all the data to iCloud." : {

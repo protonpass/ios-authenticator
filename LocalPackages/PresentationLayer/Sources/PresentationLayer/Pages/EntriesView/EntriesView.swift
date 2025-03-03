@@ -80,36 +80,43 @@ private extension EntriesView {
             }
         }
         .overlay {
-            if viewModel.uiModels.isEmpty {
-                /// In case there aren't any search results, we can
-                /// show the new content unavailable view.
-                ContentUnavailableView {
-                    Label("No token", systemImage: "shield.slash")
-                } description: {
-                    Text("No token found. Please consider adding one.")
-                } actions: {
-                    VStack {
-                        Button("Add a new entry") {
-                            #if os(iOS)
-                            showCreationOptions.toggle()
-                            #else
-                            router.presentedSheet = .createEditEntry(nil)
-                            #endif
-                        }
+            overlay
+        }
+    }
+
+    @ViewBuilder
+    var overlay: some View {
+        if viewModel.loading {
+            ProgressView()
+        } else if !viewModel.loading, viewModel.uiModels.isEmpty {
+            /// In case there aren't any search results, we can
+            /// show the new content unavailable view.
+            ContentUnavailableView {
+                Label("No token", systemImage: "shield.slash")
+            } description: {
+                Text("No token found. Please consider adding one.")
+            } actions: {
+                VStack {
+                    Button("Add a new entry") {
+                        #if os(iOS)
+                        showCreationOptions.toggle()
+                        #else
+                        router.presentedSheet = .createEditEntry(nil)
+                        #endif
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button("Import tokens") {}
                         .buttonStyle(.bordered)
 
-                        Button("Import tokens") {}
-                            .buttonStyle(.bordered)
-
-                        Button(action: {
-                            router.presentedSheet = .settings
-                        }, label: {
-                            Text("Settings")
-                        })
-                    }
+                    Button(action: {
+                        router.presentedSheet = .settings
+                    }, label: {
+                        Text("Settings")
+                    })
                 }
-                .foregroundStyle(.textNorm)
             }
+            .foregroundStyle(.textNorm)
         }
     }
 }
@@ -214,7 +221,7 @@ private extension EntriesView {
                 if isPhone {
                     Button(action: {
                         showCreationOptions.toggle()
-                        router.presentedSheet = .createEditEntry(nil)
+//                        router.presentedSheet = .createEditEntry(nil)
                     }, label: {
                         plusIcon
                     })

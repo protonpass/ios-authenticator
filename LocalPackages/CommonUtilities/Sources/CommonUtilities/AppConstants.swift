@@ -56,4 +56,8 @@ public enum AppConstants {
         false
         #endif
     }
+
+    public static var isQaBuild: Bool {
+        Bundle.main.isQaBuild
+    }
 }

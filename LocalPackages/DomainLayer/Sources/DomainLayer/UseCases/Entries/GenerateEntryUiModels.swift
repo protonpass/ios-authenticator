@@ -19,17 +19,18 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import CommonUtilities
+import DataLayer
 import DomainProtocols
 import Foundation
 import Models
 
 public protocol GenerateEntryUiModelsUseCase: Sendable {
-    func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel]
+    func execute( /* from entries: [Entry], */ on date: Date) async throws -> [EntryUiModel]
 }
 
 public extension GenerateEntryUiModelsUseCase {
-    func callAsFunction(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
-        try await execute(from: entries, on: date)
+    func callAsFunction( /* from entries: [Entry], */ on date: Date = .now) async throws -> [EntryUiModel] {
+        try await execute( /* from: entries, */ on: date)
     }
 }
 
@@ -38,12 +39,16 @@ public extension GenerateEntryUiModelsUseCase {
 
 public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
     private let repository: any EntryRepositoryProtocol
+    private let service: any EntryDataServicing
 
-    public init(repository: any EntryRepositoryProtocol) {
+    public init(repository: any EntryRepositoryProtocol,
+                service: any EntryDataServicing) {
         self.repository = repository
+        self.service = service
     }
 
-    public func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
+    public func execute( /* from entries: [Entry], */ on date: Date = .now) async throws -> [EntryUiModel] {
+        let entries = await service.dataState.data.map(\.entry)
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
@@ -56,6 +61,7 @@ public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
             }
             results.append(.init(entry: entry, code: code, date: date))
         }
+        await service.refreshEntries(entries: results)
         return results
     }
 }

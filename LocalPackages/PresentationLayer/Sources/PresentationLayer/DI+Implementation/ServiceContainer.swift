@@ -37,4 +37,8 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     var qaService: Factory<any QAServicing> {
         self { @MainActor in QAService(store: kSharedUserDefaults) }
     }
+
+    var entryDataService: Factory<any EntryDataServicing> {
+        self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository()) }
+    }
 }

@@ -30,7 +30,7 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
         self.rustClient = rustClient
     }
 
-    public func entry(for uri: String) throws -> Entry {
+    public func entry(for uri: String) async throws -> Entry {
         try rustClient.entryFromUri(uri: uri).toEntry
     }
 

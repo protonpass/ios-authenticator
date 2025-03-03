@@ -28,14 +28,21 @@ import Models
 @Observable
 @MainActor
 final class EntriesViewModel {
-    private(set) var uiModels: [EntryUiModel] = []
+    var uiModels: [EntryUiModel] {
+        entryDataService.dataState.data
+    }
+
     var search = ""
+
+    var loading: Bool {
+        entryDataService.dataState == .loading
+    }
 
     @ObservationIgnored
     private var pauseRefreshing = false
 
-    @ObservationIgnored
-    private var entries: [Entry] = []
+//    @ObservationIgnored
+//    private var entries: [Entry] = []
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -47,6 +54,10 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService)
     private var qaService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.entryDataService)
+    private(set) var entryDataService
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
@@ -78,23 +89,25 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func setUp() async {
-        do {
-            entries = if let mocked = mockedEntries() {
-                mocked
-            } else {
-                try await getEntries()
-            }
-        } catch {
-            handle(error)
-        }
+//        do {
+//            entries = if let mocked = mockedEntries() {
+//                mocked
+//            } else {
+//                try await getEntries()
+//            }
+//        } catch {
+//            handle(error)
+//        }
     }
 
     func refreshTokens() {
         generateTokensTask?.cancel()
         generateTokensTask = Task { [weak self] in
             guard let self else { return }
+//            defer { loading = false }
             do {
-                uiModels = try await generateEntryUiModels(from: entries, on: .now)
+                let newEntries = try await generateEntryUiModels( /* from: entries, */ on: .now)
+//                entryDataService.refreshEntries(entries: newEntries)
             } catch {
                 handle(error)
             }

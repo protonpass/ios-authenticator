@@ -22,7 +22,7 @@ import Foundation
 import Models
 
 public protocol EntryRepositoryProtocol: Sendable {
-    func entry(for uri: String) throws -> Entry
+    func entry(for uri: String) async throws -> Entry
     func export(entries: [Entry]) throws -> String
     func deserialize(serializedData: [Data]) throws -> [Entry]
     func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]

@@ -82,9 +82,7 @@ public extension View {
                 SettingsView()
             #if os(iOS)
             case .qrCodeScanner:
-                Text(verbatim: "scanner")
-
-//                ScannerView()
+                ScannerView()
             #endif
             }
         }
