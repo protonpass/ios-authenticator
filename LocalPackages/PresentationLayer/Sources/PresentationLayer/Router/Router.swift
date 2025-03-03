@@ -21,7 +21,7 @@
 import Models
 import SwiftUI
 
-public enum RouterDestination: Hashable {
+enum RouterDestination: Hashable {
     case appearance
 }
 
@@ -55,14 +55,13 @@ final class Router {
     }
 }
 
-public struct RouterEmbeded: ViewModifier {
-    public func body(content: Content) -> some View {
+struct RouterEmbeded: ViewModifier {
+    func body(content: Content) -> some View {
         content
             .navigationDestination(for: RouterDestination.self) { destination in
                 switch destination {
                 case .appearance:
                     Text("appeareance")
-//                    AppearanceView()
                 }
             }
     }

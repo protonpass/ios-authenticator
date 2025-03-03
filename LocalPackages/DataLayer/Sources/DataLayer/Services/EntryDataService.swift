@@ -22,32 +22,9 @@ import DomainProtocols
 import Foundation
 import Models
 
-public enum DataState<T: Sendable & Equatable & Hashable & Identifiable>: Sendable, Equatable, Hashable {
-    case loading
-    case loaded([T])
-    case failed(String)
-
-    public var data: [T] {
-        switch self {
-        case let .loaded(data):
-            data
-        default:
-            []
-        }
-    }
-}
-
-@MainActor
-public protocol EntryDataServicing: Sendable, Observable {
-    var dataState: DataState<EntryUiModel> { get }
-
-    func generateEntry(from payload: String) async throws
-    func refreshEntries(entries: [EntryUiModel])
-}
-
 @MainActor
 @Observable
-public final class EntryDataService: EntryDataServicing {
+public final class EntryDataService: EntryDataServiceProtocol {
     // MARK: - Properties
 
     public private(set) var dataState: DataState<EntryUiModel> = .loading

@@ -39,10 +39,10 @@ public extension GenerateEntryUiModelsUseCase {
 
 public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
     private let repository: any EntryRepositoryProtocol
-    private let service: any EntryDataServicing
+    private let service: any EntryDataServiceProtocol
 
     public init(repository: any EntryRepositoryProtocol,
-                service: any EntryDataServicing) {
+                service: any EntryDataServiceProtocol) {
         self.repository = repository
         self.service = service
     }

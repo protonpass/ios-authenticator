@@ -20,6 +20,7 @@
 
 import CommonUtilities
 import DataLayer
+import DomainProtocols
 import Factory
 
 public final class ServiceContainer: SharedContainer, AutoRegistering {
@@ -38,7 +39,7 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
         self { @MainActor in QAService(store: kSharedUserDefaults) }
     }
 
-    var entryDataService: Factory<any EntryDataServicing> {
+    var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository()) }
     }
 }
