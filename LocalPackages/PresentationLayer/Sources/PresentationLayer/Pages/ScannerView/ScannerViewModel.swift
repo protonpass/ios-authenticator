@@ -20,43 +20,44 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-// import Foundation
-//
-// @Observable @MainActor
-// final class ScannerViewModel: Sendable {
-//
-//    init() {
-//        setUp()
-//    }
-// }
-//
-// private extension ScannerViewModel {
-//    func setUp() {
-//    }
-// }
-
 #if os(iOS)
+import Combine
 import DataLayer
 import DocScanner
 import Factory
 import Foundation
+import PhotosUI
+import SwiftUI
 
-// import OneTimePassword
 
 @Observable @MainActor
 final class ScannerViewModel {
     var scanning = true
     var regionOfInterest: CGRect?
-    private(set) var shouldDismiss = false
     var displayErrorAlert = false
+    private(set) var shouldDismiss = false
     private(set) var creationError: Error?
+
+    @ObservationIgnored var imageSelection: PhotosPickerItem? {
+        didSet {
+            imageSelectionStream.send(imageSelection)
+        }
+    }
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.parseImageQRCodeContent)
+    private(set) var parseImageQRCodeContent
+
     private var task: Task<Void, Never>?
     private var hasPayload: Bool = false
+    @ObservationIgnored
+    private let imageSelectionStream: CurrentValueSubject<PhotosPickerItem?, Never> = .init(nil)
+    @ObservationIgnored
+    private var cancellables = Set<AnyCancellable>()
 
     init() {
         setUp()
@@ -69,12 +70,7 @@ final class ScannerViewModel {
             case let .success(result):
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
-                do {
-                    try await entryDataService.generateEntry(from: barcode.payload)
-                    shouldDismiss = true
-                } catch {
-                    handleError(error)
-                }
+                await generateEntry(from: barcode.payload)
             case let .failure(error):
                 handleError(error)
             }
@@ -88,11 +84,43 @@ final class ScannerViewModel {
 }
 
 private extension ScannerViewModel {
-    func setUp() {}
+    func setUp() {
+        imageSelectionStream
+            .receive(on: DispatchQueue.main)
+            .compactMap(\.self)
+            .sink { [weak self] imageSelection in
+                guard let self else { return }
+                parseImage(imageSelection)
+            }
+            .store(in: &cancellables)
+    }
 
     func handleError(_ error: Error) {
         creationError = error
         displayErrorAlert.toggle()
+    }
+
+    func parseImage(_ imageSelection: PhotosPickerItem) {
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            do {
+                let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
+                await generateEntry(from: content)
+            } catch {
+                handleError(error)
+            }
+        }
+    }
+
+    func generateEntry(from barcodePayload: String) async {
+        do {
+            try await entryDataService.generateEntry(from: barcodePayload)
+            shouldDismiss = true
+        } catch {
+            handleError(error)
+        }
     }
 }
 #endif

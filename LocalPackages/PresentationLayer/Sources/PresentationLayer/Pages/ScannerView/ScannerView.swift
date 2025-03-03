@@ -37,20 +37,18 @@
 #if os(iOS)
 
 import DocScanner
+import PhotosUI
 import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel = ScannerViewModel()
+    @State private var showPhotosPicker = false
 
     var body: some View {
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
-//                    shouldDismiss:  Binding(
-//                        get: { !viewModel.showScanner },
-//                        set: { viewModel.showScanner = !$0 }
-//                    ),
                     automaticDismiss: false,
                     regionOfInterest: $viewModel.regionOfInterest) { results in
             viewModel.processPayload(results: results)
@@ -70,13 +68,20 @@ struct ScannerView: View {
                        Text(message)
                    }
                })
+        .photosPicker(isPresented: $showPhotosPicker,
+                      selection: $viewModel.imageSelection,
+                      matching: .images,
+                      photoLibrary: .shared())
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(regionOfInterestOverlay)
     }
 
     @ViewBuilder
     var regionOfInterestOverlay: some View {
-        RestrictedScanningArea(regionOfInterest: $viewModel.regionOfInterest)
+        RestrictedScanningArea(regionOfInterest: $viewModel.regionOfInterest,
+                               photoLibraryEntry: {
+                                   showPhotosPicker.toggle()
+                               })
     }
 }
 
@@ -115,12 +120,18 @@ public struct RestrictedScanningAreaConfig {
 public struct RestrictedScanningArea: View {
     @Environment(\.dismiss) private var dismiss
 
-    @Binding var regionOfInterest: CGRect?
-    let configuration: RestrictedScanningAreaConfig
+    @Binding private var regionOfInterest: CGRect?
+    private let configuration: RestrictedScanningAreaConfig
+    private let manualEntry: () -> Void
+    private let photoLibraryEntry: () -> Void
 
     public init(configuration: RestrictedScanningAreaConfig = .default,
-                regionOfInterest: Binding<CGRect?> = Binding.constant(nil)) {
+                regionOfInterest: Binding<CGRect?> = Binding.constant(nil),
+                manualEntry: @escaping () -> Void = {},
+                photoLibraryEntry: @escaping () -> Void = {}) {
         self.configuration = configuration
+        self.manualEntry = manualEntry
+        self.photoLibraryEntry = photoLibraryEntry
         _regionOfInterest = regionOfInterest
     }
 
@@ -168,7 +179,7 @@ public struct RestrictedScanningArea: View {
                     }
                     Spacer()
 
-                    Button {} label: {
+                    Button { photoLibraryEntry() } label: {
                         Image(systemName: "rectangle.stack")
                             .resizable()
                             .frame(width: 28, height: 28)
@@ -190,82 +201,6 @@ public struct RestrictedScanningArea: View {
         }
     }
 }
-
-// struct CornerBorder: Shape {
-//    var cornerRadius: CGFloat
-//
-//    func path(in rect: CGRect) -> Path {
-//        var path = Path()
-//        let cornerLength: CGFloat = 150
-//
-//        // Top-left corner
-//        path.move(to: CGPoint(x: 0, y: cornerLength + cornerRadius))
-//        path.addArc(center: CGPoint(x: cornerRadius, y: cornerRadius + cornerLength),
-//                    radius: cornerRadius,
-//                    startAngle: .degrees(180),
-//                    endAngle: .degrees(270),
-//                    clockwise: false)
-//        path.addLine(to: CGPoint(x: cornerLength + cornerRadius, y: 0))
-//
-//        // Top-right corner
-//        path.move(to: CGPoint(x: rect.maxX - cornerLength - cornerRadius, y: 0))
-//        path.addArc(center: CGPoint(x: rect.maxX - cornerRadius, y: cornerRadius + cornerLength),
-//                    radius: cornerRadius,
-//                    startAngle: .degrees(270),
-//                    endAngle: .degrees(0),
-//                    clockwise: false)
-//        path.addLine(to: CGPoint(x: rect.maxX, y: cornerLength + cornerRadius))
-//
-//        // Bottom-right corner
-//        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength - cornerRadius))
-//        path.addArc(center: CGPoint(x: rect.maxX - cornerRadius, y: rect.maxY - cornerRadius - cornerLength),
-//                    radius: cornerRadius,
-//                    startAngle: .degrees(0),
-//                    endAngle: .degrees(90),
-//                    clockwise: false)
-//        path.addLine(to: CGPoint(x: rect.maxX - cornerLength - cornerRadius, y: rect.maxY))
-//
-//        // Bottom-left corner
-//        path.move(to: CGPoint(x: cornerLength + cornerRadius, y: rect.maxY))
-//        path.addArc(center: CGPoint(x: cornerRadius, y: rect.maxY - cornerRadius - cornerLength),
-//                    radius: cornerRadius,
-//                    startAngle: .degrees(90),
-//                    endAngle: .degrees(180),
-//                    clockwise: false)
-//        path.addLine(to: CGPoint(x: 0, y: rect.maxY - cornerLength - cornerRadius))
-//
-//        return path
-//    }
-// }
-
-// struct CornerBorder: Shape {
-//    func path(in rect: CGRect) -> Path {
-//        var path = Path()
-//        let cornerLength: CGFloat = 20
-//
-//        // Top-left corner
-//        path.move(to: CGPoint(x: 0, y: cornerLength))
-//        path.addLine(to: CGPoint(x: 0, y: 0))
-//        path.addLine(to: CGPoint(x: cornerLength, y: 0))
-//
-//        // Top-right corner
-//        path.move(to: CGPoint(x: rect.maxX - cornerLength, y: 0))
-//        path.addLine(to: CGPoint(x: rect.maxX, y: 0))
-//        path.addLine(to: CGPoint(x: rect.maxX, y: cornerLength))
-//
-//        // Bottom-right corner
-//        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - cornerLength))
-//        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-//        path.addLine(to: CGPoint(x: rect.maxX - cornerLength, y: rect.maxY))
-//
-//        // Bottom-left corner
-//        path.move(to: CGPoint(x: cornerLength, y: rect.maxY))
-//        path.addLine(to: CGPoint(x: 0, y: rect.maxY))
-//        path.addLine(to: CGPoint(x: 0, y: rect.maxY - cornerLength))
-//
-//        return path
-//    }
-// }
 
 struct CornerBorder: Shape {
     var cornerRadius: CGFloat
@@ -317,8 +252,6 @@ struct CornerBorder: Shape {
         return path
     }
 }
-
-import SwiftUI
 
 public extension Binding where Value == Bool {
     @MainActor
