@@ -40,14 +40,7 @@ public enum DataState<T: Sendable & Equatable & Hashable & Identifiable>: Sendab
 @MainActor
 public protocol EntryDataServicing: Sendable, Observable {
     var dataState: DataState<EntryUiModel> { get }
-//    var tokenSections: [TokenSection] { get }
-//
-//    func addToken(token: TokenData) async throws
-//    func delete(token: TokenData) async throws
-//    func update(token: TokenData) async throws
-//    func token(for tokenId: String) -> TokenData?
-//    func addOrUpdate(tokens: [TokenData]) async throws
-//
+
     func generateEntry(from payload: String) async throws
     func refreshEntries(entries: [EntryUiModel])
 }

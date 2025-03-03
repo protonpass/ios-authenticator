@@ -29,7 +29,6 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
-
 @Observable @MainActor
 final class ScannerViewModel {
     var scanning = true
