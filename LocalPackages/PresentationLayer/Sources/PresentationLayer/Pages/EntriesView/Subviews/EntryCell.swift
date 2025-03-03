@@ -73,7 +73,7 @@ struct EntryCell: View {
             HStack {
                 ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
                     HStack(alignment: .center, spacing: 10) {
-                        Text("\(char)")
+                        Text(verbatim: "\(char)")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .monospaced()
