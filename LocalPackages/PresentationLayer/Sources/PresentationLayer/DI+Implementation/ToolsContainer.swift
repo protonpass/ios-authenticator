@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// ToolsContainer.swift
+// Proton Authenticator - Created on 04/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,17 +20,27 @@
 
 import DataLayer
 import Factory
+import SimplyPersist
+import SwiftData
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
+final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
+    static let shared = ToolsContainer()
     let manager = ContainerManager()
 
     func autoRegister() {
         manager.defaultScope = .singleton
     }
+}
 
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
-                               encryptionService: ServiceContainer.shared.encryptionService()) }
+extension ToolsContainer {
+    var persistenceService: Factory<any PersistenceServicing> {
+        self {
+            do {
+                return try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
+                                                                       isStoredInMemoryOnly: false))
+            } catch {
+                fatalError("Should have persistence storage \(error)")
+            }
+        }
     }
 }

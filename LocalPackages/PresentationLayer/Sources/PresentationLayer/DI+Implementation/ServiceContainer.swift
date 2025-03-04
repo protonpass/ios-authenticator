@@ -42,4 +42,8 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository()) }
     }
+
+    var encryptionService: Factory<any EncryptionServicing> {
+        self { EncryptionService() }
+    }
 }

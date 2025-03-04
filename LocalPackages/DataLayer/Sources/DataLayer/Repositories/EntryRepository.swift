@@ -21,8 +21,12 @@
 import AuthenticatorRustCore
 import Foundation
 import Models
+import SimplyPersist
+import SwiftData
 
 public protocol EntryRepositoryProtocol: Sendable {
+    // MARK: - Uri parsing and params from rust lib
+
     func entry(for uri: String) async throws -> Entry
     func export(entries: [Entry]) throws -> String
     func deserialize(serializedData: [Data]) throws -> [Entry]
@@ -31,6 +35,15 @@ public protocol EntryRepositoryProtocol: Sendable {
     func createTotpEntry(params: TotpParams) throws -> Entry
     func serialize(entries: [Entry]) throws -> [Data]
     func getTotpParams(entry: Entry) throws -> TotpParams
+
+    // MARK: - CRUD
+
+    func getAllEntries() async throws -> [Entry]
+    func save(_ entry: Entry) async throws
+    func save(_ entries: [Entry]) async throws
+
+    func remove(_ entry: Entry) async throws
+    func removeAll() async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -41,44 +54,54 @@ public extension EntryRepositoryProtocol {
 
 public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let rustClient: AuthenticatorMobileClient
+    private let persistentStorage: any PersistenceServicing
+    private let encryptionService: any EncryptionServicing
 
-    public init(rustClient: AuthenticatorMobileClient = AuthenticatorMobileClient()) {
+    public init(persistentStorage: any PersistenceServicing,
+                encryptionService: any EncryptionServicing,
+                rustClient: AuthenticatorMobileClient = AuthenticatorMobileClient()) {
+        self.persistentStorage = persistentStorage
+        self.encryptionService = encryptionService
         self.rustClient = rustClient
     }
+}
 
-    public func entry(for uri: String) async throws -> Entry {
+// MARK: - Uri parsing and params from rust lib
+
+public extension EntryRepository {
+    func entry(for uri: String) async throws -> Entry {
         try rustClient.entryFromUri(uri: uri).toEntry
     }
 
-    public func export(entries: [Entry]) throws -> String {
+    func export(entries: [Entry]) throws -> String {
         try rustClient.exportEntries(entries: entries.toAuthenticatorEntries)
     }
 
-    public func deserialize(serializedData: [Data]) throws -> [Entry] {
+    func deserialize(serializedData: [Data]) throws -> [Entry] {
         try rustClient.deserializeEntries(serialized: serializedData).toEntries
     }
 
-    public func generateCodes(entries: [Entry],
-                              time: TimeInterval = Date().timeIntervalSince1970) throws -> [Code] {
+    func generateCodes(entries: [Entry],
+                       time: TimeInterval = Date().timeIntervalSince1970) throws -> [Code] {
         try rustClient.generateCodes(entries: entries.toAuthenticatorEntries, time: UInt64(time))
             .toCodes
     }
 
-    public func createSteamEntry(params: SteamParams) throws -> Entry {
+    func createSteamEntry(params: SteamParams) throws -> Entry {
         try rustClient
             .newSteamEntryFromParams(params: params.toAuthenticatorEntrySteamCreateParameters).toEntry
     }
 
-    public func createTotpEntry(params: TotpParams) throws -> Entry {
+    func createTotpEntry(params: TotpParams) throws -> Entry {
         try rustClient.newTotpEntryFromParams(params: params.toAuthenticatorEntryTotpCreateParameters)
             .toEntry
     }
 
-    public func serialize(entries: [Entry]) throws -> [Data] {
+    func serialize(entries: [Entry]) throws -> [Data] {
         try rustClient.serializeEntries(entries: entries.toAuthenticatorEntries)
     }
 
-    public func getTotpParams(entry: Entry) throws -> TotpParams {
+    func getTotpParams(entry: Entry) throws -> TotpParams {
         let params = try rustClient.getTotpParams(entry: entry.toAuthenticatorEntryModel)
 
         return TotpParams(name: entry.name,
@@ -89,4 +112,68 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
                           algorithm: params.algorithm.toTotpAlgorithm,
                           note: entry.note)
     }
+}
+
+// MARK: - CRUD
+
+public extension EntryRepository {
+    func getAllEntries() async throws -> [Entry] {
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+
+        return try encryptionService.decryptMany(entries: encryptedEntries.map(\.encryptedData))
+    }
+
+    func save(_ entry: Entry) async throws {
+        let entity = try createEntity(entry)
+        try await persistentStorage.save(data: entity)
+//        try await update()
+    }
+
+    func save(_ entries: [Entry]) async throws {
+        let entities: [EncryptedEntryEntity] = entries.compactMap {
+            guard let entity = try? createEntity($0) else {
+                return nil
+            }
+            return entity
+        }
+
+        try await persistentStorage.batchSave(content: entities)
+//        return try await update()
+    }
+
+    func remove(_ entry: Entry) async throws {
+        let id = entry.id
+        let predicate = #Predicate<EncryptedEntryEntity> { entity in
+            entity.id == id
+        }
+        guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
+            return
+        }
+        try await persistentStorage.delete(element: entity)
+//        try await update()
+    }
+
+    func removeAll() async throws {
+        try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
+//        try await update()
+    }
+}
+
+private extension EntryRepository {
+//    @discardableResult
+//    func update() async throws -> [TokenData] {
+//        let bars: [TokenData] = try await getAllTokens() // persistentStorage.fetchAll().toTokens
+//        tokens.send(bars)
+//        return bars
+//    }
+
+    func createEntity(_ entry: Entry) throws -> EncryptedEntryEntity {
+        let encryptedData = try encryptionService.encrypt(model: entry)
+        return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData)
+    }
+}
+
+enum EntryRepositoryError: Error {
+    case failedToDecrypt
+    case failedToEncrypt
 }

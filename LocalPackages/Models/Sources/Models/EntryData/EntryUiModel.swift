@@ -23,6 +23,7 @@ import Foundation
 public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
     public let entry: Entry
     public let code: Code
+//    public let order: Int
     public let progress: ProgressUiModel
 
     public var id: String {
@@ -31,15 +32,17 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
 
     public init(entry: Entry,
                 code: Code,
+//                order: Int,
                 progress: ProgressUiModel) {
         self.entry = entry
         self.code = code
+//        self.order = order
         self.progress = progress
     }
 }
 
 public extension EntryUiModel {
-    init(entry: Entry, code: Code, date: Date) {
+    init(entry: Entry, code: Code, /* order: Int, */ date: Date) {
         let timeInterval = date.timeIntervalSince1970
         let period = Double(entry.period)
         let remaining = (period - timeInterval.truncatingRemainder(dividingBy: period)).rounded(.down)
@@ -47,6 +50,7 @@ public extension EntryUiModel {
         self.entry = entry
         self.code = code
         progress = .init(value: remaining / Double(entry.period), countdown: Int(remaining))
+//        self.order = order
     }
 }
 

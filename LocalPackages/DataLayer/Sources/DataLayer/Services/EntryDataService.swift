@@ -48,11 +48,19 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     private func setUp() {
         guard task == nil else { return }
-        task = Task {}
+        task = Task {
+            do {
+                let entries = try await repository.getAllEntries()
+                dataState = try await .loaded(generateUIEntries(from: entries))
+            } catch {
+                dataState = .failed(error)
+            }
+        }
     }
 
     public func generateEntry(from payload: String) async throws {
         let entry = try await repository.entry(for: payload)
+        try await repository.save(entry)
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
@@ -66,5 +74,23 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public func refreshEntries(entries: [EntryUiModel]) {
         dataState = .loaded(entries)
+    }
+
+    public func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
+        let codes = try repository.generateCodes(entries: entries)
+        guard codes.count == entries.count else {
+            throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: entries.count)
+        }
+
+        var results = [EntryUiModel]()
+        for (index, code) in codes.enumerated() {
+            guard let entry = entries[safeIndex: index] else {
+                throw AuthenticatorError.missingEntryForGeneratedCode
+            }
+            results.append(.init(entry: entry, code: code, date: .now))
+        }
+
+        return results
     }
 }
