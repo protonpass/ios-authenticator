@@ -20,17 +20,29 @@
 
 import Foundation
 
-public enum DataState<T: Sendable & Equatable & Hashable & Identifiable>: Sendable, Equatable, Hashable {
+public enum DataState<T: Sendable & Equatable & Hashable>: Sendable, Equatable {
     case loading
-    case loaded([T])
-    case failed(String)
+    case loaded(T)
+    case failed(Error)
 
-    public var data: [T] {
+    public var data: T? {
         switch self {
         case let .loaded(data):
             data
         default:
-            []
+            nil
+        }
+    }
+
+    public static func == (lhs: DataState<T>, rhs: DataState<T>) -> Bool {
+        switch (lhs, rhs) {
+        case (.failed, .failed),
+             (.loading, .loading):
+            true
+        case let (.loaded(lhsData), .loaded(rhsData)):
+            lhsData == rhsData
+        default:
+            false
         }
     }
 }

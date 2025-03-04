@@ -20,7 +20,6 @@
 
 import CommonUtilities
 import DataLayer
-import DomainProtocols
 import Factory
 
 public final class ServiceContainer: SharedContainer, AutoRegistering {

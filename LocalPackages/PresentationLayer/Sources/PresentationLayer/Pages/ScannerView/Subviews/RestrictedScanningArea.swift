@@ -86,7 +86,7 @@ public struct RestrictedScanningArea: View {
                         return Color.clear
                     })
 
-                Text("Point your camera at the Qr code")
+                Text("Point your camera at the QR code")
                     .font(.headline)
                     .fontWeight(.medium)
                     .padding(.top, 20)

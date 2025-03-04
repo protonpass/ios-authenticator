@@ -18,16 +18,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DomainProtocols
 import Foundation
 import Models
+
+@MainActor
+public protocol EntryDataServiceProtocol: Sendable, Observable {
+    var dataState: DataState<[EntryUiModel]> { get }
+
+    func generateEntry(from payload: String) async throws
+    func refreshEntries(entries: [EntryUiModel])
+}
 
 @MainActor
 @Observable
 public final class EntryDataService: EntryDataServiceProtocol {
     // MARK: - Properties
 
-    public private(set) var dataState: DataState<EntryUiModel> = .loading
+    public private(set) var dataState: DataState<[EntryUiModel]> = .loading
 
     private let repository: any EntryRepositoryProtocol
     private var task: Task<Void, Never>?
@@ -52,7 +59,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                                                            entryCount: 1)
         }
         let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
-        var data: [EntryUiModel] = dataState.data
+        var data: [EntryUiModel] = dataState.data ?? []
         data.append(entryUI)
         dataState = .loaded(data)
     }

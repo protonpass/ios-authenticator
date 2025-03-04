@@ -29,7 +29,7 @@ import Models
 @MainActor
 final class EntriesViewModel {
     var uiModels: [EntryUiModel] {
-        entryDataService.dataState.data
+        entryDataService.dataState.data ?? []
     }
 
     var search = ""
@@ -40,9 +40,6 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     private var pauseRefreshing = false
-
-//    @ObservationIgnored
-//    private var entries: [Entry] = []
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -106,8 +103,7 @@ extension EntriesViewModel {
             guard let self else { return }
 //            defer { loading = false }
             do {
-                let newEntries = try await generateEntryUiModels( /* from: entries, */ on: .now)
-//                entryDataService.refreshEntries(entries: newEntries)
+                _ = try await generateEntryUiModels()
             } catch {
                 handle(error)
             }
@@ -147,10 +143,10 @@ private extension EntriesViewModel {
         return entries
     }
 
-    func getEntries() async throws -> [Entry] {
-        // Get entries from database
-        []
-    }
+//    func getEntries() async throws -> [Entry] {
+//        // Get entries from database
+//        []
+//    }
 
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo

@@ -24,8 +24,7 @@ import UIKit
 
 public extension UIImage {
     var toCiImage: CIImage? {
-        guard let ciImage = CIImage(image: self) else { return nil }
-        return ciImage
+        CIImage(image: self)
     }
 }
 
