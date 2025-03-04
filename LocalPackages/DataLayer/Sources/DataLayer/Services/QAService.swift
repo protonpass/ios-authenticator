@@ -20,11 +20,15 @@
 
 import CommonUtilities
 import Foundation
+import Models
 
 @MainActor
 public protocol QAServicing: Sendable, Observable {
     var showMockEntries: Bool { get set }
     var numberOfMockEntries: Int { get set }
+    var dataState: DataState<[EntryUiModel]> { get }
+
+    func mockedEntries() async
 }
 
 @MainActor
@@ -32,6 +36,10 @@ public protocol QAServicing: Sendable, Observable {
 public final class QAService: QAServicing {
     @ObservationIgnored
     private let store: UserDefaults
+    @ObservationIgnored
+    private let repository: any EntryRepositoryProtocol
+
+    public private(set) var dataState: DataState<[EntryUiModel]> = .loading
 
     public var showMockEntries: Bool {
         didSet {
@@ -49,9 +57,37 @@ public final class QAService: QAServicing {
         }
     }
 
-    public init(store: UserDefaults) {
+    public init(store: UserDefaults,
+                repository: any EntryRepositoryProtocol) {
         self.store = store
-        showMockEntries = store.bool(forKey: AppConstants.QA.mockEntriesDisplay)
+        self.repository = repository
+        showMockEntries = AppConstants.isQaBuild ? store.bool(forKey: AppConstants.QA.mockEntriesDisplay) : false
         numberOfMockEntries = store.integer(forKey: AppConstants.QA.mockEntriesCount)
+    }
+
+    public func mockedEntries() async {
+        let count = max(5, numberOfMockEntries)
+
+        var entries = [Entry]()
+        for index in 0..<count {
+            entries.append(.init(name: "Test #\(index)",
+                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
+                                 period: 30,
+                                 type: .totp,
+                                 note: "Note #\(index)"))
+        }
+
+        let codes = try? repository.generateCodes(entries: entries)
+        guard let codes else {
+            return
+        }
+        var results = [EntryUiModel]()
+        for (index, code) in codes.enumerated() {
+            guard let entry = entries[safeIndex: index] else {
+                return
+            }
+            results.append(.init(entry: entry, code: code, date: .now))
+        }
+        dataState = .loaded(results)
     }
 }

@@ -29,16 +29,13 @@ import Models
 @MainActor
 final class EntriesViewModel {
     var dataState: DataState<[EntryUiModel]> {
-        entryDataService.dataState
+        qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
     }
 
     var search = ""
 
     @ObservationIgnored
     private var pauseRefreshing = false
-
-    @ObservationIgnored
-    private let bundle: Bundle
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
@@ -66,8 +63,7 @@ final class EntriesViewModel {
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
-    init(bundle: Bundle = .main) {
-        self.bundle = bundle
+    init() {
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .receive(on: DispatchQueue.main)
@@ -98,7 +94,11 @@ extension EntriesViewModel {
         generateTokensTask = Task { [weak self] in
             guard let self else { return }
             do {
-                _ = try await generateEntryUiModels()
+                if qaService.showMockEntries {
+                    await qaService.mockedEntries()
+                } else {
+                    _ = try await generateEntryUiModels()
+                }
             } catch {
                 handle(error)
             }
@@ -120,24 +120,6 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
-    func mockedEntries() -> [Entry]? {
-        guard bundle.isQaBuild, qaService.showMockEntries else {
-            return nil
-        }
-        let count = max(5, qaService.numberOfMockEntries)
-
-        var entries = [Entry]()
-        for index in 0..<count {
-            entries.append(.init(name: "Test #\(index)",
-                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
-                                 period: 30,
-                                 type: .totp,
-                                 note: "Note #\(index)"))
-        }
-
-        return entries
-    }
-
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log and display error to the users
