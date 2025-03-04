@@ -291,12 +291,12 @@
         }
       }
     },
-    "Point your camera at the Qr code" : {
+    "Point your camera at the QR code" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Point your camera at the Qr code"
+            "value" : "Point your camera at the QR code"
           }
         }
       }
