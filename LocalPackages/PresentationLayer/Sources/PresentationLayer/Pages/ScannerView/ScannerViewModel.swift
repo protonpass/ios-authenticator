@@ -32,10 +32,8 @@ import SwiftUI
 @Observable @MainActor
 final class ScannerViewModel {
     var scanning = true
-    var regionOfInterest: CGRect?
-    var displayErrorAlert = false
     private(set) var shouldDismiss = false
-    private(set) var creationError: Error?
+    var creationError: Error?
 
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
@@ -51,8 +49,10 @@ final class ScannerViewModel {
     @LazyInjected(\UseCaseContainer.parseImageQRCodeContent)
     private(set) var parseImageQRCodeContent
 
+    @ObservationIgnored
     private var task: Task<Void, Never>?
-    private var hasPayload: Bool = false
+    @ObservationIgnored
+    private var hasPayload = false
     @ObservationIgnored
     private let imageSelectionStream: CurrentValueSubject<PhotosPickerItem?, Never> = .init(nil)
     @ObservationIgnored
@@ -96,7 +96,6 @@ private extension ScannerViewModel {
 
     func handleError(_ error: Error) {
         creationError = error
-        displayErrorAlert.toggle()
     }
 
     func parseImage(_ imageSelection: PhotosPickerItem) {

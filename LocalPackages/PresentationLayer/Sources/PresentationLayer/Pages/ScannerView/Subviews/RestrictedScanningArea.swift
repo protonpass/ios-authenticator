@@ -124,19 +124,11 @@ public struct RestrictedScanningArea: View {
         }
         .compositingGroup()
     }
-
-    @ViewBuilder
-    var border: some View {
-        if configuration.border {
-            RoundedRectangle(cornerRadius: configuration.borderCornerRadius)
-                .stroke(configuration.borderColor, lineWidth: configuration.borderColorWidth)
-        }
-    }
 }
 
-struct CornerBorder: Shape {
-    var cornerRadius: CGFloat
-    var cornerLength: CGFloat
+private struct CornerBorder: Shape {
+    let cornerRadius: CGFloat
+    let cornerLength: CGFloat
 
     func path(in rect: CGRect) -> Path {
         var path = Path()

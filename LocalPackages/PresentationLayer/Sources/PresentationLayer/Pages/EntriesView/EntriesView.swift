@@ -86,37 +86,42 @@ private extension EntriesView {
 
     @ViewBuilder
     var overlay: some View {
-        if viewModel.loading {
+        switch viewModel.dataState {
+        case .loading:
             ProgressView()
-        } else if !viewModel.loading, viewModel.uiModels.isEmpty {
-            /// In case there aren't any search results, we can
-            /// show the new content unavailable view.
-            ContentUnavailableView {
-                Label("No token", systemImage: "shield.slash")
-            } description: {
-                Text("No token found. Please consider adding one.")
-            } actions: {
-                VStack {
-                    Button("Add a new entry") {
-                        #if os(iOS)
-                        showCreationOptions.toggle()
-                        #else
-                        router.presentedSheet = .createEditEntry(nil)
-                        #endif
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button("Import tokens") {}
+        case let .loaded(entries):
+            if entries.isEmpty {
+                ContentUnavailableView {
+                    Label("No token", systemImage: "shield.slash")
+                } description: {
+                    Text("No token found. Please consider adding one.")
+                } actions: {
+                    VStack {
+                        Button("Add a new entry") {
+                            #if os(iOS)
+                            showCreationOptions.toggle()
+                            #else
+                            router.presentedSheet = .createEditEntry(nil)
+                            #endif
+                        }
                         .buttonStyle(.bordered)
 
-                    Button(action: {
-                        router.presentedSheet = .settings
-                    }, label: {
-                        Text("Settings")
-                    })
+                        Button("Import tokens") {}
+                            .buttonStyle(.bordered)
+
+                        Button(action: {
+                            router.presentedSheet = .settings
+                        }, label: {
+                            Text("Settings")
+                        })
+                    }
                 }
+                .foregroundStyle(.textNorm)
             }
-            .foregroundStyle(.textNorm)
+        case let .failed(error):
+            RetryableErrorView(tintColor: .danger, error: error) {
+                viewModel.refreshTokens()
+            }
         }
     }
 }
@@ -124,7 +129,7 @@ private extension EntriesView {
 private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.uiModels) { entry in
+            ForEach(viewModel.dataState.data ?? []) { entry in
                 cell(for: entry)
             }
             .padding(.horizontal)
@@ -144,7 +149,7 @@ private extension EntriesView {
     var grid: some View {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
-                ForEach(viewModel.uiModels) { entry in
+                ForEach(viewModel.dataState.data ?? []) { entry in
                     cell(for: entry)
                 }
             }

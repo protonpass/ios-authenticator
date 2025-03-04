@@ -28,15 +28,11 @@ import Models
 @Observable
 @MainActor
 final class EntriesViewModel {
-    var uiModels: [EntryUiModel] {
-        entryDataService.dataState.data ?? []
+    var dataState: DataState<[EntryUiModel]> {
+        entryDataService.dataState
     }
 
     var search = ""
-
-    var loading: Bool {
-        entryDataService.dataState == .loading
-    }
 
     @ObservationIgnored
     private var pauseRefreshing = false
@@ -101,7 +97,6 @@ extension EntriesViewModel {
         generateTokensTask?.cancel()
         generateTokensTask = Task { [weak self] in
             guard let self else { return }
-//            defer { loading = false }
             do {
                 _ = try await generateEntryUiModels()
             } catch {
@@ -142,11 +137,6 @@ private extension EntriesViewModel {
 
         return entries
     }
-
-//    func getEntries() async throws -> [Entry] {
-//        // Get entries from database
-//        []
-//    }
 
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo

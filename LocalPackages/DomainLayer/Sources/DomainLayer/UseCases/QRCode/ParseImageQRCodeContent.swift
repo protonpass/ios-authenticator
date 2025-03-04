@@ -39,29 +39,24 @@ public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {
 
     public func execute(imageSelection: PhotosPickerItem) async throws -> String {
         guard let image = try await imageSelection.loadTransferable(type: QRCodeImage.self) else {
-            throw TransferError.errorProcessingImage
+            throw ParseImageError.errorProcessingImage
         }
         return try parseImageForCode(image: image)
     }
 
-    func parseImageForCode(image: QRCodeImage) throws -> String {
+    private func parseImageForCode(image: QRCodeImage) throws -> String {
         guard let ciImage = image.image.toCiImage,
               let detector = CIDetector(ofType: CIDetectorTypeQRCode,
                                         context: nil,
                                         options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]),
               let features = detector.features(in: ciImage) as? [CIQRCodeFeature]
         else {
-            throw TransferError.failedDetectingQRCode
+            throw ParseImageError.failedDetectingQRCode
         }
-        var qrCodeContent = ""
-        for feature in features {
-            if let messageString = feature.messageString {
-                qrCodeContent += messageString
-            }
-        }
+        let qrCodeContent = features.compactMap(\.messageString).joined()
 
         guard !qrCodeContent.isEmpty else {
-            throw TransferError.qrCodeEmpty
+            throw ParseImageError.qrCodeEmpty
         }
 
         return qrCodeContent
@@ -70,7 +65,7 @@ public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {
 
 // MARK: - Utils
 
-struct QRCodeImage: Transferable {
+private struct QRCodeImage: Transferable {
     #if canImport(AppKit)
     let image: NSImage
     #elseif canImport(UIKit)
@@ -81,24 +76,37 @@ struct QRCodeImage: Transferable {
         DataRepresentation(importedContentType: .image) { data in
             #if canImport(AppKit)
             guard let nsImage = NSImage(data: data) else {
-                throw TransferError.importFailed
+                throw ParseImageError.importFailed
             }
             return QRCodeImage(image: nsImage)
             #elseif canImport(UIKit)
             guard let uiImage = UIImage(data: data) else {
-                throw TransferError.importFailed
+                throw ParseImageError.importFailed
             }
             return QRCodeImage(image: uiImage)
             #else
-            throw TransferError.importFailed
+            throw ParseImageError.importFailed
             #endif
         }
     }
 }
 
-enum TransferError: Error {
+enum ParseImageError: Error, CustomDebugStringConvertible {
     case errorProcessingImage
     case importFailed
     case failedDetectingQRCode
     case qrCodeEmpty
+
+    var debugDescription: String {
+        switch self {
+        case .errorProcessingImage:
+            "Error processing image"
+        case .importFailed:
+            "Error importing image"
+        case .failedDetectingQRCode:
+            "Error detecting QR code"
+        case .qrCodeEmpty:
+            "Empty QR code"
+        }
+    }
 }

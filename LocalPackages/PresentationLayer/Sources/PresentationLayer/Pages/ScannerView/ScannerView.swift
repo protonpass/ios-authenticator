@@ -22,6 +22,7 @@
 
 #if os(iOS)
 
+import CommonUtilities
 import DocScanner
 import PhotosUI
 import SwiftUI
@@ -31,19 +32,20 @@ struct ScannerView: View {
 
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
+    @State var regionOfInterest: CGRect?
 
     var body: some View {
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
-                    regionOfInterest: $viewModel.regionOfInterest) { results in
+                    regionOfInterest: $regionOfInterest) { results in
             viewModel.processPayload(results: results)
         }
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .alert("Error occurred while parsing the Qr code",
-               isPresented: $viewModel.displayErrorAlert,
+        .alert("Error occurred",
+               isPresented: $viewModel.creationError.mappedToBool(),
                actions: {
                    Button { viewModel.clean() } label: {
                        Text("OK")
@@ -62,9 +64,8 @@ struct ScannerView: View {
         .overlay(regionOfInterestOverlay)
     }
 
-    @ViewBuilder
-    var regionOfInterestOverlay: some View {
-        RestrictedScanningArea(regionOfInterest: $viewModel.regionOfInterest,
+    private var regionOfInterestOverlay: some View {
+        RestrictedScanningArea(regionOfInterest: $regionOfInterest,
                                photoLibraryEntry: {
                                    showPhotosPicker.toggle()
                                })

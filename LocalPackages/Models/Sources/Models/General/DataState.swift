@@ -23,7 +23,7 @@ import Foundation
 public enum DataState<T: Sendable & Equatable & Hashable>: Sendable, Equatable {
     case loading
     case loaded(T)
-    case failed(Error)
+    case failed(any Error)
 
     public var data: T? {
         switch self {
@@ -36,9 +36,10 @@ public enum DataState<T: Sendable & Equatable & Hashable>: Sendable, Equatable {
 
     public static func == (lhs: DataState<T>, rhs: DataState<T>) -> Bool {
         switch (lhs, rhs) {
-        case (.failed, .failed),
-             (.loading, .loading):
+        case (.loading, .loading):
             true
+        case let (.failed(lhsError), .failed(rhsError)):
+            lhsError.localizedDescription == rhsError.localizedDescription
         case let (.loaded(lhsData), .loaded(rhsData)):
             lhsData == rhsData
         default:
