@@ -51,7 +51,7 @@ struct ScannerView: View {
                },
                message: {
                    if let message = viewModel.creationError?.localizedDescription {
-                       Text(message)
+                       Text(verbatim: message)
                    }
                })
         .photosPicker(isPresented: $showPhotosPicker,

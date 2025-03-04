@@ -44,11 +44,11 @@ struct EntryCell: View {
                         .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
-                    Text(entry.entry.name)
+                    Text(verbatim: entry.entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(entry.entry.uri)
+                    Text(verbatim: entry.entry.uri)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
@@ -94,7 +94,7 @@ struct EntryCell: View {
                 VStack(alignment: .trailing) {
                     Text("Next")
                         .foregroundStyle(.textWeak)
-                    Text(entry.code.next.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: entry.code.next.separatedByGroup(3, delimiter: " "))
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
