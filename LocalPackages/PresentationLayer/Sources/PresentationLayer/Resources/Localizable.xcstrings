@@ -32,7 +32,14 @@
       }
     },
     "Advanced entry settings" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced entry settings"
+          }
+        }
+      }
     },
     "Algorithm" : {
       "localizations" : {
