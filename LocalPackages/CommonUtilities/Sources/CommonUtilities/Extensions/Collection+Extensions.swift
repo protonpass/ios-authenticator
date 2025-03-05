@@ -1,6 +1,6 @@
 //
-// AuthenticatorError.swift
-// Proton Authenticator - Created on 18/02/2025.
+// Collection+Extensions.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,16 +20,8 @@
 
 import Foundation
 
-public enum AuthenticatorError: Sendable, Error, CustomDebugStringConvertible {
-    case missingGeneratedCodes(codeCount: Int, entryCount: Int)
-    case missingEntryForGeneratedCode
-
-    public var debugDescription: String {
-        switch self {
-        case let .missingGeneratedCodes(codeCount, entryCount):
-            "Missing generated codes: \(codeCount) instead of \(entryCount)"
-        case .missingEntryForGeneratedCode:
-            "Missing entry for generated code"
-        }
+public extension Collection {
+    var nilIfEmpty: Self? {
+        isEmpty ? nil : self
     }
 }

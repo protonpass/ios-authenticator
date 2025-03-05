@@ -11,12 +11,35 @@
         }
       }
     },
-    "Add some view here" : {
+    "Additional infos" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add some view here"
+            "value" : "Additional infos"
+          }
+        }
+      }
+    },
+    "Advance options" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advance options"
+          }
+        }
+      }
+    },
+    "Advanced entry settings" : {
+
+    },
+    "Algorithm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algorithm"
           }
         }
       }
@@ -57,6 +80,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup"
+          }
+        }
+      }
+    },
+    "Base information" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base information"
           }
         }
       }
@@ -211,6 +244,16 @@
         }
       }
     },
+    "Issuer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer"
+          }
+        }
+      }
+    },
     "Light" : {
       "localizations" : {
         "en" : {
@@ -241,12 +284,32 @@
         }
       }
     },
+    "Manual entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual entry"
+          }
+        }
+      }
+    },
     "Match system" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Match system"
+          }
+        }
+      }
+    },
+    "Name *" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name *"
           }
         }
       }
@@ -281,6 +344,26 @@
         }
       }
     },
+    "Note" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note"
+          }
+        }
+      }
+    },
+    "Number of digits: **%lld**" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Number of digits: **%lld**"
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "en" : {
@@ -311,12 +394,32 @@
         }
       }
     },
+    "Refresh time: **%llds**" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh time: **%llds**"
+          }
+        }
+      }
+    },
     "Retry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Retry"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
           }
         }
       }
@@ -337,6 +440,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Search"
+          }
+        }
+      }
+    },
+    "Secret key *" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secret key *"
           }
         }
       }
@@ -397,6 +510,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Theme"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "Type of entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type of entry"
           }
         }
       }

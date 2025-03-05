@@ -1,6 +1,6 @@
 //
-// ImportingServiceError.swift
-// Proton Authenticator - Created on 27/02/2025.
+// AuthError.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,16 +20,27 @@
 
 import Foundation
 
-public enum ImportingServiceError: Sendable, Error, CustomDebugStringConvertible {
-    case wrongFormat
-    case contentIsEmpty
+/// Proton Authenticator errors
+public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable {
+    case importing(ImportingFailureReason)
+    case imageParsing(ImageParsingFailureReason)
+    case encryption(EncryptionFailureReason)
+    case entry(GenericEntryFailureReason)
 
     public var debugDescription: String {
         switch self {
-        case .wrongFormat:
-            "Is not the correct file format"
-        case .contentIsEmpty:
-            "No entries detected to import"
+        case let .importing(reason):
+            reason.debugDescription
+        case let .imageParsing(reason):
+            reason.debugDescription
+        case let .encryption(reason):
+            reason.debugDescription
+        case let .entry(reason):
+            reason.debugDescription
         }
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.debugDescription == rhs.debugDescription
     }
 }

@@ -114,7 +114,7 @@ private extension ScannerViewModel {
 
     func generateEntry(from barcodePayload: String) async {
         do {
-            try await entryDataService.generateEntry(from: barcodePayload)
+            try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
         } catch {
             handleError(error)

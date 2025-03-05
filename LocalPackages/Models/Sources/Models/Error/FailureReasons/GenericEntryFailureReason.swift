@@ -1,6 +1,6 @@
 //
-// SteamParams.swift
-// Proton Authenticator - Created on 11/02/2025.
+// GenericEntryFailureReason.swift
+// Proton Authenticator - Created on 18/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,14 +20,19 @@
 
 import Foundation
 
-public struct SteamParams: Sendable, EntryParamsParameter {
-    public let name: String
-    public let secret: String
-    public let note: String?
+public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
+    case missingGeneratedCodes(codeCount: Int, entryCount: Int)
+    case missingEntryForGeneratedCode
+    case wrongTypeOfEntryParams
 
-    public init(name: String, secret: String, note: String?) {
-        self.name = name
-        self.secret = secret
-        self.note = note
+    public var debugDescription: String {
+        switch self {
+        case let .missingGeneratedCodes(codeCount, entryCount):
+            "Missing generated codes: \(codeCount) instead of \(entryCount)"
+        case .missingEntryForGeneratedCode:
+            "Missing entry for generated code"
+        case .wrongTypeOfEntryParams:
+            "Wrong type of entry params"
+        }
     }
 }

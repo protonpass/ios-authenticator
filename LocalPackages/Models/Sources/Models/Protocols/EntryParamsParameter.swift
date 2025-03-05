@@ -1,6 +1,6 @@
 //
-// SteamParams.swift
-// Proton Authenticator - Created on 11/02/2025.
+// EntryParamsParameter.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,14 +20,4 @@
 
 import Foundation
 
-public struct SteamParams: Sendable, EntryParamsParameter {
-    public let name: String
-    public let secret: String
-    public let note: String?
-
-    public init(name: String, secret: String, note: String?) {
-        self.name = name
-        self.secret = secret
-        self.note = note
-    }
-}
+public protocol EntryParamsParameter {}

@@ -43,6 +43,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func save(_ entries: [Entry]) async throws
 
     func remove(_ entry: Entry) async throws
+    func remove(_ entryId: String) async throws
     func removeAll() async throws
 }
 
@@ -128,26 +129,28 @@ public extension EntryRepository {
     }
 
     func save(_ entry: Entry) async throws {
-        let entity = try createEntity(entry)
+        let entity = try encrypt(entry)
         try await persistentStorage.save(data: entity)
     }
 
     func save(_ entries: [Entry]) async throws {
-        let entities: [EncryptedEntryEntity] = entries.compactMap {
-            guard let entity = try? createEntity($0) else {
-                return nil
-            }
-            return entity
+        let entities: [EncryptedEntryEntity] = try entries.map {
+            try encrypt($0)
         }
 
         try await persistentStorage.batchSave(content: entities)
     }
 
     func remove(_ entry: Entry) async throws {
-        let id = entry.id
-        let predicate = #Predicate<EncryptedEntryEntity> { entity in
-            entity.id == id
+        let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entry.id }
+        guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
+            return
         }
+        try await persistentStorage.delete(element: entity)
+    }
+
+    func remove(_ entryId: String) async throws {
+        let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryId }
         guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
             return
         }
@@ -160,13 +163,8 @@ public extension EntryRepository {
 }
 
 private extension EntryRepository {
-    func createEntity(_ entry: Entry) throws -> EncryptedEntryEntity {
+    func encrypt(_ entry: Entry) throws -> EncryptedEntryEntity {
         let encryptedData = try encryptionService.encrypt(model: entry)
         return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData)
     }
-}
-
-enum EntryRepositoryError: Error {
-    case failedToDecrypt
-    case failedToEncrypt
 }

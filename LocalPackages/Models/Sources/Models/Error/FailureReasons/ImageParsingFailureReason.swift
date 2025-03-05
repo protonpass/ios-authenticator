@@ -1,6 +1,6 @@
 //
-// SteamParams.swift
-// Proton Authenticator - Created on 11/02/2025.
+// ImageParsingFailureReason.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,14 +20,22 @@
 
 import Foundation
 
-public struct SteamParams: Sendable, EntryParamsParameter {
-    public let name: String
-    public let secret: String
-    public let note: String?
+public enum ImageParsingFailureReason: CustomDebugStringConvertible, Equatable, Sendable {
+    case errorProcessingImage
+    case importFailed
+    case failedDetectingQRCode
+    case qrCodeEmpty
 
-    public init(name: String, secret: String, note: String?) {
-        self.name = name
-        self.secret = secret
-        self.note = note
+    public var debugDescription: String {
+        switch self {
+        case .errorProcessingImage:
+            "Error processing image"
+        case .importFailed:
+            "Error importing image"
+        case .failedDetectingQRCode:
+            "Error detecting QR code"
+        case .qrCodeEmpty:
+            "Empty QR code"
+        }
     }
 }

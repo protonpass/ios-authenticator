@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct TotpParams: Sendable {
+public struct TotpParams: Sendable, EntryParamsParameter {
     public let name: String
     public let secret: String
     public let issuer: String?

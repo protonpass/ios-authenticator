@@ -164,12 +164,14 @@ private extension EntriesView {
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .swipeActions {
-                Button {
-                    router.presentedSheet = .createEditEntry(entry.entry)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
+                if entry.entry.type == .totp {
+                    Button {
+                        router.presentedSheet = .createEditEntry(entry)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    .tint(.yellow)
                 }
-                .tint(.yellow)
 
                 Button {
                     viewModel.delete(entry)

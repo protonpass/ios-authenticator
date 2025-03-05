@@ -39,6 +39,10 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
 //        self.order = order
         self.progress = progress
     }
+
+    public func copy(newEntry: Entry) -> EntryUiModel {
+        EntryUiModel(entry: newEntry, code: code, progress: progress)
+    }
 }
 
 public extension EntryUiModel {

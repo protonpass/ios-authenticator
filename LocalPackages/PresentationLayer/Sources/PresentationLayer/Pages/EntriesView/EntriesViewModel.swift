@@ -57,10 +57,6 @@ final class EntriesViewModel {
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
 
-//    @ObservationIgnored
-//    @LazyInjected(\UseCaseContainer.generateEntryUiModels)
-//    private var generateEntryUiModels
-
     @ObservationIgnored
     private var cancellable: (any Cancellable)?
 
@@ -102,7 +98,6 @@ extension EntriesViewModel {
                     await qaService.mockedEntries()
                 } else {
                     try await entryDataService.updateEntries()
-//                    _ = try await generateEntryUiModels()
                 }
             } catch {
                 handle(error)
