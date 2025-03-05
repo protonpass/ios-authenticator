@@ -22,7 +22,7 @@ import CoreTransferable
 import Foundation
 
 public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
-    public let id: String
+    public var id: String
     public let name: String
     public let uri: String
     public let period: Int

@@ -33,10 +33,10 @@ final class UseCaseContainer: SharedContainer, AutoRegistering {
         self { CopyTextToClipboard() }
     }
 
-    var generateEntryUiModels: Factory<any GenerateEntryUiModelsUseCase> {
-        self { GenerateEntryUiModels(repository: RepositoryContainer.shared.entryRepository(),
-                                     service: ServiceContainer.shared.entryDataService()) }
-    }
+//    var generateEntryUiModels: Factory<any GenerateEntryUiModelsUseCase> {
+//        self { GenerateEntryUiModels(repository: RepositoryContainer.shared.entryRepository(),
+//                                     service: ServiceContainer.shared.entryDataService()) }
+//    }
 
     var parseImageQRCodeContent: Factory<any ParseImageQRCodeContentUseCase> {
         self { ParseImageQRCodeContent() }

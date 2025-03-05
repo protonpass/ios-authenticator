@@ -120,13 +120,16 @@ public extension EntryRepository {
     func getAllEntries() async throws -> [Entry] {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
 
-        return try encryptionService.decryptMany(entries: encryptedEntries.map(\.encryptedData))
+        return try encryptedEntries.map { encryptedEntry in
+            var entry = try encryptionService.decrypt(entry: encryptedEntry.encryptedData)
+            entry.id = encryptedEntry.id
+            return entry
+        }
     }
 
     func save(_ entry: Entry) async throws {
         let entity = try createEntity(entry)
         try await persistentStorage.save(data: entity)
-//        try await update()
     }
 
     func save(_ entries: [Entry]) async throws {
@@ -138,7 +141,6 @@ public extension EntryRepository {
         }
 
         try await persistentStorage.batchSave(content: entities)
-//        return try await update()
     }
 
     func remove(_ entry: Entry) async throws {
@@ -150,23 +152,14 @@ public extension EntryRepository {
             return
         }
         try await persistentStorage.delete(element: entity)
-//        try await update()
     }
 
     func removeAll() async throws {
         try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
-//        try await update()
     }
 }
 
 private extension EntryRepository {
-//    @discardableResult
-//    func update() async throws -> [TokenData] {
-//        let bars: [TokenData] = try await getAllTokens() // persistentStorage.fetchAll().toTokens
-//        tokens.send(bars)
-//        return bars
-//    }
-
     func createEntity(_ entry: Entry) throws -> EncryptedEntryEntity {
         let encryptedData = try encryptionService.encrypt(model: entry)
         return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData)

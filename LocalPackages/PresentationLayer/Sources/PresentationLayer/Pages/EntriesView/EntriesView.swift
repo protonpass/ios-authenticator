@@ -129,7 +129,7 @@ private extension EntriesView {
 private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.dataState.data ?? []) { entry in
+            ForEach(viewModel.entries) { entry in
                 cell(for: entry)
             }
             .padding(.horizontal)
@@ -141,6 +141,7 @@ private extension EntriesView {
         #endif
             .background(.backgroundGradient)
             .animation(.default, value: isTextFieldFocused)
+            .animation(.default, value: viewModel.entries)
             .onTapGesture {
                 isTextFieldFocused = false
             }
@@ -170,7 +171,9 @@ private extension EntriesView {
                 }
                 .tint(.yellow)
 
-                Button {} label: {
+                Button {
+                    viewModel.delete(entry)
+                } label: {
                     Label("Delete", systemImage: "trash.fill")
                 }
                 .tint(.red)

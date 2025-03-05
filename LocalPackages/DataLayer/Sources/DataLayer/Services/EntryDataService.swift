@@ -18,8 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Combine
+import CoreData
 import Foundation
 import Models
+
+extension NSNotification.Name {
+    static let fetchedData = Self(rawValue: "fetchedData")
+}
 
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
@@ -27,6 +33,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func generateEntry(from payload: String) async throws
     func refreshEntries(entries: [EntryUiModel])
+    func updateEntries() async throws
+    func delete(_ entry: EntryUiModel) async throws
 }
 
 @MainActor
@@ -36,8 +44,12 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
 
+    @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
+    @ObservationIgnored
     private var task: Task<Void, Never>?
+    @ObservationIgnored
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -47,18 +59,33 @@ public final class EntryDataService: EntryDataServiceProtocol {
     }
 
     private func setUp() {
-        guard task == nil else { return }
-        task = Task {
-            do {
-                let entries = try await repository.getAllEntries()
-                dataState = try await .loaded(generateUIEntries(from: entries))
-            } catch {
-                dataState = .failed(error)
-            }
-        }
-    }
+        pullAllAndTransform()
 
-    public func generateEntry(from payload: String) async throws {
+        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                guard let self,
+                      let event = notification
+                      .userInfo?[
+                          NSPersistentCloudKitContainer
+                              .eventNotificationUserInfoKey
+                      ] as? NSPersistentCloudKitContainer.Event,
+                      event.endDate != nil, event.type == .import else { return }
+//                    Task { @MainActor in
+//                        let brewersFetchDescriptor = FetchDescriptor<Brewer>(
+//                            predicate: nil,
+//                            sortBy: [.init(\.name)]
+//                        )
+//                        _ = try? context.fetch(brewersFetchDescriptor)
+//                    }
+                pullAllAndTransform()
+            }
+            .store(in: &cancellables)
+    }
+}
+
+public extension EntryDataService {
+    func generateEntry(from payload: String) async throws {
         let entry = try await repository.entry(for: payload)
         try await repository.save(entry)
         let codes = try repository.generateCodes(entries: [entry])
@@ -72,11 +99,11 @@ public final class EntryDataService: EntryDataServiceProtocol {
         dataState = .loaded(data)
     }
 
-    public func refreshEntries(entries: [EntryUiModel]) {
+    func refreshEntries(entries: [EntryUiModel]) {
         dataState = .loaded(entries)
     }
 
-    public func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
+    func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
@@ -91,6 +118,51 @@ public final class EntryDataService: EntryDataServiceProtocol {
             results.append(.init(entry: entry, code: code, date: .now))
         }
 
+        return results
+    }
+
+    func updateEntries() async throws {
+        let uiModels = try await updateEntries(for: .now)
+        dataState = .loaded(uiModels)
+    }
+
+    func delete(_ entry: EntryUiModel) async throws {
+        try await repository.remove(entry.entry)
+        let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
+        dataState = .loaded(data ?? [])
+    }
+}
+
+private extension EntryDataService {
+    func pullAllAndTransform() {
+        guard task == nil else { return }
+        task = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let entries = try await repository.getAllEntries()
+                dataState = try await .loaded(generateUIEntries(from: entries))
+            } catch {
+                dataState = .failed(error)
+            }
+        }
+    }
+
+    nonisolated func updateEntries(for date: Date) async throws -> [EntryUiModel] {
+        guard let entries = await dataState.data?.map(\.entry) else {
+            return []
+        }
+        let codes = try repository.generateCodes(entries: entries)
+        guard codes.count == entries.count else {
+            throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: entries.count)
+        }
+        var results = [EntryUiModel]()
+        for (index, code) in codes.enumerated() {
+            guard let entry = entries[safeIndex: index] else {
+                throw AuthenticatorError.missingEntryForGeneratedCode
+            }
+            results.append(.init(entry: entry, code: code, date: date))
+        }
         return results
     }
 }

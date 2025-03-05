@@ -26,7 +26,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var id: String = UUID().uuidString
     public private(set) var encryptedData = Data()
 
-    public init(id: String = UUID().uuidString, encryptedData: Data = Data()) {
+    public init(id: String, encryptedData: Data) {
         self.id = id
         self.encryptedData = encryptedData
     }

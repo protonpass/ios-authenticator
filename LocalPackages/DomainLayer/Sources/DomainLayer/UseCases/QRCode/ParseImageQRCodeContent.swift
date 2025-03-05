@@ -20,6 +20,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import CoreTransferable
 import PhotosUI
 import SwiftUI
