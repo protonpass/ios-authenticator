@@ -78,7 +78,7 @@ private struct QRCodeImage: Transferable {
         DataRepresentation(importedContentType: .image) { data in
             #if canImport(AppKit)
             guard let nsImage = NSImage(data: data) else {
-                throw ParseImageError.importFailed
+                throw AuthError.imageParsing(.importFailed)
             }
             return QRCodeImage(image: nsImage)
             #elseif canImport(UIKit)
@@ -87,7 +87,7 @@ private struct QRCodeImage: Transferable {
             }
             return QRCodeImage(image: uiImage)
             #else
-            throw ParseImageError.importFailed
+            throw AuthError.imageParsing(.importFailed)
             #endif
         }
     }

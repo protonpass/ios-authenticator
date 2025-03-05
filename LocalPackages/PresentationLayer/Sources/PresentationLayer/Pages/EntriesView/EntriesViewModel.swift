@@ -20,7 +20,6 @@
 //
 
 import Combine
-import CommonUtilities
 import Factory
 import Foundation
 import Models
@@ -40,10 +39,6 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     private var pauseRefreshing = false
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.settingsService)
-    private var settingsService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService)

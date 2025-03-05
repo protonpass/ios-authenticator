@@ -22,11 +22,11 @@
 import Testing
 
 struct StringExtensionsTests {
-    let csvString = """
-    name,age,city
-    John,30,New York
-    Jane,25,Los Angeles
-    """
+//    let csvString = """
+//    name,age,city
+//    John,30,New York
+//    Jane,25,Los Angeles
+//    """
     // Example usage
     let jsonString = """
     {

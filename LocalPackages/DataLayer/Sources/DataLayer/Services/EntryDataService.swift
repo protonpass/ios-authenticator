@@ -23,10 +23,6 @@ import CoreData
 import Foundation
 import Models
 
-extension NSNotification.Name {
-    static let fetchedData = Self(rawValue: "fetchedData")
-}
-
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
@@ -168,9 +164,9 @@ private extension EntryDataService {
         return results
     }
 
-    func refreshEntries(entries: [EntryUiModel]) {
-        dataState = .loaded(entries)
-    }
+//    func refreshEntries(entries: [EntryUiModel]) {
+//        dataState = .loaded(entries)
+//    }
 
     nonisolated func updateEntries(for date: Date) async throws -> [EntryUiModel] {
         guard let entries = await dataState.data?.map(\.entry) else {

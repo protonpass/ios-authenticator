@@ -41,7 +41,6 @@ public protocol EntryRepositoryProtocol: Sendable {
     func getAllEntries() async throws -> [Entry]
     func save(_ entry: Entry) async throws
     func save(_ entries: [Entry]) async throws
-
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
