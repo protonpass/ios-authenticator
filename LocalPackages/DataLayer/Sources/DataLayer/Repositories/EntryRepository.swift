@@ -19,9 +19,25 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
-import DomainProtocols
 import Foundation
 import Models
+
+public protocol EntryRepositoryProtocol: Sendable {
+    func entry(for uri: String) async throws -> Entry
+    func export(entries: [Entry]) throws -> String
+    func deserialize(serializedData: [Data]) throws -> [Entry]
+    func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]
+    func createSteamEntry(params: SteamParams) throws -> Entry
+    func createTotpEntry(params: TotpParams) throws -> Entry
+    func serialize(entries: [Entry]) throws -> [Data]
+    func getTotpParams(entry: Entry) throws -> TotpParams
+}
+
+public extension EntryRepositoryProtocol {
+    func generateCodes(entries: [Entry]) throws -> [Code] {
+        try generateCodes(entries: entries, time: Date().timeIntervalSince1970)
+    }
+}
 
 public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let rustClient: AuthenticatorMobileClient
@@ -30,7 +46,7 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
         self.rustClient = rustClient
     }
 
-    public func entry(for uri: String) throws -> Entry {
+    public func entry(for uri: String) async throws -> Entry {
         try rustClient.entryFromUri(uri: uri).toEntry
     }
 

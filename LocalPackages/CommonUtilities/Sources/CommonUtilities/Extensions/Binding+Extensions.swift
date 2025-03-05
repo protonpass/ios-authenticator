@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// Binding+Extensions.swift
+// Proton Authenticator - Created on 03/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,18 +18,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import Factory
+import SwiftUI
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
-
-    func autoRegister() {
-        manager.defaultScope = .singleton
+public extension Binding where Value == Bool {
+    @MainActor
+    init(bindingOptional: Binding<(some Any)?>) {
+        self.init(get: {
+                      bindingOptional.wrappedValue != nil
+                  },
+                  set: { newValue in
+                      guard newValue == false else { return }
+                      bindingOptional.wrappedValue = nil
+                  })
     }
+}
 
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository() }
+public extension Binding {
+    @MainActor
+    func mappedToBool<Wrapped>() -> Binding<Bool> where Value == Wrapped? {
+        Binding<Bool>(bindingOptional: self)
     }
 }

@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// UIImage+Extensions.swift
+// Proton Authenticator - Created on 03/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,18 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import Factory
+#if os(iOS)
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
+import UIKit
 
-    func autoRegister() {
-        manager.defaultScope = .singleton
-    }
-
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository() }
+public extension UIImage {
+    var toCiImage: CIImage? {
+        CIImage(image: self)
     }
 }
+
+#endif

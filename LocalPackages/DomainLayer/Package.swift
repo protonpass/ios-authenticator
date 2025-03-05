@@ -18,27 +18,22 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "DomainLayer",
-            targets: ["DomainLayer"]),
-        .library(name: "DomainProtocols",
-                 targets: ["DomainProtocols"])
+            targets: ["DomainLayer"])
     ],
     dependencies: [
         .package(url: "https://github.com/Matejkob/swift-spyable", .upToNextMajor(from: "0.8.0")),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "Models", path: "../Models"),
+        .package(name: "DataLayer", path: "../DataLayer"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(name: "DomainLayer",
                 dependencies: [
-                    "DomainProtocols",
+                    "DataLayer",
                     .product(name: "Spyable", package: "swift-spyable"),
                     .product(name: "CommonUtilities", package: "CommonUtilities")
-                ]),
-        .target(name: "DomainProtocols",
-                dependencies: [
-                    .product(name: "Models", package: "Models"),
                 ]),
         .testTarget(
             name: "DomainLayerTests",

@@ -19,31 +19,37 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import CommonUtilities
-import DomainProtocols
+import DataLayer
 import Foundation
 import Models
 
 public protocol GenerateEntryUiModelsUseCase: Sendable {
-    func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel]
+    @discardableResult
+    func execute(on date: Date) async throws -> [EntryUiModel]
 }
 
 public extension GenerateEntryUiModelsUseCase {
-    func callAsFunction(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
-        try await execute(from: entries, on: date)
+    @discardableResult
+    func callAsFunction(on date: Date = .now) async throws -> [EntryUiModel] {
+        try await execute(on: date)
     }
 }
 
-// swiftlint:disable:next todo
-// TODO: maybe move this in a service ?
-
 public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
     private let repository: any EntryRepositoryProtocol
+    private let service: any EntryDataServiceProtocol
 
-    public init(repository: any EntryRepositoryProtocol) {
+    public init(repository: any EntryRepositoryProtocol,
+                service: any EntryDataServiceProtocol) {
         self.repository = repository
+        self.service = service
     }
 
-    public func execute(from entries: [Entry], on date: Date) async throws -> [EntryUiModel] {
+    @discardableResult
+    public func execute(on date: Date = .now) async throws -> [EntryUiModel] {
+        guard let entries = await service.dataState.data?.map(\.entry) else {
+            return []
+        }
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
             throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
@@ -56,6 +62,7 @@ public final class GenerateEntryUiModels: GenerateEntryUiModelsUseCase {
             }
             results.append(.init(entry: entry, code: code, date: date))
         }
+        await service.refreshEntries(entries: results)
         return results
     }
 }

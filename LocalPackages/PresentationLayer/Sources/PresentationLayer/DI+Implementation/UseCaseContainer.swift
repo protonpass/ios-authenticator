@@ -34,6 +34,11 @@ final class UseCaseContainer: SharedContainer, AutoRegistering {
     }
 
     var generateEntryUiModels: Factory<any GenerateEntryUiModelsUseCase> {
-        self { GenerateEntryUiModels(repository: RepositoryContainer.shared.entryRepository()) }
+        self { GenerateEntryUiModels(repository: RepositoryContainer.shared.entryRepository(),
+                                     service: ServiceContainer.shared.entryDataService()) }
+    }
+
+    var parseImageQRCodeContent: Factory<any ParseImageQRCodeContentUseCase> {
+        self { ParseImageQRCodeContent() }
     }
 }

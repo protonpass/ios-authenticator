@@ -4,8 +4,7 @@
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Models"
-               BuildableName = "Models"
-               BlueprintName = "Models"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "DomainLayer"
+               BuildableName = "DomainLayer"
+               BlueprintName = "DomainLayer"
+               ReferencedContainer = "container:LocalPackages/DomainLayer">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,10 +33,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ModelsTests"
-               BuildableName = "ModelsTests"
-               BlueprintName = "ModelsTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "DomainLayerTests"
+               BuildableName = "DomainLayerTests"
+               BlueprintName = "DomainLayerTests"
+               ReferencedContainer = "container:LocalPackages/DomainLayer">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -52,6 +51,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5B8765162D52539D00B4CC30"
+            BuildableName = "Authenticator.app"
+            BlueprintName = "Authenticator"
+            ReferencedContainer = "container:Authenticator.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -62,10 +71,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "Models"
-            BuildableName = "Models"
-            BlueprintName = "Models"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "DomainLayer"
+            BuildableName = "DomainLayer"
+            BlueprintName = "DomainLayer"
+            ReferencedContainer = "container:LocalPackages/DomainLayer">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

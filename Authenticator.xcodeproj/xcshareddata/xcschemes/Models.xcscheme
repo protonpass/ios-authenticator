@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "PresentationLayer"
-               BuildableName = "PresentationLayer"
-               BlueprintName = "PresentationLayer"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "Models"
+               BuildableName = "Models"
+               BlueprintName = "Models"
+               ReferencedContainer = "container:LocalPackages/Models">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,10 +34,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "PresentationLayerTests"
-               BuildableName = "PresentationLayerTests"
-               BlueprintName = "PresentationLayerTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "ModelsTests"
+               BuildableName = "ModelsTests"
+               BlueprintName = "ModelsTests"
+               ReferencedContainer = "container:LocalPackages/Models">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -62,10 +62,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "PresentationLayer"
-            BuildableName = "PresentationLayer"
-            BlueprintName = "PresentationLayer"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "Models"
+            BuildableName = "Models"
+            BlueprintName = "Models"
+            ReferencedContainer = "container:LocalPackages/Models">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

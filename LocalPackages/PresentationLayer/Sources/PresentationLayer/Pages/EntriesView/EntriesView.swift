@@ -80,9 +80,17 @@ private extension EntriesView {
             }
         }
         .overlay {
-            if viewModel.uiModels.isEmpty {
-                /// In case there aren't any search results, we can
-                /// show the new content unavailable view.
+            overlay
+        }
+    }
+
+    @ViewBuilder
+    var overlay: some View {
+        switch viewModel.dataState {
+        case .loading:
+            ProgressView()
+        case let .loaded(entries):
+            if entries.isEmpty {
                 ContentUnavailableView {
                     Label("No token", systemImage: "shield.slash")
                 } description: {
@@ -110,6 +118,10 @@ private extension EntriesView {
                 }
                 .foregroundStyle(.textNorm)
             }
+        case let .failed(error):
+            RetryableErrorView(tintColor: .danger, error: error) {
+                viewModel.refreshTokens()
+            }
         }
     }
 }
@@ -117,7 +129,7 @@ private extension EntriesView {
 private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.uiModels) { entry in
+            ForEach(viewModel.dataState.data ?? []) { entry in
                 cell(for: entry)
             }
             .padding(.horizontal)
@@ -137,7 +149,7 @@ private extension EntriesView {
     var grid: some View {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
-                ForEach(viewModel.uiModels) { entry in
+                ForEach(viewModel.dataState.data ?? []) { entry in
                     cell(for: entry)
                 }
             }
@@ -214,7 +226,7 @@ private extension EntriesView {
                 if isPhone {
                     Button(action: {
                         showCreationOptions.toggle()
-                        router.presentedSheet = .createEditEntry(nil)
+//                        router.presentedSheet = .createEditEntry(nil)
                     }, label: {
                         plusIcon
                     })

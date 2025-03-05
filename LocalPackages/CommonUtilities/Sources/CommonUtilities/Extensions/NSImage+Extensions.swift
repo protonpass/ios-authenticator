@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// NSImage+Extensions.swift
+// Proton Authenticator - Created on 03/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,18 +18,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import Factory
+#if os(macOS)
+import CoreImage
+import SwiftUI
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
+public extension NSImage {
+    var toCiImage: CIImage? {
+        guard let tiffData = tiffRepresentation,
+              let bitmapImage = NSBitmapImageRep(data: tiffData),
+              let ciImage = CIImage(bitmapImageRep: bitmapImage) else {
+            return nil
+        }
 
-    func autoRegister() {
-        manager.defaultScope = .singleton
-    }
-
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository() }
+        return ciImage
     }
 }
+#endif

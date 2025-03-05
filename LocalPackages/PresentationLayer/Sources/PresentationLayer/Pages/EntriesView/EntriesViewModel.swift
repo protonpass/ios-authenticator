@@ -28,17 +28,14 @@ import Models
 @Observable
 @MainActor
 final class EntriesViewModel {
-    private(set) var uiModels: [EntryUiModel] = []
+    var dataState: DataState<[EntryUiModel]> {
+        qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
+    }
+
     var search = ""
 
     @ObservationIgnored
     private var pauseRefreshing = false
-
-    @ObservationIgnored
-    private var entries: [Entry] = []
-
-    @ObservationIgnored
-    private let bundle: Bundle
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
@@ -47,6 +44,10 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService)
     private var qaService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.entryDataService)
+    private(set) var entryDataService
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
@@ -62,8 +63,7 @@ final class EntriesViewModel {
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
-    init(bundle: Bundle = .main) {
-        self.bundle = bundle
+    init() {
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .receive(on: DispatchQueue.main)
@@ -78,15 +78,15 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func setUp() async {
-        do {
-            entries = if let mocked = mockedEntries() {
-                mocked
-            } else {
-                try await getEntries()
-            }
-        } catch {
-            handle(error)
-        }
+//        do {
+//            entries = if let mocked = mockedEntries() {
+//                mocked
+//            } else {
+//                try await getEntries()
+//            }
+//        } catch {
+//            handle(error)
+//        }
     }
 
     func refreshTokens() {
@@ -94,7 +94,11 @@ extension EntriesViewModel {
         generateTokensTask = Task { [weak self] in
             guard let self else { return }
             do {
-                uiModels = try await generateEntryUiModels(from: entries, on: .now)
+                if qaService.showMockEntries {
+                    await qaService.mockedEntries()
+                } else {
+                    _ = try await generateEntryUiModels()
+                }
             } catch {
                 handle(error)
             }
@@ -116,29 +120,6 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
-    func mockedEntries() -> [Entry]? {
-        guard bundle.isQaBuild, qaService.showMockEntries else {
-            return nil
-        }
-        let count = max(5, qaService.numberOfMockEntries)
-
-        var entries = [Entry]()
-        for index in 0..<count {
-            entries.append(.init(name: "Test #\(index)",
-                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
-                                 period: 30,
-                                 type: .totp,
-                                 note: "Note #\(index)"))
-        }
-
-        return entries
-    }
-
-    func getEntries() async throws -> [Entry] {
-        // Get entries from database
-        []
-    }
-
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log and display error to the users

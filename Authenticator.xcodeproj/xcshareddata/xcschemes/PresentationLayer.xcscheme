@@ -14,24 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CommonUtilities"
-               BuildableName = "CommonUtilities"
-               BlueprintName = "CommonUtilities"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "NO"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5B8765162D52539D00B4CC30"
-               BuildableName = "Authenticator.app"
-               BlueprintName = "Authenticator"
-               ReferencedContainer = "container:../../Authenticator.xcodeproj">
+               BlueprintIdentifier = "PresentationLayer"
+               BuildableName = "PresentationLayer"
+               BlueprintName = "PresentationLayer"
+               ReferencedContainer = "container:LocalPackages/PresentationLayer">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,10 +33,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CommonUtilitiesTests"
-               BuildableName = "CommonUtilitiesTests"
-               BlueprintName = "CommonUtilitiesTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "PresentationLayerTests"
+               BuildableName = "PresentationLayerTests"
+               BlueprintName = "PresentationLayerTests"
+               ReferencedContainer = "container:LocalPackages/PresentationLayer">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -65,6 +51,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5B8765162D52539D00B4CC30"
+            BuildableName = "Authenticator.app"
+            BlueprintName = "Authenticator"
+            ReferencedContainer = "container:Authenticator.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -75,10 +71,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CommonUtilities"
-            BuildableName = "CommonUtilities"
-            BlueprintName = "CommonUtilities"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "PresentationLayer"
+            BuildableName = "PresentationLayer"
+            BlueprintName = "PresentationLayer"
+            ReferencedContainer = "container:LocalPackages/PresentationLayer">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

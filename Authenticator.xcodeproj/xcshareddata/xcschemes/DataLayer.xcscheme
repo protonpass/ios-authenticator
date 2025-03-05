@@ -4,7 +4,8 @@
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -14,10 +15,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DomainLayer"
-               BuildableName = "DomainLayer"
-               BlueprintName = "DomainLayer"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "DataLayer"
+               BuildableName = "DataLayer"
+               BlueprintName = "DataLayer"
+               ReferencedContainer = "container:LocalPackages/DataLayer">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5B8765162D52539D00B4CC30"
+               BuildableName = "Authenticator.app"
+               BlueprintName = "Authenticator"
+               ReferencedContainer = "container:Authenticator.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,10 +48,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DomainLayerTests"
-               BuildableName = "DomainLayerTests"
-               BlueprintName = "DomainLayerTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "DataLayerTests"
+               BuildableName = "DataLayerTests"
+               BlueprintName = "DataLayerTests"
+               ReferencedContainer = "container:LocalPackages/DataLayer">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,7 +73,7 @@
             BlueprintIdentifier = "5B8765162D52539D00B4CC30"
             BuildableName = "Authenticator.app"
             BlueprintName = "Authenticator"
-            ReferencedContainer = "container:../../Authenticator.xcodeproj">
+            ReferencedContainer = "container:Authenticator.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -71,10 +86,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DomainLayer"
-            BuildableName = "DomainLayer"
-            BlueprintName = "DomainLayer"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "DataLayer"
+            BuildableName = "DataLayer"
+            BlueprintName = "DataLayer"
+            ReferencedContainer = "container:LocalPackages/DataLayer">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
