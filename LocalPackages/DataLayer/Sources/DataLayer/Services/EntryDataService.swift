@@ -29,7 +29,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func insertAndRefreshEntry(from payload: String) async throws
     func insertAndRefreshEntry(from params: EntryParamsParameter) async throws
-//    func refreshEntries(entries: [EntryUiModel])
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParamsParameter) async throws
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
 }
@@ -81,31 +81,27 @@ public extension EntryDataService {
     }
 
     func insertAndRefreshEntry(from params: EntryParamsParameter) async throws {
-        let entry = if let totpParams = params as? TotpParams {
-            try repository.createTotpEntry(params: totpParams)
-        } else if let steamParams = params as? SteamParams {
-            try repository.createSteamEntry(params: steamParams)
-        } else {
-            throw AuthError.entry(.wrongTypeOfEntryParams)
-        }
+        let entry = try createEntry(with: params)
         try await save(entry)
     }
 
-//    func updateEntry(for entryId: String, with params: EntryParamsParameter) async throws {
-//        update
-//
-//        try await repository.remove(entryId)
-//        try await repository.save(entry)
-//        let codes = try repository.generateCodes(entries: [entry])
-//        guard let code = codes.first else {
-//            throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
-//                                                           entryCount: 1)
-//        }
-//        let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
-//        var data: [EntryUiModel] = dataState.data ?? []
-//        data.append(entryUI)
-//        dataState = .loaded(data)
-//    }
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParamsParameter) async throws {
+        let entry = try createEntry(with: params)
+        try await repository.remove(entryId)
+
+        var data: [EntryUiModel] = dataState.data ?? []
+        data.removeAll { $0.id == entryId }
+
+        try await repository.save(entry)
+        let codes = try repository.generateCodes(entries: [entry])
+        guard let code = codes.first else {
+            throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
+                                                         entryCount: 1))
+        }
+        let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
+        data.append(entryUI)
+        dataState = .loaded(data)
+    }
 
     func updateEntries() async throws {
         let uiModels = try await updateEntries(for: .now)
@@ -146,6 +142,17 @@ private extension EntryDataService {
         dataState = .loaded(data)
     }
 
+    func createEntry(with params: EntryParamsParameter) throws -> Entry {
+        let entry = if let totpParams = params as? TotpParams {
+            try repository.createTotpEntry(params: totpParams)
+        } else if let steamParams = params as? SteamParams {
+            try repository.createSteamEntry(params: steamParams)
+        } else {
+            throw AuthError.entry(.wrongTypeOfEntryParams)
+        }
+        return entry
+    }
+
     func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
@@ -163,10 +170,6 @@ private extension EntryDataService {
 
         return results
     }
-
-//    func refreshEntries(entries: [EntryUiModel]) {
-//        dataState = .loaded(entries)
-//    }
 
     nonisolated func updateEntries(for date: Date) async throws -> [EntryUiModel] {
         guard let entries = await dataState.data?.map(\.entry) else {

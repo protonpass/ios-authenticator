@@ -69,8 +69,8 @@ final class CreateEditEntryViewModel {
         }
         Task {
             do {
-                if entry != nil {
-                    return
+                if let entry {
+                    try await entryDataService.updateAndRefreshEntry(for: entry.id, with: params)
                 } else {
                     try await entryDataService.insertAndRefreshEntry(from: params)
                 }
