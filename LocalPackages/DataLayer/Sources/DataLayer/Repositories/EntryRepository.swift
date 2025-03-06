@@ -44,6 +44,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
+    func update(_ entry: Entry) async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -158,6 +159,16 @@ public extension EntryRepository {
 
     func removeAll() async throws {
         try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
+    }
+
+    func update(_ entry: Entry) async throws {
+        guard let entity = try await persistentStorage
+            .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
+            return
+        }
+        let encryptedData = try encryptionService.encrypt(model: entry)
+        entity.updateEncryptedData(encryptedData)
+        try await persistentStorage.save(data: entity)
     }
 }
 

@@ -86,20 +86,14 @@ public extension EntryDataService {
     }
 
     func updateAndRefreshEntry(for entryId: String, with params: EntryParamsParameter) async throws {
-        let entry = try createEntry(with: params)
-        try await repository.remove(entryId)
+        var entry = try createEntry(with: params)
+        entry.id = entryId
+        try await repository.update(entry)
 
         var data: [EntryUiModel] = dataState.data ?? []
-        data.removeAll { $0.id == entryId }
-
-        try await repository.save(entry)
-        let codes = try repository.generateCodes(entries: [entry])
-        guard let code = codes.first else {
-            throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
-                                                         entryCount: 1))
+        if let index = data.firstIndex(where: { $0.id == entryId }) {
+            data[index] = data[index].copy(newEntry: entry)
         }
-        let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
-        data.append(entryUI)
         dataState = .loaded(data)
     }
 

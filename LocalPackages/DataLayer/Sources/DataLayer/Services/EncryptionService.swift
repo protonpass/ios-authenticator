@@ -32,19 +32,35 @@ public protocol EncryptionServicing: Sendable {
     func encrypt(models: [Entry]) throws -> [Data]
 }
 
+public protocol KeychainAccessProtocol: Sendable, AnyObject {
+    func getData(_ key: String, ignoringAttributeSynchronizable: Bool) throws -> Data?
+
+    subscript(key: String) -> String? { get set }
+    subscript(string key: String) -> String? { get set }
+    subscript(data key: String) -> Data? { get set }
+}
+
+public extension KeychainAccessProtocol {
+    func getData(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> Data? {
+        try getData(key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
+    }
+}
+
+extension Keychain: @unchecked @retroactive Sendable, KeychainAccessProtocol {}
+
 public final class EncryptionService: EncryptionServicing {
-    private let keychain: Keychain
+    private let keychain: KeychainAccessProtocol
     private let authenticatorCrypto: AuthenticatorCrypto
     private let key = "encryptionKey"
 
     public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
-                keychain: Keychain = Keychain(service: AppConstants.service,
-                                              accessGroup: AppConstants.keychainGroup)
+                keychain: KeychainAccessProtocol = Keychain(service: AppConstants.service,
+                                                            accessGroup: AppConstants.keychainGroup)
                     .synchronizable(true)) {
         self.keychain = keychain
         self.authenticatorCrypto = authenticatorCrypto
         if keychain[data: key] == nil {
-            keychain[data: key] = authenticatorCrypto.generateKey()
+            self.keychain[data: key] = authenticatorCrypto.generateKey()
         }
     }
 

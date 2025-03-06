@@ -30,4 +30,8 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.id = id
         self.encryptedData = encryptedData
     }
+
+    func updateEncryptedData(_ encryptedData: Data) {
+        self.encryptedData = encryptedData
+    }
 }

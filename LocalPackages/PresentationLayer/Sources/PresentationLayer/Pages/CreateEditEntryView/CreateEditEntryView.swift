@@ -23,9 +23,15 @@ import Models
 import SwiftUI
 
 struct CreateEditEntryView: View {
+    enum FocusableField: Hashable, CaseIterable {
+        case name, secret, issuer
+    }
+
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions: Bool = false
+
+    @FocusState private var focusedField: FocusableField?
 
     init(entry: EntryUiModel?) {
         _viewModel = .init(wrappedValue: CreateEditEntryViewModel(entry: entry))
@@ -38,14 +44,21 @@ struct CreateEditEntryView: View {
                     TextField("Name *", text: $viewModel.name)
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.white)
+                        .focused($focusedField, equals: .name)
+                        .autocorrectionDisabled(true)
+                        .submitLabel(.next)
 
                     SecureField("Secret key *", text: $viewModel.secret)
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.white)
-                    if viewModel.type != .steam {
+                        .autocorrectionDisabled(true)
+                        .focused($focusedField, equals: .secret)
+
+                    if viewModel.type == .totp {
                         TextField("Issuer", text: $viewModel.issuer)
                             .font(.system(.body, design: .rounded))
                             .foregroundStyle(.white)
+                            .focused($focusedField, equals: .issuer)
                     }
                 } header: {
                     Text("Base information")
@@ -99,6 +112,8 @@ struct CreateEditEntryView: View {
             .animation(.default, value: showAdvanceOptions)
             .animation(.default, value: viewModel.canSave)
             .background(.backgroundGradient)
+            .onAppear(perform: focusFirstField)
+            .onSubmit(focusNextField)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -125,6 +140,27 @@ struct CreateEditEntryView: View {
         #else
         return .automatic
         #endif
+    }
+
+    private func focusFirstField() {
+        focusedField = FocusableField.allCases.first
+    }
+
+    private func focusNextField() {
+        switch focusedField {
+        case .name:
+            focusedField = .secret
+        case .secret:
+            if viewModel.type == .totp {
+                focusedField = .issuer
+            } else {
+                focusedField = nil
+            }
+        case .issuer:
+            focusedField = nil
+        case .none:
+            break
+        }
     }
 }
 

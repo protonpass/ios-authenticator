@@ -81,6 +81,16 @@
         }
       }
     },
+    "Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authenticator"
+          }
+        }
+      }
+    },
     "Backup" : {
       "localizations" : {
         "en" : {

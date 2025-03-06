@@ -44,6 +44,7 @@ public struct EntriesView: View {
         NavigationStack {
             mainContainer
                 .background(.backgroundGradient)
+                .navigationTitle("Authenticator")
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
                 .task {
@@ -141,7 +142,7 @@ private extension EntriesView {
         #endif
             .background(.backgroundGradient)
             .animation(.default, value: isTextFieldFocused)
-            .animation(.default, value: viewModel.entries)
+//            .animation(.default, value: viewModel.entries)
             .onTapGesture {
                 isTextFieldFocused = false
             }
