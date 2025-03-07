@@ -120,7 +120,7 @@ struct EntryRepositoryTests {
     func serializingAndDeserializingEntries() throws {
         let entry = Entry(id: "id",
                         name: "Test",
-                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                        uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
                         type: .totp,
                         note: "Note")
@@ -170,13 +170,13 @@ struct EntryRepositoryTests {
         #expect(entry.name == "Totp")
         #expect(entry.type == .totp)
         #expect(entry.period == 40)
+        #expect(entry.uri == "otpauth://totp/Totp?secret=aaaa&issuer=Proton&algorithm=SHA1&digits=7&period=40")
     }
-    
     @Test("Test getting Totp params from entry")
     func gettingTotpParamsFromEntry() throws {
         let entry = Entry(id: "id",
                         name: "Test",
-                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                        uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
                         type: .totp,
                         note: "Note")
@@ -197,7 +197,7 @@ struct EntryRepositoryTests {
     func savingAnEntry() async throws {
         let entry = Entry(id: "id",
                         name: "Test",
-                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                        uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
                         type: .totp,
                         note: "Note")
