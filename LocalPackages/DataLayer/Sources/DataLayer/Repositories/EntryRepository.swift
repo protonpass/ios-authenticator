@@ -120,9 +120,10 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllEntries() async throws -> [Entry] {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
-
-        return try encryptedEntries.map { encryptedEntry in
-            var entry = try encryptionService.decrypt(entry: encryptedEntry.encryptedData)
+        return try encryptedEntries.compactMap { encryptedEntry in
+            guard var entry = try encryptionService.decrypt(entry: encryptedEntry) else {
+                return nil
+            }
             entry.id = encryptedEntry.id
             return entry
         }
@@ -166,15 +167,15 @@ public extension EntryRepository {
             .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
             return
         }
-        let encryptedData = try encryptionService.encrypt(model: entry)
-        entity.updateEncryptedData(encryptedData)
+        let encryptedData = try encryptionService.encrypt(entry: entry)
+        entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
         try await persistentStorage.save(data: entity)
     }
 }
 
 private extension EntryRepository {
     func encrypt(_ entry: Entry) throws -> EncryptedEntryEntity {
-        let encryptedData = try encryptionService.encrypt(model: entry)
-        return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData)
+        let encryptedData = try encryptionService.encrypt(entry: entry)
+        return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData, keyId: encryptionService.keyId)
     }
 }

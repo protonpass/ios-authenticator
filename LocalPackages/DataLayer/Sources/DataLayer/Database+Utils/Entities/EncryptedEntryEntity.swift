@@ -25,13 +25,16 @@ import SwiftData
 public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
     public private(set) var id: String = UUID().uuidString
     public private(set) var encryptedData = Data()
+    public private(set) var keyId: String = ""
 
-    public init(id: String, encryptedData: Data) {
+    public init(id: String, encryptedData: Data, keyId: String) {
         self.id = id
         self.encryptedData = encryptedData
+        self.keyId = keyId
     }
 
-    func updateEncryptedData(_ encryptedData: Data) {
+    func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
         self.encryptedData = encryptedData
+        self.keyId = keyId
     }
 }

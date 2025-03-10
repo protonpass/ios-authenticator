@@ -36,6 +36,9 @@ public final class MockKeychain: KeychainAccessProtocol, @unchecked Sendable {
     public func getData(_ key: String, ignoringAttributeSynchronizable: Bool) throws -> Data? {
         return storage[key] as? Data
     }
+    
+    public func remove(_ key: String, ignoringAttributeSynchronizable: Bool) throws {
+    }
 
     // MARK: - Subscripts
 
@@ -66,13 +69,33 @@ public final class MockKeychain: KeychainAccessProtocol, @unchecked Sendable {
         }
     }
 }
+
+final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
+    
+    // Dictionary to store key-value pairs
+    private var storage: [String: Any] = [:]
+    
+    func store(keyId: String, data: Data) {
+        storage[keyId] = data
+    }
+    
+    func clear(keyId: String) {
+        storage[keyId] = nil
+    }
+    
+    func retrieve(keyId: String) -> Data? {
+        storage[keyId] as? Data
+    }
+
+}
+
 struct EntryRepositoryTests {
     let sut: EntryRepositoryProtocol
 
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
-        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keychain: MockKeychain()))
+        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: EncryptionKeyStoreMock()))
     }
     
     @Test("Test generating entry for uri")

@@ -24,6 +24,7 @@ import Factory
 import SimplyPersist
 import SwiftData
 
+// swiftlint:disable line_length
 final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
     static let shared = ToolsContainer()
     let manager = ContainerManager()
@@ -37,11 +38,27 @@ extension ToolsContainer {
     var persistenceService: Factory<any PersistenceServicing> {
         self {
             do {
-                return try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
-                                                                       isStoredInMemoryOnly: false))
+                let schema = Schema([EncryptedEntryEntity.self])
+                return try PersistenceService(with: ModelConfiguration(schema: schema,
+                                                                       isStoredInMemoryOnly: false,
+                                                                       cloudKitDatabase: .private("iCloud.me.proton.authenticator")))
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
         }
     }
+
+    var logService: Factory<any LoggerProtocol> {
+        self {
+            LogService()
+        }
+    }
+
+    var encryptionKeyStore: Factory<any EncryptionKeyStoring> {
+        self {
+            EncryptionKeyStore(logger: self.logService())
+        }
+    }
 }
+
+// swiftlint:enable line_length
