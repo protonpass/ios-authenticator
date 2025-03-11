@@ -82,4 +82,43 @@ public final class LogService: LoggerProtocol {
             return []
         }
     }
+
+    public func fetch(since date: Date, predicateFormat: String) async throws -> [String] {
+        let store = try OSLogStore(scope: .currentProcessIdentifier)
+        let position = store.position(date: date)
+        let predicate = NSPredicate(format: predicateFormat)
+        let entries = try store.getEntries(at: position,
+                                           matching: predicate)
+
+        var logs: [String] = []
+        for entry in entries {
+            try Task.checkCancellation()
+            if let log = entry as? OSLogEntryLog {
+                logs.append("""
+                \(entry.date):\(log.subsystem):\
+                \(log.category):\(log.level.description): \
+                \(entry.composedMessage)\n
+                """)
+            } else {
+                logs.append("\(entry.date): \(entry.composedMessage)\n")
+            }
+        }
+
+        if logs.isEmpty { logs = ["Nothing found"] }
+        return logs
+    }
+}
+
+private extension OSLogEntryLog.Level {
+    var description: String {
+        switch self {
+        case .undefined: "undefined"
+        case .debug: "debug"
+        case .info: "info"
+        case .notice: "notice"
+        case .error: "error"
+        case .fault: "fault"
+        @unknown default: "default"
+        }
+    }
 }

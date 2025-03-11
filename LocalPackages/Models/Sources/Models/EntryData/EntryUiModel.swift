@@ -56,6 +56,10 @@ public extension EntryUiModel {
         progress = .init(value: remaining / Double(entry.period), countdown: Int(remaining))
 //        self.order = order
     }
+
+    func updateProgress(date: Date = .now) -> EntryUiModel {
+        EntryUiModel(entry: entry, code: code, date: date)
+    }
 }
 
 public struct ProgressUiModel: Sendable, Equatable, Hashable {

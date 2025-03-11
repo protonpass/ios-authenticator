@@ -52,47 +52,29 @@ public extension KeychainAccessProtocol {
 
 extension Keychain: @unchecked @retroactive Sendable, KeychainAccessProtocol {}
 
+// swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
-//    private let keychain: KeychainAccessProtocol
     private let authenticatorCrypto: AuthenticatorCrypto
     private let keyStore: EncryptionKeyStoring
     public let keyId = "encryptionKey-\(DeviceIdentifier.current)"
     private let logger: LoggerProtocol?
 
     public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
-//                keychain: KeychainAccessProtocol = Keychain(service: AppConstants.service,
-//                                                            accessGroup: AppConstants.keychainGroup)
-//                    .synchronizable(true)
                 keyStore: EncryptionKeyStoring,
                 logger: LoggerProtocol? = nil) {
-//        self.keychain = keychain
         self.keyStore = keyStore
         self.logger = logger
         self.authenticatorCrypto = authenticatorCrypto
-        print("woot keyId \(keyId)")
-//        try? keychain.remove(keyId, ignoringAttributeSynchronizable: true)
-//        if let storedKey = try? keychain.getData(keyId, ignoringAttributeSynchronizable: false) {
-//            print("Woot key: \(keychain[data: keyId])")
-//        } else {
-//            try? (self.keychain as? Keychain)?.set(authenticatorCrypto.generateKey(),
-//                                                   key: keyId,
-//                                                   ignoringAttributeSynchronizable: false)
-//            // [data: key] = authenticatorCrypto.generateKey()
-//            print("Woot new key")
-//        }
     }
 
     private var localEncryptionKey: Data {
-        if let key = keyStore.retrieve(keyId: keyId)
-        /*  try keychain.getData(keyId, ignoringAttributeSynchronizable: false)*/ {
+        if let key = keyStore.retrieve(keyId: keyId) {
             return key
         }
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Generating a new local encryption key")
         let newKey = authenticatorCrypto.generateKey()
         keyStore.store(keyId: keyId, data: newKey)
-//            try (keychain as? Keychain)?.set(newKey, key: keyId, ignoringAttributeSynchronizable: false)
-//
-//            keychain[data: key] = newKey
+
         return newKey
     }
 
@@ -101,7 +83,6 @@ public final class EncryptionService: EncryptionServicing {
         let key = keyStore.retrieve(keyId: keyId)
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Retrieved key: \(String(describing: key))")
         return key
-//        try keychain.getData(keyId, ignoringAttributeSynchronizable: false)
     }
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> Entry? {
@@ -146,3 +127,4 @@ public final class EncryptionService: EncryptionServicing {
                                                           key: localKey)
     }
 }
+// swiftlint:enable line_length

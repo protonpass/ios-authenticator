@@ -111,11 +111,13 @@ public extension EntryDataService {
 
 private extension EntryDataService {
     func loadEntries() {
-        guard task == nil else { return }
+        task?.cancel()
         task = Task { [weak self] in
             guard let self else { return }
             do {
+                if Task.isCancelled { return }
                 let entries = try await repository.getAllEntries()
+                if Task.isCancelled { return }
                 dataState = try await .loaded(generateUIEntries(from: entries))
             } catch {
                 dataState = .failed(error)
@@ -166,21 +168,28 @@ private extension EntryDataService {
     }
 
     nonisolated func updateEntries(for date: Date) async throws -> [EntryUiModel] {
-        guard let entries = await dataState.data?.map(\.entry) else {
+        guard let uiEntries: [EntryUiModel] = await dataState.data else {
             return []
         }
-        let codes = try repository.generateCodes(entries: entries)
-        guard codes.count == entries.count else {
-            throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
-                                                         entryCount: entries.count))
-        }
-        var results = [EntryUiModel]()
-        for (index, code) in codes.enumerated() {
-            guard let entry = entries[safeIndex: index] else {
-                throw AuthError.entry(.missingEntryForGeneratedCode)
+
+        if uiEntries.contains(where: { $0.progress.countdown == 0 }) {
+            let entries = uiEntries.map(\.entry)
+
+            let codes = try repository.generateCodes(entries: entries)
+            guard codes.count == entries.count else {
+                throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
+                                                             entryCount: entries.count))
             }
-            results.append(.init(entry: entry, code: code, date: date))
+            var results = [EntryUiModel]()
+            for (index, code) in codes.enumerated() {
+                guard let entry = entries[safeIndex: index] else {
+                    throw AuthError.entry(.missingEntryForGeneratedCode)
+                }
+                results.append(.init(entry: entry, code: code, date: date))
+            }
+            return results
+        } else {
+            return uiEntries.map { $0.updateProgress() }
         }
-        return results
     }
 }

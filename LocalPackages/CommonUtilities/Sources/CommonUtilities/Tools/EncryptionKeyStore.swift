@@ -21,9 +21,23 @@
 import Foundation
 
 public protocol EncryptionKeyStoring: Sendable {
-    func store(keyId: String, data: Data)
-    func clear(keyId: String)
-    func retrieve(keyId: String) -> Data?
+    func store(keyId: String, data: Data, shouldSync: Bool)
+    func clear(keyId: String, shouldSync: Bool)
+    func retrieve(keyId: String, shouldSync: Bool) -> Data?
+}
+
+public extension EncryptionKeyStoring {
+    func store(keyId: String, data: Data, shouldSync: Bool = true) {
+        store(keyId: keyId, data: data, shouldSync: shouldSync)
+    }
+
+    func clear(keyId: String, shouldSync: Bool = true) {
+        clear(keyId: keyId, shouldSync: shouldSync)
+    }
+
+    func retrieve(keyId: String, shouldSync: Bool = true) -> Data? {
+        retrieve(keyId: keyId, shouldSync: shouldSync)
+    }
 }
 
 public final class EncryptionKeyStore: EncryptionKeyStoring {
@@ -39,13 +53,13 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         self.logger = logger
     }
 
-    public func store(keyId: String, data: Data) {
+    public func store(keyId: String, data: Data, shouldSync: Bool = true) {
         let addQuery: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: keyId,
             kSecValueData: data,
             kSecAttrService: service,
-            kSecAttrSynchronizable: kCFBooleanTrue!,
+            kSecAttrSynchronizable: shouldSync,
             kSecAttrAccessGroup: accessGroup
         ]
         SecItemDelete(addQuery as CFDictionary)
@@ -57,25 +71,25 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         }
     }
 
-    public func clear(keyId: String) {
+    public func clear(keyId: String, shouldSync: Bool = true) {
         let addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword as String,
             kSecAttrAccount as String: keyId,
             kSecAttrService as String: service,
-            kSecAttrSynchronizable as String: kCFBooleanTrue!,
+            kSecAttrSynchronizable as String: shouldSync,
             kSecAttrAccessGroup as String: accessGroup
         ]
         SecItemDelete(addQuery as CFDictionary)
     }
 
-    public func retrieve(keyId: String) -> Data? {
+    public func retrieve(keyId: String, shouldSync: Bool = true) -> Data? {
         let getQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: keyId,
             kSecAttrService as String: service,
             kSecReturnData as String: kCFBooleanTrue!,
             kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecAttrSynchronizable as String: kCFBooleanTrue!,
+            kSecAttrSynchronizable as String: shouldSync,
             kSecAttrAccessGroup as String: accessGroup
         ]
 
@@ -93,6 +107,23 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         }
 
         return data
+    }
+
+    func clearAll(shouldSync: Bool = true) {
+        let secItemClasses = [
+            kSecClassGenericPassword,
+            kSecClassInternetPassword,
+            kSecClassCertificate,
+            kSecClassKey,
+            kSecClassIdentity
+        ]
+        for secItemClass in secItemClasses {
+            let query: NSDictionary = [
+                kSecClass as String: secItemClass,
+                kSecAttrSynchronizable as String: shouldSync
+            ]
+            SecItemDelete(query)
+        }
     }
 }
 
