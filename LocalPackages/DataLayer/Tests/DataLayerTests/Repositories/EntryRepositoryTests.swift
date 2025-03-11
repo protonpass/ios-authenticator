@@ -32,15 +32,15 @@ final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     // Dictionary to store key-value pairs
     private var storage: [String: Any] = [:]
     
-    func store(keyId: String, data: Data) {
+    func store(keyId: String, data: Data, shouldSync: Bool = false) {
         storage[keyId] = data
     }
     
-    func clear(keyId: String) {
+    func clear(keyId: String, shouldSync: Bool = false) {
         storage[keyId] = nil
     }
     
-    func retrieve(keyId: String) -> Data? {
+    func retrieve(keyId: String, shouldSync: Bool = false) -> Data? {
         storage[keyId] as? Data
     }
 
