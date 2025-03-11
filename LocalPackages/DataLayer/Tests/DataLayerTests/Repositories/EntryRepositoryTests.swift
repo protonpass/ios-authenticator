@@ -27,49 +27,6 @@ import SwiftData
 @preconcurrency import KeychainAccess
 @testable import DataLayer
 
-public final class MockKeychain: KeychainAccessProtocol, @unchecked Sendable {
-    // Dictionary to store key-value pairs
-    private var storage: [String: Any] = [:]
-
-    // MARK: - KeychainAccessProtocol
-
-    public func getData(_ key: String, ignoringAttributeSynchronizable: Bool) throws -> Data? {
-        return storage[key] as? Data
-    }
-    
-    public func remove(_ key: String, ignoringAttributeSynchronizable: Bool) throws {
-    }
-
-    // MARK: - Subscripts
-
-    public subscript(key: String) -> String? {
-        get {
-            return storage[key] as? String
-        }
-        set {
-            storage[key] = newValue
-        }
-    }
-
-    public subscript(string key: String) -> String? {
-        get {
-            return storage[key] as? String
-        }
-        set {
-            storage[key] = newValue
-        }
-    }
-
-    public subscript(data key: String) -> Data? {
-        get {
-            return storage[key] as? Data
-        }
-        set {
-            storage[key] = newValue
-        }
-    }
-}
-
 final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     
     // Dictionary to store key-value pairs

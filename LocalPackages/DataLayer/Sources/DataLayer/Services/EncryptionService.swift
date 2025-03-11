@@ -35,35 +35,22 @@ public protocol EncryptionServicing: Sendable {
     func encrypt(entries: [Entry]) throws -> [Data]
 }
 
-public protocol KeychainAccessProtocol: Sendable, AnyObject {
-    func getData(_ key: String, ignoringAttributeSynchronizable: Bool) throws -> Data?
-    func remove(_ key: String, ignoringAttributeSynchronizable: Bool) throws
-
-    subscript(key: String) -> String? { get set }
-    subscript(string key: String) -> String? { get set }
-    subscript(data key: String) -> Data? { get set }
-}
-
-public extension KeychainAccessProtocol {
-    func getData(_ key: String, ignoringAttributeSynchronizable: Bool = false) throws -> Data? {
-        try getData(key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
-    }
-}
-
-extension Keychain: @unchecked @retroactive Sendable, KeychainAccessProtocol {}
-
 // swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
+    public let keyId: String
     private let authenticatorCrypto: AuthenticatorCrypto
     private let keyStore: EncryptionKeyStoring
-    public let keyId = "encryptionKey-\(DeviceIdentifier.current)"
     private let logger: LoggerProtocol?
+    private let deviceIdentifier: String
 
     public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
                 keyStore: EncryptionKeyStoring,
+                deviceIdentifier: String = DeviceIdentifier.current,
                 logger: LoggerProtocol? = nil) {
         self.keyStore = keyStore
         self.logger = logger
+        self.deviceIdentifier = deviceIdentifier
+        keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
     }
 
@@ -127,4 +114,5 @@ public final class EncryptionService: EncryptionServicing {
                                                           key: localKey)
     }
 }
+
 // swiftlint:enable line_length

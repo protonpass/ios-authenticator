@@ -21,11 +21,7 @@
 import Foundation
 import Security
 
-public protocol DeviceIdentifiable {
-    static var current: String { get }
-}
-
-public enum DeviceIdentifier: DeviceIdentifiable {
+public enum DeviceIdentifier {
     /// Key used to store the device identifier in the keychain
     private static let keychainKey = "me.proton.uniqueDeviceIdentifier"
 

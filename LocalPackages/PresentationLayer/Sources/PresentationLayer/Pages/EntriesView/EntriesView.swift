@@ -142,9 +142,12 @@ private extension EntriesView {
         #endif
             .background(.backgroundGradient)
             .animation(.default, value: isTextFieldFocused)
-//            .animation(.default, value: viewModel.entries)
             .onTapGesture {
                 isTextFieldFocused = false
+            }
+            .padding(.bottom, 60)
+            .refreshable {
+                viewModel.refreshTokens()
             }
     }
 
@@ -156,6 +159,9 @@ private extension EntriesView {
                 }
             }
             .padding()
+        }
+        .refreshable {
+            viewModel.refreshTokens()
         }
     }
 
