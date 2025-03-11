@@ -39,12 +39,17 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - CRUD
 
     func getAllEntries() async throws -> [Entry]
-    func save(_ entry: Entry) async throws
     func save(_ entries: [Entry]) async throws
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
     func update(_ entry: Entry) async throws
+}
+
+public extension EntryRepositoryProtocol {
+    func save(_ entry: Entry) async throws {
+        try await save([entry])
+    }
 }
 
 public extension EntryRepositoryProtocol {
