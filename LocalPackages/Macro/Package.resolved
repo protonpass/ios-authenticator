@@ -1,6 +1,15 @@
 {
-  "originHash" : "a813d59f222897415377206f79f082562ee994625548d4304b68a199dfe8c970",
+  "originHash" : "1ca16ab9f969b00092de0234b691042f705a502a6d8620835486e7f37d66bf46",
   "pins" : [
+    {
+      "identity" : "docscanner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lukacs-m/DocScanner",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e1a1216ae4f9e38793ab2dbe21035fd46749a8c3"
+      }
+    },
     {
       "identity" : "factory",
       "kind" : "remoteSourceControl",
@@ -26,6 +35,15 @@
       "state" : {
         "revision" : "0c34e4da899a1dd9183db04082d1ceb6e9c2b301",
         "version" : "8.44.0"
+      }
+    },
+    {
+      "identity" : "simplypersist",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lukacs-m/SimplyPersist",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ef2acb4054bdfd982ceb1b74e1752b01cf066332"
       }
     },
     {

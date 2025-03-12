@@ -24,9 +24,11 @@ import Security
 public enum DeviceIdentifier {
     /// Key used to store the device identifier in the keychain
     private static let keychainKey = "me.proton.uniqueDeviceIdentifier"
+}
 
+public extension DeviceIdentifier {
     /// Retrieves the device identifier from the keychain or creates a new one if it doesn't exist
-    public static var current: String {
+    static var current: String {
         // Try to retrieve existing identifier
         if let existingIdentifier = retrieveFromKeychain() {
             return existingIdentifier
@@ -40,7 +42,7 @@ public enum DeviceIdentifier {
 
     /// Resets the device identifier (creates a new one)
     @discardableResult
-    public static func reset() -> String {
+    static func reset() -> String {
         // Delete the existing identifier
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
@@ -54,11 +56,14 @@ public enum DeviceIdentifier {
         storeInKeychain(identifier: newIdentifier)
         return newIdentifier
     }
+}
 
+private extension DeviceIdentifier {
     /// Stores the device identifier in the keychain
     @discardableResult
-    private static func storeInKeychain(identifier: String) -> Bool {
+    static func storeInKeychain(identifier: String) -> Bool {
         guard let data = identifier.data(using: .utf8) else {
+            assertionFailure("Failed to encode identifier")
             return false
         }
 
@@ -75,11 +80,13 @@ public enum DeviceIdentifier {
 
         // Add the new item
         let status = SecItemAdd(query as CFDictionary, nil)
-        return status == errSecSuccess
+        let isSuccessful = status == errSecSuccess
+        assert(isSuccessful, "Failed to store identifier in keychain")
+        return isSuccessful
     }
 
     /// Retrieves the device identifier from the keychain
-    private static func retrieveFromKeychain() -> String? {
+    static func retrieveFromKeychain() -> String? {
         // Set up keychain query
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,

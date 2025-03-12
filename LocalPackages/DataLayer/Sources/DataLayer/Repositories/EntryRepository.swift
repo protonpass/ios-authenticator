@@ -93,13 +93,11 @@ public extension EntryRepository {
     }
 
     func createSteamEntry(params: SteamParams) throws -> Entry {
-        try rustClient
-            .newSteamEntryFromParams(params: params.toAuthenticatorEntrySteamCreateParameters).toEntry
+        try rustClient.newSteamEntryFromParams(params: params.toRustParams).toEntry
     }
 
     func createTotpEntry(params: TotpParams) throws -> Entry {
-        try rustClient.newTotpEntryFromParams(params: params.toAuthenticatorEntryTotpCreateParameters)
-            .toEntry
+        try rustClient.newTotpEntryFromParams(params: params.toRustParams).toEntry
     }
 
     func serialize(entries: [Entry]) throws -> [Data] {

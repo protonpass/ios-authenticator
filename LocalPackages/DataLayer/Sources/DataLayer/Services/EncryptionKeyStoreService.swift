@@ -75,7 +75,7 @@ public extension EncryptionKeyStoreService {
         let status: OSStatus = SecItemAdd(addQuery as CFDictionary, nil)
         guard status == errSecSuccess else {
             logger?.dataLogger
-                .warning("\(type(of: self)) - \(#function) - Failed to store encryption key: \(status.toError.description)")
+                .warning("\(type(of: self)) - \(#function) - Failed to store encryption key: \(status.toStatus.description)")
             return
         }
     }
@@ -106,7 +106,7 @@ public extension EncryptionKeyStoreService {
         let status = SecItemCopyMatching(getQuery as CFDictionary, &item)
         guard status == errSecSuccess else {
             logger?.dataLogger
-                .warning("\(type(of: self)) - \(#function) - Failed retrieve data linked to keyId \(keyId): \(status.toError.description)")
+                .warning("\(type(of: self)) - \(#function) - Failed retrieve data linked to keyId \(keyId): \(status.toStatus.description)")
             return nil
         }
 
@@ -136,14 +136,13 @@ public extension EncryptionKeyStoreService {
     }
 }
 
-extension OSStatus {
-    var toError: Status {
-        let error = Status(status: self)
-        return error
+private extension OSStatus {
+    var toStatus: Status {
+        Status(status: self)
     }
 }
 
-enum Status: OSStatus, Error {
+private enum Status: OSStatus, Error {
     case success = 0
     case unimplemented = -4
     case diskFull = -34

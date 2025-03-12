@@ -79,7 +79,7 @@ public final class EncryptionService: EncryptionServicing {
         return newKey
     }
 
-    private func getEncryptionKey(for keyId: String) throws -> Data? {
+    private func getEncryptionKey(for keyId: String) -> Data? {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Fetching encryption key for \(keyId)")
         let key = keyStore.retrieve(keyId: keyId)
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Retrieved key: \(String(describing: key))")
@@ -88,27 +88,25 @@ public final class EncryptionService: EncryptionServicing {
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entry with id \(entry.id)")
-        guard let encryptionKey = try getEncryptionKey(for: entry.keyId) else {
+        guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
             logger?.dataLogger
                 .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
         let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-            .toEntry
-        return .decrypted(entry)
+        return .decrypted(entry.toEntry)
     }
 
     public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entries")
         return try entries.map { entry in
-            guard let encryptionKey = try getEncryptionKey(for: entry.keyId) else {
+            guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
                 logger?.dataLogger
                     .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
             }
             let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-                .toEntry
-            return .decrypted(entry)
+            return .decrypted(entry.toEntry)
         }
     }
 

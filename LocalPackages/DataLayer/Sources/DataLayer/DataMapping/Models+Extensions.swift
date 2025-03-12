@@ -84,14 +84,13 @@ extension AuthenticatorCodeResponse {
 }
 
 extension SteamParams {
-    // swiftlint:disable:next identifier_name
-    var toAuthenticatorEntrySteamCreateParameters: AuthenticatorEntrySteamCreateParameters {
+    var toRustParams: AuthenticatorEntrySteamCreateParameters {
         AuthenticatorEntrySteamCreateParameters(name: name, secret: secret, note: note)
     }
 }
 
 extension TotpParams {
-    var toAuthenticatorEntryTotpCreateParameters: AuthenticatorEntryTotpCreateParameters {
+    var toRustParams: AuthenticatorEntryTotpCreateParameters {
         let period: UInt16? = if let period {
             UInt16(period)
         } else {
