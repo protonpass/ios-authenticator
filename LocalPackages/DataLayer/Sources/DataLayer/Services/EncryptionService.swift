@@ -23,7 +23,6 @@ import CommonUtilities
 import CryptoKit
 import DeviceCheck
 import Foundation
-@preconcurrency import KeychainAccess
 import Models
 
 public enum EntryState: Sendable {

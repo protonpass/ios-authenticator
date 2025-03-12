@@ -81,25 +81,25 @@ public extension EncryptionKeyStoreService {
     }
 
     func clear(keyId: String, shouldSync: Bool) {
-        let addQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword as String,
-            kSecAttrAccount as String: keyId,
-            kSecAttrService as String: service,
-            kSecAttrSynchronizable as String: shouldSync,
-            kSecAttrAccessGroup as String: accessGroup
+        let addQuery: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: keyId,
+            kSecAttrService: service,
+            kSecAttrSynchronizable: shouldSync,
+            kSecAttrAccessGroup: accessGroup
         ]
         SecItemDelete(addQuery as CFDictionary)
     }
 
     func retrieve(keyId: String, shouldSync: Bool) -> Data? {
-        let getQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: keyId,
-            kSecAttrService as String: service,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecAttrSynchronizable as String: shouldSync,
-            kSecAttrAccessGroup as String: accessGroup
+        let getQuery: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: keyId,
+            kSecAttrService: service,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitOne,
+            kSecAttrSynchronizable: shouldSync,
+            kSecAttrAccessGroup: accessGroup
         ]
 
         var item: CFTypeRef?
@@ -128,8 +128,8 @@ public extension EncryptionKeyStoreService {
         ]
         for secItemClass in secItemClasses {
             let query: NSDictionary = [
-                kSecClass as String: secItemClass,
-                kSecAttrSynchronizable as String: shouldSync
+                kSecClass: secItemClass,
+                kSecAttrSynchronizable: shouldSync
             ]
             SecItemDelete(query)
         }

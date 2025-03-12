@@ -24,7 +24,6 @@ import CommonUtilities
 import Testing
 import Models
 import SwiftData
-@preconcurrency import KeychainAccess
 @testable import DataLayer
 
 final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
