@@ -20,7 +20,6 @@
 //
 
 import Combine
-import CommonUtilities
 import Factory
 import Foundation
 import Models
@@ -28,6 +27,10 @@ import Models
 @Observable
 @MainActor
 final class EntriesViewModel {
+    var entries: [EntryUiModel] {
+        (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
+    }
+
     var dataState: DataState<[EntryUiModel]> {
         qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
     }
@@ -36,10 +39,6 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     private var pauseRefreshing = false
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.settingsService)
-    private var settingsService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService)
@@ -52,10 +51,6 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
-
-    @ObservationIgnored
-    @LazyInjected(\UseCaseContainer.generateEntryUiModels)
-    private var generateEntryUiModels
 
     @ObservationIgnored
     private var cancellable: (any Cancellable)?
@@ -97,7 +92,7 @@ extension EntriesViewModel {
                 if qaService.showMockEntries {
                     await qaService.mockedEntries()
                 } else {
-                    _ = try await generateEntryUiModels()
+                    try await entryDataService.updateEntries()
                 }
             } catch {
                 handle(error)
@@ -115,6 +110,16 @@ extension EntriesViewModel {
         pauseRefreshing = shouldPause
         if !pauseRefreshing {
             refreshTokens()
+        }
+    }
+
+    func delete(_ entry: EntryUiModel) {
+        Task {
+            do {
+                try await entryDataService.delete(entry)
+            } catch {
+                handle(error)
+            }
         }
     }
 }

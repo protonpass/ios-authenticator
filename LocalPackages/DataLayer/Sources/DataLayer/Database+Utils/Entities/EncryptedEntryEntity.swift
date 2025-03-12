@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// EncryptedEntryEntity.swift
+// Proton Authenticator - Created on 04/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,19 +18,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import Factory
+import Foundation
+import SwiftData
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
+@Model
+public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
+    public private(set) var id: String = UUID().uuidString
+    public private(set) var encryptedData = Data()
+    public private(set) var keyId: String = ""
 
-    func autoRegister() {
-        manager.defaultScope = .singleton
+    public init(id: String, encryptedData: Data, keyId: String) {
+        self.id = id
+        self.encryptedData = encryptedData
+        self.keyId = keyId
     }
 
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
-                               encryptionService: ServiceContainer.shared.encryptionService()) }
+    func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
+        self.encryptedData = encryptedData
+        self.keyId = keyId
     }
 }

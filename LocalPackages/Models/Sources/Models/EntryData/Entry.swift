@@ -18,10 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CoreTransferable
 import Foundation
 
 public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
-    public let id: String
+    public var id: String
     public let name: String
     public let uri: String
     public let period: Int

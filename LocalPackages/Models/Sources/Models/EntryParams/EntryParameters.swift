@@ -1,6 +1,6 @@
 //
-// RepositoryContainer.swift
-// Proton Authenticator - Created on 11/02/2025.
+// EntryParameters.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,19 +18,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
-import Factory
+import Foundation
 
-final class RepositoryContainer: SharedContainer, AutoRegistering {
-    static let shared = RepositoryContainer()
-    let manager = ContainerManager()
-
-    func autoRegister() {
-        manager.defaultScope = .singleton
-    }
-
-    var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
-                               encryptionService: ServiceContainer.shared.encryptionService()) }
-    }
+public enum EntryParameters {
+    case totp(TotpParams)
+    case steam(SteamParams)
 }

@@ -22,7 +22,6 @@
 
 #if os(iOS)
 import Combine
-import DataLayer
 import DocScanner
 import Factory
 import Foundation
@@ -114,7 +113,7 @@ private extension ScannerViewModel {
 
     func generateEntry(from barcodePayload: String) async {
         do {
-            try await entryDataService.generateEntry(from: barcodePayload)
+            try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
         } catch {
             handleError(error)

@@ -20,7 +20,9 @@
 
 import Foundation
 
-public enum TotpType: Sendable, Codable {
+public enum TotpType: String, Sendable, Codable, Equatable, Hashable, Identifiable, CaseIterable {
     case totp
     case steam
+
+    public var id: Self { self }
 }

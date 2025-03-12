@@ -21,57 +21,112 @@
 @_exported import AuthenticatorRustCore
 import CommonUtilities
 import CryptoKit
+import DeviceCheck
 import Foundation
-@preconcurrency import KeychainAccess
 import Models
 
-public protocol EncryptionServicing: Sendable {
-    func decrypt(entry: Data) throws -> Entry
-    func decryptMany(entries: [Data]) throws -> [Entry]
-    func encrypt(model: Entry) throws -> Data
-    func encrypt(models: [Entry]) throws -> [Data]
+public enum EntryState: Sendable {
+    case decrypted(Entry)
+    case nonDecryptable
+
+    public var entry: Entry? {
+        switch self {
+        case let .decrypted(entry):
+            entry
+        default:
+            nil
+        }
+    }
 }
 
+public protocol EncryptionServicing: Sendable {
+    var keyId: String { get }
+
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
+    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState]
+    func encrypt(entry: Entry) throws -> Data
+    func encrypt(entries: [Entry]) throws -> [Data]
+}
+
+// swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
-    private let keychain: Keychain
+    public let keyId: String
     private let authenticatorCrypto: AuthenticatorCrypto
-    private let key = "encryptionKey"
+    private let keyStore: EncryptionKeyStoring
+    private let logger: LoggerProtocol?
+    private let deviceIdentifier: String
 
     public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
-                keychain: Keychain = Keychain(service: AppConstants.service,
-                                              accessGroup: AppConstants.keychainGroup)
-                    .synchronizable(true)) {
-        self.keychain = keychain
+                keyStore: EncryptionKeyStoring,
+                deviceIdentifier: String = DeviceIdentifier.current,
+                logger: LoggerProtocol? = nil) {
+        self.keyStore = keyStore
+        self.logger = logger
+        self.deviceIdentifier = deviceIdentifier
+        keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
-        if keychain[data: key] == nil {
-            keychain[data: key] = authenticatorCrypto.generateKey()
-        }
     }
 
-    private var encryptionKey: Data {
-        get throws {
-            if let key = try keychain.getData(key) {
-                return key
+    private var localEncryptionKey: Data {
+        if let key = keyStore.retrieve(keyId: keyId) {
+            return key
+        }
+        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Generating a new local encryption key")
+        let newKey = authenticatorCrypto.generateKey()
+        keyStore.store(keyId: keyId, data: newKey)
+
+        return newKey
+    }
+
+    private func getEncryptionKey(for keyId: String) -> Data? {
+        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Fetching encryption key for \(keyId)")
+        let key = keyStore.retrieve(keyId: keyId)
+        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Retrieved key: \(String(describing: key))")
+        return key
+    }
+
+    public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
+        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entry with id \(entry.id)")
+        guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
+            logger?.dataLogger
+                .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
+            return .nonDecryptable
+        }
+        let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+        return .decrypted(entry.toEntry)
+    }
+
+    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entries")
+        return try entries.map { entry in
+            guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
+                logger?.dataLogger
+                    .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
+                return .nonDecryptable
             }
-            let newKey = authenticatorCrypto.generateKey()
-            keychain[data: key] = newKey
-            return newKey
+            let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+            return .decrypted(entry.toEntry)
         }
     }
 
-    public func decrypt(entry: Data) throws -> Entry {
-        try authenticatorCrypto.decryptEntry(ciphertext: entry, key: encryptionKey).toEntry
+    public func encrypt(entry: Entry) throws -> Data {
+        let localKey = localEncryptionKey
+        logger?.dataLogger
+            .notice("\(type(of: self)) - \(#function) - Encrypting entry \(entry.name) with local encryption key \(localKey)")
+
+        return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
+                                                    key: localKey)
     }
 
-    public func decryptMany(entries: [Data]) throws -> [Entry] {
-        try authenticatorCrypto.decryptManyEntries(ciphertexts: entries, key: encryptionKey).toEntries
-    }
+    public func encrypt(entries: [Entry]) throws -> [Data] {
+        let localKey = localEncryptionKey
 
-    public func encrypt(model: Entry) throws -> Data {
-        try authenticatorCrypto.encryptEntry(model: model.toAuthenticatorEntryModel, key: encryptionKey)
-    }
+        logger?.dataLogger
+            .notice("\(type(of: self)) - \(#function) - Encrypting \(entries.count) entries with local encryption key \(localKey)")
 
-    public func encrypt(models: [Entry]) throws -> [Data] {
-        try authenticatorCrypto.encryptManyEntries(models: models.toAuthenticatorEntries, key: encryptionKey)
+        return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
+                                                          key: localKey)
     }
 }
+
+// swiftlint:enable line_length

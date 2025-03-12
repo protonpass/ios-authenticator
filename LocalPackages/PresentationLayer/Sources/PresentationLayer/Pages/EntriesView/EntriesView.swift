@@ -44,6 +44,7 @@ public struct EntriesView: View {
         NavigationStack {
             mainContainer
                 .background(.backgroundGradient)
+                .navigationTitle("Authenticator")
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
                 .task {
@@ -129,7 +130,7 @@ private extension EntriesView {
 private extension EntriesView {
     var list: some View {
         List {
-            ForEach(viewModel.dataState.data ?? []) { entry in
+            ForEach(viewModel.entries) { entry in
                 cell(for: entry)
             }
             .padding(.horizontal)
@@ -144,6 +145,10 @@ private extension EntriesView {
             .onTapGesture {
                 isTextFieldFocused = false
             }
+            .padding(.bottom, 60)
+            .refreshable {
+                viewModel.refreshTokens()
+            }
     }
 
     var grid: some View {
@@ -155,6 +160,9 @@ private extension EntriesView {
             }
             .padding()
         }
+        .refreshable {
+            viewModel.refreshTokens()
+        }
     }
 
     func cell(for entry: EntryUiModel) -> some View {
@@ -163,14 +171,18 @@ private extension EntriesView {
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .swipeActions {
-                Button {
-                    router.presentedSheet = .createEditEntry(entry.entry)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
+                if entry.entry.type == .totp {
+                    Button {
+                        router.presentedSheet = .createEditEntry(entry)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    .tint(.yellow)
                 }
-                .tint(.yellow)
 
-                Button {} label: {
+                Button {
+                    viewModel.delete(entry)
+                } label: {
                     Label("Delete", systemImage: "trash.fill")
                 }
                 .tint(.red)

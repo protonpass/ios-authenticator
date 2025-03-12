@@ -64,7 +64,7 @@ struct ImportingServiceTests {
             try sut.importEntries(from: .twofas(contents: MockImporterData.encrypted2fas, password: nil))
         }
         
-        #expect(throws: ImportingServiceError.contentIsEmpty) {
+        #expect(throws: AuthError.importing(.contentIsEmpty)) {
             try sut.importEntries(from: .twofas(contents: "", password: nil))
         }
     }
@@ -118,7 +118,7 @@ struct ImportingServiceTests {
 //            try sut.importEntries(from: .aegis(contents: MockImporterData.encryptedAegisJson, password: nil))
 //        }
 //        
-        #expect(throws: ImportingServiceError.contentIsEmpty) {
+        #expect(throws: AuthError.importing(.contentIsEmpty)) {
             try sut.importEntries(from: .aegis(contents: "", password: nil))
         }
     }

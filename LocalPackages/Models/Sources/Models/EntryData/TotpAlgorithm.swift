@@ -20,8 +20,10 @@
 
 import Foundation
 
-public enum TotpAlgorithm: Sendable, Equatable {
+public enum TotpAlgorithm: String, Sendable, Equatable, Hashable, Identifiable, CaseIterable {
     case sha1
     case sha256
     case sha512
+
+    public var id: Self { self }
 }

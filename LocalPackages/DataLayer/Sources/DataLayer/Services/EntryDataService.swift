@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Combine
+import CoreData
 import Foundation
 import Models
 
@@ -25,8 +27,11 @@ import Models
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
 
-    func generateEntry(from payload: String) async throws
-    func refreshEntries(entries: [EntryUiModel])
+    func insertAndRefreshEntry(from payload: String) async throws
+    func insertAndRefreshEntry(from params: EntryParameters) async throws
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
+    func updateEntries() async throws
+    func delete(_ entry: EntryUiModel) async throws
 }
 
 @MainActor
@@ -36,8 +41,12 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
 
+    @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
+    @ObservationIgnored
     private var task: Task<Void, Never>?
+    @ObservationIgnored
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -47,16 +56,78 @@ public final class EntryDataService: EntryDataServiceProtocol {
     }
 
     private func setUp() {
-        guard task == nil else { return }
-        task = Task {}
+        loadEntries()
+
+        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                guard let self,
+                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
+                      event.endDate != nil, event.type == .import else { return }
+                loadEntries()
+            }
+            .store(in: &cancellables)
+    }
+}
+
+public extension EntryDataService {
+    func insertAndRefreshEntry(from uri: String) async throws {
+        let entry = try await repository.entry(for: uri)
+        try await save(entry)
     }
 
-    public func generateEntry(from payload: String) async throws {
-        let entry = try await repository.entry(for: payload)
+    func insertAndRefreshEntry(from params: EntryParameters) async throws {
+        let entry = try createEntry(with: params)
+        try await save(entry)
+    }
+
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws {
+        var entry = try createEntry(with: params)
+        entry.id = entryId
+        try await repository.update(entry)
+
+        var data: [EntryUiModel] = dataState.data ?? []
+        if let index = data.firstIndex(where: { $0.id == entryId }) {
+            data[index] = data[index].copy(newEntry: entry)
+        }
+        dataState = .loaded(data)
+    }
+
+    func updateEntries() async throws {
+        let uiModels = try await updateEntries(for: .now)
+        dataState = .loaded(uiModels)
+    }
+
+    func delete(_ entry: EntryUiModel) async throws {
+        try await repository.remove(entry.entry)
+        let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
+        dataState = .loaded(data ?? [])
+    }
+}
+
+private extension EntryDataService {
+    func loadEntries() {
+        task?.cancel()
+        task = Task { [weak self] in
+            guard let self else { return }
+            do {
+                if Task.isCancelled { return }
+                let entriesStates = try await repository.getAllEntries()
+                if Task.isCancelled { return }
+                dataState = try await .loaded(generateUIEntries(from: entriesStates.decodedEntries))
+            } catch {
+                dataState = .failed(error)
+            }
+        }
+    }
+
+    func save(_ entry: Entry) async throws {
+        try await repository.save(entry)
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
-            throw AuthenticatorError.missingGeneratedCodes(codeCount: codes.count,
-                                                           entryCount: 1)
+            throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: 1))
         }
         let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
         var data: [EntryUiModel] = dataState.data ?? []
@@ -64,7 +135,62 @@ public final class EntryDataService: EntryDataServiceProtocol {
         dataState = .loaded(data)
     }
 
-    public func refreshEntries(entries: [EntryUiModel]) {
-        dataState = .loaded(entries)
+    func createEntry(with params: EntryParameters) throws -> Entry {
+        switch params {
+        case let .steam(params):
+            try repository.createSteamEntry(params: params)
+        case let .totp(params):
+            try repository.createTotpEntry(params: params)
+        }
+    }
+
+    func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
+        let codes = try repository.generateCodes(entries: entries)
+        guard codes.count == entries.count else {
+            throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: entries.count))
+        }
+
+        var results = [EntryUiModel]()
+        for (index, code) in codes.enumerated() {
+            guard let entry = entries[safeIndex: index] else {
+                throw AuthError.generic(.missingEntryForGeneratedCode)
+            }
+            results.append(.init(entry: entry, code: code, date: .now))
+        }
+
+        return results
+    }
+
+    nonisolated func updateEntries(for date: Date) async throws -> [EntryUiModel] {
+        guard let uiEntries: [EntryUiModel] = await dataState.data else {
+            return []
+        }
+
+        if uiEntries.contains(where: { $0.progress.countdown == 0 }) {
+            let entries = uiEntries.map(\.entry)
+
+            let codes = try repository.generateCodes(entries: entries)
+            guard codes.count == entries.count else {
+                throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                               entryCount: entries.count))
+            }
+            var results = [EntryUiModel]()
+            for (index, code) in codes.enumerated() {
+                guard let entry = entries[safeIndex: index] else {
+                    throw AuthError.generic(.missingEntryForGeneratedCode)
+                }
+                results.append(.init(entry: entry, code: code, date: date))
+            }
+            return results
+        } else {
+            return uiEntries.map { $0.updateProgress() }
+        }
+    }
+}
+
+public extension [EntryState] {
+    var decodedEntries: [Entry] {
+        compactMap(\.entry)
     }
 }

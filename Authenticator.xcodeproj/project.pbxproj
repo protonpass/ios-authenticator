@@ -19,6 +19,7 @@
 		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
 		5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765752D527F9C00B4CC30 /* PresentationLayer */; };
+		5BF607E12D79FDB900904FC8 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF607E02D79FDB900904FC8 /* CloudKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		5B87656B2D527F8700B4CC30 /* DomainLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DomainLayer; path = LocalPackages/DomainLayer; sourceTree = "<group>"; };
 		5B87656C2D527F8700B4CC30 /* Models */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Models; path = LocalPackages/Models; sourceTree = "<group>"; };
 		5B87656D2D527F8700B4CC30 /* PresentationLayer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PresentationLayer; path = LocalPackages/PresentationLayer; sourceTree = "<group>"; };
+		5BF607E02D79FDB900904FC8 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -145,6 +147,7 @@
 				5B5E0F7A2D6F6D5A00E7BCD4 /* CommonUtilities in Frameworks */,
 				5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */,
 				5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */,
+				5BF607E12D79FDB900904FC8 /* CloudKit.framework in Frameworks */,
 				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
 				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
 				5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */,
@@ -202,6 +205,7 @@
 		5B87656E2D527F9C00B4CC30 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5BF607E02D79FDB900904FC8 /* CloudKit.framework */,
 				5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */,
 			);
 			name = Frameworks;

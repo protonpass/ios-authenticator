@@ -28,7 +28,7 @@ enum RouterDestination: Hashable {
 public enum SheetDestination: Hashable, Identifiable {
     public var id: Int { hashValue }
 
-    case createEditEntry(Entry?)
+    case createEditEntry(EntryUiModel?)
     case settings
     #if os(iOS)
     case qrCodeScanner

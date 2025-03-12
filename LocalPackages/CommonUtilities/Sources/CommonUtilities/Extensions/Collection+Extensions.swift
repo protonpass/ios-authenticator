@@ -1,6 +1,6 @@
 //
-// ImportingServiceError.swift
-// Proton Authenticator - Created on 27/02/2025.
+// Collection+Extensions.swift
+// Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,16 +20,8 @@
 
 import Foundation
 
-public enum ImportingServiceError: Sendable, Error, CustomDebugStringConvertible {
-    case wrongFormat
-    case contentIsEmpty
-
-    public var debugDescription: String {
-        switch self {
-        case .wrongFormat:
-            "Is not the correct file format"
-        case .contentIsEmpty:
-            "No entries detected to import"
-        }
+public extension Collection {
+    var nilIfEmpty: Self? {
+        isEmpty ? nil : self
     }
 }

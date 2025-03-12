@@ -1,5 +1,5 @@
 //
-// AuthenticatorError.swift
+// GenericEntryFailureReason.swift
 // Proton Authenticator - Created on 18/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,9 +20,10 @@
 
 import Foundation
 
-public enum AuthenticatorError: Sendable, Error, CustomDebugStringConvertible {
+public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case missingGeneratedCodes(codeCount: Int, entryCount: Int)
     case missingEntryForGeneratedCode
+    case wrongTypeOfEntryParams
 
     public var debugDescription: String {
         switch self {
@@ -30,6 +31,8 @@ public enum AuthenticatorError: Sendable, Error, CustomDebugStringConvertible {
             "Missing generated codes: \(codeCount) instead of \(entryCount)"
         case .missingEntryForGeneratedCode:
             "Missing entry for generated code"
+        case .wrongTypeOfEntryParams:
+            "Wrong type of entry params"
         }
     }
 }

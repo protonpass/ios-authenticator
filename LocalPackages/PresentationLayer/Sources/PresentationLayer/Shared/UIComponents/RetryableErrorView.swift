@@ -21,38 +21,38 @@
 import Macro
 import SwiftUI
 
-public struct RetryableErrorView: View {
+struct RetryableErrorView: View {
     let mode: Mode
     let tintColor: Color
     let error: any Error
     let onRetry: () -> Void
 
-    public enum Mode: Sendable {
+    enum Mode: Sendable {
         /// Full-page error view, error message displayed  with retry button below
         case vertical(textColor: Color)
         /// Inlined error view, error message displayed with retry button on the right
         case horizontal(textColor: Color)
 
-        public static var defaultVertical: Mode {
+        static var defaultVertical: Mode {
             .vertical(textColor: .textNorm)
         }
 
-        public static var defaultHorizontal: Mode {
+        static var defaultHorizontal: Mode {
             .horizontal(textColor: .textNorm)
         }
     }
 
-    public init(mode: Mode = .defaultVertical,
-                tintColor: Color,
-                error: any Error,
-                onRetry: @escaping () -> Void) {
+    init(mode: Mode = .defaultVertical,
+         tintColor: Color,
+         error: any Error,
+         onRetry: @escaping () -> Void) {
         self.mode = mode
         self.tintColor = tintColor
         self.error = error
         self.onRetry = onRetry
     }
 
-    public var body: some View {
+    var body: some View {
         switch mode {
         case let .vertical(textColor):
             VStack {

@@ -20,7 +20,9 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import CoreTransferable
+import Models
 import PhotosUI
 import SwiftUI
 
@@ -39,7 +41,7 @@ public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {
 
     public func execute(imageSelection: PhotosPickerItem) async throws -> String {
         guard let image = try await imageSelection.loadTransferable(type: QRCodeImage.self) else {
-            throw ParseImageError.errorProcessingImage
+            throw AuthError.imageParsing(.errorProcessingImage)
         }
         return try parseImageForCode(image: image)
     }
@@ -51,12 +53,12 @@ public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {
                                         options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]),
               let features = detector.features(in: ciImage) as? [CIQRCodeFeature]
         else {
-            throw ParseImageError.failedDetectingQRCode
+            throw AuthError.imageParsing(.failedDetectingQRCode)
         }
         let qrCodeContent = features.compactMap(\.messageString).joined()
 
         guard !qrCodeContent.isEmpty else {
-            throw ParseImageError.qrCodeEmpty
+            throw AuthError.imageParsing(.qrCodeEmpty)
         }
 
         return qrCodeContent
@@ -76,37 +78,17 @@ private struct QRCodeImage: Transferable {
         DataRepresentation(importedContentType: .image) { data in
             #if canImport(AppKit)
             guard let nsImage = NSImage(data: data) else {
-                throw ParseImageError.importFailed
+                throw AuthError.imageParsing(.importFailed)
             }
             return QRCodeImage(image: nsImage)
             #elseif canImport(UIKit)
             guard let uiImage = UIImage(data: data) else {
-                throw ParseImageError.importFailed
+                throw AuthError.imageParsing(.importFailed)
             }
             return QRCodeImage(image: uiImage)
             #else
-            throw ParseImageError.importFailed
+            throw AuthError.imageParsing(.importFailed)
             #endif
-        }
-    }
-}
-
-enum ParseImageError: Error, CustomDebugStringConvertible {
-    case errorProcessingImage
-    case importFailed
-    case failedDetectingQRCode
-    case qrCodeEmpty
-
-    var debugDescription: String {
-        switch self {
-        case .errorProcessingImage:
-            "Error processing image"
-        case .importFailed:
-            "Error importing image"
-        case .failedDetectingQRCode:
-            "Error detecting QR code"
-        case .qrCodeEmpty:
-            "Empty QR code"
         }
     }
 }
