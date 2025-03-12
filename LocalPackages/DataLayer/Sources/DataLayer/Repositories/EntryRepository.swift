@@ -80,7 +80,7 @@ public extension EntryRepository {
     }
 
     func export(entries: [Entry]) throws -> String {
-        try rustClient.exportEntries(entries: entries.toAuthenticatorEntries)
+        try rustClient.exportEntries(entries: entries.toRustEntries)
     }
 
     func deserialize(serializedData: [Data]) throws -> [Entry] {
@@ -88,8 +88,7 @@ public extension EntryRepository {
     }
 
     func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code] {
-        try rustClient.generateCodes(entries: entries.toAuthenticatorEntries, time: UInt64(time))
-            .toCodes
+        try rustClient.generateCodes(entries: entries.toRustEntries, time: UInt64(time)).toCodes
     }
 
     func createSteamEntry(params: SteamParams) throws -> Entry {
@@ -101,11 +100,11 @@ public extension EntryRepository {
     }
 
     func serialize(entries: [Entry]) throws -> [Data] {
-        try rustClient.serializeEntries(entries: entries.toAuthenticatorEntries)
+        try rustClient.serializeEntries(entries: entries.toRustEntries)
     }
 
     func getTotpParams(entry: Entry) throws -> TotpParams {
-        let params = try rustClient.getTotpParams(entry: entry.toAuthenticatorEntryModel)
+        let params = try rustClient.getTotpParams(entry: entry.toRustEntry)
 
         return TotpParams(name: entry.name,
                           secret: params.secret,
@@ -132,11 +131,6 @@ public extension EntryRepository {
                 return entryState
             }
         }
-    }
-
-    func save(_ entry: Entry) async throws {
-        let entity = try encrypt(entry)
-        try await persistentStorage.save(data: entity)
     }
 
     func save(_ entries: [Entry]) async throws {

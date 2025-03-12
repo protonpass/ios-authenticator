@@ -25,7 +25,6 @@ let package = Package(
         .package(name: "Models", path: "../Models"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", .upToNextMajor(from: "4.2.0")),
         .package(url: "https://github.com/lukacs-m/SimplyPersist", branch: "main"),
     ],
     targets: [
@@ -35,7 +34,6 @@ let package = Package(
             name: "DataLayer",
             dependencies: [
                 .product(name: "Models", package: "Models"),
-                .product(name: "KeychainAccess", package: "KeychainAccess"),
                 .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
                 .product(name: "SimplyPersist", package: "SimplyPersist"),

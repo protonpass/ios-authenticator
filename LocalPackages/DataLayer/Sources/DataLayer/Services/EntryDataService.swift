@@ -61,12 +61,9 @@ public final class EntryDataService: EntryDataServiceProtocol {
         NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
+                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
                 guard let self,
-                      let event = notification
-                      .userInfo?[
-                          NSPersistentCloudKitContainer
-                              .eventNotificationUserInfoKey
-                      ] as? NSPersistentCloudKitContainer.Event,
+                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
                       event.endDate != nil, event.type == .import else { return }
                 loadEntries()
             }

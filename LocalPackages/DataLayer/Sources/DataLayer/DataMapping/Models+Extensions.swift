@@ -45,13 +45,13 @@ extension AuthenticatorEntryType {
 }
 
 extension [Entry] {
-    var toAuthenticatorEntries: [AuthenticatorEntryModel] {
-        map(\.toAuthenticatorEntryModel)
+    var toRustEntries: [AuthenticatorEntryModel] {
+        map(\.toRustEntry)
     }
 }
 
 extension Entry {
-    var toAuthenticatorEntryModel: AuthenticatorEntryModel {
+    var toRustEntry: AuthenticatorEntryModel {
         AuthenticatorEntryModel(name: name,
                                 uri: uri,
                                 period: UInt16(period),

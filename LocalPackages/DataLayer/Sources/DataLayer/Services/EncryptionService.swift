@@ -114,7 +114,7 @@ public final class EncryptionService: EncryptionServicing {
         logger?.dataLogger
             .notice("\(type(of: self)) - \(#function) - Encrypting entry \(entry.name) with local encryption key \(localKey)")
 
-        return try authenticatorCrypto.encryptEntry(model: entry.toAuthenticatorEntryModel,
+        return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: localKey)
     }
 
@@ -124,7 +124,7 @@ public final class EncryptionService: EncryptionServicing {
         logger?.dataLogger
             .notice("\(type(of: self)) - \(#function) - Encrypting \(entries.count) entries with local encryption key \(localKey)")
 
-        return try authenticatorCrypto.encryptManyEntries(models: entries.toAuthenticatorEntries,
+        return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
     }
 }
