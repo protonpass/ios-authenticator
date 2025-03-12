@@ -81,7 +81,10 @@ private extension DeviceIdentifier {
         // Add the new item
         let status = SecItemAdd(query as CFDictionary, nil)
         let isSuccessful = status == errSecSuccess
+        #if !targetEnvironment(simulator)
         assert(isSuccessful, "Failed to store identifier in keychain")
+        #endif
+
         return isSuccessful
     }
 

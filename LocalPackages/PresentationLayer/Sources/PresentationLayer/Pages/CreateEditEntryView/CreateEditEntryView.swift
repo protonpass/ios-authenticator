@@ -24,9 +24,10 @@ import SwiftUI
 
 private struct TextFieldConfig {
     let title: LocalizedStringKey
-    let textFieldTitle: LocalizedStringKey
+    let placeholder: LocalizedStringKey
+    let binding: Binding<String>
     let focusField: FocusableField
-    let isSecure: Bool
+    var isSecure = false
 }
 
 private enum FocusableField: Hashable, CaseIterable {
@@ -36,7 +37,7 @@ private enum FocusableField: Hashable, CaseIterable {
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CreateEditEntryViewModel
-    @State private var showAdvanceOptions: Bool = false
+    @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
 
     init(entry: EntryUiModel?) {
@@ -47,23 +48,21 @@ struct CreateEditEntryView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 8) {
-                    textField(config: TextFieldConfig(title: "Title (Required)",
-                                                      textFieldTitle: "Title",
-                                                      focusField: .name,
-                                                      isSecure: false),
-                              textBinding: $viewModel.name)
-                    textField(config: TextFieldConfig(title: "Secret (Required)",
-                                                      textFieldTitle: "Secret",
-                                                      focusField: .secret,
-                                                      isSecure: true),
-                              textBinding: $viewModel.secret)
+                    textField(TextFieldConfig(title: "Title (Required)",
+                                              placeholder: "Title",
+                                              binding: $viewModel.name,
+                                              focusField: .name))
+                    textField(TextFieldConfig(title: "Secret (Required)",
+                                              placeholder: "Secret",
+                                              binding: $viewModel.secret,
+                                              focusField: .secret,
+                                              isSecure: true))
 
                     if viewModel.type == .totp {
-                        textField(config: TextFieldConfig(title: "Issuer (Required)",
-                                                          textFieldTitle: "Issuer",
-                                                          focusField: .issuer,
-                                                          isSecure: false),
-                                  textBinding: $viewModel.issuer)
+                        textField(TextFieldConfig(title: "Issuer (Required)",
+                                                  placeholder: "Issuer",
+                                                  binding: $viewModel.issuer,
+                                                  focusField: .issuer))
                     }
                 }
 
@@ -129,26 +128,24 @@ struct CreateEditEntryView: View {
                 }
             }
             #if os(iOS)
-            .toolbarBackground(.backgroundGradient,
-                               for: .navigationBar)
+            .toolbarBackground(.backgroundGradient, for: .navigationBar)
             #endif
         }
     }
 
-    @ViewBuilder
-    private func textField(config: TextFieldConfig, textBinding: Binding<String>) -> some View {
+    private func textField(_ config: TextFieldConfig) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title)
                 .font(.caption)
                 .foregroundStyle(.white)
             if config.isSecure {
-                SecureField(config.textFieldTitle, text: textBinding)
+                SecureField(config.placeholder, text: config.binding)
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(.white)
                     .autocorrectionDisabled(true)
                     .focused($focusedField, equals: .secret)
             } else {
-                TextField(config.textFieldTitle, text: textBinding)
+                TextField(config.placeholder, text: config.binding)
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(.white)
                     .focused($focusedField, equals: config.focusField)
