@@ -31,8 +31,9 @@ public protocol LoggerProtocol: Sendable {
     var systemLogger: Logger { get }
     var networkLogger: Logger { get }
     var dataLogger: Logger { get }
-    var exportLogSinceLastBooted: [String] { get }
-    var exportLastDayLogs: [String] { get }
+
+    func exportLogSinceLastBooted() -> [String]
+    func exportLastDayLogs() -> [String]
 }
 
 public final class LogService: LoggerProtocol {
@@ -51,7 +52,7 @@ public final class LogService: LoggerProtocol {
         dataLogger = Logger(subsystem: subsystem, category: LogCategory.data.rawValue)
     }
 
-    public var exportLogSinceLastBooted: [String] {
+    public func exportLogSinceLastBooted() -> [String] {
         do {
             let store = try OSLogStore(scope: .currentProcessIdentifier)
             let position = store.position(timeIntervalSinceLatestBoot: 1)
@@ -66,7 +67,7 @@ public final class LogService: LoggerProtocol {
         }
     }
 
-    public var exportLastDayLogs: [String] {
+    public func exportLastDayLogs() -> [String] {
         do {
             let store = try OSLogStore(scope: .currentProcessIdentifier)
             let date = Date.now.addingTimeInterval(-24 * 3_600)
@@ -104,7 +105,7 @@ public final class LogService: LoggerProtocol {
             }
         }
 
-        if logs.isEmpty { logs = ["Nothing found"] }
+        if logs.isEmpty { logs = [] }
         return logs
     }
 }

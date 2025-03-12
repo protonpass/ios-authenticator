@@ -28,8 +28,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
 
     func insertAndRefreshEntry(from payload: String) async throws
-    func insertAndRefreshEntry(from params: EntryParamsParameter) async throws
-    func updateAndRefreshEntry(for entryId: String, with params: EntryParamsParameter) async throws
+    func insertAndRefreshEntry(from params: EntryParameters) async throws
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
 }
@@ -80,12 +80,12 @@ public extension EntryDataService {
         try await save(entry)
     }
 
-    func insertAndRefreshEntry(from params: EntryParamsParameter) async throws {
+    func insertAndRefreshEntry(from params: EntryParameters) async throws {
         let entry = try createEntry(with: params)
         try await save(entry)
     }
 
-    func updateAndRefreshEntry(for entryId: String, with params: EntryParamsParameter) async throws {
+    func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws {
         var entry = try createEntry(with: params)
         entry.id = entryId
         try await repository.update(entry)
@@ -116,9 +116,9 @@ private extension EntryDataService {
             guard let self else { return }
             do {
                 if Task.isCancelled { return }
-                let entries = try await repository.getAllEntries()
+                let entriesStates = try await repository.getAllEntries()
                 if Task.isCancelled { return }
-                dataState = try await .loaded(generateUIEntries(from: entries))
+                dataState = try await .loaded(generateUIEntries(from: entriesStates.decodedEntries))
             } catch {
                 dataState = .failed(error)
             }
@@ -129,8 +129,8 @@ private extension EntryDataService {
         try await repository.save(entry)
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
-            throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
-                                                         entryCount: 1))
+            throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: 1))
         }
         let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
         var data: [EntryUiModel] = dataState.data ?? []
@@ -138,28 +138,26 @@ private extension EntryDataService {
         dataState = .loaded(data)
     }
 
-    func createEntry(with params: EntryParamsParameter) throws -> Entry {
-        let entry = if let totpParams = params as? TotpParams {
-            try repository.createTotpEntry(params: totpParams)
-        } else if let steamParams = params as? SteamParams {
-            try repository.createSteamEntry(params: steamParams)
-        } else {
-            throw AuthError.entry(.wrongTypeOfEntryParams)
+    func createEntry(with params: EntryParameters) throws -> Entry {
+        switch params {
+        case let .steam(params):
+            try repository.createSteamEntry(params: params)
+        case let .totp(params):
+            try repository.createTotpEntry(params: params)
         }
-        return entry
     }
 
     func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
         let codes = try repository.generateCodes(entries: entries)
         guard codes.count == entries.count else {
-            throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
-                                                         entryCount: entries.count))
+            throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                           entryCount: entries.count))
         }
 
         var results = [EntryUiModel]()
         for (index, code) in codes.enumerated() {
             guard let entry = entries[safeIndex: index] else {
-                throw AuthError.entry(.missingEntryForGeneratedCode)
+                throw AuthError.generic(.missingEntryForGeneratedCode)
             }
             results.append(.init(entry: entry, code: code, date: .now))
         }
@@ -177,13 +175,13 @@ private extension EntryDataService {
 
             let codes = try repository.generateCodes(entries: entries)
             guard codes.count == entries.count else {
-                throw AuthError.entry(.missingGeneratedCodes(codeCount: codes.count,
-                                                             entryCount: entries.count))
+                throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
+                                                               entryCount: entries.count))
             }
             var results = [EntryUiModel]()
             for (index, code) in codes.enumerated() {
                 guard let entry = entries[safeIndex: index] else {
-                    throw AuthError.entry(.missingEntryForGeneratedCode)
+                    throw AuthError.generic(.missingEntryForGeneratedCode)
                 }
                 results.append(.init(entry: entry, code: code, date: date))
             }
@@ -191,5 +189,11 @@ private extension EntryDataService {
         } else {
             return uiEntries.map { $0.updateProgress() }
         }
+    }
+}
+
+public extension [EntryState] {
+    var decodedEntries: [Entry] {
+        compactMap(\.entry)
     }
 }

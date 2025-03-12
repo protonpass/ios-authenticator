@@ -54,9 +54,9 @@ extension ToolsContainer {
         }
     }
 
-    var encryptionKeyStore: Factory<any EncryptionKeyStoring> {
+    var encryptionKeyStoreService: Factory<any EncryptionKeyStoring> {
         self {
-            EncryptionKeyStore(logger: self.logService())
+            EncryptionKeyStoreService(logger: self.logService())
         }
     }
 }

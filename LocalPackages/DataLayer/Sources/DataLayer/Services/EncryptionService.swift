@@ -26,11 +26,25 @@ import Foundation
 @preconcurrency import KeychainAccess
 import Models
 
+public enum EntryState: Sendable {
+    case decrypted(Entry)
+    case nonDecryptable
+
+    public var entry: Entry? {
+        switch self {
+        case let .decrypted(entry):
+            entry
+        default:
+            nil
+        }
+    }
+}
+
 public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
 
-    func decrypt(entry: EncryptedEntryEntity) throws -> Entry?
-    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [Entry]
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
+    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState]
     func encrypt(entry: Entry) throws -> Data
     func encrypt(entries: [Entry]) throws -> [Data]
 }
@@ -72,26 +86,29 @@ public final class EncryptionService: EncryptionServicing {
         return key
     }
 
-    public func decrypt(entry: EncryptedEntryEntity) throws -> Entry? {
+    public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try getEncryptionKey(for: entry.keyId) else {
             logger?.dataLogger
                 .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
-            return nil
+            return .nonDecryptable
         }
-        return try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey).toEntry
+        let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+            .toEntry
+        return .decrypted(entry)
     }
 
-    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [Entry] {
+    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entries")
-        return try entries.compactMap { entry in
+        return try entries.map { entry in
             guard let encryptionKey = try getEncryptionKey(for: entry.keyId) else {
                 logger?.dataLogger
                     .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
-                return nil
+                return .nonDecryptable
             }
-            return try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+            let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
                 .toEntry
+            return .decrypted(entry)
         }
     }
 

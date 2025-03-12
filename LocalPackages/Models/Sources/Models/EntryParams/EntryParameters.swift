@@ -1,5 +1,5 @@
 //
-// EntryParamsParameter.swift
+// EntryParameters.swift
 // Proton Authenticator - Created on 05/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,4 +20,7 @@
 
 import Foundation
 
-public protocol EntryParamsParameter {}
+public enum EntryParameters {
+    case totp(TotpParams)
+    case steam(SteamParams)
+}

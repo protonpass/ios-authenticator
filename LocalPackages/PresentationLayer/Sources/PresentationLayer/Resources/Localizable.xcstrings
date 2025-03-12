@@ -11,42 +11,22 @@
         }
       }
     },
-    "Additional infos" : {
+    "Advanced options" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Additional infos"
+            "value" : "Advanced options"
           }
         }
       }
     },
-    "Advance options" : {
+    "ALGORITHM" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Advance options"
-          }
-        }
-      }
-    },
-    "Advanced entry settings" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Advanced entry settings"
-          }
-        }
-      }
-    },
-    "Algorithm" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Algorithm"
+            "value" : "ALGORITHM"
           }
         }
       }
@@ -101,16 +81,6 @@
         }
       }
     },
-    "Base information" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Base information"
-          }
-        }
-      }
-    },
     "Close" : {
       "localizations" : {
         "en" : {
@@ -147,6 +117,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Digits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digits"
           }
         }
       }
@@ -271,6 +251,16 @@
         }
       }
     },
+    "Issuer (Required)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (Required)"
+          }
+        }
+      }
+    },
     "Light" : {
       "localizations" : {
         "en" : {
@@ -321,12 +311,12 @@
         }
       }
     },
-    "Name *" : {
+    "New entry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Name *"
+            "value" : "New entry"
           }
         }
       }
@@ -361,26 +351,6 @@
         }
       }
     },
-    "Note" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Note"
-          }
-        }
-      }
-    },
-    "Number of digits: **%lld**" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Number of digits: **%lld**"
-          }
-        }
-      }
-    },
     "OK" : {
       "localizations" : {
         "en" : {
@@ -407,16 +377,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proton Authenticator will periodically save all the data to iCloud."
-          }
-        }
-      }
-    },
-    "Refresh time: **%llds**" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refresh time: **%llds**"
           }
         }
       }
@@ -461,12 +421,22 @@
         }
       }
     },
-    "Secret key *" : {
+    "Secret" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Secret key *"
+            "value" : "Secret"
+          }
+        }
+      }
+    },
+    "Secret (Required)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secret (Required)"
           }
         }
       }
@@ -531,22 +501,42 @@
         }
       }
     },
-    "Type" : {
+    "Time interval" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Type"
+            "value" : "Time interval"
           }
         }
       }
     },
-    "Type of entry" : {
+    "Title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Type of entry"
+            "value" : "Title"
+          }
+        }
+      }
+    },
+    "Title (Required)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title (Required)"
+          }
+        }
+      }
+    },
+    "TYPE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TYPE"
           }
         }
       }

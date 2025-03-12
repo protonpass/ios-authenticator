@@ -38,7 +38,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     // MARK: - CRUD
 
-    func getAllEntries() async throws -> [Entry]
+    func getAllEntries() async throws -> [EntryState]
     func save(_ entries: [Entry]) async throws
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
@@ -87,8 +87,7 @@ public extension EntryRepository {
         try rustClient.deserializeEntries(serialized: serializedData).toEntries
     }
 
-    func generateCodes(entries: [Entry],
-                       time: TimeInterval = Date().timeIntervalSince1970) throws -> [Code] {
+    func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code] {
         try rustClient.generateCodes(entries: entries.toAuthenticatorEntries, time: UInt64(time))
             .toCodes
     }
@@ -123,14 +122,17 @@ public extension EntryRepository {
 // MARK: - CRUD
 
 public extension EntryRepository {
-    func getAllEntries() async throws -> [Entry] {
+    func getAllEntries() async throws -> [EntryState] {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
-        return try encryptedEntries.compactMap { encryptedEntry in
-            guard var entry = try encryptionService.decrypt(entry: encryptedEntry) else {
-                return nil
+        return try encryptedEntries.map { encryptedEntry in
+            let entryState = try encryptionService.decrypt(entry: encryptedEntry)
+            switch entryState {
+            case var .decrypted(entry):
+                entry.id = encryptedEntry.id
+                return .decrypted(entry)
+            case .nonDecryptable:
+                return entryState
             }
-            entry.id = encryptedEntry.id
-            return entry
         }
     }
 

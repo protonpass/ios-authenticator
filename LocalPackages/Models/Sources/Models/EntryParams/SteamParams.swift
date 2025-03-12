@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct SteamParams: Sendable, EntryParamsParameter {
+public struct SteamParams: Sendable {
     public let name: String
     public let secret: String
     public let note: String?

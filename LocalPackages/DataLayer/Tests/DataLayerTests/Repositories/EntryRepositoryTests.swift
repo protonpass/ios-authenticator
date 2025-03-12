@@ -30,7 +30,7 @@ import SwiftData
 final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     
     // Dictionary to store key-value pairs
-    private var storage: [String: Any] = [:]
+    private var storage: [String: Data] = [:]
     
     func store(keyId: String, data: Data, shouldSync: Bool = false) {
         storage[keyId] = data
@@ -41,9 +41,12 @@ final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     }
     
     func retrieve(keyId: String, shouldSync: Bool = false) -> Data? {
-        storage[keyId] as? Data
+        storage[keyId]
     }
 
+    func clearAll(shouldSync: Bool = false) {
+        storage = [:]
+    }
 }
 
 struct EntryRepositoryTests {
@@ -184,7 +187,7 @@ struct EntryRepositoryTests {
        
         try await sut.save(entry)
         
-        var entries = try await sut.getAllEntries()
+        var entries = try await sut.getAllEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 1)
@@ -199,7 +202,7 @@ struct EntryRepositoryTests {
                         note: "Note")
        
         try await sut.save(entry2)
-        entries = try await sut.getAllEntries()
+        entries = try await sut.getAllEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 2)
@@ -342,7 +345,7 @@ struct EntryRepositoryTests {
 
         try await sut.update(newEntry1)
         
-        let fetchedEntries = try await sut.getAllEntries()
+        let fetchedEntries = try await sut.getAllEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.count == 3)

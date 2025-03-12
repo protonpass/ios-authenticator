@@ -25,7 +25,7 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
     case importing(ImportingFailureReason)
     case imageParsing(ImageParsingFailureReason)
     case encryption(EncryptionFailureReason)
-    case entry(GenericEntryFailureReason)
+    case generic(GenericEntryFailureReason)
 
     public var debugDescription: String {
         switch self {
@@ -35,7 +35,7 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
             reason.debugDescription
         case let .encryption(reason):
             reason.debugDescription
-        case let .entry(reason):
+        case let .generic(reason):
             reason.debugDescription
         }
     }

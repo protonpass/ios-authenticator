@@ -1,6 +1,6 @@
 //
-// EncryptionKeyStore.swift
-// Proton Authenticator - Created on 10/03/2025.
+// EncryptionKeyStoreService.swift
+// Proton Authenticator - Created on 11/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,12 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import Foundation
 
 public protocol EncryptionKeyStoring: Sendable {
     func store(keyId: String, data: Data, shouldSync: Bool)
     func clear(keyId: String, shouldSync: Bool)
     func retrieve(keyId: String, shouldSync: Bool) -> Data?
+    func clearAll(shouldSync: Bool)
 }
 
 public extension EncryptionKeyStoring {
@@ -38,9 +40,14 @@ public extension EncryptionKeyStoring {
     func retrieve(keyId: String, shouldSync: Bool = true) -> Data? {
         retrieve(keyId: keyId, shouldSync: shouldSync)
     }
+
+    func clearAll(shouldSync: Bool = true) {
+        clearAll(shouldSync: shouldSync)
+    }
 }
 
-public final class EncryptionKeyStore: EncryptionKeyStoring {
+// swiftlint:disable type_body_length line_length file_length
+public final class EncryptionKeyStoreService: EncryptionKeyStoring {
     private let service: String
     private let accessGroup: String
     private let logger: LoggerProtocol?
@@ -52,8 +59,10 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         self.accessGroup = accessGroup
         self.logger = logger
     }
+}
 
-    public func store(keyId: String, data: Data, shouldSync: Bool = true) {
+public extension EncryptionKeyStoreService {
+    func store(keyId: String, data: Data, shouldSync: Bool) {
         let addQuery: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: keyId,
@@ -71,7 +80,7 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         }
     }
 
-    public func clear(keyId: String, shouldSync: Bool = true) {
+    func clear(keyId: String, shouldSync: Bool) {
         let addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword as String,
             kSecAttrAccount as String: keyId,
@@ -82,12 +91,12 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         SecItemDelete(addQuery as CFDictionary)
     }
 
-    public func retrieve(keyId: String, shouldSync: Bool = true) -> Data? {
+    func retrieve(keyId: String, shouldSync: Bool) -> Data? {
         let getQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: keyId,
             kSecAttrService as String: service,
-            kSecReturnData as String: kCFBooleanTrue!,
+            kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
             kSecAttrSynchronizable as String: shouldSync,
             kSecAttrAccessGroup as String: accessGroup
@@ -109,7 +118,7 @@ public final class EncryptionKeyStore: EncryptionKeyStoring {
         return data
     }
 
-    func clearAll(shouldSync: Bool = true) {
+    func clearAll(shouldSync: Bool) {
         let secItemClasses = [
             kSecClassGenericPassword,
             kSecClassInternetPassword,
@@ -1360,3 +1369,5 @@ extension Status: RawRepresentable, CustomStringConvertible {
         }
     }
 }
+
+// swiftlint:enable type_body_length line_length file_length

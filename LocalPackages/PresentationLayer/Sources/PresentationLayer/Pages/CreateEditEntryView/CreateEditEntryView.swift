@@ -22,15 +22,21 @@
 import Models
 import SwiftUI
 
-struct CreateEditEntryView: View {
-    enum FocusableField: Hashable, CaseIterable {
-        case name, secret, issuer
-    }
+private struct TextFieldConfig {
+    let title: LocalizedStringKey
+    let textFieldTitle: LocalizedStringKey
+    let focusField: FocusableField
+    let isSecure: Bool
+}
 
+private enum FocusableField: Hashable, CaseIterable {
+    case name, secret, issuer
+}
+
+struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions: Bool = false
-
     @FocusState private var focusedField: FocusableField?
 
     init(entry: EntryUiModel?) {
@@ -39,92 +45,87 @@ struct CreateEditEntryView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Name *", text: $viewModel.name)
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.white)
-                        .focused($focusedField, equals: .name)
-                        .autocorrectionDisabled(true)
-                        .submitLabel(.next)
-
-                    SecureField("Secret key *", text: $viewModel.secret)
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.white)
-                        .autocorrectionDisabled(true)
-                        .focused($focusedField, equals: .secret)
+            ScrollView {
+                VStack(spacing: 8) {
+                    textField(config: TextFieldConfig(title: "Title (Required)",
+                                                      textFieldTitle: "Title",
+                                                      focusField: .name,
+                                                      isSecure: false),
+                              textBinding: $viewModel.name)
+                    textField(config: TextFieldConfig(title: "Secret (Required)",
+                                                      textFieldTitle: "Secret",
+                                                      focusField: .secret,
+                                                      isSecure: true),
+                              textBinding: $viewModel.secret)
 
                     if viewModel.type == .totp {
-                        TextField("Issuer", text: $viewModel.issuer)
-                            .font(.system(.body, design: .rounded))
-                            .foregroundStyle(.white)
-                            .focused($focusedField, equals: .issuer)
+                        textField(config: TextFieldConfig(title: "Issuer (Required)",
+                                                          textFieldTitle: "Issuer",
+                                                          focusField: .issuer,
+                                                          isSecure: false),
+                                  textBinding: $viewModel.issuer)
                     }
-                } header: {
-                    Text("Base information")
-                }
-
-                Section {
-                    TextField("Note", text: $viewModel.note, axis: .vertical)
-                        .foregroundStyle(.white)
-                } header: {
-                    Text("Additional infos")
-                }
-
-                Section {
-                    Picker("Type", selection: $viewModel.type) {
-                        ForEach(TotpType.allCases) { tokenType in
-                            Text(tokenType.rawValue.capitalized)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                } header: {
-                    Text("Type of entry")
-                }
-
-                if viewModel.type == .totp {
-                    Toggle("Advance options", isOn: $showAdvanceOptions)
                 }
 
                 if showAdvanceOptions {
-                    if viewModel.type == .totp {
-                        Section {
-                            Picker("Algorithm", selection: $viewModel.algo) {
-                                ForEach(TotpAlgorithm.allCases) { algo in
-                                    Text(algo.id.rawValue)
-                                        .tag(algo)
-                                }
-                            }
-                            Stepper("Refresh time: **\(Int(viewModel.period))s**",
-                                    value: $viewModel.period,
-                                    step: 10)
-                            Stepper("Number of digits: **\(viewModel.digits)**",
-                                    value: $viewModel.digits,
-                                    in: 5...9)
-                        } header: {
-                            Text("Advanced entry settings")
+                    advancedOptions
+                } else {
+                    Button { showAdvanceOptions.toggle() } label: {
+                        HStack(alignment: .center, spacing: 8) {
+                            Text("Advanced options")
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                            Spacer()
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(.white)
                         }
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .background(.white.opacity(0.12))
+                        .cornerRadius(16)
+                        .padding(.horizontal, 16)
                     }
                 }
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle("Manual entry")
-            .animation(.default, value: showAdvanceOptions)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(viewModel.isEditing ? "Manual entry" : "New entry")
             .animation(.default, value: viewModel.canSave)
+            .animation(.default, value: viewModel.type)
             .background(.backgroundGradient)
-            .onAppear(perform: focusFirstField)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    focusFirstField()
+                }
+            }
             .onSubmit(focusNextField)
             .toolbar {
-                ToolbarItem(placement: toolbarItemPlacement) {
+                ToolbarItem(placement: toolbarItemLeadingPlacement) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Close")
+                            .foregroundStyle(Color.purpleInteraction)
+                            .padding(10)
+                    }
+                }
+
+                ToolbarItem(placement: toolbarItemTrailingPlacement) {
                     Button {
                         viewModel.save()
                         dismiss()
                     } label: {
                         Text("Save")
-                            .foregroundStyle(Color.white)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.purpleInteraction)
                             .padding(10)
                     }
-                    .opacity(viewModel.canSave ? 1 : 0)
+                    .disabled(!viewModel.canSave)
+                    .opacity(viewModel.canSave ? 1 : 0.4)
                 }
             }
             #if os(iOS)
@@ -134,7 +135,112 @@ struct CreateEditEntryView: View {
         }
     }
 
-    private var toolbarItemPlacement: ToolbarItemPlacement {
+    @ViewBuilder
+    private func textField(config: TextFieldConfig, textBinding: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(config.title)
+                .font(.caption)
+                .foregroundStyle(.white)
+            if config.isSecure {
+                SecureField(config.textFieldTitle, text: textBinding)
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(.white)
+                    .autocorrectionDisabled(true)
+                    .focused($focusedField, equals: .secret)
+            } else {
+                TextField(config.textFieldTitle, text: textBinding)
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(.white)
+                    .focused($focusedField, equals: config.focusField)
+                    .autocorrectionDisabled(true)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(.black.opacity(0.5))
+        .cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16)
+            .inset(by: 0.5)
+            .stroke(.white.opacity(0.12), lineWidth: 1))
+        .padding(.horizontal, 16)
+    }
+}
+
+// MARK: - Advance options
+
+private extension CreateEditEntryView {
+    @ViewBuilder
+    var advancedOptions: some View {
+        if viewModel.type == .totp {
+            pickerSection
+        }
+        segmentedControlSection
+    }
+
+    var pickerSection: some View {
+        VStack {
+            pickerFields(title: "Digits",
+                         data: viewModel.supportedDigits,
+                         binding: $viewModel.digits)
+            pickerFields(title: "Time interval",
+                         data: viewModel.supportedPeriod,
+                         binding: $viewModel.period)
+        }
+        .padding(16)
+    }
+
+    func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text(title)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            Spacer()
+            Picker(title, selection: binding) {
+                ForEach(data, id: \.self) { element in
+                    Text(verbatim: "\(element)")
+                        .tag(element)
+                }
+            }
+            .accentColor(.white)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(.white.opacity(0.12))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.11), radius: 2, x: 0, y: 2)
+    }
+
+    @ViewBuilder
+    var segmentedControlSection: some View {
+        if viewModel.type == .totp {
+            segmentedControlField(title: "ALGORITHM", data: TotpAlgorithm.allCases, binding: $viewModel.algo)
+        }
+        segmentedControlField(title: "TYPE", data: TotpType.allCases, binding: $viewModel.type)
+    }
+
+    func segmentedControlField<T: CustomSegmentedControlData>(title: LocalizedStringKey,
+                                                              data: [T],
+                                                              binding: Binding<T>) -> some View {
+        Section {
+            CustomSegmentedControl(data: data, selection: binding)
+        } header: {
+            HStack {
+                Text(title)
+                    .foregroundStyle(Color.textNorm)
+                    .opacity(0.7)
+                    .padding(.leading, 16)
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+}
+
+// MARK: - Focus and button placements
+
+private extension CreateEditEntryView {
+    var toolbarItemTrailingPlacement: ToolbarItemPlacement {
         #if os(iOS)
         return .topBarTrailing
         #else
@@ -142,11 +248,19 @@ struct CreateEditEntryView: View {
         #endif
     }
 
-    private func focusFirstField() {
+    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .automatic
+        #endif
+    }
+
+    func focusFirstField() {
         focusedField = FocusableField.allCases.first
     }
 
-    private func focusNextField() {
+    func focusNextField() {
         switch focusedField {
         case .name:
             focusedField = .secret

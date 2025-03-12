@@ -35,8 +35,11 @@ final class CreateEditEntryViewModel {
     var type: TotpType = .totp
     var note = ""
 
+    let supportedDigits: [Int] = Array(5...10)
+    let supportedPeriod: [Int] = [10, 20, 30, 40, 50, 60]
+
     var canSave: Bool {
-        secret.count >= 4 && !name.isEmpty
+        secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
     }
 
     @ObservationIgnored
@@ -50,22 +53,26 @@ final class CreateEditEntryViewModel {
     @ObservationIgnored
     private let entry: EntryUiModel?
 
+    var isEditing: Bool {
+        entry != nil
+    }
+
     init(entry: EntryUiModel?) {
         self.entry = entry
         setUp(entry: entry)
     }
 
     func save() {
-        let params: EntryParamsParameter = if type == .totp {
-            TotpParams(name: name,
-                       secret: secret,
-                       issuer: issuer.nilIfEmpty,
-                       period: period,
-                       digits: digits,
-                       algorithm: algo,
-                       note: note.nilIfEmpty)
+        let params: EntryParameters = if type == .totp {
+            .totp(TotpParams(name: name,
+                             secret: secret,
+                             issuer: issuer.nilIfEmpty,
+                             period: period,
+                             digits: digits,
+                             algorithm: algo,
+                             note: note.nilIfEmpty))
         } else {
-            SteamParams(name: name, secret: secret, note: note.nilIfEmpty)
+            .steam(SteamParams(name: name, secret: secret, note: note.nilIfEmpty))
         }
         Task {
             do {
