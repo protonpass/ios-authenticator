@@ -18,6 +18,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import DataLayer
+import Factory
+import Foundation
 import PresentationLayer
 import SwiftData
 import SwiftUI
@@ -25,11 +28,27 @@ import SwiftUI
 @main
 struct AuthenticatorApp: App {
     @State private var appSettings = ServiceContainer.shared.settingsService()
+    @Injected(\ServiceContainer.deepLinkService) var deepLinkService
+    // swiftlint:disable:next force_cast
+    @State private var alertService = (resolve(\ServiceContainer.alertService) as! AlertService)
 
     var body: some Scene {
         WindowGroup {
             EntriesView()
                 .preferredColorScheme(appSettings.theme.preferredColorScheme)
+                .onOpenURL { url in
+                    Task {
+                        try? await deepLinkService.handleDeeplinks(url)
+                    }
+                }
+                .alert(alertService.alert?.title ?? "Unknown",
+                       isPresented: $alertService.isShowingAlert,
+                       actions: {
+                           alertService.buildActions
+                       },
+                       message: {
+                           Text(verbatim: alertService.alert?.message ?? "")
+                       })
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)

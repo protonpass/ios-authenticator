@@ -53,10 +53,16 @@ final class EntriesViewModel {
     private var copyTextToClipboard
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private var alertService
+
+    @ObservationIgnored
     private var cancellable: (any Cancellable)?
 
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var task: Task<Void, Never>?
 
     init() {
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
@@ -68,6 +74,17 @@ final class EntriesViewModel {
                 }
                 refreshTokens()
             }
+    }
+
+    func process(uri: String) {
+        task?.cancel()
+        task = Task {
+            do {
+                try await entryDataService.insertAndRefreshEntry(from: uri)
+            } catch {
+                handle(error)
+            }
+        }
     }
 }
 
@@ -128,6 +145,6 @@ private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log and display error to the users
-        print(error.localizedDescription)
+        alertService.showError(error)
     }
 }

@@ -151,10 +151,7 @@ public extension EntryRepository {
 
     func remove(_ entryId: String) async throws {
         let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryId }
-        guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
-            return
-        }
-        try await persistentStorage.delete(element: entity)
+        try await persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
     }
 
     func removeAll() async throws {
