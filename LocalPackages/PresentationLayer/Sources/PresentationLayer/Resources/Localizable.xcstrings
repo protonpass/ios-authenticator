@@ -1,16 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Add a new entry" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add a new entry"
-          }
-        }
-      }
-    },
     "Advanced options" : {
       "localizations" : {
         "en" : {
@@ -97,6 +87,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create"
+          }
+        }
+      }
+    },
+    "Create new code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create new code"
           }
         }
       }
@@ -231,16 +231,6 @@
         }
       }
     },
-    "Import tokens" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import tokens"
-          }
-        }
-      }
-    },
     "Issuer" : {
       "localizations" : {
         "en" : {
@@ -331,22 +321,12 @@
         }
       }
     },
-    "No token" : {
+    "No codes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No token"
-          }
-        }
-      }
-    },
-    "No token found. Please consider adding one." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No token found. Please consider adding one."
+            "value" : "No codes"
           }
         }
       }
@@ -367,6 +347,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Point your camera at the QR code"
+          }
+        }
+      }
+    },
+    "Protect your accounts with an extra layer of security." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your accounts with an extra layer of security."
           }
         }
       }

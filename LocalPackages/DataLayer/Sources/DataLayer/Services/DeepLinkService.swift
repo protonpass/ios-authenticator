@@ -63,6 +63,7 @@ public final class DeepLinkService: DeepLinkServicing {
 
 // MARK: - Utils
 
+// swiftlint:disable line_length
 private extension DeepLinkService {
     func process(url: URL) async throws {
         let uri = url.absoluteString.decodeHTMLAndPercent
@@ -85,3 +86,5 @@ private extension DeepLinkService {
                                                         ]))
     }
 }
+
+// swiftlint:enable line_length

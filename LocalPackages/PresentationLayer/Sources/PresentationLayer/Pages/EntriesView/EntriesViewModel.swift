@@ -28,14 +28,31 @@ import Models
 @MainActor
 final class EntriesViewModel {
     var entries: [EntryUiModel] {
-        (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
+        guard !lastestQuery.isEmpty else {
+            return (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
+        }
+
+        let newResults = entryDataService.dataState.data?.filter {
+            $0.entry.name.lowercased().contains(lastestQuery)
+        } ?? []
+
+        return newResults
     }
 
     var dataState: DataState<[EntryUiModel]> {
         qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
     }
 
-    var search = ""
+    @ObservationIgnored var search = "" {
+        didSet {
+            searchTextStream.send(search)
+        }
+    }
+
+    private var lastestQuery = ""
+
+    @ObservationIgnored
+    private let searchTextStream: CurrentValueSubject<String, Never> = .init("")
 
     @ObservationIgnored
     private var pauseRefreshing = false
@@ -63,6 +80,8 @@ final class EntriesViewModel {
     private var generateTokensTask: Task<Void, Never>?
     @ObservationIgnored
     private var task: Task<Void, Never>?
+    @ObservationIgnored
+    private var cancellables = Set<AnyCancellable>()
 
     init() {
         cancellable = Timer.publish(every: 1, on: .main, in: .common)
@@ -74,6 +93,17 @@ final class EntriesViewModel {
                 }
                 refreshTokens()
             }
+
+        searchTextStream
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newSearch in
+                guard let self else { return }
+                lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            }
+            .store(in: &cancellables)
     }
 
     func process(uri: String) {
