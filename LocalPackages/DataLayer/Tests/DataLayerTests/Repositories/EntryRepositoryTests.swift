@@ -24,7 +24,7 @@ import CommonUtilities
 import Testing
 import Models
 import SwiftData
-@testable import DataLayer
+import DataLayer
 
 final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     
