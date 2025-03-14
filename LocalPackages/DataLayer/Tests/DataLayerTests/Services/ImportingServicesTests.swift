@@ -20,7 +20,7 @@
 
 import Testing
 import Models
-@testable import DataLayer
+import DataLayer
 
 struct ImportingServiceTests {
     let sut: ImportingService
