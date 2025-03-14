@@ -21,7 +21,8 @@
 import Foundation
 import SwiftUI
 
-public struct AlertConfiguration: Sendable {
+public struct AlertConfiguration: Sendable, Identifiable {
+    public let id: String = UUID().uuidString
     public let title: String
     public let message: String?
     public let actions: [ActionConfig]
@@ -54,9 +55,9 @@ public struct ActionConfig: Sendable, Identifiable {
     public let id: String = UUID().uuidString
     public let title: String
     public let role: ActionRole
-    public let action: (@Sendable () -> Void)?
+    public let action: (@MainActor () -> Void)?
 
-    public init(title: String, role: ActionRole = .generic, action: (@Sendable () -> Void)? = nil) {
+    public init(title: String, role: ActionRole = .generic, action: (@MainActor () -> Void)? = nil) {
         self.title = title
         self.role = role
         self.action = action
@@ -65,44 +66,29 @@ public struct ActionConfig: Sendable, Identifiable {
 
 @MainActor
 public protocol AlertServiceProtocol: Sendable, Observable {
-    associatedtype ActionView: View
+    var alert: AlertDisplay? { get }
+    var showAlert: Bool { get set }
 
-    @ViewBuilder
-    var buildActions: ActionView { get }
-    var alert: AlertConfiguration? { get }
-    var isShowingAlert: Bool { get set }
-
-    func showAlert(_ config: AlertConfiguration)
-    func showError(_ error: Error)
+    func showAlert(_ destination: AlertDisplay)
+    func showError(_ error: Error, mainDisplay: Bool)
 }
 
-@MainActor
-@Observable
-public final class AlertService: AlertServiceProtocol {
-    public private(set) var alert: AlertConfiguration? {
-        didSet { isShowingAlert = alert != nil }
-    }
+public enum AlertDisplay: Identifiable {
+    case main(AlertConfiguration)
+    case secondary(AlertConfiguration)
 
-    public var isShowingAlert = false
-
-    public init() {
-        alert = alert
-        isShowingAlert = isShowingAlert
-    }
-
-    public func showAlert(_ config: AlertConfiguration) {
-        alert = config
-    }
-
-    public func showError(_ error: Error) {
-        alert = AlertConfiguration(title: "An error occurred",
-                                   message: error.localizedDescription,
-                                   actions: [.init(title: "Ok", role: .cancel)])
+    public var configuration: AlertConfiguration {
+        switch self {
+        case let .main(config):
+            config
+        case let .secondary(config):
+            config
+        }
     }
 
     @ViewBuilder
     public var buildActions: some View {
-        ForEach(alert?.actions ?? []) { actionConfig in
+        ForEach(configuration.actions) { actionConfig in
             if let role = actionConfig.role.role {
                 Button(role: role) {
                     actionConfig.action?()
@@ -115,5 +101,30 @@ public final class AlertService: AlertServiceProtocol {
                 }
             }
         }
+    }
+
+    public var id: String { configuration.id }
+}
+
+@MainActor
+@Observable
+public final class AlertService: AlertServiceProtocol {
+    public var alert: AlertDisplay? {
+        didSet { showAlert = alert != nil }
+    }
+
+    public var showAlert = false
+
+    public init() {}
+
+    public func showAlert(_ destination: AlertDisplay) {
+        alert = destination
+    }
+
+    public func showError(_ error: Error, mainDisplay: Bool = true) {
+        let config = AlertConfiguration(title: "An error occurred",
+                                        message: error.localizedDescription,
+                                        actions: [.init(title: "Ok", role: .cancel)])
+        alert = mainDisplay ? .main(config) : .secondary(config)
     }
 }

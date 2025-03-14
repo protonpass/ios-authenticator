@@ -63,10 +63,13 @@ final class CreateEditEntryViewModel {
     }
 
     func save() {
+        guard !issuer.isEmpty, !secret.isEmpty, !name.isEmpty else {
+            return
+        }
         let params: EntryParameters = if type == .totp {
             .totp(TotpParams(name: name,
                              secret: secret,
-                             issuer: issuer.nilIfEmpty,
+                             issuer: issuer,
                              period: period,
                              digits: digits,
                              algorithm: algo,
@@ -90,19 +93,22 @@ final class CreateEditEntryViewModel {
 
 private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
-        if let entry, entry.entry.type == .totp,
+        guard let entry else { return }
+        if entry.entry.type == .totp,
            let params = try? entryRepository.getTotpParams(entry: entry.entry) {
             name = params.name
             secret = params.secret
-            issuer = params.issuer ?? ""
+            issuer = params.issuer
             period = params.period ?? 30
             digits = params.digits ?? 6
             algo = params.algorithm ?? .sha1
             note = params.note ?? ""
+        } else {
+            name = entry.entry.name
+            secret = entry.entry.secret
+            type = .steam
         }
     }
 
-    func handle(_ error: Error) {
-        print(error.localizedDescription)
-    }
+    func handle(_ error: Error) {}
 }

@@ -121,16 +121,7 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllEntries() async throws -> [EntryState] {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
-        return try encryptedEntries.map { encryptedEntry in
-            let entryState = try encryptionService.decrypt(entry: encryptedEntry)
-            switch entryState {
-            case var .decrypted(entry):
-                entry.id = encryptedEntry.id
-                return .decrypted(entry)
-            case .nonDecryptable:
-                return entryState
-            }
-        }
+        return try encryptionService.decryptMany(entries: encryptedEntries)
     }
 
     func save(_ entries: [Entry]) async throws {

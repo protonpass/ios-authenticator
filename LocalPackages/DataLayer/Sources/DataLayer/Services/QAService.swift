@@ -70,9 +70,12 @@ public final class QAService: QAServicing {
 
         var entries = [Entry]()
         for index in 0..<count {
-            entries.append(.init(name: "Test #\(index)",
+            entries.append(.init(id: UUID().uuidString,
+                                 name: "Test #\(index)",
                                  uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
                                  period: 30,
+                                 issuer: "Proton",
+                                 secret: "aaaa",
                                  type: .totp,
                                  note: "Note #\(index)"))
         }

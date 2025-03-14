@@ -110,7 +110,7 @@ public extension EntryDataService {
     }
 
     func delete(_ entry: EntryUiModel) async throws {
-        try await repository.remove(entry.entry)
+        try await repository.remove(entry.entry.id)
         let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
         dataState = .loaded(data ?? [])
     }

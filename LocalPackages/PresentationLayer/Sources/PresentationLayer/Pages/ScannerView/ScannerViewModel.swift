@@ -22,9 +22,11 @@
 
 #if os(iOS)
 import Combine
+import DataLayer
 import DocScanner
 import Factory
 import Foundation
+import Macro
 import PhotosUI
 import SwiftUI
 

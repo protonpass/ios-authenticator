@@ -72,18 +72,18 @@ private extension DeepLinkService {
         }
 
         let entry = try await service.getEntry(from: uri)
-        await alertService.showAlert(AlertConfiguration(title: "Warning",
-                                                        message: "Do you want to add this entry for the account \(entry.name)?",
-                                                        actions: [
-                                                            .init(title: "Yes", action: {
-                                                                Task { [weak self] in
-                                                                    guard let self else { return }
-                                                                    try? await service
-                                                                        .insertAndRefresh(entry: entry)
-                                                                }
-                                                            }),
-                                                            .init(title: "No", role: .cancel)
-                                                        ]))
+        await alertService.showAlert(.main(AlertConfiguration(title: "Warning",
+                                                              message: "Do you want to add this entry for the account \(entry.name)?",
+                                                              actions: [
+                                                                  .init(title: "Yes", action: {
+                                                                      Task { [weak self] in
+                                                                          guard let self else { return }
+                                                                          try? await service
+                                                                              .insertAndRefresh(entry: entry)
+                                                                      }
+                                                                  }),
+                                                                  .init(title: "No", role: .cancel)
+                                                              ])))
     }
 }
 

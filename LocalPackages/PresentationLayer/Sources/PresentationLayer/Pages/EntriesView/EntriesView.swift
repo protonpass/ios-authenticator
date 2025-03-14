@@ -69,6 +69,7 @@ public struct EntriesView: View {
                                 .clipShape(Circle())
                                 .overlay(Circle()
                                     .stroke(.white, lineWidth: 0.5))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
                         }
                     }
                 }
@@ -130,7 +131,15 @@ private extension EntriesView {
                             .opacity(0.3)
                     }
                 } actions: {
-                    Button {} label: {
+                    Button {
+                        #if os(iOS)
+                        // if isPhone {
+                        showCreationOptions.toggle()
+                        #else
+                        router.presentedSheet = .createEditEntry(nil)
+
+                        #endif
+                    } label: {
                         Text("Create new code")
                             .foregroundStyle(.textNorm)
                             .fontWeight(.semibold)
@@ -160,6 +169,7 @@ private extension EntriesView {
             .listRowInsets(EdgeInsets())
         }
         .listStyle(.plain)
+        .padding(.top, 3)
         .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
             if !(viewModel.dataState.data?.isEmpty ?? true) {
                 actionBar

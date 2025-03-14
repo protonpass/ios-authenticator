@@ -40,13 +40,23 @@ struct AuthenticatorApp: App {
                         try? await deepLinkService.handleDeeplinks(url)
                     }
                 }
-                .alert(alertService.alert?.title ?? "Unknown",
-                       isPresented: $alertService.isShowingAlert,
-                       actions: {
-                           alertService.buildActions
+                .alert(alertService.alert?.configuration.title ?? "Unknown",
+                       isPresented: Binding<Bool>(get: {
+                                                      // Only show the alert if it's of type `.main`
+                                                      if case .main = alertService.alert {
+                                                          return alertService.showAlert
+                                                      }
+                                                      return false
+                                                  },
+                                                  set: { newValue in
+                                                      alertService.showAlert = newValue
+                                                  }),
+                       presenting: alertService.alert,
+                       actions: { display in
+                           display.buildActions
                        },
-                       message: {
-                           Text(verbatim: alertService.alert?.message ?? "")
+                       message: { display in
+                           Text(verbatim: display.configuration.message ?? "")
                        })
         }
         #if os(macOS)
