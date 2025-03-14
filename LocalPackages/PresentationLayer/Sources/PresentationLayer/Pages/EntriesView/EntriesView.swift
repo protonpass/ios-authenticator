@@ -138,17 +138,7 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .frame(height: 52, alignment: .center)
-                    .background(LinearGradient(stops: [
-                            Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1), location: 0.00),
-                            Gradient.Stop(color: Color(red: 0.27, green: 0.19, blue: 0.6), location: 1.00)
-                        ],
-                        startPoint: UnitPoint(x: 0.5, y: 0),
-                        endPoint: UnitPoint(x: 0.5, y: 1)))
-                    .cornerRadius(25.41176)
-                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 12, x: 0, y: 1)
-                    .overlay(RoundedRectangle(cornerRadius: 25.41176)
-                        .inset(by: 0.25)
-                        .stroke(.white.opacity(0.12), lineWidth: 0.5))
+                    .buttonBackground(Capsule())
                 }
                 .foregroundStyle(.textNorm)
             }
@@ -237,17 +227,7 @@ private extension EntriesView {
                 addButton
                     .padding(10)
                     .frame(width: 44, height: 44, alignment: .center)
-                    .background(LinearGradient(stops: [
-                            Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1), location: 0.00),
-                            Gradient.Stop(color: Color(red: 0.27, green: 0.19, blue: 0.6), location: 1.00)
-                        ],
-                        startPoint: UnitPoint(x: 0.5, y: 0),
-                        endPoint: UnitPoint(x: 0.5, y: 1)))
-                    .clipShape(Circle())
-                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 12, x: 0, y: 1)
-                    .overlay(Circle()
-                        .inset(by: 0.25)
-                        .stroke(.white.opacity(0.12), lineWidth: 0.5))
+                    .buttonBackground(Circle())
             }
         }
         .foregroundStyle(.textWeak)
@@ -300,7 +280,7 @@ private extension EntriesView {
         .padding(.horizontal, 16)
         .padding(.vertical, 0)
         .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44, alignment: .leading)
-        .background(.black /* Color(red: 0.82, green: 0.82, blue: 0.82).opacity(0.5) */ )
+        .background(.black)
         .cornerRadius(100)
     }
 

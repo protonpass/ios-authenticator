@@ -73,3 +73,20 @@ public extension View {
         #endif
     }
 }
+
+// swiftlint:disable literal_expression_end_indentation
+extension View {
+    func buttonBackground(_ shape: some Shape) -> some View {
+        background(LinearGradient(stops: [
+                Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1), location: 0.00),
+                Gradient.Stop(color: Color(red: 0.27, green: 0.19, blue: 0.6), location: 1.00)
+            ],
+            startPoint: UnitPoint(x: 0.5, y: 0),
+            endPoint: UnitPoint(x: 0.5, y: 1)))
+            .clipShape(shape)
+            .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 12, x: 0, y: 1)
+            .overlay(shape.stroke(.white.opacity(0.12), lineWidth: 0.5))
+    }
+}
+
+// swiftlint:enable literal_expression_end_indentation

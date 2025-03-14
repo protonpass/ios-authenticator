@@ -29,8 +29,7 @@ import SwiftUI
 struct AuthenticatorApp: App {
     @State private var appSettings = ServiceContainer.shared.settingsService()
     @Injected(\ServiceContainer.deepLinkService) var deepLinkService
-    // swiftlint:disable:next force_cast
-    @State private var alertService = (resolve(\ServiceContainer.alertService) as! AlertService)
+    @State private var alertService = resolve(\ServiceContainer.alertService)
 
     var body: some Scene {
         WindowGroup {

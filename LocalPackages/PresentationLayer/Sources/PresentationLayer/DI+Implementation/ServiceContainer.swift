@@ -53,7 +53,7 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
                                alertService: self.alertService()) }
     }
 
-    public var alertService: Factory<any AlertServiceProtocol> {
+    public var alertService: Factory<AlertService> {
         self { @MainActor in AlertService() }
     }
 }
