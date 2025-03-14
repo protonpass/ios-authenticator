@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import DataLayer
 import Models
 import SwiftUI
 
@@ -36,6 +37,7 @@ private enum FocusableField: Hashable, CaseIterable {
 
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AlertService.self) private var alertService
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
@@ -45,6 +47,7 @@ struct CreateEditEntryView: View {
     }
 
     var body: some View {
+        @Bindable var alertService = alertService
         NavigationStack {
             ScrollView {
                 VStack(spacing: 8) {
@@ -127,8 +130,17 @@ struct CreateEditEntryView: View {
                     .opacity(viewModel.canSave ? 1 : 0.4)
                 }
             }
+            .alert(alertService.alert?.configuration.title ?? "Unknown",
+                   isPresented: $alertService.showSecondaryAlert,
+                   presenting: alertService.alert,
+                   actions: { display in
+                       display.buildActions
+                   },
+                   message: { display in
+                       Text(verbatim: display.configuration.message ?? "")
+                   })
             #if os(iOS)
-            .toolbarBackground(.backgroundGradient, for: .navigationBar)
+                   .toolbarBackground(.backgroundGradient, for: .navigationBar)
             #endif
         }
     }

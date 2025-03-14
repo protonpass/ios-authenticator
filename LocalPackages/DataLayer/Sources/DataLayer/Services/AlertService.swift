@@ -67,10 +67,11 @@ public struct ActionConfig: Sendable, Identifiable {
 @MainActor
 public protocol AlertServiceProtocol: Sendable, Observable {
     var alert: AlertDisplay? { get }
-    var showAlert: Bool { get set }
+    var showMainAlert: Bool { get set }
+    var showSecondaryAlert: Bool { get set }
 
     func showAlert(_ destination: AlertDisplay)
-    func showError(_ error: Error, mainDisplay: Bool)
+    func showError(_ error: Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
 
 public enum AlertDisplay: Identifiable {
@@ -110,10 +111,24 @@ public enum AlertDisplay: Identifiable {
 @Observable
 public final class AlertService: AlertServiceProtocol {
     public var alert: AlertDisplay? {
-        didSet { showAlert = alert != nil }
+        didSet {
+            // Update the appropriate alert visibility based on the type
+            switch alert {
+            case .main:
+                showMainAlert = true
+                showSecondaryAlert = false
+            case .secondary:
+                showMainAlert = false
+                showSecondaryAlert = true
+            case nil:
+                showMainAlert = false
+                showSecondaryAlert = false
+            }
+        }
     }
 
-    public var showAlert = false
+    public var showMainAlert = false
+    public var showSecondaryAlert = false
 
     public init() {}
 
@@ -121,10 +136,10 @@ public final class AlertService: AlertServiceProtocol {
         alert = destination
     }
 
-    public func showError(_ error: Error, mainDisplay: Bool = true) {
+    public func showError(_ error: Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)?) {
         let config = AlertConfiguration(title: "An error occurred",
                                         message: error.localizedDescription,
-                                        actions: [.init(title: "Ok", role: .cancel)])
+                                        actions: [.init(title: "Ok", role: .cancel, action: action)])
         alert = mainDisplay ? .main(config) : .secondary(config)
     }
 }

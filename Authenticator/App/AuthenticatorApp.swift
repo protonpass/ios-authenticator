@@ -35,22 +35,14 @@ struct AuthenticatorApp: App {
         WindowGroup {
             EntriesView()
                 .preferredColorScheme(appSettings.theme.preferredColorScheme)
+                .environment(alertService as? AlertService)
                 .onOpenURL { url in
                     Task {
                         try? await deepLinkService.handleDeeplinks(url)
                     }
                 }
                 .alert(alertService.alert?.configuration.title ?? "Unknown",
-                       isPresented: Binding<Bool>(get: {
-                                                      // Only show the alert if it's of type `.main`
-                                                      if case .main = alertService.alert {
-                                                          return alertService.showAlert
-                                                      }
-                                                      return false
-                                                  },
-                                                  set: { newValue in
-                                                      alertService.showAlert = newValue
-                                                  }),
+                       isPresented: $alertService.showMainAlert,
                        presenting: alertService.alert,
                        actions: { display in
                            display.buildActions

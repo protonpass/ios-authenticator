@@ -21,18 +21,20 @@
 //
 
 #if os(iOS)
+import DataLayer
 import DocScanner
 import PhotosUI
 import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
-
+    @Environment(AlertService.self) private var alertService
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State var regionOfInterest: CGRect?
 
     var body: some View {
+        @Bindable var alertService = alertService
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
@@ -42,17 +44,14 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .alert("Error occurred",
-               isPresented: $viewModel.creationError.mappedToBool(),
-               actions: {
-                   Button { viewModel.clean() } label: {
-                       Text("OK")
-                   }
+        .alert(alertService.alert?.configuration.title ?? "Unknown",
+               isPresented: $alertService.showSecondaryAlert,
+               presenting: alertService.alert,
+               actions: { display in
+                   display.buildActions
                },
-               message: {
-                   if let message = viewModel.creationError?.localizedDescription {
-                       Text(verbatim: message)
-                   }
+               message: { display in
+                   Text(verbatim: display.configuration.message ?? "")
                })
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,

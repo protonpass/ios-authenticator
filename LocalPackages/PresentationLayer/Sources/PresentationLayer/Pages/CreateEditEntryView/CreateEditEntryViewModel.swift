@@ -51,6 +51,10 @@ final class CreateEditEntryViewModel {
     private(set) var entryDataService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private var alertService
+
+    @ObservationIgnored
     private let entry: EntryUiModel?
 
     var isEditing: Bool {
@@ -110,5 +114,7 @@ private extension CreateEditEntryViewModel {
         }
     }
 
-    func handle(_ error: Error) {}
+    func handle(_ error: Error) {
+        alertService.showError(error, mainDisplay: false, action: nil)
+    }
 }

@@ -175,6 +175,6 @@ private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log and display error to the users
-        alertService.showError(error, mainDisplay: true)
+        alertService.showError(error, mainDisplay: true, action: nil)
     }
 }
