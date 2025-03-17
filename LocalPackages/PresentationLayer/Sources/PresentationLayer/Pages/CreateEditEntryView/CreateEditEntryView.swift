@@ -37,7 +37,6 @@ private enum FocusableField: Hashable, CaseIterable {
 
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AlertService.self) private var alertService
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
@@ -47,7 +46,6 @@ struct CreateEditEntryView: View {
     }
 
     var body: some View {
-        @Bindable var alertService = alertService
         NavigationStack {
             ScrollView {
                 VStack(spacing: 8) {
@@ -130,14 +128,14 @@ struct CreateEditEntryView: View {
                     .opacity(viewModel.canSave ? 1 : 0.4)
                 }
             }
-            .alert(alertService.alert?.configuration.title ?? "Unknown",
-                   isPresented: $alertService.showSecondaryAlert,
-                   presenting: alertService.alert,
+            .alert(viewModel.alertService.alert?.title ?? "Unknown",
+                   isPresented: $viewModel.alertService.showSheetAlert,
+                   presenting: viewModel.alertService.alert,
                    actions: { display in
                        display.buildActions
                    },
                    message: { display in
-                       Text(verbatim: display.configuration.message ?? "")
+                       Text(verbatim: display.message ?? "")
                    })
             #if os(iOS)
                    .toolbarBackground(.backgroundGradient, for: .navigationBar)

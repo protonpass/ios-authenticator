@@ -51,7 +51,7 @@ final class ScannerViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
-    private var alertService
+    var alertService
 
     @ObservationIgnored
     private var task: Task<Void, Never>?

@@ -161,16 +161,6 @@
         }
       }
     },
-    "Error occurred" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error occurred"
-          }
-        }
-      }
-    },
     "Export" : {
       "localizations" : {
         "en" : {
@@ -327,16 +317,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No codes"
-          }
-        }
-      }
-    },
-    "OK" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
           }
         }
       }

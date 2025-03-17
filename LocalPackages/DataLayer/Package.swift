@@ -13,6 +13,7 @@ var platforms: [SupportedPlatform] = [
 
 let package = Package(
     name: "DataLayer",
+    defaultLocalization: "en",
     platforms: platforms,
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -26,6 +27,7 @@ let package = Package(
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
         .package(url: "https://github.com/lukacs-m/SimplyPersist", .upToNextMajor(from: "0.1.1")),
+        .package(name: "Macro", path: "../Macro"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -37,7 +39,9 @@ let package = Package(
                 .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
                 .product(name: "SimplyPersist", package: "SimplyPersist"),
-            ]),
+                .product(name: "Macro", package: "Macro"),
+            ],
+            resources: [.process("Resources")]),
         .testTarget(
             name: "DataLayerTests",
             dependencies: ["DataLayer"]

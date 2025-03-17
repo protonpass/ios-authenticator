@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Macro
 import SwiftUI
 
 public struct AlertConfiguration: Sendable, Identifiable {
@@ -68,7 +69,7 @@ public struct ActionConfig: Sendable, Identifiable {
 public protocol AlertServiceProtocol: Sendable, Observable {
     var alert: AlertDisplay? { get }
     var showMainAlert: Bool { get set }
-    var showSecondaryAlert: Bool { get set }
+    var showSheetAlert: Bool { get set }
 
     func showAlert(_ destination: AlertDisplay)
     func showError(_ error: Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
@@ -76,15 +77,23 @@ public protocol AlertServiceProtocol: Sendable, Observable {
 
 public enum AlertDisplay: Identifiable {
     case main(AlertConfiguration)
-    case secondary(AlertConfiguration)
+    case sheet(AlertConfiguration)
 
     public var configuration: AlertConfiguration {
         switch self {
         case let .main(config):
             config
-        case let .secondary(config):
+        case let .sheet(config):
             config
         }
+    }
+
+    public var title: String {
+        configuration.title
+    }
+
+    public var message: String? {
+        configuration.message
     }
 
     @ViewBuilder
@@ -116,19 +125,19 @@ public final class AlertService: AlertServiceProtocol {
             switch alert {
             case .main:
                 showMainAlert = true
-                showSecondaryAlert = false
-            case .secondary:
+                showSheetAlert = false
+            case .sheet:
                 showMainAlert = false
-                showSecondaryAlert = true
+                showSheetAlert = true
             case nil:
                 showMainAlert = false
-                showSecondaryAlert = false
+                showSheetAlert = false
             }
         }
     }
 
     public var showMainAlert = false
-    public var showSecondaryAlert = false
+    public var showSheetAlert = false
 
     public init() {}
 
@@ -137,9 +146,9 @@ public final class AlertService: AlertServiceProtocol {
     }
 
     public func showError(_ error: Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)?) {
-        let config = AlertConfiguration(title: "An error occurred",
+        let config = AlertConfiguration(title: #localized("An error occurred"),
                                         message: error.localizedDescription,
-                                        actions: [.init(title: "Ok", role: .cancel, action: action)])
-        alert = mainDisplay ? .main(config) : .secondary(config)
+                                        actions: [.init(title: #localized("OK"), role: .cancel, action: action)])
+        alert = mainDisplay ? .main(config) : .sheet(config)
     }
 }

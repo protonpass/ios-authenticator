@@ -35,20 +35,19 @@ struct AuthenticatorApp: App {
         WindowGroup {
             EntriesView()
                 .preferredColorScheme(appSettings.theme.preferredColorScheme)
-                .environment(alertService as? AlertService)
                 .onOpenURL { url in
                     Task {
                         try? await deepLinkService.handleDeeplinks(url)
                     }
                 }
-                .alert(alertService.alert?.configuration.title ?? "Unknown",
+                .alert(alertService.alert?.title ?? "Unknown",
                        isPresented: $alertService.showMainAlert,
                        presenting: alertService.alert,
                        actions: { display in
                            display.buildActions
                        },
                        message: { display in
-                           Text(verbatim: display.configuration.message ?? "")
+                           Text(verbatim: display.message ?? "")
                        })
         }
         #if os(macOS)

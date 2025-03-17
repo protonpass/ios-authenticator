@@ -52,7 +52,7 @@ final class CreateEditEntryViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
-    private var alertService
+    var alertService
 
     @ObservationIgnored
     private let entry: EntryUiModel?

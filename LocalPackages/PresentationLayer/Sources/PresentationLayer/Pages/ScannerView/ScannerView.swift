@@ -28,13 +28,11 @@ import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AlertService.self) private var alertService
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State var regionOfInterest: CGRect?
 
     var body: some View {
-        @Bindable var alertService = alertService
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
@@ -44,14 +42,14 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .alert(alertService.alert?.configuration.title ?? "Unknown",
-               isPresented: $alertService.showSecondaryAlert,
-               presenting: alertService.alert,
+        .alert(viewModel.alertService.alert?.title ?? "Unknown",
+               isPresented: $viewModel.alertService.showSheetAlert,
+               presenting: viewModel.alertService.alert,
                actions: { display in
                    display.buildActions
                },
                message: { display in
-                   Text(verbatim: display.configuration.message ?? "")
+                   Text(verbatim: display.message ?? "")
                })
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
