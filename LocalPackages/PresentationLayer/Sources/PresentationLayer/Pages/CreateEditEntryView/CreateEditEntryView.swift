@@ -128,17 +128,9 @@ struct CreateEditEntryView: View {
                     .opacity(viewModel.canSave ? 1 : 0.4)
                 }
             }
-            .alert(viewModel.alertService.alert?.title ?? "Unknown",
-                   isPresented: $viewModel.alertService.showSheetAlert,
-                   presenting: viewModel.alertService.alert,
-                   actions: { display in
-                       display.buildActions
-                   },
-                   message: { display in
-                       Text(verbatim: display.message ?? "")
-                   })
+            .sheetUIAlertService
             #if os(iOS)
-                   .toolbarBackground(.backgroundGradient, for: .navigationBar)
+                .toolbarBackground(.backgroundGradient, for: .navigationBar)
             #endif
         }
     }

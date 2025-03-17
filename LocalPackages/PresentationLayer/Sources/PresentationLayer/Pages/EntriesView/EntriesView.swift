@@ -66,7 +66,7 @@ public struct EntriesView: View {
                                 .frame(width: 20, height: 20)
                                 .padding(8)
                                 .background(.white.opacity(0.12))
-                                .clipShape(Circle())
+                                .clipShape(.circle)
                                 .overlay(Circle()
                                     .stroke(.white, lineWidth: 0.5))
                                 .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
@@ -133,11 +133,9 @@ private extension EntriesView {
                 } actions: {
                     Button {
                         #if os(iOS)
-                        // if isPhone {
                         showCreationOptions.toggle()
                         #else
                         router.presentedSheet = .createEditEntry(nil)
-
                         #endif
                     } label: {
                         Text("Create new code")
@@ -147,7 +145,7 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .frame(height: 52, alignment: .center)
-                    .buttonBackground(Capsule())
+                    .buttonBackground(.capsule)
                 }
                 .foregroundStyle(.textNorm)
             }
@@ -171,7 +169,7 @@ private extension EntriesView {
         .listStyle(.plain)
         .padding(.top, 3)
         .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-            if !(viewModel.dataState.data?.isEmpty ?? true) {
+            if viewModel.dataState.data?.isEmpty == false {
                 actionBar
             }
         }
@@ -237,7 +235,7 @@ private extension EntriesView {
                 addButton
                     .padding(10)
                     .frame(width: 44, height: 44, alignment: .center)
-                    .buttonBackground(Circle())
+                    .buttonBackground(.circle)
             }
         }
         .foregroundStyle(.textWeak)
@@ -259,11 +257,9 @@ private extension EntriesView {
         ZStack(alignment: .leading) {
             // Show the placeholder only when text is empty.
             if viewModel.search.isEmpty, !isTextFieldFocused {
-                HStack(spacing: 4) {
-                    Label("Search", systemImage: "magnifyingglass")
-                        .foregroundStyle(.textWeak)
-                }
-                .padding(.leading, 8)
+                Label("Search", systemImage: "magnifyingglass")
+                    .foregroundStyle(.textWeak)
+                    .padding(.leading, 8)
             }
 
             HStack {

@@ -1,6 +1,6 @@
 //
-// Text+Extensions.swift
-// Proton Authenticator - Created on 10/02/2025.
+// TextContent.swift
+// Proton Authenticator - Created on 17/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,3 +19,10 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import SwiftUI
+
+extension LocalizedStringKey: @unchecked @retroactive Sendable {}
+
+public enum TextContent: Sendable {
+    case verbatim(String)
+    case localized(LocalizedStringKey)
+}

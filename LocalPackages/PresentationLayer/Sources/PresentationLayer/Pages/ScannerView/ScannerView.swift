@@ -21,6 +21,7 @@
 //
 
 #if os(iOS)
+import CommonUtilities
 import DataLayer
 import DocScanner
 import PhotosUI
@@ -42,15 +43,7 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .alert(viewModel.alertService.alert?.title ?? "Unknown",
-               isPresented: $viewModel.alertService.showSheetAlert,
-               presenting: viewModel.alertService.alert,
-               actions: { display in
-                   display.buildActions
-               },
-               message: { display in
-                   Text(verbatim: display.message ?? "")
-               })
+        .sheetUIAlertService
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
                       matching: .images,

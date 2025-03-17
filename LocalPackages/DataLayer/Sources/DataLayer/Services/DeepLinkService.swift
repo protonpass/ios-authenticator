@@ -26,16 +26,23 @@ import Models
 private enum DeeplinkType {
     case otpauth
     case other(String)
+    case unknown
 }
 
 private extension URL {
     var linkType: DeeplinkType {
-        scheme == "otpauth" ? .otpauth : .other(scheme ?? #localized("Unknown scheme"))
+        if scheme == "otpauth" {
+            .otpauth
+        } else if let scheme {
+            .other(scheme)
+        } else {
+            .unknown
+        }
     }
 }
 
 public protocol DeepLinkServicing: Sendable {
-    func handleDeeplinks(_ url: URL) async throws
+    func handleDeeplink(_ url: URL) async throws
 }
 
 public final class DeepLinkService: DeepLinkServicing {
@@ -49,7 +56,7 @@ public final class DeepLinkService: DeepLinkServicing {
     }
 
     /// Handles the incoming URL and performs validations before acknowledging.
-    public func handleDeeplinks(_ url: URL) async throws {
+    public func handleDeeplink(_ url: URL) async throws {
         switch url.linkType {
         case .otpauth:
             try await process(url: url)
@@ -71,7 +78,7 @@ private extension DeepLinkService {
 
         let entry = try await service.getEntry(from: uri)
         await alertService.showAlert(.main(AlertConfiguration(title: "Warning",
-                                                              message: "Do you want to add this entry for the account \(entry.name)?",
+                                                              message: .localized("Do you want to add this entry for the account \(entry.name)?"),
                                                               actions: [
                                                                   .init(title: "Yes", action: {
                                                                       Task { [weak self] in

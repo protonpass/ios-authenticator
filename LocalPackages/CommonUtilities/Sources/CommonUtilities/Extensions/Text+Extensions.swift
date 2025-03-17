@@ -1,6 +1,6 @@
 //
 // Text+Extensions.swift
-// Proton Authenticator - Created on 10/02/2025.
+// Proton Authenticator - Created on 17/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,4 +18,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Foundation
+import Models
 import SwiftUI
+
+public extension Text {
+    init(_ content: TextContent) {
+        switch content {
+        case let .verbatim(value):
+            self.init(verbatim: value)
+        case let .localized(value):
+            self.init(value)
+        }
+    }
+}

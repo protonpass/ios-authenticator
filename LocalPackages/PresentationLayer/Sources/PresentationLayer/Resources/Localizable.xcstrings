@@ -511,6 +511,16 @@
         }
       }
     },
+    "Unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        }
+      }
+    },
     "Version %@" : {
       "localizations" : {
         "en" : {

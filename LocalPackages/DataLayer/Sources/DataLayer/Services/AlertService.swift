@@ -20,15 +20,16 @@
 
 import Foundation
 import Macro
+import Models
 import SwiftUI
 
 public struct AlertConfiguration: Sendable, Identifiable {
     public let id: String = UUID().uuidString
-    public let title: String
-    public let message: String?
+    public let title: LocalizedStringKey
+    public let message: TextContent?
     public let actions: [ActionConfig]
 
-    public init(title: String, message: String?, actions: [ActionConfig]) {
+    public init(title: LocalizedStringKey, message: TextContent?, actions: [ActionConfig]) {
         self.title = title
         self.message = message
         self.actions = actions
@@ -54,11 +55,11 @@ public enum ActionRole: Sendable {
 
 public struct ActionConfig: Sendable, Identifiable {
     public let id: String = UUID().uuidString
-    public let title: String
+    public let title: LocalizedStringKey
     public let role: ActionRole
     public let action: (@MainActor () -> Void)?
 
-    public init(title: String, role: ActionRole = .generic, action: (@MainActor () -> Void)? = nil) {
+    public init(title: LocalizedStringKey, role: ActionRole = .generic, action: (@MainActor () -> Void)? = nil) {
         self.title = title
         self.role = role
         self.action = action
@@ -71,12 +72,12 @@ public protocol AlertServiceProtocol: Sendable, Observable {
     var showMainAlert: Bool { get set }
     var showSheetAlert: Bool { get set }
 
-    func showAlert(_ destination: AlertDisplay)
-    func showError(_ error: Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
+    func showAlert(_ alertDisplay: AlertDisplay)
+    func showError(_ error: any Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
 
 public extension AlertServiceProtocol {
-    func showError(_ error: Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)? = nil) {
+    func showError(_ error: any Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)? = nil) {
         showError(error, mainDisplay: mainDisplay, action: action)
     }
 }
@@ -94,11 +95,11 @@ public enum AlertDisplay: Identifiable {
         }
     }
 
-    public var title: String {
+    public var title: LocalizedStringKey {
         configuration.title
     }
 
-    public var message: String? {
+    public var message: TextContent? {
         configuration.message
     }
 
@@ -109,7 +110,7 @@ public enum AlertDisplay: Identifiable {
                 Button(role: role) {
                     actionConfig.action?()
                 } label: {
-                    Text("OK")
+                    Text(actionConfig.title)
                 }
             } else {
                 Button(action: actionConfig.action ?? {}) {
@@ -147,14 +148,14 @@ public final class AlertService: AlertServiceProtocol {
 
     public init() {}
 
-    public func showAlert(_ destination: AlertDisplay) {
-        alert = destination
+    public func showAlert(_ alertDisplay: AlertDisplay) {
+        alert = alertDisplay
     }
 
-    public func showError(_ error: Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)?) {
-        let config = AlertConfiguration(title: #localized("An error occurred"),
-                                        message: error.localizedDescription,
-                                        actions: [.init(title: #localized("OK"), role: .cancel, action: action)])
+    public func showError(_ error: any Error, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
+        let config = AlertConfiguration(title: "An error occurred",
+                                        message: .verbatim(error.localizedDescription),
+                                        actions: [.init(title: "OK", role: .cancel, action: action)])
         alert = mainDisplay ? .main(config) : .sheet(config)
     }
 }

@@ -36,15 +36,7 @@ struct AuthenticatorApp: App {
                 .onOpenURL { url in
                     viewModel.handleDeepLink(url)
                 }
-                .alert(viewModel.alertService.alert?.title ?? "Unknown",
-                       isPresented: $viewModel.alertService.showMainAlert,
-                       presenting: viewModel.alertService.alert,
-                       actions: { display in
-                           display.buildActions
-                       },
-                       message: { display in
-                           Text(verbatim: display.message ?? "")
-                       })
+                .mainUIAlertService
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -71,7 +63,7 @@ private final class AuthenticatorAppViewModel {
     func handleDeepLink(_ url: URL) {
         Task {
             do {
-                try await deepLinkService.handleDeeplinks(url)
+                try await deepLinkService.handleDeeplink(url)
             } catch {
                 alertService.showError(error)
             }
