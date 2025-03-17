@@ -90,7 +90,7 @@ struct EntryRepositoryTests {
                         note: "Note") ]
         
         let result = """
-{"version":1,"entries":[{"content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30","entry_type":"Totp"},"note":"Note"}]}
+{"version":1,"entries":[{"id":"id","content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30","entry_type":"Totp"},"note":"Note"}]}
 """
 
         // Act
