@@ -121,16 +121,7 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllEntries() async throws -> [EntryState] {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
-        return try encryptedEntries.map { encryptedEntry in
-            let entryState = try encryptionService.decrypt(entry: encryptedEntry)
-            switch entryState {
-            case var .decrypted(entry):
-                entry.id = encryptedEntry.id
-                return .decrypted(entry)
-            case .nonDecryptable:
-                return entryState
-            }
-        }
+        return try encryptionService.decryptMany(entries: encryptedEntries)
     }
 
     func save(_ entries: [Entry]) async throws {
@@ -151,10 +142,7 @@ public extension EntryRepository {
 
     func remove(_ entryId: String) async throws {
         let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryId }
-        guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
-            return
-        }
-        try await persistentStorage.delete(element: entity)
+        try await persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
     }
 
     func removeAll() async throws {

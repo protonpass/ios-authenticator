@@ -31,23 +31,36 @@ struct EntryCell: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                HStack(alignment: .center, spacing: 10) {}
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 4)
-                    .frame(width: 32, height: 32, alignment: .center)
-                    .background(.black.opacity(0.16))
-                    .cornerRadius(8)
-                    .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                    .overlay(RoundedRectangle(cornerRadius: 8)
-                        .inset(by: -0.5)
-                        .stroke(.black.opacity(0.23), lineWidth: 1))
+                HStack(alignment: .center, spacing: 10) {
+                    Text(verbatim: "\(entry.entry.issuer.first?.uppercased() ?? "")")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(LinearGradient(gradient:
+                            Gradient(colors: [
+                                Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
+                                Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
+                                Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
+                                Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing))
+                }
+                .padding(.horizontal, 5)
+                .padding(.vertical, 6)
+                .frame(width: 32, height: 32, alignment: .center)
+                .background(.black.opacity(0.16))
+                .cornerRadius(8)
+                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .inset(by: -0.5)
+                    .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
                     Text(verbatim: entry.entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(verbatim: entry.entry.uri)
+                    Text(verbatim: entry.entry.issuer)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
@@ -59,15 +72,13 @@ struct EntryCell: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
-            .background(backgroundColor)
+            .background(.white.opacity(0.1))
 
-            Color.clear
-                .frame(height: 1)
-                .frame(maxWidth: .infinity)
-
-            borderColor
-                .frame(height: 1)
-                .frame(maxWidth: .infinity)
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(maxWidth: .infinity, maxHeight: 0.5)
+                .background(Color(red: 0.59, green: 0.59, blue: 0.59).opacity(0.5))
+                .shadow(color: .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
 
             HStack {
                 ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
@@ -101,11 +112,12 @@ struct EntryCell: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
-            .background(backgroundColor)
+            .background(.white.opacity(0.1))
         }
         .cornerRadius(18)
+        .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
-            .stroke(borderColor, lineWidth: 1))
+            .stroke(.white.opacity(0.16), lineWidth: 1))
         .onTapGesture(perform: onCopyToken)
     }
 }
@@ -121,9 +133,12 @@ private extension EntryCell {
 }
 
 #Preview {
-    EntryCell(entry: .init(entry: .init(name: "John Doe",
+    EntryCell(entry: .init(entry: .init(id: UUID().uuidString,
+                                        name: "John Doe",
                                         uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
                                         period: 30,
+                                        issuer: "SimpleLogin",
+                                        secret: "CKTQQJVWT5IXTGD5",
                                         type: .totp,
                                         note: "Note for John Doe"),
                            code: .init(current: "123456", next: "456789"),

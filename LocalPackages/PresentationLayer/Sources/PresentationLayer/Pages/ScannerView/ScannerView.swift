@@ -21,13 +21,14 @@
 //
 
 #if os(iOS)
+import CommonUtilities
+import DataLayer
 import DocScanner
 import PhotosUI
 import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
-
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State var regionOfInterest: CGRect?
@@ -42,18 +43,7 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .alert("Error occurred",
-               isPresented: $viewModel.creationError.mappedToBool(),
-               actions: {
-                   Button { viewModel.clean() } label: {
-                       Text("OK")
-                   }
-               },
-               message: {
-                   if let message = viewModel.creationError?.localizedDescription {
-                       Text(verbatim: message)
-                   }
-               })
+        .sheetUIAlertService
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
                       matching: .images,

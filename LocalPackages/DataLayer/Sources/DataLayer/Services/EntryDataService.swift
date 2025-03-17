@@ -27,9 +27,11 @@ import Models
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
 
-    func insertAndRefreshEntry(from payload: String) async throws
+    func getEntry(from uri: String) async throws -> Entry
+    func insertAndRefreshEntry(from uri: String) async throws
     func insertAndRefreshEntry(from params: EntryParameters) async throws
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
+    func insertAndRefresh(entry: Entry) async throws
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
 }
@@ -72,6 +74,14 @@ public final class EntryDataService: EntryDataServiceProtocol {
 }
 
 public extension EntryDataService {
+    func getEntry(from uri: String) async throws -> Entry {
+        try await repository.entry(for: uri)
+    }
+
+    func insertAndRefresh(entry: Entry) async throws {
+        try await save(entry)
+    }
+
     func insertAndRefreshEntry(from uri: String) async throws {
         let entry = try await repository.entry(for: uri)
         try await save(entry)
@@ -100,7 +110,7 @@ public extension EntryDataService {
     }
 
     func delete(_ entry: EntryUiModel) async throws {
-        try await repository.remove(entry.entry)
+        try await repository.remove(entry.entry.id)
         let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
         dataState = .loaded(data ?? [])
     }

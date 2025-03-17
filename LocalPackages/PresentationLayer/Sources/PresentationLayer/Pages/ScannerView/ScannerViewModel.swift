@@ -22,9 +22,11 @@
 
 #if os(iOS)
 import Combine
+import DataLayer
 import DocScanner
 import Factory
 import Foundation
+import Macro
 import PhotosUI
 import SwiftUI
 
@@ -32,7 +34,6 @@ import SwiftUI
 final class ScannerViewModel {
     var scanning = true
     private(set) var shouldDismiss = false
-    var creationError: Error?
 
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
@@ -47,6 +48,10 @@ final class ScannerViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.parseImageQRCodeContent)
     private(set) var parseImageQRCodeContent
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    var alertService
 
     @ObservationIgnored
     private var task: Task<Void, Never>?
@@ -77,7 +82,6 @@ final class ScannerViewModel {
 
     func clean() {
         hasPayload = false
-        creationError = nil
     }
 }
 
@@ -94,7 +98,12 @@ private extension ScannerViewModel {
     }
 
     func handleError(_ error: Error) {
-        creationError = error
+        alertService.showError(error, mainDisplay: false) { [weak self] in
+            guard let self else {
+                return
+            }
+            clean()
+        }
     }
 
     func parseImage(_ imageSelection: PhotosPickerItem) {

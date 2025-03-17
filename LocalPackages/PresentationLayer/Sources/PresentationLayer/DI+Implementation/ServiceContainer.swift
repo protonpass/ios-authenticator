@@ -21,6 +21,7 @@
 import CommonUtilities
 import DataLayer
 import Factory
+import SwiftUI
 
 public final class ServiceContainer: SharedContainer, AutoRegistering {
     public static let shared = ServiceContainer()
@@ -45,5 +46,14 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
 
     var encryptionService: Factory<any EncryptionServicing> {
         self { EncryptionService(keyStore: ToolsContainer.shared.encryptionKeyStoreService()) }
+    }
+
+    public var deepLinkService: Factory<any DeepLinkServicing> {
+        self { DeepLinkService(service: self.entryDataService(),
+                               alertService: self.alertService()) }
+    }
+
+    public var alertService: Factory<any AlertServiceProtocol> {
+        self { @MainActor in AlertService() }
     }
 }

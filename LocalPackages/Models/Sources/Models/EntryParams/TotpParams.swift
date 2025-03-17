@@ -23,7 +23,7 @@ import Foundation
 public struct TotpParams: Sendable {
     public let name: String
     public let secret: String
-    public let issuer: String?
+    public let issuer: String
     public let period: Int?
     public let digits: Int?
     public let algorithm: TotpAlgorithm?
@@ -31,7 +31,7 @@ public struct TotpParams: Sendable {
 
     public init(name: String,
                 secret: String,
-                issuer: String?,
+                issuer: String,
                 period: Int?,
                 digits: Int?,
                 algorithm: TotpAlgorithm?,

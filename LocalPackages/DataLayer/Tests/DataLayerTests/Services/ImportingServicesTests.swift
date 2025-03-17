@@ -78,7 +78,7 @@ struct ImportingServiceTests {
         #expect(result.entries.count == 3)
         #expect(result.errors.count == 0)
         #expect(result.entries.first?.name == "mylabel815256")
-        #expect(result.entries.last?.name == "")
+        #expect(result.entries.last?.name == "Steam")
     }
     
     @Test("Test import txt from Aegis")
@@ -103,7 +103,7 @@ struct ImportingServiceTests {
         #expect(result.entries.count == 3)
         #expect(result.errors.count == 0)
         #expect(result.entries.first?.name == "mylabel815256")
-        #expect(result.entries.last?.name == "")
+        #expect(result.entries.last?.name == "Steam")
     }
     
     @Test("Test fail import from encrypted aegis entries")

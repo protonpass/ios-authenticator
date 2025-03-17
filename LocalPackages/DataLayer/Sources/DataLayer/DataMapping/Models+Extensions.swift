@@ -23,7 +23,14 @@ import Models
 
 extension AuthenticatorEntryModel {
     var toEntry: Entry {
-        Entry(name: name, uri: uri, period: Int(period), type: entryType.toType, note: note)
+        Entry(id: id,
+              name: name,
+              uri: uri,
+              period: Int(period),
+              issuer: issuer,
+              secret: secret,
+              type: entryType.toType,
+              note: note)
     }
 }
 
@@ -52,9 +59,12 @@ extension [Entry] {
 
 extension Entry {
     var toRustEntry: AuthenticatorEntryModel {
-        AuthenticatorEntryModel(name: name,
+        AuthenticatorEntryModel(id: id,
+                                name: name,
                                 uri: uri,
                                 period: UInt16(period),
+                                issuer: issuer,
+                                secret: secret,
                                 note: note,
                                 entryType: type.toAuthenticatorEntryType)
     }

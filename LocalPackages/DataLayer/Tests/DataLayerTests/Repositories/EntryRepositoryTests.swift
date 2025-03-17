@@ -84,11 +84,13 @@ struct EntryRepositoryTests {
                         name: "Test",
                         uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                         period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note") ]
         
         let result = """
-{"version":1,"entries":[{"content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30","entry_type":"Totp"},"note":"Note"}]}
+{"version":1,"entries":[{"id":"id","content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30","entry_type":"Totp"},"note":"Note"}]}
 """
 
         // Act
@@ -104,6 +106,8 @@ struct EntryRepositoryTests {
                         name: "Test",
                         uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
+                          issuer: "SimpleLogin",
+                          secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note")
         let result = [entry]
@@ -122,6 +126,8 @@ struct EntryRepositoryTests {
                         name: "Test",
                         uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                         period: 40,
+                          issuer: "SimpleLogin",
+                          secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note")
         let result = [entry]
@@ -160,6 +166,8 @@ struct EntryRepositoryTests {
                         name: "Test",
                         uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
+                          issuer: "SimpleLogin",
+                          secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note")
         let params = try sut.getTotpParams(entry: entry)
@@ -181,6 +189,8 @@ struct EntryRepositoryTests {
                         name: "Test",
                         uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
                         period: 40,
+                          issuer: "SimpleLogin",
+                          secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note")
        
@@ -197,6 +207,8 @@ struct EntryRepositoryTests {
                         name: "Test2",
                         uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                         period: 30,
+                           issuer: "SimpleLogin",
+                           secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
                         note: "Note")
        
@@ -216,18 +228,24 @@ struct EntryRepositoryTests {
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note")
         ]
@@ -246,18 +264,24 @@ struct EntryRepositoryTests {
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note")
         ]
@@ -278,18 +302,24 @@ struct EntryRepositoryTests {
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note")
         ]
@@ -317,18 +347,24 @@ struct EntryRepositoryTests {
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
                         Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note")
         ]
@@ -337,6 +373,8 @@ struct EntryRepositoryTests {
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "new note")
         

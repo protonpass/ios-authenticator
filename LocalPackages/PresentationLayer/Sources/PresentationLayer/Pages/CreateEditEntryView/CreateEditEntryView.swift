@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import DataLayer
 import Models
 import SwiftUI
 
@@ -127,8 +128,9 @@ struct CreateEditEntryView: View {
                     .opacity(viewModel.canSave ? 1 : 0.4)
                 }
             }
+            .sheetUIAlertService
             #if os(iOS)
-            .toolbarBackground(.backgroundGradient, for: .navigationBar)
+                .toolbarBackground(.backgroundGradient, for: .navigationBar)
             #endif
         }
     }

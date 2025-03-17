@@ -44,12 +44,37 @@ public struct EntriesView: View {
         NavigationStack {
             mainContainer
                 .background(.backgroundGradient)
-                .navigationTitle("Authenticator")
                 .withSheetDestinations(sheetDestinations: $router.presentedSheet)
                 .environment(router)
                 .task {
                     await viewModel.setUp()
                     viewModel.refreshTokens()
+                }
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
+                        Text("Authenticator")
+                            .font(.title)
+                            .fontWeight(.bold)
+                    }
+                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
+                        Button {
+                            router.presentedSheet = .settings
+                        } label: {
+                            Image(.settingsGear)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .padding(8)
+                                .background(.white.opacity(0.12))
+                                .clipShape(.circle)
+                                .overlay(Circle()
+                                    .stroke(.white, lineWidth: 0.5))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
+                        }
+                    }
+                }
+                .overlay {
+                    overlay
                 }
                 .adaptiveConfirmationDialog("Create",
                                             isPresented: $showCreationOptions,
@@ -70,18 +95,12 @@ public struct EntriesView: View {
 }
 
 private extension EntriesView {
+    @ViewBuilder
     var mainContainer: some View {
-        DynamicContainer(type: searchBarAlignment == .bottom ? .zStack(alignment: .bottom) : .vStack()) {
-            actionBar
-                .zIndex(1)
-            if horizontalSizeClass == .compact {
-                list
-            } else {
-                grid
-            }
-        }
-        .overlay {
-            overlay
+        if horizontalSizeClass == .compact {
+            list
+        } else {
+            grid
         }
     }
 
@@ -93,29 +112,40 @@ private extension EntriesView {
         case let .loaded(entries):
             if entries.isEmpty {
                 ContentUnavailableView {
-                    Label("No token", systemImage: "shield.slash")
+                    Image(.noEntries)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 210, height: 120)
                 } description: {
-                    Text("No token found. Please consider adding one.")
-                } actions: {
                     VStack {
-                        Button("Add a new entry") {
-                            #if os(iOS)
-                            showCreationOptions.toggle()
-                            #else
-                            router.presentedSheet = .createEditEntry(nil)
-                            #endif
-                        }
-                        .buttonStyle(.bordered)
-
-                        Button("Import tokens") {}
-                            .buttonStyle(.bordered)
-
-                        Button(action: {
-                            router.presentedSheet = .settings
-                        }, label: {
-                            Text("Settings")
-                        })
+                        Text("No codes")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                            .opacity(0.6)
+                        Text("Protect your accounts with an extra layer of security.")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(Color.textNorm)
+                            .frame(width: 305, alignment: .top)
+                            .opacity(0.3)
                     }
+                } actions: {
+                    Button {
+                        #if os(iOS)
+                        showCreationOptions.toggle()
+                        #else
+                        router.presentedSheet = .createEditEntry(nil)
+                        #endif
+                    } label: {
+                        Text("Create new code")
+                            .foregroundStyle(.textNorm)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 14)
+                    .frame(height: 52, alignment: .center)
+                    .buttonBackground(.capsule)
                 }
                 .foregroundStyle(.textNorm)
             }
@@ -137,28 +167,37 @@ private extension EntriesView {
             .listRowInsets(EdgeInsets())
         }
         .listStyle(.plain)
+        .padding(.top, 3)
+        .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
+            if viewModel.dataState.data?.isEmpty == false {
+                actionBar
+            }
+        }
         #if os(iOS)
-            .listRowSpacing(12)
+        .listRowSpacing(12)
         #endif
-            .background(.backgroundGradient)
-            .animation(.default, value: isTextFieldFocused)
-            .onTapGesture {
-                isTextFieldFocused = false
-            }
-            .padding(.bottom, 60)
-            .refreshable {
-                viewModel.refreshTokens()
-            }
+        .background(.backgroundGradient)
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
+        .refreshable {
+            viewModel.refreshTokens()
+        }
     }
 
     var grid: some View {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
-                ForEach(viewModel.dataState.data ?? []) { entry in
+                ForEach(viewModel.entries) { entry in
                     cell(for: entry)
                 }
             }
             .padding()
+        }
+        .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
+            if !(viewModel.dataState.data?.isEmpty ?? true) {
+                actionBar
+            }
         }
         .refreshable {
             viewModel.refreshTokens()
@@ -191,88 +230,19 @@ private extension EntriesView {
 
     var actionBar: some View {
         HStack(alignment: .bottom, spacing: 8) {
+            searchBar
             if !isTextFieldFocused {
-                Button {
-                    router.presentedSheet = .settings
-                } label: {
-                    Image(systemName: "slider.horizontal.3")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                }
-            }
-
-            ZStack(alignment: .center) {
-                // Show the placeholder only when text is empty.
-                if viewModel.search.isEmpty, !isTextFieldFocused {
-                    HStack(spacing: 4) {
-                        Label("Search", systemImage: "magnifyingglass")
-                            .foregroundStyle(.textWeak)
-                    }
-                    .padding(.leading, 8)
-                }
-
-                HStack {
-                    if isTextFieldFocused {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.textWeak)
-                    }
-                    // The actual text field.
-                    TextField(text: $viewModel.search,
-                              label: {
-                                  if isTextFieldFocused {
-                                      Text("Search")
-                                  }
-                              })
-                              .focused($isTextFieldFocused)
-                              .foregroundStyle(.textNorm)
-                              .submitLabel(.done)
-                              .onSubmit {
-                                  isTextFieldFocused = false
-                              }
-                }
-                .padding(.leading, 8)
-            }
-
-            if !isTextFieldFocused {
-                #if os(iOS)
-                if isPhone {
-                    Button(action: {
-                        showCreationOptions.toggle()
-//                        router.presentedSheet = .createEditEntry(nil)
-                    }, label: {
-                        plusIcon
-                    })
-                } else {
-                    Menu(content: {
-                        scanQrCodeButton
-                        manuallyAddEntryButton
-                    }, label: {
-                        plusIcon
-                    })
-                }
-                #else
-                Button(action: {
-                    router.presentedSheet = .createEditEntry(nil)
-                }, label: {
-                    plusIcon
-                })
-                #endif
+                addButton
+                    .padding(10)
+                    .frame(width: 44, height: 44, alignment: .center)
+                    .buttonBackground(.circle)
             }
         }
-        .animation(.default, value: isTextFieldFocused)
         .foregroundStyle(.textWeak)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .center)
         .background(Color(red: 0.1, green: 0.1, blue: 0.15))
-        .cornerRadius(12)
-        .background(RoundedRectangle(cornerRadius: 12)
-            .inset(by: 0.25)
-            .offset(y: 1)
-            .stroke(.white.opacity(0.2), lineWidth: 0.5))
-        .padding(.horizontal, 22)
-        .padding(.vertical, 8)
-        .background(.gradientStart)
         .overlay(alignment: .top) {
             if searchBarAlignment == .bottom {
                 // Top border line
@@ -281,6 +251,69 @@ private extension EntriesView {
                     .foregroundStyle(.gradientEnd)
             }
         }
+    }
+
+    var searchBar: some View {
+        ZStack(alignment: .leading) {
+            // Show the placeholder only when text is empty.
+            if viewModel.search.isEmpty, !isTextFieldFocused {
+                Label("Search", systemImage: "magnifyingglass")
+                    .foregroundStyle(.textWeak)
+                    .padding(.leading, 8)
+            }
+
+            HStack {
+                if isTextFieldFocused {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.textWeak)
+                }
+                // The actual text field.
+                TextField(text: $viewModel.search,
+                          label: {
+                              if isTextFieldFocused {
+                                  Text("Search")
+                              }
+                          })
+                          .focused($isTextFieldFocused)
+                          .foregroundStyle(.textNorm)
+                          .submitLabel(.done)
+                          .onSubmit {
+                              isTextFieldFocused = false
+                          }
+            }
+            .padding(.leading, 8)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 0)
+        .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44, alignment: .leading)
+        .background(.black)
+        .cornerRadius(100)
+    }
+
+    @ViewBuilder
+    var addButton: some View {
+        #if os(iOS)
+        if isPhone {
+            Button(action: {
+                showCreationOptions.toggle()
+            }, label: {
+                plusIcon
+            })
+        } else {
+            Menu(content: {
+                scanQrCodeButton
+                manuallyAddEntryButton
+            }, label: {
+                plusIcon
+            })
+        }
+        #else
+        Button(action: {
+            router.presentedSheet = .createEditEntry(nil)
+        }, label: {
+            plusIcon
+        })
+        #endif
     }
 
     var plusIcon: some View {
@@ -305,6 +338,22 @@ private extension EntriesView {
         }, label: {
             Label("Enter manually", systemImage: "character.cursor.ibeam")
         })
+    }
+
+    var toolbarItemTrailingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarTrailing
+        #else
+        return .automatic
+        #endif
+    }
+
+    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .automatic
+        #endif
     }
 }
 

@@ -26,24 +26,30 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     public let name: String
     public let uri: String
     public let period: Int
+    public let issuer: String
+    public let secret: String
     public let note: String?
     public let type: TotpType
     private let precomputedHash: Int
 
-    public init(id: String = UUID().uuidString,
+    public init(id: String,
                 name: String,
                 uri: String,
                 period: Int,
+                issuer: String,
+                secret: String,
                 type: TotpType,
                 note: String?) {
         self.id = id
         self.name = name
         self.uri = uri
         self.period = period
+        self.issuer = issuer
+        self.secret = secret
         self.note = note
         self.type = type
         var hasher = Hasher()
-        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, note, type)
+        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
 }
 

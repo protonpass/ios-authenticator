@@ -18,21 +18,55 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import DataLayer
+import Factory
+import Foundation
 import PresentationLayer
 import SwiftData
 import SwiftUI
 
 @main
 struct AuthenticatorApp: App {
-    @State private var appSettings = ServiceContainer.shared.settingsService()
+    @State private var viewModel = AuthenticatorAppViewModel()
 
     var body: some Scene {
         WindowGroup {
             EntriesView()
-                .preferredColorScheme(appSettings.theme.preferredColorScheme)
+                .preferredColorScheme(viewModel.appSettings.theme.preferredColorScheme)
+                .onOpenURL { url in
+                    viewModel.handleDeepLink(url)
+                }
+                .mainUIAlertService
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
         #endif
+    }
+}
+
+@Observable @MainActor
+private final class AuthenticatorAppViewModel {
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.deepLinkService)
+    private var deepLinkService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    var alertService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    var appSettings
+
+    init() {}
+
+    func handleDeepLink(_ url: URL) {
+        Task {
+            do {
+                try await deepLinkService.handleDeeplink(url)
+            } catch {
+                alertService.showError(error)
+            }
+        }
     }
 }

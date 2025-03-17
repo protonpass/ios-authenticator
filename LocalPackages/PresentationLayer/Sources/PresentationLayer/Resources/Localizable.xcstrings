@@ -1,16 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Add a new entry" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add a new entry"
-          }
-        }
-      }
-    },
     "Advanced options" : {
       "localizations" : {
         "en" : {
@@ -101,6 +91,16 @@
         }
       }
     },
+    "Create new code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create new code"
+          }
+        }
+      }
+    },
     "Dark" : {
       "localizations" : {
         "en" : {
@@ -161,16 +161,6 @@
         }
       }
     },
-    "Error occurred" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error occurred"
-          }
-        }
-      }
-    },
     "Export" : {
       "localizations" : {
         "en" : {
@@ -227,16 +217,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import"
-          }
-        }
-      }
-    },
-    "Import tokens" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import tokens"
           }
         }
       }
@@ -331,32 +311,12 @@
         }
       }
     },
-    "No token" : {
+    "No codes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No token"
-          }
-        }
-      }
-    },
-    "No token found. Please consider adding one." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No token found. Please consider adding one."
-          }
-        }
-      }
-    },
-    "OK" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
+            "value" : "No codes"
           }
         }
       }
@@ -367,6 +327,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Point your camera at the QR code"
+          }
+        }
+      }
+    },
+    "Protect your accounts with an extra layer of security." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your accounts with an extra layer of security."
           }
         }
       }
@@ -537,6 +507,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TYPE"
+          }
+        }
+      }
+    },
+    "Unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
           }
         }
       }
