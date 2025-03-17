@@ -20,19 +20,17 @@
 
 import CommonUtilities
 import Foundation
+import Macro
 import Models
 
 private enum DeeplinkType {
     case otpauth
-    case unknown
+    case other(String)
 }
 
 private extension URL {
     var linkType: DeeplinkType {
-        if scheme == "otpauth" {
-            return .otpauth
-        }
-        return .unknown
+        scheme == "otpauth" ? .otpauth : .other(scheme ?? #localized("Unknown scheme"))
     }
 }
 

@@ -27,22 +27,18 @@ import SwiftUI
 
 @main
 struct AuthenticatorApp: App {
-    @State private var appSettings = ServiceContainer.shared.settingsService()
-    @Injected(\ServiceContainer.deepLinkService) var deepLinkService
-    @State private var alertService = resolve(\ServiceContainer.alertService)
+    @State private var viewModel = AuthenticatorAppViewModel()
 
     var body: some Scene {
         WindowGroup {
             EntriesView()
-                .preferredColorScheme(appSettings.theme.preferredColorScheme)
+                .preferredColorScheme(viewModel.appSettings.theme.preferredColorScheme)
                 .onOpenURL { url in
-                    Task {
-                        try? await deepLinkService.handleDeeplinks(url)
-                    }
+                    viewModel.handleDeepLink(url)
                 }
-                .alert(alertService.alert?.title ?? "Unknown",
-                       isPresented: $alertService.showMainAlert,
-                       presenting: alertService.alert,
+                .alert(viewModel.alertService.alert?.title ?? "Unknown",
+                       isPresented: $viewModel.alertService.showMainAlert,
+                       presenting: viewModel.alertService.alert,
                        actions: { display in
                            display.buildActions
                        },
@@ -53,5 +49,32 @@ struct AuthenticatorApp: App {
         #if os(macOS)
         .windowResizability(.contentMinSize)
         #endif
+    }
+}
+
+@Observable @MainActor
+private final class AuthenticatorAppViewModel {
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.deepLinkService)
+    private var deepLinkService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    var alertService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    var appSettings
+
+    init() {}
+
+    func handleDeepLink(_ url: URL) {
+        Task {
+            do {
+                try await deepLinkService.handleDeeplinks(url)
+            } catch {
+                alertService.showError(error)
+            }
+        }
     }
 }

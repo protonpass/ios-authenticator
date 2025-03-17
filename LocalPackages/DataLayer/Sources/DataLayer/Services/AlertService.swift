@@ -75,6 +75,12 @@ public protocol AlertServiceProtocol: Sendable, Observable {
     func showError(_ error: Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
 
+public extension AlertServiceProtocol {
+    func showError(_ error: Error, mainDisplay: Bool = true, action: (@MainActor () -> Void)? = nil) {
+        showError(error, mainDisplay: mainDisplay, action: action)
+    }
+}
+
 public enum AlertDisplay: Identifiable {
     case main(AlertConfiguration)
     case sheet(AlertConfiguration)

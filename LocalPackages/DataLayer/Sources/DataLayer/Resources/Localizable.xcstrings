@@ -20,6 +20,16 @@
           }
         }
       }
+    },
+    "Unknown scheme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown scheme"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
