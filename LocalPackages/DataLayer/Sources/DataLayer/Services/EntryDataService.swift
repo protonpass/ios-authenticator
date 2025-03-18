@@ -34,6 +34,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func insertAndRefresh(entry: Entry) async throws
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
+    func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 }
 
 @MainActor
@@ -111,9 +112,42 @@ public extension EntryDataService {
 
     func delete(_ entry: EntryUiModel) async throws {
         try await repository.remove(entry.entry.id)
-        let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
+        var data = dataState.data?.filter { $0.entry.id != entry.entry.id }
+        data = updateOrder(data: data)
+        try await repository.updateOrder(data ?? [])
         dataState = .loaded(data ?? [])
     }
+
+    func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
+        guard let entry = dataState.data?[currentPosition] else {
+            return
+        }
+        var data = dataState.data
+        data?.remove(at: currentPosition)
+        data?.insert(entry, at: newPosition)
+        data = updateOrder(data: data)
+        try await repository.updateOrder(data ?? [])
+        dataState = .loaded(data ?? [])
+    }
+
+    //            // Get the item being moved
+    //            let movedItem = items[offset]
+    //
+    //            // Remove the item from the array
+    //            items.remove(at: offset)
+    //
+    //            // Insert the item at the new position
+    //            items.insert(movedItem, at: targetIndex)
+    //
+    //            // Update the order property for affected items only
+    //            modelContext.perform {
+    //                for (index, item) in items.enumerated() {
+    //                    // Only update if the order has changed
+    //                    if item.order != index {
+    //                        item.order = index
+    //                    }
+    //                }
+    //            }
 }
 
 private extension EntryDataService {
@@ -133,14 +167,17 @@ private extension EntryDataService {
     }
 
     func save(_ entry: Entry) async throws {
-        try await repository.save(entry)
+        var data: [EntryUiModel] = dataState.data ?? []
+
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
                                                            entryCount: 1))
         }
-        let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
-        var data: [EntryUiModel] = dataState.data ?? []
+        let order = data.count
+        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order, date: .now)
+        try await repository.save(OrderedEntry(entry: entry, order: order))
+
         data.append(entryUI)
         dataState = .loaded(data)
     }
@@ -166,7 +203,7 @@ private extension EntryDataService {
             guard let entry = entries[safeIndex: index] else {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
-            results.append(.init(entry: entry, code: code, date: .now))
+            results.append(.init(entry: entry, code: code, order: index, date: .now))
         }
 
         return results
@@ -181,21 +218,25 @@ private extension EntryDataService {
             let entries = uiEntries.map(\.entry)
 
             let codes = try repository.generateCodes(entries: entries)
-            guard codes.count == entries.count else {
-                throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
-                                                               entryCount: entries.count))
-            }
             var results = [EntryUiModel]()
             for (index, code) in codes.enumerated() {
-                guard let entry = entries[safeIndex: index] else {
-                    throw AuthError.generic(.missingEntryForGeneratedCode)
-                }
-                results.append(.init(entry: entry, code: code, date: date))
+                results.append(.init(entry: code.entry, code: code, order: index, date: date))
             }
             return results
         } else {
             return uiEntries.map { $0.updateProgress() }
         }
+    }
+
+    func updateOrder(data: [EntryUiModel]?) -> [EntryUiModel] {
+        guard var data else {
+            return []
+        }
+
+        for (index, entry) in data.enumerated() where entry.order != index {
+            data[index] = entry.updateOrder(index)
+        }
+        return data
     }
 }
 

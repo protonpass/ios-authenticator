@@ -89,7 +89,7 @@ public final class QAService: QAServicing {
             guard let entry = entries[safeIndex: index] else {
                 return
             }
-            results.append(.init(entry: entry, code: code, date: .now))
+            results.append(.init(entry: entry, code: code, order: index, date: .now))
         }
         dataState = .loaded(results)
     }

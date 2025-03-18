@@ -25,14 +25,16 @@ import Models
 import SwiftUI
 
 struct EntryCell: View {
-    let entry: EntryUiModel
+    let entry: Entry
+    let code: Code
+    let progress: ProgressUiModel
     let onCopyToken: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(entry.entry.issuer.first?.uppercased() ?? "")")
+                    Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
                         .font(.headline)
                         .fontWeight(.medium)
                         .foregroundStyle(LinearGradient(gradient:
@@ -56,19 +58,18 @@ struct EntryCell: View {
                     .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
-                    Text(verbatim: entry.entry.name)
+                    Text(verbatim: entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(verbatim: entry.entry.issuer)
+                    Text(verbatim: entry.issuer)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                CircularProgressView(progress: entry.progress.value,
-                                     countdown: entry.progress.countdown,
-                                     color: entry.progress.color)
+                CircularProgressView(progress: progress)
+                    .disableAnimations
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -81,7 +82,7 @@ struct EntryCell: View {
                 .shadow(color: .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
 
             HStack {
-                ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
+                ForEach(Array(code.current.enumerated()), id: \.offset) { _, char in
                     HStack(alignment: .center, spacing: 10) {
                         Text(verbatim: "\(char)")
                             .font(.title2)
@@ -104,7 +105,7 @@ struct EntryCell: View {
                 VStack(alignment: .trailing) {
                     Text("Next")
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: entry.code.next.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: code.next.separatedByGroup(3, delimiter: " "))
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
@@ -132,36 +133,30 @@ private extension EntryCell {
     }
 }
 
-#Preview {
-    EntryCell(entry: .init(entry: .init(id: UUID().uuidString,
-                                        name: "John Doe",
-                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
-                                        period: 30,
-                                        issuer: "SimpleLogin",
-                                        secret: "CKTQQJVWT5IXTGD5",
-                                        type: .totp,
-                                        note: "Note for John Doe"),
-                           code: .init(current: "123456", next: "456789"),
-//                           order: 0,
-                           date: .now),
-              onCopyToken: {})
-}
+// #Preview {
+//    EntryCell(entry: .init(entry: .init(id: UUID().uuidString,
+//                                        name: "John Doe",
+//                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
+//                                        period: 30,
+//                                        issuer: "SimpleLogin",
+//                                        secret: "CKTQQJVWT5IXTGD5",
+//                                        type: .totp,
+//                                        note: "Note for John Doe"),
+//                           code: .init(current: "123456", next: "456789"),
+////                           order: 0,
+//                           date: .now),
+//              onCopyToken: {})
+// }
 
 private struct CircularProgressView: View {
-    let progress: Double // Progress between 0 and 1
-    let countdown: Int
-    let color: Color
+    let progress: ProgressUiModel
     let size: CGFloat // Diameter of the circle
     let lineWidth: CGFloat // Thickness of the progress bar
 
-    init(progress: Double,
-         countdown: Int,
-         color: Color,
+    init(progress: ProgressUiModel,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4) {
         self.progress = progress
-        self.countdown = countdown
-        self.color = color
         self.size = size
         self.lineWidth = lineWidth
     }
@@ -170,18 +165,19 @@ private struct CircularProgressView: View {
         ZStack {
             // Background Circle
             Circle()
-                .stroke(color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(progress.color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .frame(width: size, height: size)
 
             // Progress Circle
             Circle()
-                .trim(from: 1 - progress, to: 1)
-                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .trim(from: 1 - progress.value, to: 1)
+                .stroke(progress.color,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .rotationEffect(.degrees(-90))
                 .frame(width: size, height: size)
 
             // Timer Text
-            Text(verbatim: "\(countdown)")
+            Text(verbatim: "\(progress.countdown)")
                 .font(.caption)
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
@@ -192,12 +188,9 @@ private struct CircularProgressView: View {
 private extension ProgressUiModel {
     var color: Color {
         switch level {
-        case .level1: .timerLevel1
-        case .level2: .timerLevel2
-        case .level3: .timerLevel3
-        case .level4: .timerLevel4
-        case .level5: .timerLevel5
-        case .level6: .timerLevel6
+        case .level1: .timer1
+        case .level2: .timer2
+        case .level3: .timer3
         }
     }
 }

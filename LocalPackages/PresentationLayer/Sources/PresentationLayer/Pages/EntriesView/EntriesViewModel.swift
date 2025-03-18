@@ -116,6 +116,50 @@ final class EntriesViewModel {
             }
         }
     }
+
+    func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
+//            // Fetch items sorted by order
+//            let descriptor = FetchDescriptor<Item>(sortBy: [SortDescriptor(\.order)])
+//            guard var items = try? modelContext.fetch(descriptor) else { return }
+//
+        // Get the actual index values after removing
+        guard let offset = source.first else {
+            // TODO: throw error
+            return
+        }
+        var targetIndex = destination
+
+        // Adjust the destination if moving downward in the list
+        if offset < destination {
+            targetIndex -= 1
+        }
+        Task {
+            do {
+                try await entryDataService.reorderItem(from: offset, to: targetIndex)
+            } catch {
+                handle(error)
+            }
+        }
+
+//            // Get the item being moved
+//            let movedItem = items[offset]
+//
+//            // Remove the item from the array
+//            items.remove(at: offset)
+//
+//            // Insert the item at the new position
+//            items.insert(movedItem, at: targetIndex)
+//
+//            // Update the order property for affected items only
+//            modelContext.perform {
+//                for (index, item) in items.enumerated() {
+//                    // Only update if the order has changed
+//                    if item.order != index {
+//                        item.order = index
+//                    }
+//                }
+//            }
+    }
 }
 
 extension EntriesViewModel {

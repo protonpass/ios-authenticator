@@ -25,10 +25,13 @@ import SwiftUI
 
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var showCreationOptions = false
     @FocusState private var isTextFieldFocused: Bool
+    @State private var draggingEntry: EntryUiModel?
+    @State private var isEditing = false
 
     private var isPhone: Bool {
         AppConstants.isPhone
@@ -42,55 +45,50 @@ public struct EntriesView: View {
 
     public var body: some View {
         NavigationStack {
-            mainContainer
-                .background(.backgroundGradient)
-                .withSheetDestinations(sheetDestinations: $router.presentedSheet)
-                .environment(router)
-                .task {
-                    await viewModel.setUp()
-                    viewModel.refreshTokens()
-                }
-                .toolbar {
-                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
-                        Text("Authenticator")
-                            .font(.title)
-                            .fontWeight(.bold)
-                    }
-                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
-                        Button {
-                            router.presentedSheet = .settings
-                        } label: {
-                            Image(.settingsGear)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                                .padding(8)
-                                .background(.white.opacity(0.12))
-                                .clipShape(.circle)
-                                .overlay(Circle()
-                                    .stroke(.white, lineWidth: 0.5))
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
+            ZStack {
+                Color.clear
+                    .mainBackground
+                    .ignoresSafeArea()
+
+                mainContainer
+                    .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
+                        if viewModel.dataState.data?.isEmpty == false {
+                            actionBar
                         }
                     }
-                }
-                .overlay {
-                    overlay
-                }
-                .adaptiveConfirmationDialog("Create",
-                                            isPresented: $showCreationOptions,
-                                            actions: {
-                                                #if os(iOS)
-                                                scanQrCodeButton
-                                                #endif
-                                                manuallyAddEntryButton
-                                            })
-                .onChange(of: router.presentedSheet) { _, newValue in
-                    // Pause refreshing when a sheet is presented
-                    // Only applicable to iPad because sheets on iPad are not full screen
-                    guard horizontalSizeClass == .regular else { return }
-                    viewModel.toggleCodeRefresh(newValue != nil)
-                }
+                    .onTapGesture {
+                        isTextFieldFocused = false
+                    }
+                    .refreshable {
+                        viewModel.refreshTokens()
+                    }
+                    .withSheetDestinations(sheetDestinations: $router.presentedSheet)
+                    .environment(router)
+                    .task {
+                        await viewModel.setUp()
+                        viewModel.refreshTokens()
+                    }
+                    .toolbar { toolbarContent }
+                    .overlay {
+                        overlay
+                    }
+                    .adaptiveConfirmationDialog("Create",
+                                                isPresented: $showCreationOptions,
+                                                actions: {
+                                                    #if os(iOS)
+                                                    scanQrCodeButton
+                                                    #endif
+                                                    manuallyAddEntryButton
+                                                })
+                    .onChange(of: router.presentedSheet) { _, newValue in
+                        // Pause refreshing when a sheet is presented
+                        // Only applicable to iPad because sheets on iPad are not full screen
+                        guard horizontalSizeClass == .regular else { return }
+                        viewModel.toggleCodeRefresh(newValue != nil)
+                    }
+            }
         }
+        .scrollContentBackground(.hidden)
     }
 }
 
@@ -103,86 +101,45 @@ private extension EntriesView {
             grid
         }
     }
-
-    @ViewBuilder
-    var overlay: some View {
-        switch viewModel.dataState {
-        case .loading:
-            ProgressView()
-        case let .loaded(entries):
-            if entries.isEmpty {
-                ContentUnavailableView {
-                    Image(.noEntries)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 210, height: 120)
-                } description: {
-                    VStack {
-                        Text("No codes")
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity, alignment: .top)
-                            .opacity(0.6)
-                        Text("Protect your accounts with an extra layer of security.")
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Color.textNorm)
-                            .frame(width: 305, alignment: .top)
-                            .opacity(0.3)
-                    }
-                } actions: {
-                    Button {
-                        #if os(iOS)
-                        showCreationOptions.toggle()
-                        #else
-                        router.presentedSheet = .createEditEntry(nil)
-                        #endif
-                    } label: {
-                        Text("Create new code")
-                            .foregroundStyle(.textNorm)
-                            .fontWeight(.semibold)
-                    }
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 14)
-                    .frame(height: 52, alignment: .center)
-                    .buttonBackground(.capsule)
-                }
-                .foregroundStyle(.textNorm)
-            }
-        case let .failed(error):
-            RetryableErrorView(tintColor: .danger, error: error) {
-                viewModel.refreshTokens()
-            }
-        }
-    }
 }
+
+// MARK: - Main display entry
 
 private extension EntriesView {
     var list: some View {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry)
+                    .swipeActions {
+                        Button {
+                            router.presentedSheet = .createEditEntry(entry)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                                .foregroundStyle(.info, .textNorm)
+                        }
+                        .accentColor(.info)
+                        .tint(.clear)
+
+                        Button {
+                            viewModel.delete(entry)
+                        } label: {
+                            Label("Delete", systemImage: "trash.fill")
+                                .foregroundStyle(.danger, .textNorm)
+                        }
+                        .tint(.clear)
+                    }
+                    .padding(.top, entry == viewModel.entries.first ? 10 : 0)
+            }
+            .onMove { source, destination in
+                viewModel.moveItem(fromOffsets: source, toOffset: destination)
             }
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
         }
         .listStyle(.plain)
-        .padding(.top, 3)
-        .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-            if viewModel.dataState.data?.isEmpty == false {
-                actionBar
-            }
-        }
         #if os(iOS)
-        .listRowSpacing(12)
+            .listRowSpacing(12)
         #endif
-        .background(.backgroundGradient)
-        .onTapGesture {
-            isTextFieldFocused = false
-        }
-        .refreshable {
-            viewModel.refreshTokens()
-        }
     }
 
     var grid: some View {
@@ -190,44 +147,95 @@ private extension EntriesView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
                 ForEach(viewModel.entries) { entry in
                     cell(for: entry)
+                        .overlay(alignment: .topTrailing) {
+                            if isEditing {
+                                VStack(spacing: 10) {
+                                    Button {
+                                        router.presentedSheet = .createEditEntry(entry)
+                                    } label: {
+                                        Image(systemName: "pencil")
+                                            .foregroundStyle(.textNorm)
+                                            .padding(5)
+                                            .background(.info)
+                                            .clipShape(.circle)
+                                    }
+
+                                    Button {
+                                        viewModel.delete(entry)
+                                    } label: {
+                                        Image(systemName: "trash.fill")
+                                            .foregroundStyle(.textNorm)
+                                            .padding(5)
+                                            .background(.danger)
+                                            .clipShape(.circle)
+                                    }
+                                }
+                                .padding(5)
+                                .background(.black.opacity(0.7))
+                                .clipShape(.capsule)
+                                .offset(x: 25, y: -25)
+                            }
+                        }
+                        .draggable(entry) {
+                            cell(for: entry).opacity(0.8)
+                                .onAppear {
+                                    draggingEntry = entry
+                                }
+                        }
+//                        .dropDestination(for: EntryUiModel.self) { _, _ in
+//                            false
+//                        } isTargeted: { status in
+//                            if let draggingEntry,
+//                               status,
+//                               draggingEntry != entry,
+//                               let sourceIndex = viewModel.entries
+//                               .firstIndex(where: { $0.id == draggingEntry.id }),
+//                               let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id })
+//                               {
+//                                withAnimation(.bouncy) {
+//                                    viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
+//                                                       toOffset: destinationIndex > sourceIndex ?
+//                                                           destinationIndex +
+//                                                           1 : destinationIndex)
+//                                }
+//                            }
+//                        }
+
+                        .dropDestination(for: EntryUiModel.self) { _, _ in
+                            guard let draggingEntry,
+                                  let fromIndex = viewModel.entries
+                                  .firstIndex(where: { $0.id == draggingEntry.id }),
+                                  let toIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }),
+                                  fromIndex != toIndex
+                            else {
+                                return false
+                            }
+                            withAnimation {
+                                viewModel.moveItem(fromOffsets: IndexSet(integer: fromIndex),
+                                                   toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+                            }
+                            return true
+                        }
                 }
             }
+            .animation(.default, value: viewModel.entries)
             .padding()
-        }
-        .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-            if !(viewModel.dataState.data?.isEmpty ?? true) {
-                actionBar
-            }
-        }
-        .refreshable {
-            viewModel.refreshTokens()
         }
     }
 
     func cell(for entry: EntryUiModel) -> some View {
-        EntryCell(entry: entry,
+        EntryCell(entry: entry.entry,
+                  code: entry.code,
+                  progress: entry.progress,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) })
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
-            .swipeActions {
-                if entry.entry.type == .totp {
-                    Button {
-                        router.presentedSheet = .createEditEntry(entry)
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    .tint(.yellow)
-                }
-
-                Button {
-                    viewModel.delete(entry)
-                } label: {
-                    Label("Delete", systemImage: "trash.fill")
-                }
-                .tint(.red)
-            }
     }
+}
 
+// MARK: - Action bar
+
+private extension EntriesView {
     var actionBar: some View {
         HStack(alignment: .bottom, spacing: 8) {
             searchBar
@@ -235,59 +243,50 @@ private extension EntriesView {
                 addButton
                     .padding(10)
                     .frame(width: 44, height: 44, alignment: .center)
-                    .buttonBackground(.circle)
+                    .coloredBackgroundButton(.circle)
             }
         }
-        .foregroundStyle(.textWeak)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .background(Color(red: 0.1, green: 0.1, blue: 0.15))
+        .animation(.default, value: isTextFieldFocused)
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+        .padding(.bottom, 20)
+        .background(.ultraThinMaterial)
         .overlay(alignment: .top) {
             if searchBarAlignment == .bottom {
                 // Top border line
                 Rectangle()
-                    .frame(height: 1)
+                    .frame(height: 0.5)
                     .foregroundStyle(.gradientEnd)
             }
         }
     }
 
     var searchBar: some View {
-        ZStack(alignment: .leading) {
-            // Show the placeholder only when text is empty.
-            if viewModel.search.isEmpty, !isTextFieldFocused {
-                Label("Search", systemImage: "magnifyingglass")
-                    .foregroundStyle(.textWeak)
-                    .padding(.leading, 8)
-            }
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .fontWeight(.medium)
+                .foregroundStyle(.textWeak)
 
-            HStack {
-                if isTextFieldFocused {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.textWeak)
-                }
-                // The actual text field.
-                TextField(text: $viewModel.search,
-                          label: {
-                              if isTextFieldFocused {
-                                  Text("Search")
-                              }
-                          })
-                          .focused($isTextFieldFocused)
-                          .foregroundStyle(.textNorm)
-                          .submitLabel(.done)
-                          .onSubmit {
+            // The actual text field.
+            TextField(text: $viewModel.search,
+                      label: {
+                          Text("Search")
+                      })
+                      .focused($isTextFieldFocused)
+                      .foregroundStyle(.textNorm)
+                      .submitLabel(.done)
+                      .onSubmit {
+                          withAnimation {
                               isTextFieldFocused = false
                           }
-            }
-            .padding(.leading, 8)
+                      }
         }
+
         .padding(.horizontal, 16)
-        .padding(.vertical, 0)
-        .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44, alignment: .leading)
-        .background(.black)
-        .cornerRadius(100)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(colorScheme == .light ? .white.opacity(0.5) : .black.opacity(0.5))
+        .clipShape(.capsule)
     }
 
     @ViewBuilder
@@ -320,6 +319,7 @@ private extension EntriesView {
         Image(systemName: "plus")
             .resizable()
             .frame(width: 20, height: 20)
+            .foregroundStyle(.white)
     }
 
     #if os(iOS)
@@ -338,6 +338,106 @@ private extension EntriesView {
         }, label: {
             Label("Enter manually", systemImage: "character.cursor.ibeam")
         })
+    }
+}
+
+// MARK: - Overlay screen
+
+private extension EntriesView {
+    @ViewBuilder
+    var overlay: some View {
+        switch viewModel.dataState {
+        case .loading:
+            ProgressView()
+        case let .loaded(entries):
+            if entries.isEmpty {
+                ContentUnavailableView {
+                    Image(.noCodes)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 210, height: 120)
+                        .padding(.bottom, 16)
+                } description: {
+                    VStack(spacing: 16) {
+                        Text("No codes")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.textNorm)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                            .opacity(0.9)
+                        Text("Protect your accounts with an extra layer of security.")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.textWeak)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                            .padding(.horizontal, 48)
+                    }
+                } actions: {
+                    Button {
+                        #if os(iOS)
+                        showCreationOptions.toggle()
+                        #else
+                        router.presentedSheet = .createEditEntry(nil)
+                        #endif
+                    } label: {
+                        Text("Create new code")
+                            .foregroundStyle(.textNorm)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 14)
+                    .coloredBackgroundButton(.capsule)
+                }
+                .foregroundStyle(.textNorm)
+            }
+        case let .failed(error):
+            RetryableErrorView(tintColor: .danger, error: error) {
+                viewModel.refreshTokens()
+            }
+        }
+    }
+}
+
+// MARK: - Toolbar
+
+private extension EntriesView {
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: toolbarItemLeadingPlacement) {
+            Text("Authenticator")
+                .foregroundStyle(.textNorm)
+                .font(.title)
+                .fontWeight(.bold)
+        }
+        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+            trailingContent
+        }
+    }
+
+    @ViewBuilder
+    var trailingContent: some View {
+        HStack {
+            #if os(iOS)
+            if AppConstants.isIpad {
+                Button {
+                    withAnimation {
+                        isEditing.toggle()
+                    }
+                } label: {
+                    Text(isEditing ? "Done" : "Edit")
+                        .fontWeight(.medium)
+                        .foregroundStyle(.textWeak)
+                }
+            }
+            #endif
+            Button {
+                router.presentedSheet = .settings
+            } label: {
+                Image(.settingsGear)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+            }
+        }
     }
 
     var toolbarItemTrailingPlacement: ToolbarItemPlacement {

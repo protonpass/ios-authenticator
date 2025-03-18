@@ -92,45 +92,49 @@ struct CreateEditEntryView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(viewModel.isEditing ? "Manual entry" : "New entry")
-            .animation(.default, value: viewModel.canSave)
-            .animation(.default, value: viewModel.type)
-            .background(.backgroundGradient)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    focusFirstField()
-                }
-            }
-            .onSubmit(focusNextField)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemLeadingPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close")
-                            .foregroundStyle(Color.purpleInteraction)
-                            .padding(10)
-                    }
-                }
-
-                ToolbarItem(placement: toolbarItemTrailingPlacement) {
-                    Button {
-                        viewModel.save()
-                        dismiss()
-                    } label: {
-                        Text("Save")
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.purpleInteraction)
-                            .padding(10)
-                    }
-                    .disabled(!viewModel.canSave)
-                    .opacity(viewModel.canSave ? 1 : 0.4)
-                }
-            }
-            .sheetUIAlertService
             #if os(iOS)
-                .toolbarBackground(.backgroundGradient, for: .navigationBar)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
+                .navigationTitle(viewModel.isEditing ? "Manual entry" : "New entry")
+                .animation(.default, value: viewModel.canSave)
+                .animation(.default, value: viewModel.type)
+                .mainBackground
+//                .background(.backgroundGradient)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        focusFirstField()
+                    }
+                }
+                .onSubmit(focusNextField)
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Close")
+                                .foregroundStyle(Color.purpleInteraction)
+                                .padding(10)
+                        }
+                    }
+
+                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
+                        Button {
+                            viewModel.save()
+                            dismiss()
+                        } label: {
+                            Text("Save")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color.purpleInteraction)
+                                .padding(10)
+                        }
+                        .disabled(!viewModel.canSave)
+                        .opacity(viewModel.canSave ? 1 : 0.4)
+                    }
+                }
+                 .sheetUIAlertService
+            #if os(iOS)
+                       // TODO: add background color
+                       .toolbarBackground(.clear, for: .navigationBar)
             #endif
         }
     }

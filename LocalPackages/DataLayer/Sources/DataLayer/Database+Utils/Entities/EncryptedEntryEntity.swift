@@ -26,15 +26,21 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var id: String = UUID().uuidString
     public private(set) var encryptedData = Data()
     public private(set) var keyId: String = ""
+    public private(set) var order: Int = 0
 
-    public init(id: String, encryptedData: Data, keyId: String) {
+    public init(id: String, encryptedData: Data, keyId: String, order: Int) {
         self.id = id
         self.encryptedData = encryptedData
         self.keyId = keyId
+        self.order = order
     }
 
     func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
         self.encryptedData = encryptedData
         self.keyId = keyId
+    }
+
+    func updateOrder(newOrder: Int) {
+        order = newOrder
     }
 }

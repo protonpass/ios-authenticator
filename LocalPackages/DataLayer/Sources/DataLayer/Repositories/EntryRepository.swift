@@ -24,6 +24,16 @@ import Models
 import SimplyPersist
 import SwiftData
 
+public struct OrderedEntry {
+    let entry: Entry
+    let order: Int
+
+    public init(entry: Entry, order: Int) {
+        self.entry = entry
+        self.order = order
+    }
+}
+
 public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Uri parsing and params from rust lib
 
@@ -39,15 +49,16 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - CRUD
 
     func getAllEntries() async throws -> [EntryState]
-    func save(_ entries: [Entry]) async throws
+    func save(_ entries: [OrderedEntry]) async throws
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
     func update(_ entry: Entry) async throws
+    func updateOrder(_ uiEntries: [EntryUiModel]) async throws
 }
 
 public extension EntryRepositoryProtocol {
-    func save(_ entry: Entry) async throws {
+    func save(_ entry: OrderedEntry) async throws {
         try await save([entry])
     }
 }
@@ -120,15 +131,18 @@ public extension EntryRepository {
 
 public extension EntryRepository {
     func getAllEntries() async throws -> [EntryState] {
-        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
+                                                                                         sortingDescriptor: [
+                                                                                             SortDescriptor(\.order)
+                                                                                         ])
         return try encryptionService.decryptMany(entries: encryptedEntries)
     }
 
-    func save(_ entries: [Entry]) async throws {
-        let entities: [EncryptedEntryEntity] = try entries.map {
-            try encrypt($0)
+    func save(_ entries: [OrderedEntry]) async throws {
+        var entities: [EncryptedEntryEntity] = []
+        for entry in entries {
+            try entities.append(encrypt(entry.entry, order: entry.order))
         }
-
         try await persistentStorage.batchSave(content: entities)
     }
 
@@ -158,11 +172,37 @@ public extension EntryRepository {
         entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
         try await persistentStorage.save(data: entity)
     }
+
+//    func updateOrder(_ order: Entry) async throws {
+//        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
+//                                                                                         sortingDescriptor: [
+//                                                                                             SortDescriptor(\.order)
+//                                                                                         ])
+    ////        guard let entity = try await persistentStorage
+    ////            .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
+    ////            return
+    ////        }
+    ////        let encryptedData = try encryptionService.encrypt(entry: entry)
+    ////        entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
+    ////        try await persistentStorage.save(data: entity)
+//    }
+
+    func updateOrder(_ uiEntries: [EntryUiModel]) async throws {
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+        for entry in encryptedEntries {
+            guard let uiEntry = uiEntries.first(where: { $0.id == entry.id }) else { continue }
+            entry.updateOrder(newOrder: uiEntry.order)
+        }
+        try await persistentStorage.batchSave(content: encryptedEntries)
+    }
 }
 
 private extension EntryRepository {
-    func encrypt(_ entry: Entry) throws -> EncryptedEntryEntity {
+    func encrypt(_ entry: Entry, order: Int) throws -> EncryptedEntryEntity {
         let encryptedData = try encryptionService.encrypt(entry: entry)
-        return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData, keyId: encryptionService.keyId)
+        return EncryptedEntryEntity(id: entry.id,
+                                    encryptedData: encryptedData,
+                                    keyId: encryptionService.keyId,
+                                    order: order)
     }
 }

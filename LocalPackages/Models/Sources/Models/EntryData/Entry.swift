@@ -51,6 +51,17 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         var hasher = Hasher()
         precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
+
+    static var `default`: Entry {
+        .init(id: "",
+              name: "",
+              uri: "",
+              period: 30,
+              issuer: "",
+              secret: "",
+              type: .totp,
+              note: nil)
+    }
 }
 
 // MARK: - Hashable

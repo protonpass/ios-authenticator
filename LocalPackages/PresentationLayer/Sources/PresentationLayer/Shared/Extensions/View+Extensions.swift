@@ -72,11 +72,22 @@ public extension View {
         alert(title, isPresented: isPresented, actions: actions)
         #endif
     }
+
+    var disableAnimations: some View {
+        transaction { $0.animation = nil }
+    }
 }
 
 // swiftlint:disable literal_expression_end_indentation
+
+// MARK: - UI related
+
 extension View {
-    func buttonBackground(_ shape: some Shape) -> some View {
+    var mainBackground: some View {
+        modifier(MainBackgroundColor())
+    }
+
+    func coloredBackgroundButton(_ shape: some Shape) -> some View {
         background(LinearGradient(stops: [
                 Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1), location: 0.00),
                 Gradient.Stop(color: Color(red: 0.27, green: 0.19, blue: 0.6), location: 1.00)

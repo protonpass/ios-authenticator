@@ -57,6 +57,15 @@ public enum AppConstants {
         #endif
     }
 
+    @MainActor
+    public static var isIpad: Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .pad
+        #else
+        false
+        #endif
+    }
+
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }

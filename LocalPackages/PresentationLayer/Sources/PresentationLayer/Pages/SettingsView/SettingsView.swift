@@ -59,7 +59,8 @@ struct SettingsView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
-            .background(.backgroundGradient)
+            .mainBackground
+//            .background(.backgroundGradient)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
