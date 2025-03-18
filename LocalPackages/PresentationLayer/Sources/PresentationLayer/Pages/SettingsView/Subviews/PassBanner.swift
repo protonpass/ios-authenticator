@@ -76,16 +76,19 @@ private extension PassBanner {
                 }
 
                 Text(verbatim: "Proton Pass")
+                    .foregroundStyle(.white)
                     .font(.title3)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text("Free password manager with identity protection.")
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button(action: onGetPass) {
                     Text("Get Proton Pass")
+                        .foregroundStyle(.white)
                         .font(.callout)
                         .fontWeight(.medium)
                         .padding(.vertical, 8)

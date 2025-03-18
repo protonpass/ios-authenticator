@@ -74,6 +74,9 @@ final class EntriesViewModel {
     private var alertService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
+
+    @ObservationIgnored
     private var cancellable: (any Cancellable)?
 
     @ObservationIgnored
@@ -118,10 +121,6 @@ final class EntriesViewModel {
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
-//            // Fetch items sorted by order
-//            let descriptor = FetchDescriptor<Item>(sortBy: [SortDescriptor(\.order)])
-//            guard var items = try? modelContext.fetch(descriptor) else { return }
-//
         // Get the actual index values after removing
         guard let offset = source.first else {
             // TODO: throw error
@@ -140,40 +139,11 @@ final class EntriesViewModel {
                 handle(error)
             }
         }
-
-//            // Get the item being moved
-//            let movedItem = items[offset]
-//
-//            // Remove the item from the array
-//            items.remove(at: offset)
-//
-//            // Insert the item at the new position
-//            items.insert(movedItem, at: targetIndex)
-//
-//            // Update the order property for affected items only
-//            modelContext.perform {
-//                for (index, item) in items.enumerated() {
-//                    // Only update if the order has changed
-//                    if item.order != index {
-//                        item.order = index
-//                    }
-//                }
-//            }
     }
 }
 
 extension EntriesViewModel {
-    func setUp() async {
-//        do {
-//            entries = if let mocked = mockedEntries() {
-//                mocked
-//            } else {
-//                try await getEntries()
-//            }
-//        } catch {
-//            handle(error)
-//        }
-    }
+    func setUp() async {}
 
     func refreshTokens() {
         generateTokensTask?.cancel()
@@ -218,7 +188,7 @@ extension EntriesViewModel {
 private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
-        // TODO: Log and display error to the users
+        // TODO: Log
         alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

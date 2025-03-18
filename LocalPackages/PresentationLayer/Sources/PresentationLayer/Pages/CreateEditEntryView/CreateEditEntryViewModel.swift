@@ -35,6 +35,8 @@ final class CreateEditEntryViewModel {
     var type: TotpType = .totp
     var note = ""
 
+    var shouldDismiss = false
+
     let supportedDigits: [Int] = Array(5...10)
     let supportedPeriod: [Int] = [10, 20, 30, 40, 50, 60]
 
@@ -67,9 +69,14 @@ final class CreateEditEntryViewModel {
     }
 
     func save() {
-        guard !issuer.isEmpty, !secret.isEmpty, !name.isEmpty else {
+        guard !secret.isEmpty, !name.isEmpty else {
             return
         }
+
+        if type == .totp, issuer.isEmpty {
+            return
+        }
+
         let params: EntryParameters = if type == .totp {
             .totp(TotpParams(name: name,
                              secret: secret,

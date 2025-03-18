@@ -30,14 +30,14 @@ struct EditThemeView: View {
     var body: some View {
         VStack {
             ForEach(Theme.allCases, id: \.self) { theme in
-                Button(action: {
+                Button {
                     if theme == currentTheme {
                         dismiss()
                     } else {
                         dismiss()
                         onUpdate(theme)
                     }
-                }, label: {
+                } label: {
                     HStack {
                         Text(theme.title)
                             .foregroundStyle(.textNorm)
@@ -47,17 +47,18 @@ struct EditThemeView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 16)
-                                .foregroundStyle(Color.textNorm)
+                                .foregroundStyle(.textNorm)
                         }
                     }
                     .padding(8)
-                })
+                }
 
                 if theme != Theme.allCases.last {
                     Divider()
                 }
             }
         }
+        .mainBackground
         .presentationDetents([.height(CGFloat(60 * Theme.allCases.count))])
     }
 }

@@ -38,7 +38,7 @@ public struct EntriesView: View {
     }
 
     private var searchBarAlignment: VerticalAlignment {
-        isPhone ? .bottom : .top
+        viewModel.settingsService.searchBarDisplayMode == .bottom ? .bottom : .top
     }
 
     public init() {}
@@ -144,7 +144,8 @@ private extension EntriesView {
 
     var grid: some View {
         ScrollView {
-            LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
+            let colums = Array(repeating: GridItem(spacing: isEditing ? 50 : 16), count: 2)
+            LazyVGrid(columns: colums /* [.init(.flexible()), .init(.flexible())] */ ) {
                 ForEach(viewModel.entries) { entry in
                     cell(for: entry)
                         .overlay(alignment: .topTrailing) {
@@ -154,7 +155,7 @@ private extension EntriesView {
                                         router.presentedSheet = .createEditEntry(entry)
                                     } label: {
                                         Image(systemName: "pencil")
-                                            .foregroundStyle(.textNorm)
+                                            .foregroundStyle(.white)
                                             .padding(5)
                                             .background(.info)
                                             .clipShape(.circle)
@@ -164,16 +165,16 @@ private extension EntriesView {
                                         viewModel.delete(entry)
                                     } label: {
                                         Image(systemName: "trash.fill")
-                                            .foregroundStyle(.textNorm)
+                                            .foregroundStyle(.white)
                                             .padding(5)
                                             .background(.danger)
                                             .clipShape(.circle)
                                     }
                                 }
                                 .padding(5)
-                                .background(.black.opacity(0.7))
+                                .background(colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.7))
                                 .clipShape(.capsule)
-                                .offset(x: 25, y: -25)
+                                .offset(x: 40, y: 0)
                             }
                         }
                         .draggable(entry) {
@@ -220,6 +221,7 @@ private extension EntriesView {
             }
             .animation(.default, value: viewModel.entries)
             .padding()
+            .padding(.trailing, isEditing ? 44 : 0)
         }
     }
 
@@ -380,7 +382,7 @@ private extension EntriesView {
                         #endif
                     } label: {
                         Text("Create new code")
-                            .foregroundStyle(.textNorm)
+                            .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
                     .padding(.horizontal, 30)

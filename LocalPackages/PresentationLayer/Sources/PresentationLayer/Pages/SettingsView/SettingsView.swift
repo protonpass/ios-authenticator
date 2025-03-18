@@ -25,6 +25,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
+
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showQaMenu = false
@@ -60,7 +62,6 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .mainBackground
-//            .background(.backgroundGradient)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -71,12 +72,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            #if os(iOS)
-            .toolbarColorScheme(.dark, for: .navigationBar, .tabBar)
-            .toolbarBackground(.gradientStart, for: .navigationBar, .tabBar)
-            .toolbarBackground(.visible, for: .navigationBar, .tabBar)
-            #endif
-            .accentColor(.gradientStart)
+            .colorScheme(viewModel.settingsService.theme.preferredColorScheme ?? .dark)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
@@ -93,6 +89,10 @@ struct SettingsView: View {
         #else
         return .navigation
         #endif
+    }
+
+    private var isDarkMode: Bool {
+        colorScheme == .dark
     }
 }
 
@@ -148,6 +148,24 @@ private extension SettingsView {
                     showEditTheme.toggle()
                 }
             }
+
+            Menu(content: {
+                ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
+                    Button(action: {
+                        viewModel.updateSearchBarDisplay(theme)
+                    }, label: {
+                        if theme == viewModel.searchBarDisplay {
+                            Label(theme.title, systemImage: "checkmark")
+                        } else {
+                            Text(theme.title)
+                        }
+                    })
+                }
+            }, label: {
+                SettingRow(title: .localized("SearchBar display"),
+                           trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
+                                                        onTap: {}))
+            })
 
             SettingDivider()
 
@@ -233,7 +251,7 @@ private extension SettingsView {
             .padding(.horizontal, 0)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(.white.opacity(0.08))
+            .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)

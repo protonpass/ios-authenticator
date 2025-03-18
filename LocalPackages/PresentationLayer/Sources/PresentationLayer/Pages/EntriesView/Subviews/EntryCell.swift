@@ -25,6 +25,8 @@ import Models
 import SwiftUI
 
 struct EntryCell: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let entry: Entry
     let code: Code
     let progress: ProgressUiModel
@@ -78,8 +80,10 @@ struct EntryCell: View {
             Rectangle()
                 .foregroundStyle(.clear)
                 .frame(maxWidth: .infinity, maxHeight: 0.5)
-                .background(Color(red: 0.59, green: 0.59, blue: 0.59).opacity(0.5))
-                .shadow(color: .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
+                .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
+                    .opacity(0.5))
+                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) :
+                    .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
 
             HStack {
                 ForEach(Array(code.current.enumerated()), id: \.offset) { _, char in
@@ -115,11 +119,23 @@ struct EntryCell: View {
             .padding(.horizontal, 16)
             .background(.white.opacity(0.1))
         }
+        .background(LinearGradient(stops: [
+                Gradient.Stop(color: .white, location: 0.00),
+                Gradient.Stop(color: .white.opacity(isLightMode ? 0.5 : 0),
+                              location: isLightMode ? 1.00 : 0.0)
+            ],
+            startPoint: UnitPoint(x: 0.5, y: 0),
+            endPoint: UnitPoint(x: 0.5, y: 1)))
+        .background(isLightMode ? .clear : .white.opacity(0.1))
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .stroke(.white.opacity(0.16), lineWidth: 1))
         .onTapGesture(perform: onCopyToken)
+    }
+
+    private var isLightMode: Bool {
+        colorScheme == .light
     }
 }
 

@@ -129,25 +129,6 @@ public extension EntryDataService {
         try await repository.updateOrder(data ?? [])
         dataState = .loaded(data ?? [])
     }
-
-    //            // Get the item being moved
-    //            let movedItem = items[offset]
-    //
-    //            // Remove the item from the array
-    //            items.remove(at: offset)
-    //
-    //            // Insert the item at the new position
-    //            items.insert(movedItem, at: targetIndex)
-    //
-    //            // Update the order property for affected items only
-    //            modelContext.perform {
-    //                for (index, item) in items.enumerated() {
-    //                    // Only update if the order has changed
-    //                    if item.order != index {
-    //                        item.order = index
-    //                    }
-    //                }
-    //            }
 }
 
 private extension EntryDataService {

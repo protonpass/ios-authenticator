@@ -41,10 +41,14 @@ final class SettingsViewModel {
     private let bundle: Bundle
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+    @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
 
     var theme: Theme {
         settingsService.theme
+    }
+
+    var searchBarDisplay: SearchBarDisplayMode {
+        settingsService.searchBarDisplayMode
     }
 
     var isQaBuild: Bool {
@@ -89,5 +93,10 @@ extension SettingsViewModel {
     func updateTheme(_ newValue: Theme) {
         guard newValue != settingsService.theme else { return }
         settingsService.setTheme(newValue)
+    }
+
+    func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
+        guard newValue != settingsService.searchBarDisplayMode else { return }
+        settingsService.setSearchBarMode(newValue)
     }
 }
