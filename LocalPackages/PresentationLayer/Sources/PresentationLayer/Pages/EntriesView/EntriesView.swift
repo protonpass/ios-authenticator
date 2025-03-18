@@ -425,7 +425,7 @@ private extension EntriesView {
                 } label: {
                     Text(isEditing ? "Done" : "Edit")
                         .fontWeight(.medium)
-                        .foregroundStyle(.textWeak)
+                        .foregroundStyle(isEditing ? .textNorm : .textWeak)
                 }
             }
             #endif

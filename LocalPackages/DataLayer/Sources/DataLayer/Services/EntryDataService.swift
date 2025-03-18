@@ -161,12 +161,14 @@ private extension EntryDataService {
                 if Task.isCancelled { return }
                 dataState = try await .loaded(generateUIEntries(from: entriesStates.decodedEntries))
             } catch {
+                if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
             }
         }
     }
 
     func save(_ entry: Entry) async throws {
+        // TODO: check if no duplicate entries
         var data: [EntryUiModel] = dataState.data ?? []
 
         let codes = try repository.generateCodes(entries: [entry])

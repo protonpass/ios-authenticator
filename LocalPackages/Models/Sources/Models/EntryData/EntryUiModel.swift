@@ -19,8 +19,10 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import SwiftUI
+import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable {
     public let entry: Entry
     public let code: Code
     public let order: Int
@@ -43,6 +45,14 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
     public func copy(newEntry: Entry) -> EntryUiModel {
         EntryUiModel(entry: newEntry, code: code, order: order, progress: progress)
     }
+
+    public static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .entryUIModelType)
+    }
+}
+
+public extension UTType {
+    static let entryUIModelType = UTType(exportedAs: "me.proton.authenticator")
 }
 
 public extension EntryUiModel {
@@ -70,7 +80,7 @@ public extension EntryUiModel {
     }
 }
 
-public struct ProgressUiModel: Sendable, Equatable, Hashable, Identifiable {
+public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifiable {
     /// From 0.0 to 1.0
     public let value: Double
     public let level: Level
@@ -79,8 +89,8 @@ public struct ProgressUiModel: Sendable, Equatable, Hashable, Identifiable {
     private let precomputedHash: Int
 
     /// The less the level, the more critical it is
-    public enum Level: Sendable {
-        case level1, level2, level3, level4, level5, level6
+    public enum Level: Sendable, Codable {
+        case level1, level2, level3
     }
 
     public init(value: Double, countdown: Int) {
@@ -88,18 +98,12 @@ public struct ProgressUiModel: Sendable, Equatable, Hashable, Identifiable {
         self.countdown = countdown
 
         level = switch value {
-        case 0.0...0.08:
+        case 0.0...0.05:
             .level1
-        case 0.08...0.16:
+        case 0.05...0.25:
             .level2
-        case 0.16...0.25:
-            .level3
-        case 0.25...0.33:
-            .level4
-        case 0.33...0.4:
-            .level5
         default:
-            .level6
+            .level3
         }
         var hasher = Hasher()
         precomputedHash = hasher.combineAndFinalize(value, level, countdown)
