@@ -22,16 +22,15 @@ import Combine
 import CommonUtilities
 import Factory
 import Models
+import RenderMeThis
 import SwiftUI
-
-// swiftlint:disable literal_expression_end_indentation
 
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
-
     let entry: Entry
     let code: Code
     let progress: ProgressUiModel
+    let configuration: EntryCellConfiguration
     let onCopyToken: () -> Void
 
     var body: some View {
@@ -90,30 +89,14 @@ struct EntryCell: View {
                         y: -0.5)
 
             HStack {
-                ForEach(Array(code.current.enumerated()), id: \.offset) { _, char in
-                    HStack(alignment: .center, spacing: 10) {
-                        Text(verbatim: "\(char)")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .monospaced()
-                            .foregroundStyle(.textNorm)
-                    }
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 4)
-                    .background(.black.opacity(0.16))
-                    .cornerRadius(8)
-                    .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                    .overlay(RoundedRectangle(cornerRadius: 8)
-                        .inset(by: -0.5)
-                        .stroke(.black.opacity(0.23), lineWidth: 1))
-                }
+                numberView
 
                 Spacer()
 
                 VStack(alignment: .trailing) {
                     Text("Next")
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: code.next.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
@@ -123,7 +106,8 @@ struct EntryCell: View {
             .padding(.horizontal, 16)
             .background(.white.opacity(0.1))
         }
-        .background(LinearGradient(stops: [
+        .background(LinearGradient(stops:
+            [
                 Gradient.Stop(color: .white, location: 0.00),
                 Gradient.Stop(color: .white.opacity(isLightMode ? 0.5 : 0),
                               location: isLightMode ? 1.00 : 0.0)
@@ -141,6 +125,39 @@ struct EntryCell: View {
     private var isLightMode: Bool {
         colorScheme == .light
     }
+
+    var nextCode: String {
+        configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+    }
+
+    @ViewBuilder
+    private var numberView: some View {
+        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
+        if configuration.displayNumberBackground {
+            ForEach(Array(code.enumerated()), id: \.offset) { _, char in
+                HStack(alignment: .center, spacing: 10) {
+                    Text(verbatim: "\(char)")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.textNorm)
+                }
+                .padding(.horizontal, 5)
+                .padding(.vertical, 4)
+                .background(.black.opacity(0.16))
+                .cornerRadius(8)
+                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .inset(by: -0.5)
+                    .stroke(.black.opacity(0.23), lineWidth: 1))
+            }
+        } else {
+            Text(verbatim: "\(code.separatedByGroup(3, delimiter: " "))")
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(.textNorm)
+                .monospaced()
+        }
+    }
 }
 
 private extension EntryCell {
@@ -152,21 +169,6 @@ private extension EntryCell {
         borderColor.opacity(0.5)
     }
 }
-
-// #Preview {
-//    EntryCell(entry: .init(entry: .init(id: UUID().uuidString,
-//                                        name: "John Doe",
-//                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
-//                                        period: 30,
-//                                        issuer: "SimpleLogin",
-//                                        secret: "CKTQQJVWT5IXTGD5",
-//                                        type: .totp,
-//                                        note: "Note for John Doe"),
-//                           code: .init(current: "123456", next: "456789"),
-////                           order: 0,
-//                           date: .now),
-//              onCopyToken: {})
-// }
 
 private struct CircularProgressView: View {
     let progress: ProgressUiModel
@@ -214,5 +216,3 @@ private extension ProgressUiModel {
         }
     }
 }
-
-// swiftlint:enable literal_expression_end_indentation

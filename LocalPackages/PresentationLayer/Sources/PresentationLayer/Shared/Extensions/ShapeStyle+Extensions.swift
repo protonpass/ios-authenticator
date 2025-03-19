@@ -20,7 +20,6 @@
 
 import SwiftUI
 
-// swiftlint:disable literal_expression_end_indentation
 struct MainBackgroundColor: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -30,7 +29,8 @@ struct MainBackgroundColor: ViewModifier {
                 .resizable(resizingMode: .tile)
                 .opacity(0.15)
                 .blendMode(colorScheme == .light ? .difference : .screen))
-            .background(LinearGradient(stops: [
+            .background(LinearGradient(stops:
+                [
                     Gradient.Stop(color: Color.gradientStart, location: 0.00),
                     Gradient.Stop(color: Color.gradientEnd, location: 1.00)
                 ],
@@ -38,5 +38,3 @@ struct MainBackgroundColor: ViewModifier {
                 endPoint: UnitPoint(x: 0.5, y: 1)))
     }
 }
-
-// swiftlint:enable literal_expression_end_indentation

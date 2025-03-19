@@ -46,6 +46,8 @@ public enum AppConstants {
     public enum Settings {
         public static let searchBarMode = "SearchBarMode"
         public static let theme = "Theme"
+        public static let displayCode = "DisplayCode"
+        public static let numberBackground = "NumberBackground"
     }
 
     @MainActor
@@ -71,7 +73,7 @@ public enum AppConstants {
     }
 
     public enum EntryOptions {
-        public static let supportedDigits: [Int] = Array(5...9)
+        public static let supportedDigits: [Int] = [6, 8]
         public static let supportedPeriod: [Int] = [30, 60]
     }
 }

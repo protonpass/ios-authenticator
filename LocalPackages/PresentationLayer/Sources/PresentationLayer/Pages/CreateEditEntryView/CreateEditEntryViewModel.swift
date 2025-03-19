@@ -115,18 +115,14 @@ private extension CreateEditEntryViewModel {
                 issuer = params.issuer
                 if let newPeriod = params.period {
                     period = period
-                    if !supportedPeriod.contains(newPeriod) {
-                        supportedPeriod.append(newPeriod)
-                        supportedPeriod.sort()
-                    }
+                    supportedPeriod.appendIfNotExists(newPeriod)
+                    supportedPeriod.sort()
                 }
 
                 if let newDigits = params.digits {
                     digits = newDigits
-                    if !supportedDigits.contains(newDigits) {
-                        supportedDigits.append(newDigits)
-                        supportedDigits.sort()
-                    }
+                    supportedDigits.appendIfNotExists(newDigits)
+                    supportedDigits.sort()
                 }
                 algo = params.algorithm ?? .sha1
                 note = params.note ?? ""

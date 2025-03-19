@@ -170,6 +170,14 @@ private extension SettingsView {
 
             SettingDivider()
 
+            SettingRow(title: .localized("Hide cell entry code"),
+                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
+                                             onToggle: viewModel.toggleHideCode))
+            SettingDivider()
+            SettingRow(title: .localized("Show number background"),
+                       trailingMode: .toggle(isOn: viewModel.showNumberBackground,
+                                             onToggle: viewModel.toggleDisplayNumberBackground))
+            SettingDivider()
             SettingRow(title: .localized("List style"),
                        trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
         }

@@ -51,6 +51,14 @@ final class SettingsViewModel {
         settingsService.searchBarDisplayMode
     }
 
+    var shouldHideCode: Bool {
+        settingsService.entryUIConfiguration.hideEntryCode
+    }
+
+    var showNumberBackground: Bool {
+        settingsService.entryUIConfiguration.displayNumberBackground
+    }
+
     var isQaBuild: Bool {
         bundle.isQaBuild
     }
@@ -88,6 +96,14 @@ extension SettingsViewModel {
 
     func toggleTapToRevealCode() {
         tapToRevealCodeEnabled.toggle()
+    }
+
+    func toggleHideCode() {
+        settingsService.setHideEntryCode(!shouldHideCode)
+    }
+
+    func toggleDisplayNumberBackground() {
+        settingsService.setDisplayNumberBackground(!showNumberBackground)
     }
 
     func updateTheme(_ newValue: Theme) {

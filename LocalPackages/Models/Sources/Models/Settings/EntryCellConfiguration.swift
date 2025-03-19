@@ -1,6 +1,6 @@
 //
-// Array+Extensions.swift
-// Proton Authenticator - Created on 17/02/2025.
+// EntryCellConfiguration.swift
+// Proton Authenticator - Created on 19/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -20,19 +20,16 @@
 
 import Foundation
 
-public extension Array {
-    subscript(safeIndex index: Int) -> Element? {
-        guard index >= 0, index < endIndex else {
-            return nil
-        }
-        return self[index]
-    }
-}
+public struct EntryCellConfiguration {
+    public let hideEntryCode: Bool
+    public let displayNumberBackground: Bool
 
-public extension Array where Element: Equatable {
-    mutating func appendIfNotExists(_ newElement: Element) {
-        if !contains(newElement) {
-            append(newElement)
-        }
+    public init(hideEntryCode: Bool, displayNumberBackground: Bool) {
+        self.hideEntryCode = hideEntryCode
+        self.displayNumberBackground = displayNumberBackground
+    }
+
+    public static var `default`: EntryCellConfiguration {
+        EntryCellConfiguration(hideEntryCode: true, displayNumberBackground: false)
     }
 }

@@ -200,22 +200,6 @@ private extension EntriesView {
                                 }
                             }
                         }
-
-//                        .dropDestination(for: EntryUiModel.self) { _, _ in
-//                            guard let draggingEntry,
-//                                  let fromIndex = viewModel.entries
-//                                  .firstIndex(where: { $0.id == draggingEntry.id }),
-//                                  let toIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }),
-//                                  fromIndex != toIndex
-//                            else {
-//                                return false
-//                            }
-//                            withAnimation {
-//                                viewModel.moveItem(fromOffsets: IndexSet(integer: fromIndex),
-//                                                   toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
-//                            }
-//                            return true
-//                        }
                 }
             }
             .animation(.default, value: viewModel.entries)
@@ -228,6 +212,7 @@ private extension EntriesView {
         EntryCell(entry: entry.entry,
                   code: entry.code,
                   progress: entry.progress,
+                  configuration: viewModel.settingsService.entryUIConfiguration,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) })
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)

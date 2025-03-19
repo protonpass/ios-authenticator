@@ -211,6 +211,16 @@
         }
       }
     },
+    "Hide cell entry code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide cell entry code"
+          }
+        }
+      }
+    },
     "How to use Proton Authenticator" : {
       "localizations" : {
         "en" : {
@@ -437,6 +447,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Show number background" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show number background"
           }
         }
       }

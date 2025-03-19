@@ -115,23 +115,28 @@ public extension EntryDataService {
     }
 
     func delete(_ entry: EntryUiModel) async throws {
+        guard var data = dataState.data else {
+            return
+        }
         try await repository.remove(entry.entry.id)
-        var data = dataState.data?.filter { $0.entry.id != entry.entry.id }
+        data = data.filter { $0.entry.id != entry.entry.id }
         data = updateOrder(data: data)
-        try await repository.updateOrder(data ?? [])
-        dataState = .loaded(data ?? [])
+        try await repository.updateOrder(data)
+        dataState = .loaded(data)
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
         guard let entry = dataState.data?[currentPosition] else {
             return
         }
-        var data = dataState.data
-        data?.remove(at: currentPosition)
-        data?.insert(entry, at: newPosition)
+        guard var data = dataState.data else {
+            return
+        }
+        data.remove(at: currentPosition)
+        data.insert(entry, at: newPosition)
         data = updateOrder(data: data)
-        try await repository.updateOrder(data ?? [])
-        dataState = .loaded(data ?? [])
+        try await repository.updateOrder(data)
+        dataState = .loaded(data)
     }
 }
 

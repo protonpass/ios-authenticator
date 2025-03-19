@@ -27,9 +27,12 @@ import Models
 public protocol SettingsServicing: Sendable, Observable {
     var theme: Theme { get }
     var searchBarDisplayMode: SearchBarDisplayMode { get }
+    var entryUIConfiguration: EntryCellConfiguration { get }
 
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
+    func setHideEntryCode(_ value: Bool)
+    func setDisplayNumberBackground(_ value: Bool)
 }
 
 @MainActor
@@ -40,6 +43,7 @@ public final class SettingsService: SettingsServicing {
 
     public var searchBarDisplayMode: SearchBarDisplayMode
     public var theme: Theme
+    public var entryUIConfiguration: EntryCellConfiguration
 
     public init(store: UserDefaults) {
         self.store = store
@@ -47,6 +51,10 @@ public final class SettingsService: SettingsServicing {
         searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
             .integer(forKey: AppConstants.Settings.searchBarMode)) ??
             .bottom
+        let displayNumberBackground: Bool = store.bool(forKey: AppConstants.Settings.numberBackground)
+        let hideEntryCode: Bool = store.bool(forKey: AppConstants.Settings.displayCode)
+        entryUIConfiguration = .init(hideEntryCode: hideEntryCode,
+                                     displayNumberBackground: displayNumberBackground)
     }
 }
 
@@ -67,5 +75,23 @@ public extension SettingsService {
         }
         store.set(value.rawValue, forKey: AppConstants.Settings.searchBarMode)
         searchBarDisplayMode = value
+    }
+
+    func setHideEntryCode(_ value: Bool) {
+        guard entryUIConfiguration.hideEntryCode != value else {
+            return
+        }
+        store.set(value, forKey: AppConstants.Settings.displayCode)
+        entryUIConfiguration = .init(hideEntryCode: value,
+                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground)
+    }
+
+    func setDisplayNumberBackground(_ value: Bool) {
+        guard entryUIConfiguration.displayNumberBackground != value else {
+            return
+        }
+        store.set(value, forKey: AppConstants.Settings.numberBackground)
+        entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
+                                     displayNumberBackground: value)
     }
 }
