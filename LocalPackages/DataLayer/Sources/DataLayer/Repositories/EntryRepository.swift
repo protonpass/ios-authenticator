@@ -24,16 +24,6 @@ import Models
 import SimplyPersist
 import SwiftData
 
-public struct OrderedEntry {
-    let entry: Entry
-    let order: Int
-
-    public init(entry: Entry, order: Int) {
-        self.entry = entry
-        self.order = order
-    }
-}
-
 public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Uri parsing and params from rust lib
 
@@ -54,7 +44,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func remove(_ entryId: String) async throws
     func removeAll() async throws
     func update(_ entry: Entry) async throws
-    func updateOrder(_ uiEntries: [EntryUiModel]) async throws
+    func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -139,11 +129,8 @@ public extension EntryRepository {
     }
 
     func save(_ entries: [OrderedEntry]) async throws {
-        var entities: [EncryptedEntryEntity] = []
-        for entry in entries {
-            try entities.append(encrypt(entry.entry, order: entry.order))
-        }
-        try await persistentStorage.batchSave(content: entities)
+        let encryptedEntries = try entries.map { try encrypt($0) }
+        try await persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func remove(_ entry: Entry) async throws {
@@ -173,36 +160,22 @@ public extension EntryRepository {
         try await persistentStorage.save(data: entity)
     }
 
-//    func updateOrder(_ order: Entry) async throws {
-//        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
-//                                                                                         sortingDescriptor: [
-//                                                                                             SortDescriptor(\.order)
-//                                                                                         ])
-    ////        guard let entity = try await persistentStorage
-    ////            .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
-    ////            return
-    ////        }
-    ////        let encryptedData = try encryptionService.encrypt(entry: entry)
-    ////        entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
-    ////        try await persistentStorage.save(data: entity)
-//    }
-
-    func updateOrder(_ uiEntries: [EntryUiModel]) async throws {
+    func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws {
         let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
         for entry in encryptedEntries {
-            guard let uiEntry = uiEntries.first(where: { $0.id == entry.id }) else { continue }
-            entry.updateOrder(newOrder: uiEntry.order)
+            guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
+            entry.updateOrder(newOrder: orderedEntry.order)
         }
         try await persistentStorage.batchSave(content: encryptedEntries)
     }
 }
 
 private extension EntryRepository {
-    func encrypt(_ entry: Entry, order: Int) throws -> EncryptedEntryEntity {
-        let encryptedData = try encryptionService.encrypt(entry: entry)
+    func encrypt(_ entry: OrderedEntry) throws -> EncryptedEntryEntity {
+        let encryptedData = try encryptionService.encrypt(entry: entry.entry)
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     keyId: encryptionService.keyId,
-                                    order: order)
+                                    order: entry.order)
     }
 }

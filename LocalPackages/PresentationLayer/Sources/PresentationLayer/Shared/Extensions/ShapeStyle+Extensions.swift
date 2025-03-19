@@ -20,26 +20,7 @@
 
 import SwiftUI
 
-// extension ShapeStyle where Self == Color {
-//    static var backgroundGradient: LinearGradient {
-////        LinearGradient(gradient: Gradient(stops: [
-////            .init(color: Color.gradientStart, location: 0.00),
-////            .init(color: Color.gradientEnd, location: 1.00)
-////        ]),
-////        startPoint: UnitPoint(x: 0.5, y: 0),
-////        endPoint: UnitPoint(x: 0.5, y: 1))
-////
-//        LinearGradient(stops: [
-//            Gradient.Stop(color: Color(red: 0.18, green: 0.16, blue: 0.16), location: 0.00),
-//            Gradient.Stop(color: Color(red: 0.09, green: 0.08, blue: 0.08), location: 1.00)
-//        ],
-//        startPoint: UnitPoint(x: 0.5, y: 0),
-//        endPoint: UnitPoint(x: 0.5, y: 1))
-//    }
-// }
-
-// TODO: need to have background on all screen and no safe area
-
+// swiftlint:disable literal_expression_end_indentation
 struct MainBackgroundColor: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -57,3 +38,5 @@ struct MainBackgroundColor: ViewModifier {
                 endPoint: UnitPoint(x: 0.5, y: 1)))
     }
 }
+
+// swiftlint:enable literal_expression_end_indentation

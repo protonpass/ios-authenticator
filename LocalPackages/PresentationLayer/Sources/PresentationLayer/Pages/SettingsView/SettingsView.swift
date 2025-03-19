@@ -61,7 +61,7 @@ struct SettingsView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
-            .mainBackground
+            .mainBackground()
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -72,7 +72,6 @@ struct SettingsView: View {
                     }
                 }
             }
-            .colorScheme(viewModel.settingsService.theme.preferredColorScheme ?? .dark)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
@@ -149,6 +148,8 @@ private extension SettingsView {
                 }
             }
 
+            SettingDivider()
+
             Menu(content: {
                 ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
                     Button(action: {
@@ -162,7 +163,7 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("SearchBar display"),
+                SettingRow(title: .localized("Search bar position"),
                            trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
                                                         onTap: {}))
             })
@@ -238,6 +239,10 @@ private extension SettingsView {
                 }
         }
     }
+
+    var settingsBorder: Color {
+        (isDarkMode ? Color.white : .black).opacity(0.12)
+    }
 }
 
 // MARK: - Utils
@@ -255,7 +260,7 @@ private extension SettingsView {
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
-                .stroke(Color.settingsBorder, lineWidth: 1))
+                .stroke(settingsBorder, lineWidth: 1))
             .padding(.top, 8)
         } header: {
             Text(title)
@@ -274,18 +279,18 @@ private extension SettingsView {
     }
 }
 
-private extension Color {
-    static var settingsBorder: Color {
-        .white.opacity(0.12)
-    }
-}
-
 private struct SettingDivider: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Rectangle()
             .foregroundStyle(.clear)
             .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
-            .background(Color.settingsBorder)
+            .background(settingsBorder)
+    }
+
+    var settingsBorder: Color {
+        (colorScheme == .dark ? Color.white : .black).opacity(0.12)
     }
 }
 

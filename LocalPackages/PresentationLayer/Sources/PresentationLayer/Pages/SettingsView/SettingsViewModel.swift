@@ -41,7 +41,7 @@ final class SettingsViewModel {
     private let bundle: Bundle
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
+    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
 
     var theme: Theme {
         settingsService.theme

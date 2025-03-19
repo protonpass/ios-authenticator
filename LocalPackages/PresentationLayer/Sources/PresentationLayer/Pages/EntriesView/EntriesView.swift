@@ -47,7 +47,7 @@ public struct EntriesView: View {
         NavigationStack {
             ZStack {
                 Color.clear
-                    .mainBackground
+                    .mainBackground()
                     .ignoresSafeArea()
 
                 mainContainer
@@ -62,7 +62,8 @@ public struct EntriesView: View {
                     .refreshable {
                         viewModel.refreshTokens()
                     }
-                    .withSheetDestinations(sheetDestinations: $router.presentedSheet)
+                    .withSheetDestinations(sheetDestinations: $router.presentedSheet,
+                                           colorScheme: viewModel.settingsService.theme.preferredColorScheme)
                     .environment(router)
                     .task {
                         await viewModel.setUp()
@@ -117,7 +118,6 @@ private extension EntriesView {
                             Label("Edit", systemImage: "pencil")
                                 .foregroundStyle(.info, .textNorm)
                         }
-                        .accentColor(.info)
                         .tint(.clear)
 
                         Button {
@@ -183,40 +183,39 @@ private extension EntriesView {
                                     draggingEntry = entry
                                 }
                         }
-//                        .dropDestination(for: EntryUiModel.self) { _, _ in
-//                            false
-//                        } isTargeted: { status in
-//                            if let draggingEntry,
-//                               status,
-//                               draggingEntry != entry,
-//                               let sourceIndex = viewModel.entries
-//                               .firstIndex(where: { $0.id == draggingEntry.id }),
-//                               let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id })
-//                               {
-//                                withAnimation(.bouncy) {
-//                                    viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
-//                                                       toOffset: destinationIndex > sourceIndex ?
-//                                                           destinationIndex +
-//                                                           1 : destinationIndex)
-//                                }
-//                            }
-//                        }
-
                         .dropDestination(for: EntryUiModel.self) { _, _ in
-                            guard let draggingEntry,
-                                  let fromIndex = viewModel.entries
-                                  .firstIndex(where: { $0.id == draggingEntry.id }),
-                                  let toIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }),
-                                  fromIndex != toIndex
-                            else {
-                                return false
+                            false
+                        } isTargeted: { status in
+                            if let draggingEntry,
+                               status,
+                               draggingEntry != entry,
+                               let sourceIndex = viewModel.entries
+                               .firstIndex(where: { $0.id == draggingEntry.id }),
+                               let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }) {
+                                withAnimation(.bouncy) {
+                                    viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
+                                                       toOffset: destinationIndex > sourceIndex ?
+                                                           destinationIndex +
+                                                           1 : destinationIndex)
+                                }
                             }
-                            withAnimation {
-                                viewModel.moveItem(fromOffsets: IndexSet(integer: fromIndex),
-                                                   toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
-                            }
-                            return true
                         }
+
+//                        .dropDestination(for: EntryUiModel.self) { _, _ in
+//                            guard let draggingEntry,
+//                                  let fromIndex = viewModel.entries
+//                                  .firstIndex(where: { $0.id == draggingEntry.id }),
+//                                  let toIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }),
+//                                  fromIndex != toIndex
+//                            else {
+//                                return false
+//                            }
+//                            withAnimation {
+//                                viewModel.moveItem(fromOffsets: IndexSet(integer: fromIndex),
+//                                                   toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+//                            }
+//                            return true
+//                        }
                 }
             }
             .animation(.default, value: viewModel.entries)

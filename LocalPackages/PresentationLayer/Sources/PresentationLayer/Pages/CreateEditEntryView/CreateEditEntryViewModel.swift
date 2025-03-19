@@ -95,6 +95,7 @@ final class CreateEditEntryViewModel {
                 } else {
                     try await entryDataService.insertAndRefreshEntry(from: params)
                 }
+                shouldDismiss = true
             } catch {
                 handle(error)
             }

@@ -22,7 +22,8 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable {
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable,
+    IdentifiableOrderedEntry {
     public let entry: Entry
     public let code: Code
     public let order: Int
@@ -82,6 +83,7 @@ public extension EntryUiModel {
 
 public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifiable {
     /// From 0.0 to 1.0
+    public let id: String
     public let value: Double
     public let level: Level
     /// Number of second left
@@ -93,7 +95,10 @@ public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifia
         case level1, level2, level3
     }
 
-    public init(value: Double, countdown: Int) {
+    public init(id: String = UUID().uuidString,
+                value: Double,
+                countdown: Int) {
+        self.id = id
         self.value = value
         self.countdown = countdown
 
@@ -106,10 +111,6 @@ public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifia
             .level3
         }
         var hasher = Hasher()
-        precomputedHash = hasher.combineAndFinalize(value, level, countdown)
-    }
-
-    public var id: String {
-        UUID().uuidString
+        precomputedHash = hasher.combineAndFinalize(id, value, level, countdown)
     }
 }

@@ -100,7 +100,7 @@ struct CreateEditEntryView: View {
                 .navigationTitle(viewModel.isEditing ? "Update entry" : "New entry")
                 .animation(.default, value: viewModel.canSave)
                 .animation(.default, value: viewModel.type)
-                .mainBackground
+                .mainBackground()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         focusFirstField()

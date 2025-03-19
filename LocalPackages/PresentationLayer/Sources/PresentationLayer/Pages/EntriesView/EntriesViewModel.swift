@@ -123,7 +123,6 @@ final class EntriesViewModel {
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
         // Get the actual index values after removing
         guard let offset = source.first else {
-            // TODO: throw error
             return
         }
         var targetIndex = destination

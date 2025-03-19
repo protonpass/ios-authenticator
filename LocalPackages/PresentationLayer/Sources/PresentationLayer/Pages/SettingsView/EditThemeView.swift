@@ -28,38 +28,43 @@ struct EditThemeView: View {
     let onUpdate: (Theme) -> Void
 
     var body: some View {
-        VStack {
-            ForEach(Theme.allCases, id: \.self) { theme in
-                Button {
-                    if theme == currentTheme {
-                        dismiss()
-                    } else {
-                        dismiss()
-                        onUpdate(theme)
-                    }
-                } label: {
-                    HStack {
-                        Text(theme.title)
-                            .foregroundStyle(.textNorm)
-                        Spacer()
+        ZStack {
+            Color.clear
+                .mainBackground()
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                ForEach(Theme.allCases, id: \.self) { theme in
+                    Button {
                         if theme == currentTheme {
-                            Image(systemName: "checkmark")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 16)
-                                .foregroundStyle(.textNorm)
+                            dismiss()
+                        } else {
+                            dismiss()
+                            onUpdate(theme)
                         }
+                    } label: {
+                        HStack {
+                            Text(theme.title)
+                                .foregroundStyle(.textNorm)
+                            Spacer()
+                            if theme == currentTheme {
+                                Image(systemName: "checkmark")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 16)
+                                    .foregroundStyle(.textNorm)
+                            }
+                        }
+                        .padding(8)
                     }
-                    .padding(8)
-                }
 
-                if theme != Theme.allCases.last {
-                    Divider()
+                    if theme != Theme.allCases.last {
+                        Divider()
+                    }
                 }
             }
+            .mainBackground()
+            .presentationDetents([.height(CGFloat(60 * Theme.allCases.count))])
         }
-        .mainBackground
-        .presentationDetents([.height(CGFloat(60 * Theme.allCases.count))])
     }
 }
 

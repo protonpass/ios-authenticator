@@ -149,8 +149,11 @@ private extension EntryDataService {
     }
 
     func save(_ entry: Entry) async throws {
-        // TODO: check if no duplicate entries
         var data: [EntryUiModel] = dataState.data ?? []
+
+        guard !isDup(for: entry, in: data) else {
+            throw AuthError.generic(.duplicatedEntry)
+        }
 
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
@@ -220,6 +223,14 @@ private extension EntryDataService {
             data[index] = entry.updateOrder(index)
         }
         return data
+    }
+
+    func isDup(for entry: Entry, in data: [EntryUiModel]) -> Bool {
+        guard !data.isEmpty else {
+            return false
+        }
+
+        return data.contains { $0.entry.isDuplicate(of: entry) }
     }
 }
 

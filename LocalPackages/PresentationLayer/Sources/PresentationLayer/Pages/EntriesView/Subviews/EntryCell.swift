@@ -24,6 +24,8 @@ import Factory
 import Models
 import SwiftUI
 
+// swiftlint:disable literal_expression_end_indentation
+
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -71,7 +73,7 @@ struct EntryCell: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 CircularProgressView(progress: progress)
-                    .disableAnimations
+                    .disableAnimations()
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -82,8 +84,10 @@ struct EntryCell: View {
                 .frame(maxWidth: .infinity, maxHeight: 0.5)
                 .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
                     .opacity(0.5))
-                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) :
-                    .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
+                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) : .black.opacity(0.9),
+                        radius: 0,
+                        x: 0,
+                        y: -0.5)
 
             HStack {
                 ForEach(Array(code.current.enumerated()), id: \.offset) { _, char in
@@ -210,3 +214,5 @@ private extension ProgressUiModel {
         }
     }
 }
+
+// swiftlint:enable literal_expression_end_indentation

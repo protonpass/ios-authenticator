@@ -73,17 +73,15 @@ public extension View {
         #endif
     }
 
-    var disableAnimations: some View {
+    func disableAnimations() -> some View {
         transaction { $0.animation = nil }
     }
 }
 
 // swiftlint:disable literal_expression_end_indentation
 
-// MARK: - UI related
-
 extension View {
-    var mainBackground: some View {
+    func mainBackground() -> some View {
         modifier(MainBackgroundColor())
     }
 

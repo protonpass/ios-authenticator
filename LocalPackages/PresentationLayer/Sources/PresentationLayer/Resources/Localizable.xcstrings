@@ -391,12 +391,12 @@
         }
       }
     },
-    "SearchBar display" : {
+    "Search bar position" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "SearchBar display"
+            "value" : "Search bar position"
           }
         }
       }
