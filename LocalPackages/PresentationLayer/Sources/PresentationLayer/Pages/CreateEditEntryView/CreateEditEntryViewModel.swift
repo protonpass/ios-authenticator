@@ -102,32 +102,35 @@ final class CreateEditEntryViewModel {
 private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
         guard let entry else { return }
-        if entry.entry.type == .totp,
-           let params = try? entryDataService.getTotpParams(entry: entry.entry) {
-            name = params.name
-            secret = params.secret
-            issuer = params.issuer
-            if let newPeriod = params.period {
-                period = period
-                if !supportedPeriod.contains(newPeriod) {
-                    supportedPeriod.append(newPeriod)
-                    supportedPeriod.sort()
-                }
-            }
-
-            if let newDigits = params.digits {
-                digits = newDigits
-                if !supportedDigits.contains(newDigits) {
-                    supportedDigits.append(newDigits)
-                    supportedDigits.sort()
-                }
-            }
-            algo = params.algorithm ?? .sha1
-            note = params.note ?? ""
-        } else if entry.entry.type == .steam {
+        
+        switch entry.entry.type {
+        case .steam:
             name = entry.entry.name
             secret = entry.entry.secret
             type = .steam
+        case .totp:
+            if let params = try? entryDataService.getTotpParams(entry: entry.entry) {
+                name = params.name
+                secret = params.secret
+                issuer = params.issuer
+                if let newPeriod = params.period {
+                    period = period
+                    if !supportedPeriod.contains(newPeriod) {
+                        supportedPeriod.append(newPeriod)
+                        supportedPeriod.sort()
+                    }
+                }
+
+                if let newDigits = params.digits {
+                    digits = newDigits
+                    if !supportedDigits.contains(newDigits) {
+                        supportedDigits.append(newDigits)
+                        supportedDigits.sort()
+                    }
+                }
+                algo = params.algorithm ?? .sha1
+                note = params.note ?? ""
+            }
         }
     }
 
