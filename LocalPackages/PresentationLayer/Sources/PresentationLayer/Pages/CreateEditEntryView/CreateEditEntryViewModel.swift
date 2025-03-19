@@ -102,7 +102,7 @@ final class CreateEditEntryViewModel {
 private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
         guard let entry else { return }
-        
+
         switch entry.entry.type {
         case .steam:
             name = entry.entry.name
