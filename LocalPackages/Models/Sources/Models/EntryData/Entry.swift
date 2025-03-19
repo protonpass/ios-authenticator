@@ -51,6 +51,27 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         var hasher = Hasher()
         precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
+
+    static var `default`: Entry {
+        .init(id: "",
+              name: "",
+              uri: "",
+              period: 30,
+              issuer: "",
+              secret: "",
+              type: .totp,
+              note: nil)
+    }
+
+    public func isDuplicate(of other: Entry) -> Bool {
+        name == other.name
+            && issuer == other.issuer
+            && type == other.type
+            && uri == other.uri
+            && note == other.note
+            && period == other.period
+            && secret == other.secret
+    }
 }
 
 // MARK: - Hashable

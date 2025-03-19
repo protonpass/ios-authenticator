@@ -37,6 +37,7 @@ private enum FocusableField: Hashable, CaseIterable {
 
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
@@ -73,95 +74,104 @@ struct CreateEditEntryView: View {
                     Button { showAdvanceOptions.toggle() } label: {
                         HStack(alignment: .center, spacing: 8) {
                             Text("Advanced options")
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.textNorm)
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                             Spacer()
                             Image(systemName: "plus")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 18, height: 18)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.textNorm)
                         }
                         .padding(.horizontal, 24)
                         .padding(.vertical, 16)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .background(.white.opacity(0.12))
+                        .background((isDarkMode ? Color.white : .black).opacity(0.12))
                         .cornerRadius(16)
                         .padding(.horizontal, 16)
                     }
                 }
             }
+            .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(viewModel.isEditing ? "Manual entry" : "New entry")
-            .animation(.default, value: viewModel.canSave)
-            .animation(.default, value: viewModel.type)
-            .background(.backgroundGradient)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    focusFirstField()
-                }
-            }
-            .onSubmit(focusNextField)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemLeadingPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close")
-                            .foregroundStyle(Color.purpleInteraction)
-                            .padding(10)
-                    }
-                }
-
-                ToolbarItem(placement: toolbarItemTrailingPlacement) {
-                    Button {
-                        viewModel.save()
-                        dismiss()
-                    } label: {
-                        Text("Save")
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.purpleInteraction)
-                            .padding(10)
-                    }
-                    .disabled(!viewModel.canSave)
-                    .opacity(viewModel.canSave ? 1 : 0.4)
-                }
-            }
-            .sheetUIAlertService
             #if os(iOS)
-                .toolbarBackground(.backgroundGradient, for: .navigationBar)
+                .navigationBarTitleDisplayMode(.inline)
             #endif
+                .navigationTitle(viewModel.isEditing ? "Update entry" : "New entry")
+                .animation(.default, value: viewModel.canSave)
+                .animation(.default, value: viewModel.type)
+                .mainBackground()
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        focusFirstField()
+                    }
+                }
+                .onSubmit(focusNextField)
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Close")
+                                .foregroundStyle(Color.purpleInteraction)
+                                .padding(10)
+                        }
+                    }
+
+                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
+                        Button {
+                            viewModel.save()
+                        } label: {
+                            Text("Save")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color.purpleInteraction)
+                                .padding(10)
+                        }
+                        .disabled(!viewModel.canSave)
+                        .opacity(viewModel.canSave ? 1 : 0.4)
+                    }
+                }
+                .sheetUIAlertService
+                .onChange(of: viewModel.shouldDismiss) {
+                    if viewModel.shouldDismiss {
+                        dismiss()
+                    }
+                }
         }
     }
 
     private func textField(_ config: TextFieldConfig) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title)
+                .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
             if config.isSecure {
                 SecureField(config.placeholder, text: config.binding)
                     .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textWeak)
                     .autocorrectionDisabled(true)
                     .focused($focusedField, equals: .secret)
             } else {
                 TextField(config.placeholder, text: config.binding)
                     .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textWeak)
                     .focused($focusedField, equals: config.focusField)
                     .autocorrectionDisabled(true)
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(.black.opacity(0.5))
+        .background((isDarkMode ? Color.black : .white).opacity(0.5))
         .cornerRadius(16)
         .overlay(RoundedRectangle(cornerRadius: 16)
             .inset(by: 0.5)
             .stroke(.white.opacity(0.12), lineWidth: 1))
         .padding(.horizontal, 16)
+    }
+
+    private var isDarkMode: Bool {
+        colorScheme == .dark
     }
 }
 
@@ -191,7 +201,7 @@ private extension CreateEditEntryView {
     func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
             Text(title)
-                .foregroundStyle(.white)
+                .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
             Picker(title, selection: binding) {
@@ -200,12 +210,12 @@ private extension CreateEditEntryView {
                         .tag(element)
                 }
             }
-            .accentColor(.white)
+            .accentColor(.textNorm)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(.white.opacity(0.12))
+        .background((isDarkMode ? Color.white : .black).opacity(0.12))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.11), radius: 2, x: 0, y: 2)
     }
@@ -226,7 +236,7 @@ private extension CreateEditEntryView {
         } header: {
             HStack {
                 Text(title)
-                    .foregroundStyle(Color.textNorm)
+                    .foregroundStyle(.textNorm)
                     .opacity(0.7)
                     .padding(.leading, 16)
                 Spacer()

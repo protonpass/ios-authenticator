@@ -34,6 +34,11 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func insertAndRefresh(entry: Entry) async throws
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
+    func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
+
+    // MARK: - Expose repo functionalities to not have to inject several data source in view models
+
+    func getTotpParams(entry: Entry) throws -> TotpParams
 }
 
 @MainActor
@@ -110,9 +115,36 @@ public extension EntryDataService {
     }
 
     func delete(_ entry: EntryUiModel) async throws {
+        guard var data = dataState.data else {
+            return
+        }
         try await repository.remove(entry.entry.id)
-        let data = dataState.data?.filter { $0.entry.id != entry.entry.id }
-        dataState = .loaded(data ?? [])
+        data = data.filter { $0.entry.id != entry.entry.id }
+        data = updateOrder(data: data)
+        try await repository.updateOrder(data)
+        dataState = .loaded(data)
+    }
+
+    func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
+        guard let entry = dataState.data?[currentPosition] else {
+            return
+        }
+        guard var data = dataState.data else {
+            return
+        }
+        data.remove(at: currentPosition)
+        data.insert(entry, at: newPosition)
+        data = updateOrder(data: data)
+        try await repository.updateOrder(data)
+        dataState = .loaded(data)
+    }
+}
+
+// MARK: - Rust exposure
+
+public extension EntryDataService {
+    func getTotpParams(entry: Entry) throws -> TotpParams {
+        try repository.getTotpParams(entry: entry)
     }
 }
 
@@ -127,20 +159,28 @@ private extension EntryDataService {
                 if Task.isCancelled { return }
                 dataState = try await .loaded(generateUIEntries(from: entriesStates.decodedEntries))
             } catch {
+                if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
             }
         }
     }
 
     func save(_ entry: Entry) async throws {
-        try await repository.save(entry)
+        var data: [EntryUiModel] = dataState.data ?? []
+
+        guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
+            throw AuthError.generic(.duplicatedEntry)
+        }
+
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
                                                            entryCount: 1))
         }
-        let entryUI = EntryUiModel(entry: entry, code: code, date: .now)
-        var data: [EntryUiModel] = dataState.data ?? []
+        let order = data.count
+        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order, date: .now)
+        try await repository.save(OrderedEntry(entry: entry, order: order))
+
         data.append(entryUI)
         dataState = .loaded(data)
     }
@@ -166,7 +206,7 @@ private extension EntryDataService {
             guard let entry = entries[safeIndex: index] else {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
-            results.append(.init(entry: entry, code: code, date: .now))
+            results.append(.init(entry: entry, code: code, order: index, date: .now))
         }
 
         return results
@@ -181,21 +221,25 @@ private extension EntryDataService {
             let entries = uiEntries.map(\.entry)
 
             let codes = try repository.generateCodes(entries: entries)
-            guard codes.count == entries.count else {
-                throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
-                                                               entryCount: entries.count))
-            }
             var results = [EntryUiModel]()
             for (index, code) in codes.enumerated() {
-                guard let entry = entries[safeIndex: index] else {
-                    throw AuthError.generic(.missingEntryForGeneratedCode)
-                }
-                results.append(.init(entry: entry, code: code, date: date))
+                results.append(.init(entry: code.entry, code: code, order: index, date: date))
             }
             return results
         } else {
             return uiEntries.map { $0.updateProgress() }
         }
+    }
+
+    func updateOrder(data: [EntryUiModel]?) -> [EntryUiModel] {
+        guard var data else {
+            return []
+        }
+
+        for (index, entry) in data.enumerated() where entry.order != index {
+            data[index] = entry.updateOrder(index)
+        }
+        return data
     }
 }
 

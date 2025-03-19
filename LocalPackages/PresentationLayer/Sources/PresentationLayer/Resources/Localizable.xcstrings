@@ -141,6 +141,16 @@
         }
       }
     },
+    "Done" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
     "Edit" : {
       "localizations" : {
         "en" : {
@@ -197,6 +207,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Get Proton Pass"
+          }
+        }
+      }
+    },
+    "Hide cell entry code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide cell entry code"
           }
         }
       }
@@ -267,16 +287,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "MANAGE YOUR DATA"
-          }
-        }
-      }
-    },
-    "Manual entry" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manual entry"
           }
         }
       }
@@ -391,6 +401,16 @@
         }
       }
     },
+    "Search bar position" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search bar position"
+          }
+        }
+      }
+    },
     "Secret" : {
       "localizations" : {
         "en" : {
@@ -427,6 +447,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Show number background" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show number background"
           }
         }
       }
@@ -517,6 +547,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unknown"
+          }
+        }
+      }
+    },
+    "Update entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update entry"
           }
         }
       }

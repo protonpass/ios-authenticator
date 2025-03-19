@@ -25,14 +25,18 @@ import Models
 import SwiftUI
 
 struct EntryCell: View {
-    let entry: EntryUiModel
+    @Environment(\.colorScheme) private var colorScheme
+    let entry: Entry
+    let code: Code
+    let progress: ProgressUiModel
+    let configuration: EntryCellConfiguration
     let onCopyToken: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(entry.entry.issuer.first?.uppercased() ?? "")")
+                    Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
                         .font(.headline)
                         .fontWeight(.medium)
                         .foregroundStyle(LinearGradient(gradient:
@@ -56,19 +60,18 @@ struct EntryCell: View {
                     .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
-                    Text(verbatim: entry.entry.name)
+                    Text(verbatim: entry.name)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(verbatim: entry.entry.issuer)
+                    Text(verbatim: entry.issuer)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                CircularProgressView(progress: entry.progress.value,
-                                     countdown: entry.progress.countdown,
-                                     color: entry.progress.color)
+                CircularProgressView(progress: progress)
+                    .disableAnimations()
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -77,34 +80,22 @@ struct EntryCell: View {
             Rectangle()
                 .foregroundStyle(.clear)
                 .frame(maxWidth: .infinity, maxHeight: 0.5)
-                .background(Color(red: 0.59, green: 0.59, blue: 0.59).opacity(0.5))
-                .shadow(color: .black.opacity(0.9), radius: 0, x: 0, y: -0.5)
+                .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
+                    .opacity(0.5))
+                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) : .black.opacity(0.9),
+                        radius: 0,
+                        x: 0,
+                        y: -0.5)
 
             HStack {
-                ForEach(Array(entry.code.current.enumerated()), id: \.offset) { _, char in
-                    HStack(alignment: .center, spacing: 10) {
-                        Text(verbatim: "\(char)")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .monospaced()
-                            .foregroundStyle(.textNorm)
-                    }
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 4)
-                    .background(.black.opacity(0.16))
-                    .cornerRadius(8)
-                    .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                    .overlay(RoundedRectangle(cornerRadius: 8)
-                        .inset(by: -0.5)
-                        .stroke(.black.opacity(0.23), lineWidth: 1))
-                }
+                numberView
 
                 Spacer()
 
                 VStack(alignment: .trailing) {
                     Text("Next")
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: entry.code.next.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
@@ -114,11 +105,57 @@ struct EntryCell: View {
             .padding(.horizontal, 16)
             .background(.white.opacity(0.1))
         }
+        .background(LinearGradient(stops:
+            [
+                Gradient.Stop(color: .white, location: 0.00),
+                Gradient.Stop(color: .white.opacity(isLightMode ? 0.5 : 0),
+                              location: isLightMode ? 1.00 : 0.0)
+            ],
+            startPoint: UnitPoint(x: 0.5, y: 0),
+            endPoint: UnitPoint(x: 0.5, y: 1)))
+        .background(isLightMode ? .clear : .white.opacity(0.1))
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .stroke(.white.opacity(0.16), lineWidth: 1))
         .onTapGesture(perform: onCopyToken)
+    }
+
+    private var isLightMode: Bool {
+        colorScheme == .light
+    }
+
+    var nextCode: String {
+        configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+    }
+
+    @ViewBuilder
+    private var numberView: some View {
+        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
+        if configuration.displayNumberBackground {
+            ForEach(Array(code.enumerated()), id: \.offset) { _, char in
+                HStack(alignment: .center, spacing: 10) {
+                    Text(verbatim: "\(char)")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.textNorm)
+                }
+                .padding(.horizontal, 5)
+                .padding(.vertical, 4)
+                .background(.black.opacity(0.16))
+                .cornerRadius(8)
+                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .inset(by: -0.5)
+                    .stroke(.black.opacity(0.23), lineWidth: 1))
+            }
+        } else {
+            Text(verbatim: "\(code.separatedByGroup(3, delimiter: " "))")
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(.textNorm)
+                .monospaced()
+        }
     }
 }
 
@@ -132,36 +169,15 @@ private extension EntryCell {
     }
 }
 
-#Preview {
-    EntryCell(entry: .init(entry: .init(id: UUID().uuidString,
-                                        name: "John Doe",
-                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD5&amp;issuer=SimpleLogin",
-                                        period: 30,
-                                        issuer: "SimpleLogin",
-                                        secret: "CKTQQJVWT5IXTGD5",
-                                        type: .totp,
-                                        note: "Note for John Doe"),
-                           code: .init(current: "123456", next: "456789"),
-//                           order: 0,
-                           date: .now),
-              onCopyToken: {})
-}
-
 private struct CircularProgressView: View {
-    let progress: Double // Progress between 0 and 1
-    let countdown: Int
-    let color: Color
+    let progress: ProgressUiModel
     let size: CGFloat // Diameter of the circle
     let lineWidth: CGFloat // Thickness of the progress bar
 
-    init(progress: Double,
-         countdown: Int,
-         color: Color,
+    init(progress: ProgressUiModel,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4) {
         self.progress = progress
-        self.countdown = countdown
-        self.color = color
         self.size = size
         self.lineWidth = lineWidth
     }
@@ -170,18 +186,19 @@ private struct CircularProgressView: View {
         ZStack {
             // Background Circle
             Circle()
-                .stroke(color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(progress.color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .frame(width: size, height: size)
 
             // Progress Circle
             Circle()
-                .trim(from: 1 - progress, to: 1)
-                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .trim(from: 1 - progress.value, to: 1)
+                .stroke(progress.color,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .rotationEffect(.degrees(-90))
                 .frame(width: size, height: size)
 
             // Timer Text
-            Text(verbatim: "\(countdown)")
+            Text(verbatim: "\(progress.countdown)")
                 .font(.caption)
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
@@ -192,12 +209,9 @@ private struct CircularProgressView: View {
 private extension ProgressUiModel {
     var color: Color {
         switch level {
-        case .level1: .timerLevel1
-        case .level2: .timerLevel2
-        case .level3: .timerLevel3
-        case .level4: .timerLevel4
-        case .level5: .timerLevel5
-        case .level6: .timerLevel6
+        case .level1: .timer1
+        case .level2: .timer2
+        case .level3: .timer3
         }
     }
 }

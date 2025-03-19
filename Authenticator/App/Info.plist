@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>IS_QA_BUILD =
-	<string>$(IS_QA_BUILD =
 	<key>APP_VERSION_IDENTIFIER =
 	<string>$(APP_VERSION_IDENTIFIER =
 	<key>CFBundleURLTypes</key>
@@ -19,6 +17,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>IS_QA_BUILD =
+	<string>$(IS_QA_BUILD =
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -31,6 +31,23 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>EntryUiModel</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>me.proton.authenticator</string>
+			<key>UTTypeTagSpecification</key>
+			<dict/>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -19,11 +19,14 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import SwiftUI
+import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable,
+    IdentifiableOrderedEntry {
     public let entry: Entry
     public let code: Code
-//    public let order: Int
+    public let order: Int
     public let progress: ProgressUiModel
 
     public var id: String {
@@ -32,21 +35,29 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable {
 
     public init(entry: Entry,
                 code: Code,
-//                order: Int,
+                order: Int,
                 progress: ProgressUiModel) {
         self.entry = entry
         self.code = code
-//        self.order = order
+        self.order = order
         self.progress = progress
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry, code: code, progress: progress)
+        EntryUiModel(entry: newEntry, code: code, order: order, progress: progress)
+    }
+
+    public static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .entryUIModelType)
     }
 }
 
+public extension UTType {
+    static let entryUIModelType = UTType(exportedAs: "me.proton.authenticator")
+}
+
 public extension EntryUiModel {
-    init(entry: Entry, code: Code, /* order: Int, */ date: Date) {
+    init(entry: Entry, code: Code, order: Int, date: Date = .now) {
         let timeInterval = date.timeIntervalSince1970
         let period = Double(entry.period)
         let remaining = (period - timeInterval.truncatingRemainder(dividingBy: period)).rounded(.down)
@@ -54,43 +65,52 @@ public extension EntryUiModel {
         self.entry = entry
         self.code = code
         progress = .init(value: remaining / Double(entry.period), countdown: Int(remaining))
-//        self.order = order
+        self.order = order
     }
 
     func updateProgress(date: Date = .now) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, date: date)
+        EntryUiModel(entry: entry, code: code, order: order, date: date)
+    }
+
+    func updateCode(_ code: Code) -> EntryUiModel {
+        EntryUiModel(entry: entry, code: code, order: order)
+    }
+
+    func updateOrder(_ order: Int) -> EntryUiModel {
+        EntryUiModel(entry: entry, code: code, order: order)
     }
 }
 
-public struct ProgressUiModel: Sendable, Equatable, Hashable {
+public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifiable {
     /// From 0.0 to 1.0
+    public let id: String
     public let value: Double
     public let level: Level
     /// Number of second left
     public let countdown: Int
+    private let precomputedHash: Int
 
     /// The less the level, the more critical it is
-    public enum Level: Sendable {
-        case level1, level2, level3, level4, level5, level6
+    public enum Level: Sendable, Codable {
+        case level1, level2, level3
     }
 
-    public init(value: Double, countdown: Int) {
+    public init(id: String = UUID().uuidString,
+                value: Double,
+                countdown: Int) {
+        self.id = id
         self.value = value
         self.countdown = countdown
 
         level = switch value {
-        case 0.0...0.08:
+        case 0.0...0.05:
             .level1
-        case 0.08...0.16:
+        case 0.05...0.25:
             .level2
-        case 0.16...0.25:
-            .level3
-        case 0.25...0.33:
-            .level4
-        case 0.33...0.4:
-            .level5
         default:
-            .level6
+            .level3
         }
+        var hasher = Hasher()
+        precomputedHash = hasher.combineAndFinalize(id, value, level, countdown)
     }
 }

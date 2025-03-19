@@ -89,7 +89,7 @@ extension [AuthenticatorCodeResponse] {
 
 extension AuthenticatorCodeResponse {
     var toCode: Code {
-        Code(current: currentCode, next: nextCode)
+        Code(current: currentCode, next: nextCode, entry: entry.toEntry)
     }
 }
 

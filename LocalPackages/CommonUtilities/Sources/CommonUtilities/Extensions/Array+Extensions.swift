@@ -28,3 +28,11 @@ public extension Array {
         return self[index]
     }
 }
+
+public extension Array where Element: Equatable {
+    mutating func appendIfNotExists(_ newElement: Element) {
+        if !contains(newElement) {
+            append(newElement)
+        }
+    }
+}

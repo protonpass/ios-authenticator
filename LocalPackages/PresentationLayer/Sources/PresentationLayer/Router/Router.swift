@@ -72,13 +72,15 @@ public extension View {
         modifier(RouterEmbeded())
     }
 
-    func withSheetDestinations(sheetDestinations: Binding<SheetDestination?>) -> some View {
+    func withSheetDestinations(sheetDestinations: Binding<SheetDestination?>,
+                               colorScheme: ColorScheme? = nil) -> some View {
         sheet(item: sheetDestinations) { destination in
             switch destination {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
             case .settings:
                 SettingsView()
+                    .preferredColorScheme(colorScheme)
             #if os(iOS)
             case .qrCodeScanner:
                 ScannerView()

@@ -24,6 +24,7 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case missingGeneratedCodes(codeCount: Int, entryCount: Int)
     case missingEntryForGeneratedCode
     case wrongTypeOfEntryParams
+    case duplicatedEntry
 
     public var debugDescription: String {
         switch self {
@@ -33,6 +34,8 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "Missing entry for generated code"
         case .wrongTypeOfEntryParams:
             "Wrong type of entry params"
+        case .duplicatedEntry:
+            "An entry with the same data already exists"
         }
     }
 }

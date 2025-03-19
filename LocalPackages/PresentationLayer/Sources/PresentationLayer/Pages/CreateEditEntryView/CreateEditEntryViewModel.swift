@@ -35,16 +35,14 @@ final class CreateEditEntryViewModel {
     var type: TotpType = .totp
     var note = ""
 
-    let supportedDigits: [Int] = Array(5...10)
-    let supportedPeriod: [Int] = [10, 20, 30, 40, 50, 60]
+    var shouldDismiss = false
+
+    var supportedDigits: [Int] = AppConstants.EntryOptions.supportedDigits
+    var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
 
     var canSave: Bool {
         secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
     }
-
-    @ObservationIgnored
-    @LazyInjected(\RepositoryContainer.entryRepository)
-    private(set) var entryRepository
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -67,9 +65,14 @@ final class CreateEditEntryViewModel {
     }
 
     func save() {
-        guard !issuer.isEmpty, !secret.isEmpty, !name.isEmpty else {
+        guard !secret.isEmpty, !name.isEmpty else {
             return
         }
+
+        if type == .totp, issuer.isEmpty {
+            return
+        }
+
         let params: EntryParameters = if type == .totp {
             .totp(TotpParams(name: name,
                              secret: secret,
@@ -88,6 +91,7 @@ final class CreateEditEntryViewModel {
                 } else {
                     try await entryDataService.insertAndRefreshEntry(from: params)
                 }
+                shouldDismiss = true
             } catch {
                 handle(error)
             }
@@ -98,19 +102,31 @@ final class CreateEditEntryViewModel {
 private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
         guard let entry else { return }
-        if entry.entry.type == .totp,
-           let params = try? entryRepository.getTotpParams(entry: entry.entry) {
-            name = params.name
-            secret = params.secret
-            issuer = params.issuer
-            period = params.period ?? 30
-            digits = params.digits ?? 6
-            algo = params.algorithm ?? .sha1
-            note = params.note ?? ""
-        } else {
+
+        switch entry.entry.type {
+        case .steam:
             name = entry.entry.name
             secret = entry.entry.secret
             type = .steam
+        case .totp:
+            if let params = try? entryDataService.getTotpParams(entry: entry.entry) {
+                name = params.name
+                secret = params.secret
+                issuer = params.issuer
+                if let newPeriod = params.period {
+                    period = period
+                    supportedPeriod.appendIfNotExists(newPeriod)
+                    supportedPeriod.sort()
+                }
+
+                if let newDigits = params.digits {
+                    digits = newDigits
+                    supportedDigits.appendIfNotExists(newDigits)
+                    supportedDigits.sort()
+                }
+                algo = params.algorithm ?? .sha1
+                note = params.note ?? ""
+            }
         }
     }
 

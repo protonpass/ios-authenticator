@@ -20,16 +20,25 @@
 
 import Foundation
 
-public struct Code: Sendable, Equatable, Hashable {
+public struct Code: Sendable, Equatable, Hashable, Identifiable, Codable {
     public let current: String
     public let next: String
+    public let entry: Entry
+    private let precomputedHash: Int
 
-    public init(current: String, next: String) {
+    public init(current: String, next: String, entry: Entry) {
         self.current = current
         self.next = next
+        self.entry = entry
+        var hasher = Hasher()
+        precomputedHash = hasher.combineAndFinalize(current, next, entry)
     }
 
     public static var `default`: Code {
-        Code(current: "", next: "")
+        Code(current: "", next: "", entry: Entry.default)
+    }
+
+    public var id: Int {
+        precomputedHash
     }
 }

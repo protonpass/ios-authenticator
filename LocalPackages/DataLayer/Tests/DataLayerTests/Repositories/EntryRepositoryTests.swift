@@ -185,14 +185,14 @@ struct EntryRepositoryTests {
 
     @Test("Test saving an entry in db")
     func savingAnEntry() async throws {
-        let entry = Entry(id: "id",
-                        name: "Test",
-                        uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
-                        period: 40,
-                          issuer: "SimpleLogin",
-                          secret: "CKTQQJVWT5IXTGD",
-                        type: .totp,
-                        note: "Note")
+        let entry = OrderedEntry(entry: Entry(id: "id",
+                                              name: "Test",
+                                              uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
+                                              period: 40,
+                                                issuer: "SimpleLogin",
+                                                secret: "CKTQQJVWT5IXTGD",
+                                              type: .totp,
+                                              note: "Note"), order: 0)
        
         try await sut.save(entry)
         
@@ -200,17 +200,17 @@ struct EntryRepositoryTests {
 
         // Assert
         #expect(entries.count == 1)
-        #expect(entries.first?.period == entry.period)
-        #expect(entries.first?.uri == entry.uri)
+        #expect(entries.first?.period == entry.entry.period)
+        #expect(entries.first?.uri == entry.entry.uri)
         
-        let entry2 = Entry(id: "id2",
+        let entry2 = OrderedEntry(entry: Entry(id: "id2",
                         name: "Test2",
                         uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                         period: 30,
                            issuer: "SimpleLogin",
                            secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
-                        note: "Note")
+                                               note: "Note"), order:1)
        
         try await sut.save(entry2)
         entries = try await sut.getAllEntries().decodedEntries
@@ -224,7 +224,7 @@ struct EntryRepositoryTests {
     
     @Test("Test saving mutiple entry in db")
     func savingArrayofEntry() async throws {
-        let entries = [ Entry(id: "id",
+        let entries: [OrderedEntry] = [ .init(entry: Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
@@ -232,22 +232,24 @@ struct EntryRepositoryTests {
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
-                        Entry(id: "id2",
+                                               order: 0
+                                               ),
+                                        .init(  entry: Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id3",
+                                                      note: "Note"), order:1),
+                                        .init(  entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note")
+                                                              note: "Note"), order: 2)
         ]
         
         try await sut.save(entries)
@@ -260,30 +262,30 @@ struct EntryRepositoryTests {
     
     @Test("Test removing all entries in db")
     func removingAllEntries() async throws {
-        let entries = [ Entry(id: "id",
-                              name: "Test",
-                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
-                              period: 40,
-                              issuer: "SimpleLogin",
-                              secret: "CKTQQJVWT5IXTGD",
-                              type: .totp,
-                              note: "Note"),
-                        Entry(id: "id2",
+        let entries: [OrderedEntry] = [ .init(entry:  Entry(id: "id",
+                                                            name: "Test",
+                                                            uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                                                            period: 40,
+                                                            issuer: "SimpleLogin",
+                                                            secret: "CKTQQJVWT5IXTGD",
+                                                            type: .totp,
+                                                            note: "Note"), order: 0),
+                                        .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id3",
+                                                            note: "Note"), order:1),
+                                        .init(entry:  Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note")
+                                                            note: "Note"), order: 2),
         ]
         
        
@@ -298,35 +300,35 @@ struct EntryRepositoryTests {
     
     @Test("Test removing one entry from db")
     func removingOneEntry() async throws {
-        let entries = [ Entry(id: "id",
+        let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id2",
+                                                          note: "Note"), order: 0),
+                                      .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id3",
+                                                          note: "Note"), order: 1),
+                                      .init(entry:   Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note")
+                              note: "Note"), order: 2),
         ]
         
        
         try await sut.save(entries)
-        try await sut.remove(entries.first!)
+        try await sut.remove(entries.first!.entry)
         
         var fetchedEntries = try await sut.getAllEntries()
 
@@ -343,44 +345,44 @@ struct EntryRepositoryTests {
 
     @Test("Test updating one entry from db")
     func updateOneEntry() async throws {
-        let entries = [ Entry(id: "id",
+        let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id2",
+                                                          note: "Note"),order: 0),
+                                      .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"),
-                        Entry(id: "id3",
+                                                          note: "Note"), order: 1),
+                                      .init(entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 30,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note")
+                                                         note: "Note"),order: 2)
         ]
         
-        let newEntry1 = Entry(id: "id",
+        let newEntry1 =  OrderedEntry(entry: Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
                               period: 40,
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "new note")
+                                                   note: "new note"), order: 3)
         
         try await sut.save(entries)
 
-        try await sut.update(newEntry1)
+        try await sut.update(newEntry1.entry)
         
         let fetchedEntries = try await sut.getAllEntries().decodedEntries
 
@@ -388,5 +390,95 @@ struct EntryRepositoryTests {
         #expect(fetchedEntries.count == 3)
 
         #expect(fetchedEntries.map(\.note).contains("new note") == true)
+    }
+    
+    
+    @Test("Test updating the order of an entries")
+    func reorderEntry() async throws {
+        let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id0",
+                              name: "Test",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"),order: 0),
+                                      .init(entry:  Entry(id: "id1",
+                              name: "Test2",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"), order: 1),
+                                      .init(entry: Entry(id: "id2",
+                              name: "Test3",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                         note: "Note"),order: 2),
+                                      OrderedEntry(entry: Entry(id: "id3",
+                                                            name: "Test",
+                                                            uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                                                            period: 40,
+                                                            issuer: "SimpleLogin",
+                                                            secret: "CKTQQJVWT5IXTGD",
+                                                            type: .totp,
+                                                                                 note: "new note"), order: 3)
+        ]
+        
+        let reorderEntries:[OrderedEntry] = [.init(entry:  Entry(id: "id3",
+                              name: "Test",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"),order: 0),
+                                      .init(entry:  Entry(id: "id1",
+                              name: "Test2",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"), order: 1),
+                                      .init(entry: Entry(id: "id2",
+                              name: "Test3",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                         note: "Note"),order: 2),
+                                             OrderedEntry(entry: Entry(id: "id0",
+                                                                       name: "Test",
+                                                                       uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                                                                       period: 40,
+                                                                       issuer: "SimpleLogin",
+                                                                       secret: "CKTQQJVWT5IXTGD",
+                                                                       type: .totp,
+                                                                       note: "new note"), order: 3)
+        ]
+        
+        
+        try await sut.save(entries)
+        
+        let fetchedEntries = try await sut.getAllEntries().decodedEntries
+
+        // Assert
+        #expect(fetchedEntries.first?.id == "id0")
+
+        #expect(fetchedEntries.last?.id == "id3")
+        
+        try await sut.updateOrder(reorderEntries)
+        
+        let reorderedfetchedEntries = try await sut.getAllEntries().decodedEntries
+        
+        #expect(reorderedfetchedEntries.first?.id == "id3")
+
+        #expect(reorderedfetchedEntries.last?.id == "id0")
     }
 }

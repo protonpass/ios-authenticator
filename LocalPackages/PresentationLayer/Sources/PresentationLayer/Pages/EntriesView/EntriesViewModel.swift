@@ -74,6 +74,9 @@ final class EntriesViewModel {
     private var alertService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
+
+    @ObservationIgnored
     private var cancellable: (any Cancellable)?
 
     @ObservationIgnored
@@ -116,20 +119,30 @@ final class EntriesViewModel {
             }
         }
     }
+
+    func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
+        // Get the actual index values after removing
+        guard let offset = source.first else {
+            return
+        }
+        var targetIndex = destination
+
+        // Adjust the destination if moving downward in the list
+        if offset < destination {
+            targetIndex -= 1
+        }
+        Task {
+            do {
+                try await entryDataService.reorderItem(from: offset, to: targetIndex)
+            } catch {
+                handle(error)
+            }
+        }
+    }
 }
 
 extension EntriesViewModel {
-    func setUp() async {
-//        do {
-//            entries = if let mocked = mockedEntries() {
-//                mocked
-//            } else {
-//                try await getEntries()
-//            }
-//        } catch {
-//            handle(error)
-//        }
-    }
+    func setUp() async {}
 
     func refreshTokens() {
         generateTokensTask?.cancel()
@@ -174,7 +187,7 @@ extension EntriesViewModel {
 private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
-        // TODO: Log and display error to the users
+        // TODO: Log
         alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

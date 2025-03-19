@@ -25,6 +25,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
+
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showQaMenu = false
@@ -59,7 +61,7 @@ struct SettingsView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
-            .background(.backgroundGradient)
+            .mainBackground()
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -70,12 +72,6 @@ struct SettingsView: View {
                     }
                 }
             }
-            #if os(iOS)
-            .toolbarColorScheme(.dark, for: .navigationBar, .tabBar)
-            .toolbarBackground(.gradientStart, for: .navigationBar, .tabBar)
-            .toolbarBackground(.visible, for: .navigationBar, .tabBar)
-            #endif
-            .accentColor(.gradientStart)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
@@ -92,6 +88,10 @@ struct SettingsView: View {
         #else
         return .navigation
         #endif
+    }
+
+    private var isDarkMode: Bool {
+        colorScheme == .dark
     }
 }
 
@@ -150,6 +150,34 @@ private extension SettingsView {
 
             SettingDivider()
 
+            Menu(content: {
+                ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
+                    Button(action: {
+                        viewModel.updateSearchBarDisplay(theme)
+                    }, label: {
+                        if theme == viewModel.searchBarDisplay {
+                            Label(theme.title, systemImage: "checkmark")
+                        } else {
+                            Text(theme.title)
+                        }
+                    })
+                }
+            }, label: {
+                SettingRow(title: .localized("Search bar position"),
+                           trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
+                                                        onTap: {}))
+            })
+
+            SettingDivider()
+
+            SettingRow(title: .localized("Hide cell entry code"),
+                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
+                                             onToggle: viewModel.toggleHideCode))
+            SettingDivider()
+            SettingRow(title: .localized("Show number background"),
+                       trailingMode: .toggle(isOn: viewModel.showNumberBackground,
+                                             onToggle: viewModel.toggleDisplayNumberBackground))
+            SettingDivider()
             SettingRow(title: .localized("List style"),
                        trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
         }
@@ -219,6 +247,10 @@ private extension SettingsView {
                 }
         }
     }
+
+    var settingsBorder: Color {
+        (isDarkMode ? Color.white : .black).opacity(0.12)
+    }
 }
 
 // MARK: - Utils
@@ -232,11 +264,11 @@ private extension SettingsView {
             .padding(.horizontal, 0)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(.white.opacity(0.08))
+            .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
-                .stroke(Color.settingsBorder, lineWidth: 1))
+                .stroke(settingsBorder, lineWidth: 1))
             .padding(.top, 8)
         } header: {
             Text(title)
@@ -255,18 +287,18 @@ private extension SettingsView {
     }
 }
 
-private extension Color {
-    static var settingsBorder: Color {
-        .white.opacity(0.12)
-    }
-}
-
 private struct SettingDivider: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Rectangle()
             .foregroundStyle(.clear)
             .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
-            .background(Color.settingsBorder)
+            .background(settingsBorder)
+    }
+
+    var settingsBorder: Color {
+        (colorScheme == .dark ? Color.white : .black).opacity(0.12)
     }
 }
 

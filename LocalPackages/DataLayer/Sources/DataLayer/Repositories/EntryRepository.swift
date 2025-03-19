@@ -39,15 +39,16 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - CRUD
 
     func getAllEntries() async throws -> [EntryState]
-    func save(_ entries: [Entry]) async throws
+    func save(_ entries: [OrderedEntry]) async throws
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
     func update(_ entry: Entry) async throws
+    func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws
 }
 
 public extension EntryRepositoryProtocol {
-    func save(_ entry: Entry) async throws {
+    func save(_ entry: OrderedEntry) async throws {
         try await save([entry])
     }
 }
@@ -120,16 +121,16 @@ public extension EntryRepository {
 
 public extension EntryRepository {
     func getAllEntries() async throws -> [EntryState] {
-        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
+                                                                                         sortingDescriptor: [
+                                                                                             SortDescriptor(\.order)
+                                                                                         ])
         return try encryptionService.decryptMany(entries: encryptedEntries)
     }
 
-    func save(_ entries: [Entry]) async throws {
-        let entities: [EncryptedEntryEntity] = try entries.map {
-            try encrypt($0)
-        }
-
-        try await persistentStorage.batchSave(content: entities)
+    func save(_ entries: [OrderedEntry]) async throws {
+        let encryptedEntries = try entries.map { try encrypt($0) }
+        try await persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func remove(_ entry: Entry) async throws {
@@ -158,11 +159,23 @@ public extension EntryRepository {
         entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
         try await persistentStorage.save(data: entity)
     }
+
+    func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws {
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+        for entry in encryptedEntries {
+            guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
+            entry.updateOrder(newOrder: orderedEntry.order)
+        }
+        try await persistentStorage.batchSave(content: encryptedEntries)
+    }
 }
 
 private extension EntryRepository {
-    func encrypt(_ entry: Entry) throws -> EncryptedEntryEntity {
-        let encryptedData = try encryptionService.encrypt(entry: entry)
-        return EncryptedEntryEntity(id: entry.id, encryptedData: encryptedData, keyId: encryptionService.keyId)
+    func encrypt(_ entry: OrderedEntry) throws -> EncryptedEntryEntity {
+        let encryptedData = try encryptionService.encrypt(entry: entry.entry)
+        return EncryptedEntryEntity(id: entry.id,
+                                    encryptedData: encryptedData,
+                                    keyId: encryptionService.keyId,
+                                    order: entry.order)
     }
 }
