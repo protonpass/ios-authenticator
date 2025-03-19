@@ -124,7 +124,6 @@ private extension CreateEditEntryViewModel {
             }
             algo = params.algorithm ?? .sha1
             note = params.note ?? ""
-
         } else if entry.entry.type == .steam {
             name = entry.entry.name
             secret = entry.entry.secret
