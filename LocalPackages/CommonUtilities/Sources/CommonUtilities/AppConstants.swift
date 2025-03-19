@@ -69,4 +69,9 @@ public enum AppConstants {
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }
+
+    public enum EntryOptions {
+        public static let supportedDigits: [Int] = Array(5...9)
+        public static let supportedPeriod: [Int] = [30, 60]
+    }
 }

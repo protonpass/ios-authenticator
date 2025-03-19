@@ -37,8 +37,8 @@ final class CreateEditEntryViewModel {
 
     var shouldDismiss = false
 
-    let supportedDigits: [Int] = Array(5...10)
-    let supportedPeriod: [Int] = [30, 40, 50, 60]
+    var supportedDigits: [Int] = AppConstants.EntryOptions.supportedDigits
+    var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
 
     var canSave: Bool {
         secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
@@ -107,10 +107,24 @@ private extension CreateEditEntryViewModel {
             name = params.name
             secret = params.secret
             issuer = params.issuer
-            period = params.period ?? 30
-            digits = params.digits ?? 6
+            if let newPeriod = params.period {
+                period = period
+                if !supportedPeriod.contains(newPeriod) {
+                    supportedPeriod.append(newPeriod)
+                    supportedPeriod.sort()
+                }
+            }
+
+            if let newDigits = params.digits {
+                digits = newDigits
+                if !supportedDigits.contains(newDigits) {
+                    supportedDigits.append(newDigits)
+                    supportedDigits.sort()
+                }
+            }
             algo = params.algorithm ?? .sha1
             note = params.note ?? ""
+
         } else if entry.entry.type == .steam {
             name = entry.entry.name
             secret = entry.entry.secret
