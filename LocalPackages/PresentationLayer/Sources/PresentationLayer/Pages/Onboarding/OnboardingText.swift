@@ -1,5 +1,5 @@
 //
-// OnboardingView.swift
+// OnboardingText.swift
 // Proton Authenticator - Created on 19/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,33 +20,43 @@
 
 import SwiftUI
 
-public struct OnboardingView: View {
-    @State private var viewModel = OnboardingViewModel()
+struct OnboardingText: View {
+    let value: Value
 
-    let onFinish: () -> Void
+    enum Value {
+        case title(LocalizedStringKey)
+        case description(LocalizedStringKey)
 
-    public init(onFinish: @escaping () -> Void) {
-        self.onFinish = onFinish
-    }
-
-    public var body: some View {
-        switch viewModel.currentStep {
-        case .intro:
-            OnboardIntro(onNext: goNext)
-        case .import:
-            OnboardImport(onNext: goNext)
-        case .biometric:
-            OnboardBiometric(onNext: goNext)
-        }
-    }
-}
-
-private extension OnboardingView {
-    func goNext() {
-        withAnimation {
-            if !viewModel.goNext() {
-                onFinish()
+        var key: LocalizedStringKey {
+            switch self {
+            case let .title(key): key
+            case let .description(key): key
             }
         }
+
+        var font: Font {
+            switch self {
+            case .title: .title
+            case .description: .headline
+            }
+        }
+
+        var fontWeight: Font.Weight {
+            switch self {
+            case .title: .bold
+            case .description: .regular
+            }
+        }
+    }
+
+    init(_ value: Value) {
+        self.value = value
+    }
+
+    var body: some View {
+        Text(value.key)
+            .font(value.font)
+            .fontWeight(value.fontWeight)
+            .foregroundStyle(.textNorm)
     }
 }

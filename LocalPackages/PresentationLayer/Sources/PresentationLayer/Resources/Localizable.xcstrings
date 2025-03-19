@@ -211,6 +211,16 @@
         }
       }
     },
+    "Get started" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get started"
+          }
+        }
+      }
+    },
     "Hide cell entry code" : {
       "localizations" : {
         "en" : {
@@ -441,6 +451,16 @@
         }
       }
     },
+    "Security in every code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security in every code"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "en" : {
@@ -557,6 +577,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Update entry"
+          }
+        }
+      }
+    },
+    "Use two-factor authentication to safeguard your accounts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use two-factor authentication to safeguard your accounts."
           }
         }
       }

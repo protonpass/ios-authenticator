@@ -24,8 +24,36 @@ struct OnboardIntro: View {
     let onNext: () -> Void
 
     var body: some View {
-        Button(action: onNext) {
-            Text(verbatim: "Intro")
+        ZStack {
+            Color.clear
+                .mainBackground()
+                .ignoresSafeArea()
+
+            VStack(alignment: .center) {
+                Spacer()
+
+                Spacer()
+
+                OnboardingText(.title("Security in every code"))
+                    .padding(.horizontal)
+
+                OnboardingText(.description("Use two-factor authentication to safeguard your accounts."))
+                    .padding(.horizontal)
+
+                Spacer()
+
+                CapsuleButton(title: "Get started", action: onNext)
+                    .padding()
+
+                Image("protonSlogan", bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: 220)
+                    .padding(.horizontal)
+            }
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
