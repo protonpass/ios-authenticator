@@ -391,4 +391,94 @@ struct EntryRepositoryTests {
 
         #expect(fetchedEntries.map(\.note).contains("new note") == true)
     }
+    
+    
+    @Test("Test updating the order of an entries")
+    func reorderEntry() async throws {
+        let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id0",
+                              name: "Test",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"),order: 0),
+                                      .init(entry:  Entry(id: "id1",
+                              name: "Test2",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"), order: 1),
+                                      .init(entry: Entry(id: "id2",
+                              name: "Test3",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                         note: "Note"),order: 2),
+                                      OrderedEntry(entry: Entry(id: "id3",
+                                                            name: "Test",
+                                                            uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                                                            period: 40,
+                                                            issuer: "SimpleLogin",
+                                                            secret: "CKTQQJVWT5IXTGD",
+                                                            type: .totp,
+                                                                                 note: "new note"), order: 3)
+        ]
+        
+        let reorderEntries:[OrderedEntry] = [.init(entry:  Entry(id: "id3",
+                              name: "Test",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 40,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"),order: 0),
+                                      .init(entry:  Entry(id: "id1",
+                              name: "Test2",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                          note: "Note"), order: 1),
+                                      .init(entry: Entry(id: "id2",
+                              name: "Test3",
+                              uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "SimpleLogin",
+                              secret: "CKTQQJVWT5IXTGD",
+                              type: .totp,
+                                                         note: "Note"),order: 2),
+                                             OrderedEntry(entry: Entry(id: "id0",
+                                                                       name: "Test",
+                                                                       uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
+                                                                       period: 40,
+                                                                       issuer: "SimpleLogin",
+                                                                       secret: "CKTQQJVWT5IXTGD",
+                                                                       type: .totp,
+                                                                       note: "new note"), order: 3)
+        ]
+        
+        
+        try await sut.save(entries)
+        
+        let fetchedEntries = try await sut.getAllEntries().decodedEntries
+
+        // Assert
+        #expect(fetchedEntries.first?.id == "id0")
+
+        #expect(fetchedEntries.last?.id == "id3")
+        
+        try await sut.updateOrder(reorderEntries)
+        
+        let reorderedfetchedEntries = try await sut.getAllEntries().decodedEntries
+        
+        #expect(reorderedfetchedEntries.first?.id == "id3")
+
+        #expect(reorderedfetchedEntries.last?.id == "id0")
+    }
 }

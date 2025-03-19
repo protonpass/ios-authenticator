@@ -38,15 +38,11 @@ final class CreateEditEntryViewModel {
     var shouldDismiss = false
 
     let supportedDigits: [Int] = Array(5...10)
-    let supportedPeriod: [Int] = [10, 20, 30, 40, 50, 60]
+    let supportedPeriod: [Int] = [30, 40, 50, 60]
 
     var canSave: Bool {
         secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
     }
-
-    @ObservationIgnored
-    @LazyInjected(\RepositoryContainer.entryRepository)
-    private(set) var entryRepository
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -107,7 +103,7 @@ private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
         guard let entry else { return }
         if entry.entry.type == .totp,
-           let params = try? entryRepository.getTotpParams(entry: entry.entry) {
+           let params = try? entryDataService.getTotpParams(entry: entry.entry) {
             name = params.name
             secret = params.secret
             issuer = params.issuer
@@ -115,7 +111,7 @@ private extension CreateEditEntryViewModel {
             digits = params.digits ?? 6
             algo = params.algorithm ?? .sha1
             note = params.note ?? ""
-        } else {
+        } else if entry.entry.type == .steam {
             name = entry.entry.name
             secret = entry.entry.secret
             type = .steam

@@ -35,6 +35,10 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func updateEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
+
+    // MARK: - Expose repo functionalities to not have to inject several data source in view models
+
+    func getTotpParams(entry: Entry) throws -> TotpParams
 }
 
 @MainActor
@@ -131,6 +135,14 @@ public extension EntryDataService {
     }
 }
 
+// MARK: - Rust exposure
+
+public extension EntryDataService {
+    func getTotpParams(entry: Entry) throws -> TotpParams {
+        try repository.getTotpParams(entry: entry)
+    }
+}
+
 private extension EntryDataService {
     func loadEntries() {
         task?.cancel()
@@ -151,7 +163,7 @@ private extension EntryDataService {
     func save(_ entry: Entry) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
 
-        guard !isDup(for: entry, in: data) else {
+        guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
             throw AuthError.generic(.duplicatedEntry)
         }
 
@@ -223,14 +235,6 @@ private extension EntryDataService {
             data[index] = entry.updateOrder(index)
         }
         return data
-    }
-
-    func isDup(for entry: Entry, in data: [EntryUiModel]) -> Bool {
-        guard !data.isEmpty else {
-            return false
-        }
-
-        return data.contains { $0.entry.isDuplicate(of: entry) }
     }
 }
 
