@@ -20,6 +20,7 @@
 
 import Factory
 import Foundation
+import Macro
 import Models
 import SwiftUI
 
@@ -27,9 +28,11 @@ enum OnboardStep: Sendable {
     case intro, `import`, biometric(BiometricType)
 }
 
+@MainActor
 @Observable
 final class OnboardingViewModel {
     private(set) var currentStep: OnboardStep = .intro
+    private(set) var biometricEnabled = false
 
     @ObservationIgnored
     private var supportedBiometric: BiometricType?
@@ -39,8 +42,19 @@ final class OnboardingViewModel {
     private var getBiometricStatus
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+
+    @ObservationIgnored
     @LazyInjected(\ToolsContainer.laContext)
     private var laContext
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.laEnablingPolicy)
+    private var laEnablingPolicy
+
+    @ObservationIgnored
+    private var enablingBiometric = false
 
     init() {}
 
@@ -74,6 +88,23 @@ final class OnboardingViewModel {
             return false
         }
         return true
+    }
+
+    func enableBiometric() {
+        guard !enablingBiometric else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            defer { enablingBiometric = false }
+            enablingBiometric = true
+            do {
+                if try await authenticateBiometrically(policy: laEnablingPolicy,
+                                                       reason: #localized("Please authenticate")) {
+                    biometricEnabled = true
+                }
+            } catch {
+                handle(error)
+            }
+        }
     }
 
     func handle(_ error: any Error) {

@@ -53,6 +53,7 @@ public struct OnboardingView: View {
         .importOptionsDialog(isPresented: $showImportOptions, onSelect: handle)
         .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                        onSelect: handle)
+        .onChange(of: viewModel.biometricEnabled, goNext)
     }
 }
 
@@ -99,7 +100,7 @@ private extension OnboardingView {
                 case .import:
                     showImportOptions.toggle()
                 case .biometric:
-                    break
+                    viewModel.enableBiometric()
                 }
             }
 

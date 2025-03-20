@@ -40,4 +40,8 @@ final class UseCaseContainer: SharedContainer, AutoRegistering {
     var getBiometricStatus: Factory<any GetBiometricStatusUseCase> {
         self { GetBiometricStatus() }
     }
+
+    var authenticateBiometrically: Factory<any AuthenticateBiometricallyUseCase> {
+        self { AuthenticateBiometrically() }
+    }
 }

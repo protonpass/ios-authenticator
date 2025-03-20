@@ -441,6 +441,16 @@
         }
       }
     },
+    "Please authenticate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please authenticate"
+          }
+        }
+      }
+    },
     "Point your camera at the QR code" : {
       "localizations" : {
         "en" : {
