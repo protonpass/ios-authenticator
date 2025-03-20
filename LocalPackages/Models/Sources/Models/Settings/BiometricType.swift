@@ -1,6 +1,6 @@
 //
-// OnboardBiometric.swift
-// Proton Authenticator - Created on 19/03/2025.
+// BiometricType.swift
+// Proton Authenticator - Created on 20/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,14 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import SwiftUI
-
-struct OnboardBiometric: View {
-    let onNext: () -> Void
-
-    var body: some View {
-        Button(action: onNext) {
-            Text(verbatim: "Biometric")
-        }
-    }
+public enum BiometricType: Sendable {
+    case faceID, touchID, opticID
 }

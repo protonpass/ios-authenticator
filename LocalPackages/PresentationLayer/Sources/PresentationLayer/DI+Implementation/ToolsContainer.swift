@@ -21,6 +21,7 @@
 import CommonUtilities
 import DataLayer
 import Factory
+import LocalAuthentication
 import SimplyPersist
 import SwiftData
 
@@ -58,6 +59,10 @@ extension ToolsContainer {
         self {
             EncryptionKeyStoreService(logger: self.logService())
         }
+    }
+
+    var laContext: Factory<LAContext> {
+        self { LAContext() }
     }
 }
 
