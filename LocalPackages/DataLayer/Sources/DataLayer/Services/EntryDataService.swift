@@ -39,6 +39,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
     func getTotpParams(entry: Entry) throws -> TotpParams
+    func exportEntries() throws -> String?
 }
 
 @MainActor
@@ -145,6 +146,15 @@ public extension EntryDataService {
 public extension EntryDataService {
     func getTotpParams(entry: Entry) throws -> TotpParams {
         try repository.getTotpParams(entry: entry)
+    }
+
+    func exportEntries() throws -> String? {
+        guard let data = dataState.data else {
+            // TODO: throw empty entry enrror
+            return nil
+        }
+        let entries = data.map(\.entry)
+        return try repository.export(entries: entries)
     }
 }
 

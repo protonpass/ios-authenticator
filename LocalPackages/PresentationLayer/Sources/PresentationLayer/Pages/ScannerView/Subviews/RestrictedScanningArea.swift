@@ -34,7 +34,7 @@ public struct RestrictedScanningAreaConfig {
                 sizeOfArea: CGSize = CGSize(width: 330, height: 330),
                 border: Bool = true,
                 borderCornerRadius: CGFloat = 5,
-                borderColor: Color = Color(red: 1, green: 0.85, blue: 0.65),
+                borderColor: Color = .white,
                 borderColorWidth: CGFloat = 2) {
         self.overlayColor = overlayColor
         self.sizeOfArea = sizeOfArea

@@ -199,11 +199,15 @@ private extension SettingsView {
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {
+                router.navigate(to: .importEntries)
+            }))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {
+                router.navigate(to: .exportEntries)
+            }))
         }
     }
 
