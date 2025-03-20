@@ -46,7 +46,11 @@ public struct OnboardingView: View {
                 .mainBackground()
                 .ignoresSafeArea()
 
-            mainContent
+            GeometryReader { proxy in
+                let illustrationHeight = proxy.size.height * 0.55
+                illustration(height: illustrationHeight)
+                textAndButton(illustrationHeight: illustrationHeight)
+            }
         }
         .tint(.purpleInteraction)
         .task { viewModel.getSupportedBiometric() }
@@ -58,21 +62,60 @@ public struct OnboardingView: View {
 }
 
 private extension OnboardingView {
-    var mainContent: some View {
-        VStack {
-            VStack(alignment: .center) {
+    @ViewBuilder
+    func illustration(height: CGFloat) -> some View {
+        VStack(alignment: .center, spacing: 0) {
+            VStack {
                 Spacer()
+                switch viewModel.currentStep {
+                case .intro:
+                    Image("introPreview", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 256)
+                    Spacer()
+                        .frame(height: 30)
 
-                Spacer()
+                case .import:
+                    Image("locktree", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 185)
+                    Spacer()
+                        .frame(height: 60)
+
+                case .biometric:
+                    Image("FaceID", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 160)
+                    Spacer()
+                        .frame(height: 60)
+                }
+            }
+            .frame(height: height)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    }
+
+    func textAndButton(illustrationHeight: CGFloat) -> some View {
+        VStack {
+            VStack(alignment: .center, spacing: 0) {
+                Spacer(minLength: illustrationHeight)
 
                 Text(viewModel.currentStep.title)
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundStyle(.textNorm)
+                    .padding(.horizontal, 40)
 
                 Text(viewModel.currentStep.description)
-                    .font(.headline)
-                    .foregroundStyle(.textNorm)
+                    .font(.title3)
+                    .foregroundStyle(.textWeak)
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 8)
 
                 Spacer()
 
@@ -91,7 +134,7 @@ private extension OnboardingView {
     }
 
     func actions(supportSkipping: Bool = true) -> some View {
-        VStack {
+        VStack(spacing: 16) {
             CapsuleButton(title: viewModel.currentStep.primaryActionTitle,
                           style: .borderedFilled) {
                 switch viewModel.currentStep {
@@ -111,10 +154,13 @@ private extension OnboardingView {
                     .resizable()
                     .scaledToFit()
                     .foregroundStyle(.textNorm)
+                    .frame(height: 52)
                     .frame(maxWidth: 220)
                     .padding(.horizontal)
             }
         }
+        .padding(.horizontal, 40)
+        .padding(.bottom)
     }
 
     func goNext() {
