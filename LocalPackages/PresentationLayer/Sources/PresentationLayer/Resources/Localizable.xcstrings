@@ -111,6 +111,16 @@
         }
       }
     },
+    "Choose a Photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Photo"
+          }
+        }
+      }
+    },
     "Close" : {
       "localizations" : {
         "en" : {
@@ -331,6 +341,16 @@
         }
       }
     },
+    "Import from Files" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import from Files"
+          }
+        }
+      }
+    },
     "Issuer" : {
       "localizations" : {
         "en" : {
@@ -491,6 +511,16 @@
         }
       }
     },
+    "Scan a QR code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan a QR code"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "en" : {
@@ -547,6 +577,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Security in every code"
+          }
+        }
+      }
+    },
+    "Select your prodiver" : {
+      "comment" : "Title of the alert to ask for which provider to import from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select your prodiver"
           }
         }
       }
