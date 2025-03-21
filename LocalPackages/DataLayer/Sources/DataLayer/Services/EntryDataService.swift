@@ -40,6 +40,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func getTotpParams(entry: Entry) throws -> TotpParams
     func exportEntries() throws -> String?
+    func importEntries(from provenance: TwofaImportDestination) async throws
 }
 
 @MainActor
@@ -52,14 +53,18 @@ public final class EntryDataService: EntryDataServiceProtocol {
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
     @ObservationIgnored
+    private let importService: any ImportingServicing
+    @ObservationIgnored
     private var task: Task<Void, Never>?
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
-    public init(repository: any EntryRepositoryProtocol) {
+    public init(repository: any EntryRepositoryProtocol,
+                importService: any ImportingServicing) {
         self.repository = repository
+        self.importService = importService
         setUp()
     }
 
@@ -156,6 +161,27 @@ public extension EntryDataService {
         let entries = data.map(\.entry)
         return try repository.export(entries: entries)
     }
+
+    nonisolated func importEntries(from provenance: TwofaImportDestination) async throws {
+        let results = try importService.importEntries(from: provenance)
+        var data: [EntryUiModel] = await dataState.data ?? []
+        let filteredResults = results.entries
+            .filter { entry in !data.contains(where: { $0.entry.isDuplicate(of: entry) }) }
+        let codes = try repository.generateCodes(entries: filteredResults)
+
+        var index = data.count
+        var uiEntries: [EntryUiModel] = []
+        for code in codes {
+            uiEntries.append(EntryUiModel(entry: code.entry, code: code, order: index, date: .now))
+            index += 1
+        }
+        try await repository.save(uiEntries)
+
+        data.append(contentsOf: uiEntries)
+        await MainActor.run {
+            dataState = .loaded(data)
+        }
+    }
 }
 
 private extension EntryDataService {
@@ -189,7 +215,7 @@ private extension EntryDataService {
         }
         let order = data.count
         let entryUI = EntryUiModel(entry: code.entry, code: code, order: order, date: .now)
-        try await repository.save(OrderedEntry(entry: entry, order: order))
+        try await repository.save(entryUI)
 
         data.append(entryUI)
         dataState = .loaded(data)

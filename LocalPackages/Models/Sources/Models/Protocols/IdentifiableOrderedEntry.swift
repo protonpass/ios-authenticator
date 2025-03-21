@@ -23,4 +23,5 @@ import Foundation
 public protocol IdentifiableOrderedEntry {
     var id: String { get }
     var order: Int { get }
+    var entry: Entry { get }
 }

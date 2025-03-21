@@ -100,7 +100,7 @@ final class EntriesViewModel {
         searchTextStream
             .dropFirst()
             .removeDuplicates()
-            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newSearch in
                 guard let self else { return }

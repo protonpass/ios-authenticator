@@ -148,6 +148,7 @@ private extension EntriesView {
             LazyVGrid(columns: colums /* [.init(.flexible()), .init(.flexible())] */ ) {
                 ForEach(viewModel.entries) { entry in
                     cell(for: entry)
+                        // TODO: maybe put in a vstack and not bother changing all the paddings
                         .overlay(alignment: .topTrailing) {
                             if isEditing {
                                 VStack(spacing: 10) {

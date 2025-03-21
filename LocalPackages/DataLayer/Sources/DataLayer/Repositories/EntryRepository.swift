@@ -39,7 +39,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - CRUD
 
     func getAllEntries() async throws -> [EntryState]
-    func save(_ entries: [OrderedEntry]) async throws
+    func save(_ entries: [any IdentifiableOrderedEntry]) async throws
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
     func removeAll() async throws
@@ -48,7 +48,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 }
 
 public extension EntryRepositoryProtocol {
-    func save(_ entry: OrderedEntry) async throws {
+    func save(_ entry: any IdentifiableOrderedEntry) async throws {
         try await save([entry])
     }
 }
@@ -128,7 +128,7 @@ public extension EntryRepository {
         return try encryptionService.decryptMany(entries: encryptedEntries)
     }
 
-    func save(_ entries: [OrderedEntry]) async throws {
+    func save(_ entries: [any IdentifiableOrderedEntry]) async throws {
         let encryptedEntries = try entries.map { try encrypt($0) }
         try await persistentStorage.batchSave(content: encryptedEntries)
     }
@@ -171,7 +171,7 @@ public extension EntryRepository {
 }
 
 private extension EntryRepository {
-    func encrypt(_ entry: OrderedEntry) throws -> EncryptedEntryEntity {
+    func encrypt(_ entry: any IdentifiableOrderedEntry) throws -> EncryptedEntryEntity {
         let encryptedData = try encryptionService.encrypt(entry: entry.entry)
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,

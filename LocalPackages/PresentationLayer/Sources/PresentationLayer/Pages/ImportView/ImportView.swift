@@ -23,10 +23,47 @@
 import SwiftUI
 
 struct ImportView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel = ImportViewModel()
-
+    @State private var showPasswordSheet: Bool = false
+    
     var body: some View {
-        Text("Add some view here")
+        ZStack {
+            Color.clear
+                .mainBackground()
+                .edgesIgnoringSafeArea(.all)
+
+            VStack {
+                Toggle("Password protected", isOn: $showPasswordSheet)
+                ForEach(ImportProvenance.allCases) { provenance in
+                    Button { viewModel.importEntries(provenance) } label: {
+                        HStack {
+                            Image(.logoCalendar)
+                            Text("Import from \(provenance.title)")
+                                .foregroundStyle(.white)
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 14)
+                    .background((colorScheme == .light ? Color.black : .white).opacity(0.4))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                }
+            }
+            .padding(.horizontal, 16)
+            .navigationBarTitle("Import")
+        }
+        .sheet(isPresented: $showPasswordSheet) {
+            //TODO
+        }
+        .fileImporter(isPresented: $viewModel.showImporter.mappedToBool(),
+                      allowedContentTypes: viewModel.showImporter?.autorizedFileExtensions ?? [],
+                      allowsMultipleSelection: false,
+                      onCompletion: viewModel.processImportedFile)
+        .edgesIgnoringSafeArea(.all)
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
 }
 
