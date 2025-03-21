@@ -25,11 +25,22 @@ import Foundation
 @MainActor
 @Observable
 final class QAMenuViewModel {
+    var onboarded: Bool {
+        didSet {
+            appSettings.setOnboarded(onboarded)
+        }
+    }
+
     @ObservationIgnored
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService) var qaService
 
-    init() {}
+    @ObservationIgnored
+    private let appSettings = resolve(\ServiceContainer.settingsService)
+
+    init() {
+        onboarded = appSettings.onboarded
+    }
 }

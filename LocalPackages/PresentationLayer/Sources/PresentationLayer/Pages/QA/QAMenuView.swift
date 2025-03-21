@@ -24,11 +24,13 @@ import SwiftUI
 struct QAMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = QAMenuViewModel()
+    @State private var showOnboarding = false
 
     var body: some View {
         NavigationStack {
             List {
                 mockEntriesSection
+                onboardingSection
             }
             .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -41,6 +43,11 @@ struct QAMenuView: View {
             }
         }
         .tint(Color.success)
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingView(onFinish: {
+                showOnboarding.toggle()
+            })
+        }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -71,6 +78,16 @@ private extension QAMenuView {
             }
         }, header: {
             Text(verbatim: "Mock entries")
+        })
+    }
+
+    var onboardingSection: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })
+            Button(action: { showOnboarding.toggle() },
+                   label: { Text(verbatim: "Onboard") })
+        }, header: {
+            Text(verbatim: "Onboarding")
         })
     }
 }
