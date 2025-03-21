@@ -131,6 +131,16 @@
         }
       }
     },
+    "Codes imported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codes imported"
+          }
+        }
+      }
+    },
     "Create" : {
       "localizations" : {
         "en" : {
@@ -351,7 +361,7 @@
         }
       }
     },
-   "Import codes" : {
+    "Import codes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -370,9 +380,6 @@
           }
         }
       }
-    },
-    "Import from %@" : {
-
     },
     "Issuer" : {
       "localizations" : {
@@ -460,6 +467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No codes"
+          }
+        }
+      }
+    },
+    "Password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
           }
         }
       }
@@ -655,6 +672,28 @@
         }
       }
     },
+    "Successfully imported %lld items" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Successfully imported %lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "Successfully imported %lld items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "SUPPORT" : {
       "localizations" : {
         "en" : {
@@ -755,16 +794,6 @@
         }
       }
     },
-    "Use two-factor authentication to safeguard your accounts." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use two-factor authentication to safeguard your accounts."
-          }
-        }
-      }
-    },
     "Use this feature to import your data on an another device using Proton Authenticator" : {
       "localizations" : {
         "en" : {
@@ -775,12 +804,32 @@
         }
       }
     },
+    "Use two-factor authentication to safeguard your accounts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use two-factor authentication to safeguard your accounts."
+          }
+        }
+      }
+    },
     "Version %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "Your import file is password protected. Please enter the password to proceed." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your import file is password protected. Please enter the password to proceed."
           }
         }
       }

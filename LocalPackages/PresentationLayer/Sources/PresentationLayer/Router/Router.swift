@@ -23,7 +23,6 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case appearance
-    case importEntries
     case exportEntries
 }
 
@@ -64,8 +63,6 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .appearance:
                     Text("appeareance")
-                case .importEntries:
-                    ImportView()
                 case .exportEntries:
                     ExportView()
                 }
