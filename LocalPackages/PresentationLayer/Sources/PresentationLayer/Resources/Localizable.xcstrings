@@ -685,7 +685,7 @@
               },
               "other" : {
                 "stringUnit" : {
-                  "state" : "new",
+                  "state" : "translated",
                   "value" : "Successfully imported %lld items"
                 }
               }

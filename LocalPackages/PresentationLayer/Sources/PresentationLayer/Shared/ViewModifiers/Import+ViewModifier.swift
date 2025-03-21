@@ -32,7 +32,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ImportingServiceModifier: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
     @State private var showPhotosPicker: Bool = false
@@ -308,6 +307,7 @@ private extension URL {
 }
 
 private extension ImportOption {
+    // periphery:ignore
     var title: String {
         switch self {
         case .googleAuthenticator:

@@ -37,6 +37,7 @@ struct RetryableErrorView: View {
             .vertical(textColor: .textNorm)
         }
 
+        // periphery:ignore
         static var defaultHorizontal: Mode {
             .horizontal(textColor: .textNorm)
         }
