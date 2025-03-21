@@ -60,13 +60,13 @@ public extension EntryRepositoryProtocol {
 }
 
 public final class EntryRepository: Sendable, EntryRepositoryProtocol {
-    private let rustClient: AuthenticatorMobileClient
+    private let rustClient: AuthenticatorMobileClientProtocol
     private let persistentStorage: any PersistenceServicing
     private let encryptionService: any EncryptionServicing
 
     public init(persistentStorage: any PersistenceServicing,
                 encryptionService: any EncryptionServicing,
-                rustClient: AuthenticatorMobileClient = AuthenticatorMobileClient()) {
+                rustClient: any AuthenticatorMobileClientProtocol = AuthenticatorMobileClient()) {
         self.persistentStorage = persistentStorage
         self.encryptionService = encryptionService
         self.rustClient = rustClient

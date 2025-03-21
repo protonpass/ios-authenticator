@@ -1,6 +1,6 @@
 //
-// QAMenuViewModel.swift
-// Proton Authenticator - Created on 18/02/2025.
+// ImportOption.swift
+// Proton Authenticator - Created on 21/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,30 +17,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
-import Factory
 import Foundation
+import UniformTypeIdentifiers
 
-@MainActor
-@Observable
-final class QAMenuViewModel {
-    var onboarded: Bool {
-        didSet {
-            appSettings.setOnboarded(onboarded)
-        }
-    }
+public enum ImportOption: Sendable, CaseIterable, Identifiable {
+    case googleAuthenticator, twoFas, aegisAuthenticator
+    case bitwardenAuthenticator, enteAuth, lastPassAuthenticator
+    case protonAuthenticator
 
-    @ObservationIgnored
-    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.qaService) var qaService
-
-    @ObservationIgnored
-    private let appSettings = resolve(\ServiceContainer.settingsService)
-
-    init() {
-        onboarded = appSettings.onboarded
-    }
+    public var id: Self { self }
 }

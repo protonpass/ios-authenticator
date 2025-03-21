@@ -39,8 +39,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
     func getTotpParams(entry: Entry) throws -> TotpParams
-    func exportEntries() throws -> String?
-    func importEntries(from provenance: TwofaImportDestination) async throws
+    func exportEntries() throws -> String
+    func importEntries(from provenance: TwofaImportDestination) async throws -> Int
 }
 
 @MainActor
@@ -153,16 +153,15 @@ public extension EntryDataService {
         try repository.getTotpParams(entry: entry)
     }
 
-    func exportEntries() throws -> String? {
+    func exportEntries() throws -> String {
         guard let data = dataState.data else {
-            // TODO: throw empty entry enrror
-            return nil
+            throw AuthError.generic(.exportEmptyData)
         }
         let entries = data.map(\.entry)
         return try repository.export(entries: entries)
     }
 
-    nonisolated func importEntries(from provenance: TwofaImportDestination) async throws {
+    nonisolated func importEntries(from provenance: TwofaImportDestination) async throws -> Int {
         let results = try importService.importEntries(from: provenance)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
@@ -181,6 +180,7 @@ public extension EntryDataService {
         await MainActor.run {
             dataState = .loaded(data)
         }
+        return uiEntries.count
     }
 }
 

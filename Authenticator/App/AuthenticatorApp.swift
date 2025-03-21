@@ -21,6 +21,7 @@
 import DataLayer
 import Factory
 import Foundation
+import Models
 import PresentationLayer
 import SwiftData
 import SwiftUI
@@ -31,12 +32,17 @@ struct AuthenticatorApp: App {
 
     var body: some Scene {
         WindowGroup {
-            EntriesView()
-                .preferredColorScheme(viewModel.appSettings.theme.preferredColorScheme)
-                .onOpenURL { url in
-                    viewModel.handleDeepLink(url)
-                }
-                .mainUIAlertService
+            if viewModel.onboarded {
+                EntriesView()
+                    .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                    .onOpenURL { url in
+                        viewModel.handleDeepLink(url)
+                    }
+                    .mainUIAlertService
+            } else {
+                OnboardingView()
+                    .mainUIAlertService
+            }
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -46,6 +52,10 @@ struct AuthenticatorApp: App {
 
 @Observable @MainActor
 private final class AuthenticatorAppViewModel {
+    var onboarded: Bool {
+        appSettings.onboarded
+    }
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.deepLinkService)
     private var deepLinkService
@@ -56,7 +66,11 @@ private final class AuthenticatorAppViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
-    var appSettings
+    private var appSettings
+
+    var theme: Theme {
+        appSettings.theme
+    }
 
     init() {}
 

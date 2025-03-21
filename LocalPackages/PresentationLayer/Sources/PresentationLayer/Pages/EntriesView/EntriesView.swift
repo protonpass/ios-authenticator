@@ -144,68 +144,64 @@ private extension EntriesView {
 
     var grid: some View {
         ScrollView {
-            let colums = Array(repeating: GridItem(spacing: isEditing ? 50 : 16), count: 2)
-            LazyVGrid(columns: colums /* [.init(.flexible()), .init(.flexible())] */ ) {
+            LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
                 ForEach(viewModel.entries) { entry in
-                    cell(for: entry)
-                        // TODO: maybe put in a vstack and not bother changing all the paddings
-                        .overlay(alignment: .topTrailing) {
-                            if isEditing {
-                                VStack(spacing: 10) {
-                                    Button {
-                                        router.presentedSheet = .createEditEntry(entry)
-                                    } label: {
-                                        Image(systemName: "pencil")
-                                            .foregroundStyle(.white)
-                                            .padding(5)
-                                            .background(.info)
-                                            .clipShape(.circle)
-                                    }
+                    HStack(alignment: .top) {
+                        cell(for: entry)
+                        if isEditing {
+                            VStack(spacing: 10) {
+                                Button {
+                                    router.presentedSheet = .createEditEntry(entry)
+                                } label: {
+                                    Image(systemName: "pencil")
+                                        .foregroundStyle(.white)
+                                        .padding(5)
+                                        .background(.info)
+                                        .clipShape(.circle)
+                                }
 
-                                    Button {
-                                        viewModel.delete(entry)
-                                    } label: {
-                                        Image(systemName: "trash.fill")
-                                            .foregroundStyle(.white)
-                                            .padding(5)
-                                            .background(.danger)
-                                            .clipShape(.circle)
-                                    }
-                                }
-                                .padding(5)
-                                .background(colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.7))
-                                .clipShape(.capsule)
-                                .offset(x: 40, y: 0)
-                            }
-                        }
-                        .draggable(entry) {
-                            cell(for: entry).opacity(0.8)
-                                .onAppear {
-                                    draggingEntry = entry
-                                }
-                        }
-                        .dropDestination(for: EntryUiModel.self) { _, _ in
-                            false
-                        } isTargeted: { status in
-                            if let draggingEntry,
-                               status,
-                               draggingEntry != entry,
-                               let sourceIndex = viewModel.entries
-                               .firstIndex(where: { $0.id == draggingEntry.id }),
-                               let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }) {
-                                withAnimation(.bouncy) {
-                                    viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
-                                                       toOffset: destinationIndex > sourceIndex ?
-                                                           destinationIndex +
-                                                           1 : destinationIndex)
+                                Button {
+                                    viewModel.delete(entry)
+                                } label: {
+                                    Image(systemName: "trash.fill")
+                                        .foregroundStyle(.white)
+                                        .padding(5)
+                                        .background(.danger)
+                                        .clipShape(.circle)
                                 }
                             }
+                            .padding(5)
+                            .background(colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.7))
+                            .clipShape(.capsule)
                         }
+                    }
+                    .draggable(entry) {
+                        cell(for: entry).opacity(0.8)
+                            .onAppear {
+                                draggingEntry = entry
+                            }
+                    }
+                    .dropDestination(for: EntryUiModel.self) { _, _ in
+                        false
+                    } isTargeted: { status in
+                        if let draggingEntry,
+                           status,
+                           draggingEntry != entry,
+                           let sourceIndex = viewModel.entries
+                           .firstIndex(where: { $0.id == draggingEntry.id }),
+                           let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }) {
+                            withAnimation(.bouncy) {
+                                viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
+                                                   toOffset: destinationIndex > sourceIndex ?
+                                                       destinationIndex +
+                                                       1 : destinationIndex)
+                            }
+                        }
+                    }
                 }
             }
             .animation(.default, value: viewModel.entries)
             .padding()
-            .padding(.trailing, isEditing ? 44 : 0)
         }
     }
 

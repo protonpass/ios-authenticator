@@ -25,6 +25,7 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case missingEntryForGeneratedCode
     case wrongTypeOfEntryParams
     case duplicatedEntry
+    case exportEmptyData
 
     public var debugDescription: String {
         switch self {
@@ -36,6 +37,8 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "Wrong type of entry params"
         case .duplicatedEntry:
             "An entry with the same data already exists"
+        case .exportEmptyData:
+            "Your are trying to export empty data"
         }
     }
 }

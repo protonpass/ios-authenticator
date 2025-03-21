@@ -30,9 +30,9 @@ public protocol ImportingServicing: Sendable {
 }
 
 public final class ImportingService: ImportingServicing {
-    private let importer: AuthenticatorImporter
+    private let importer: any AuthenticatorImporterProtocol
 
-    public init(importer: AuthenticatorImporter = AuthenticatorImporter()) {
+    public init(importer: any AuthenticatorImporterProtocol = AuthenticatorImporter()) {
         self.importer = importer
     }
 

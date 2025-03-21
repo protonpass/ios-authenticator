@@ -64,6 +64,10 @@ public struct ActionConfig: Sendable, Identifiable {
         self.role = role
         self.action = action
     }
+
+    public static var `default`: ActionConfig {
+        .init(title: "OK", role: .cancel, action: {})
+    }
 }
 
 @MainActor

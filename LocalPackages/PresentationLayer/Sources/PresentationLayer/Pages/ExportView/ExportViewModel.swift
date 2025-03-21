@@ -54,9 +54,7 @@ final class ExportViewModel {
 
     func createBackup() {
         do {
-            guard let data = try entryDataService.exportEntries() else {
-                return
-            }
+            let data = try entryDataService.exportEntries()
             backup = TextDocument(data)
             showingExporter = true
         } catch {

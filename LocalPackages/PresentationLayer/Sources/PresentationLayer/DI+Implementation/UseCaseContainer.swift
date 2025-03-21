@@ -36,4 +36,12 @@ final class UseCaseContainer: SharedContainer, AutoRegistering {
     var parseImageQRCodeContent: Factory<any ParseImageQRCodeContentUseCase> {
         self { ParseImageQRCodeContent() }
     }
+
+    var getBiometricStatus: Factory<any GetBiometricStatusUseCase> {
+        self { GetBiometricStatus() }
+    }
+
+    var authenticateBiometrically: Factory<any AuthenticateBiometricallyUseCase> {
+        self { AuthenticateBiometrically() }
+    }
 }
