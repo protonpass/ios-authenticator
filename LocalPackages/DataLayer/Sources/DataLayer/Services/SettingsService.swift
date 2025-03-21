@@ -28,11 +28,13 @@ public protocol SettingsServicing: Sendable, Observable {
     var theme: Theme { get }
     var searchBarDisplayMode: SearchBarDisplayMode { get }
     var entryUIConfiguration: EntryCellConfiguration { get }
+    var onboarded: Bool { get }
 
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
     func setHideEntryCode(_ value: Bool)
     func setDisplayNumberBackground(_ value: Bool)
+    func setOnboarded(_ value: Bool)
 }
 
 @MainActor
@@ -41,9 +43,10 @@ public final class SettingsService: SettingsServicing {
     @ObservationIgnored
     private let store: UserDefaults
 
-    public var searchBarDisplayMode: SearchBarDisplayMode
-    public var theme: Theme
-    public var entryUIConfiguration: EntryCellConfiguration
+    public private(set) var searchBarDisplayMode: SearchBarDisplayMode
+    public private(set) var theme: Theme
+    public private(set) var entryUIConfiguration: EntryCellConfiguration
+    public private(set) var onboarded: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -55,6 +58,7 @@ public final class SettingsService: SettingsServicing {
         let hideEntryCode: Bool = store.bool(forKey: AppConstants.Settings.displayCode)
         entryUIConfiguration = .init(hideEntryCode: hideEntryCode,
                                      displayNumberBackground: displayNumberBackground)
+        onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
     }
 }
 
@@ -93,5 +97,10 @@ public extension SettingsService {
         store.set(value, forKey: AppConstants.Settings.numberBackground)
         entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
                                      displayNumberBackground: value)
+    }
+
+    func setOnboarded(_ value: Bool) {
+        guard value != onboarded else { return }
+        store.set(value, forKey: AppConstants.Settings.onboarded)
     }
 }
