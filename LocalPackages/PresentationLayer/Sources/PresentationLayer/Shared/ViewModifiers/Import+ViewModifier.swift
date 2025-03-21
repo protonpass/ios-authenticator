@@ -21,7 +21,9 @@
 import Combine
 import CommonUtilities
 import DataLayer
+#if os(iOS)
 import DocScanner
+#endif
 import Factory
 import Foundation
 import Models
@@ -248,6 +250,7 @@ final class ImportViewModel {
         }
     }
 
+    #if os(iOS)
     func processPayload(results: Result<ScanResult?, Error>) {
         Task {
             do {
@@ -265,6 +268,7 @@ final class ImportViewModel {
             }
         }
     }
+    #endif
 
     func showCompletion(_ numberOfEntries: Int) {
         let alert: AlertDisplay = if mainDisplay {

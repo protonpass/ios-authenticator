@@ -20,7 +20,6 @@
 
 import Foundation
 import SimplyPersist
-import CommonUtilities
 import Testing
 import Models
 import SwiftData

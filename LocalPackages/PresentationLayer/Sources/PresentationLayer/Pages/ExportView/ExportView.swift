@@ -65,15 +65,19 @@ struct ExportView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
-            .navigationBarTitle("Export")
+            #if os(iOS)
+                .navigationBarTitle("Export")
+            #endif
         }
         .fileExporter(isPresented: $viewModel.showingExporter,
                       document: viewModel.backup,
                       contentType: .text,
                       defaultFilename: viewModel.backupTitle,
                       onCompletion: viewModel.parseExport)
-        .edgesIgnoringSafeArea(.all)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        #if os(iOS)
+            .edgesIgnoringSafeArea(.all)
+            .toolbarBackground(.hidden, for: .navigationBar)
+        #endif
     }
 }
 

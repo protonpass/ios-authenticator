@@ -20,7 +20,6 @@
 
 import CommonUtilities
 import Foundation
-import Macro
 import Models
 
 private enum DeeplinkType {
