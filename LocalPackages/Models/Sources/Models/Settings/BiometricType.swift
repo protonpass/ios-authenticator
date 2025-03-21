@@ -1,6 +1,6 @@
 //
-// QAMenuViewModel.swift
-// Proton Authenticator - Created on 18/02/2025.
+// BiometricType.swift
+// Proton Authenticator - Created on 20/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -17,30 +17,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
-//
 
-import Factory
-import Foundation
-
-@MainActor
-@Observable
-final class QAMenuViewModel {
-    var onboarded: Bool {
-        didSet {
-            appSettings.setOnboarded(onboarded)
-        }
-    }
-
-    @ObservationIgnored
-    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.qaService) var qaService
-
-    @ObservationIgnored
-    private let appSettings = resolve(\ServiceContainer.settingsService)
-
-    init() {
-        onboarded = appSettings.onboarded
-    }
+public enum BiometricType: Sendable {
+    case faceID, touchID, opticID
 }

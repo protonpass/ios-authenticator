@@ -1,6 +1,36 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Add an extra layer of security with Face ID." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add an extra layer of security with Face ID."
+          }
+        }
+      }
+    },
+    "Add an extra layer of security with Optic ID." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add an extra layer of security with Optic ID."
+          }
+        }
+      }
+    },
+    "Add an extra layer of security with Touch ID." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add an extra layer of security with Touch ID."
+          }
+        }
+      }
+    },
     "Advanced options" : {
       "localizations" : {
         "en" : {
@@ -67,6 +97,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup"
+          }
+        }
+      }
+    },
+    "Bring your security with you.\nTransfer your data to stay protected." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bring your security with you.\nTransfer your data to stay protected."
+          }
+        }
+      }
+    },
+    "Choose a Photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Photo"
           }
         }
       }
@@ -161,6 +211,36 @@
         }
       }
     },
+    "Enable Face ID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Face ID"
+          }
+        }
+      }
+    },
+    "Enable Optic ID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Optic ID"
+          }
+        }
+      }
+    },
+    "Enable Touch ID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Touch ID"
+          }
+        }
+      }
+    },
     "Enter manually" : {
       "localizations" : {
         "en" : {
@@ -211,6 +291,16 @@
         }
       }
     },
+    "Get started" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get started"
+          }
+        }
+      }
+    },
     "Hide cell entry code" : {
       "localizations" : {
         "en" : {
@@ -237,6 +327,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import"
+          }
+        }
+      }
+    },
+    "Import codes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import codes"
+          }
+        }
+      }
+    },
+    "Import from Files" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import from Files"
           }
         }
       }
@@ -331,6 +441,16 @@
         }
       }
     },
+    "Please authenticate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please authenticate"
+          }
+        }
+      }
+    },
     "Point your camera at the QR code" : {
       "localizations" : {
         "en" : {
@@ -347,6 +467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protect your accounts with an extra layer of security."
+          }
+        }
+      }
+    },
+    "Protect your data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your data"
           }
         }
       }
@@ -387,6 +517,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan"
+          }
+        }
+      }
+    },
+    "Scan a QR code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan a QR code"
           }
         }
       }
@@ -441,6 +581,27 @@
         }
       }
     },
+    "Security in every code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security in every code"
+          }
+        }
+      }
+    },
+    "Select your prodiver" : {
+      "comment" : "Title of the alert to ask for which provider to import from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select your prodiver"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "en" : {
@@ -457,6 +618,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show number background"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
           }
         }
       }
@@ -557,6 +728,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Update entry"
+          }
+        }
+      }
+    },
+    "Use two-factor authentication to safeguard your accounts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use two-factor authentication to safeguard your accounts."
           }
         }
       }
