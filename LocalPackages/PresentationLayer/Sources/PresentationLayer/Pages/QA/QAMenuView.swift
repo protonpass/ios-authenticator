@@ -24,7 +24,6 @@ import SwiftUI
 struct QAMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = QAMenuViewModel()
-    @State private var showOnboarding = false
 
     var body: some View {
         NavigationStack {
@@ -43,11 +42,6 @@ struct QAMenuView: View {
             }
         }
         .tint(Color.success)
-        .fullScreenCover(isPresented: $showOnboarding) {
-            OnboardingView(onFinish: {
-                showOnboarding.toggle()
-            })
-        }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -84,8 +78,6 @@ private extension QAMenuView {
     var onboardingSection: some View {
         Section(content: {
             Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })
-            Button(action: { showOnboarding.toggle() },
-                   label: { Text(verbatim: "Onboard") })
         }, header: {
             Text(verbatim: "Onboarding")
         })

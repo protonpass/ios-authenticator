@@ -102,5 +102,6 @@ public extension SettingsService {
     func setOnboarded(_ value: Bool) {
         guard value != onboarded else { return }
         store.set(value, forKey: AppConstants.Settings.onboarded)
+        onboarded = value
     }
 }

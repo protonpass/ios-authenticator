@@ -34,11 +34,8 @@ public struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
     @State private var showImportOptions = false
     @State private var showImportFromGoogleOptions = false
-    let onFinish: () -> Void
 
-    public init(onFinish: @escaping () -> Void) {
-        self.onFinish = onFinish
-    }
+    public init() {}
 
     public var body: some View {
         ZStack {
@@ -166,7 +163,7 @@ private extension OnboardingView {
     func goNext() {
         withAnimation {
             if !viewModel.goNext() {
-                onFinish()
+                viewModel.finishOnboarding()
             }
         }
     }

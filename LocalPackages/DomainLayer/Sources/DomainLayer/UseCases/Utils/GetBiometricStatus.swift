@@ -94,15 +94,6 @@ private extension GetBiometricStatus {
         case LAError.passcodeNotSet.rawValue:
             .laError(error, .passcodeNotSet)
 
-        case LAError.touchIDNotAvailable.rawValue:
-            .laError(error, .touchIDNotAvailable)
-
-        case LAError.touchIDNotEnrolled.rawValue:
-            .laError(error, .touchIDNotEnrolled)
-
-        case LAError.touchIDLockout.rawValue:
-            .laError(error, .touchIDLockout)
-
         case LAError.appCancel.rawValue:
             .laError(error, .appCancel)
 

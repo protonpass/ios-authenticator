@@ -40,11 +40,7 @@ struct AuthenticatorApp: App {
                     }
                     .mainUIAlertService
             } else {
-                OnboardingView(onFinish: {
-                    withAnimation {
-                        viewModel.onboarded = true
-                    }
-                })
+                OnboardingView()
             }
         }
         #if os(macOS)
@@ -56,9 +52,7 @@ struct AuthenticatorApp: App {
 @Observable @MainActor
 private final class AuthenticatorAppViewModel {
     var onboarded: Bool {
-        didSet {
-            appSettings.setOnboarded(onboarded)
-        }
+        appSettings.onboarded
     }
 
     @ObservationIgnored
@@ -70,15 +64,14 @@ private final class AuthenticatorAppViewModel {
     var alertService
 
     @ObservationIgnored
-    private let appSettings = resolve(\ServiceContainer.settingsService)
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
 
     var theme: Theme {
         appSettings.theme
     }
 
-    init() {
-        onboarded = appSettings.onboarded
-    }
+    init() {}
 
     func handleDeepLink(_ url: URL) {
         Task {

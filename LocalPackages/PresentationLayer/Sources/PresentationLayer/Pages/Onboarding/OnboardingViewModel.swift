@@ -54,6 +54,10 @@ final class OnboardingViewModel {
     private var laEnablingPolicy
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
+
+    @ObservationIgnored
     private var enablingBiometric = false
 
     init() {}
@@ -111,5 +115,9 @@ final class OnboardingViewModel {
         // swiftlint:disable:next todo
         // TODO: Log error
         print(error.localizedDescription)
+    }
+
+    func finishOnboarding() {
+        appSettings.setOnboarded(true)
     }
 }
