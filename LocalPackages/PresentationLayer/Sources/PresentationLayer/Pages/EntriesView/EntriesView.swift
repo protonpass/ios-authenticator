@@ -33,7 +33,7 @@ public struct EntriesView: View {
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
 
-    //periphery:ignore
+    // periphery:ignore
     private var isPhone: Bool {
         AppConstants.isPhone
     }
