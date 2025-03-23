@@ -45,7 +45,6 @@
 				<string>Black</string>
 				<string>Prod</string>
 				<string>Scientist</string>
-				<string>Custom</string>
 			</array>
 			<key>Values</key>
 			<array>
@@ -53,7 +52,6 @@
 				<string>black</string>
 				<string>prod</string>
 				<string>scientist</string>
-				<string>custom</string>
 			</array>
 			<key>Title</key>
 			<string>Chosen environment</string>
@@ -61,22 +59,6 @@
 			<string>pref_environment</string>
 			<key>DefaultValue</key>
 			<string>automatic</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-			<key>FooterText</key>
-			<string>Only applicable if chosen environment is &quot;Custom&quot;</string>
-			<key>Title</key>
-			<string>Custom environment</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSChildPaneSpecifier</string>
-			<key>Title</key>
-			<string>Custom environment values</string>
-			<key>File</key>
-			<string>CustomEnvironmentValues</string>
 		</dict>
 		<dict>
 			<key>Type</key>
