@@ -81,8 +81,7 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
-    @ObservationIgnored
-    private var task: Task<Void, Never>?
+
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
@@ -107,17 +106,6 @@ final class EntriesViewModel {
                 lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             }
             .store(in: &cancellables)
-    }
-
-    func process(uri: String) {
-        task?.cancel()
-        task = Task {
-            do {
-                try await entryDataService.insertAndRefreshEntry(from: uri)
-            } catch {
-                handle(error)
-            }
-        }
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
