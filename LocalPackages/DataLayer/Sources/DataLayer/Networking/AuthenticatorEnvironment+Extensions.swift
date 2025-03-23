@@ -21,8 +21,9 @@
 import Foundation
 import Models
 
-extension AuthenticatorEnvironment {
-    func parameters(bundle: Bundle = .module) -> Parameters {
+public extension AuthenticatorEnvironment {
+    var parameters: Parameters {
+        let bundle = Bundle.module
         let constantDict = switch self {
         case .black: bundle.parse(plist: .black)
         case .prod: bundle.parse(plist: .prod)
