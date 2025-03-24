@@ -36,12 +36,21 @@ final class SettingsViewModel {
     private(set) var tapToRevealCodeEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
+    private(set) var biometricLock = false
 
     @ObservationIgnored
     private let bundle: Bundle
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.authenticationService)
+    private(set) var authenticationService
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
 
     var theme: Theme {
         settingsService.theme
@@ -74,6 +83,7 @@ final class SettingsViewModel {
             #endif
             return true
         }
+        biometricLock = authenticationService.biometricEnabled
     }
 }
 
@@ -92,6 +102,22 @@ extension SettingsViewModel {
 
     func toggleSync() {
         syncEnabled.toggle()
+    }
+
+    func toggleBioLock() {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
+                                                       reason: #localized("Please authenticate")) {
+                    biometricLock.toggle()
+                    try authenticationService.setBiometricEnabled(biometricLock)
+//                    biometricLock = newState
+                }
+            } catch {
+//                handle(error)
+            }
+        }
     }
 
     func toggleTapToRevealCode() {

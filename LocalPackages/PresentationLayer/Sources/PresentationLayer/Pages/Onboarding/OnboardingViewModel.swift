@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import DataLayer
 import Factory
 import Foundation
 import Macro
@@ -56,6 +57,10 @@ final class OnboardingViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
     private var appSettings
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.authenticationService)
+    private var authenticationService
 
     @ObservationIgnored
     private var enablingBiometric = false
@@ -103,6 +108,7 @@ final class OnboardingViewModel {
             do {
                 if try await authenticateBiometrically(policy: laEnablingPolicy,
                                                        reason: #localized("Please authenticate")) {
+                    try authenticationService.setBiometricEnabled(true)
                     biometricEnabled = true
                 }
             } catch {

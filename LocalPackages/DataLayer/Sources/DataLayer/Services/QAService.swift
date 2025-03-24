@@ -53,6 +53,7 @@ public final class QAService: QAServicing {
         didSet {
             if numberOfMockEntries != oldValue {
                 store.set(numberOfMockEntries, forKey: AppConstants.QA.mockEntriesCount)
+                mockedEntries()
             }
         }
     }
@@ -65,7 +66,7 @@ public final class QAService: QAServicing {
         numberOfMockEntries = store.integer(forKey: AppConstants.QA.mockEntriesCount)
     }
 
-    public func mockedEntries() async {
+    public func mockedEntries() {
         let count = max(5, numberOfMockEntries)
 
         var entries = [Entry]()
@@ -89,7 +90,7 @@ public final class QAService: QAServicing {
             guard let entry = entries[safeIndex: index] else {
                 return
             }
-            results.append(.init(entry: entry, code: code, order: index, date: .now))
+            results.append(.init(entry: entry, code: code, order: index))
         }
         dataState = .loaded(results)
     }

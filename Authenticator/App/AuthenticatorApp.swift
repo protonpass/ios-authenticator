@@ -29,16 +29,31 @@ import SwiftUI
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
+    @Environment(\.scenePhase) var scenePhase
 
     var body: some Scene {
         WindowGroup {
             if viewModel.onboarded {
-                EntriesView()
-                    .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                    .onOpenURL { url in
-                        viewModel.handleDeepLink(url)
-                    }
-                    .mainUIAlertService
+                if showEntriesView {
+                    EntriesView()
+                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                        .onOpenURL { url in
+                            viewModel.handleDeepLink(url)
+                        }
+                        .mainUIAlertService
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .background {
+                                viewModel.authenticationService.resetBiometricChecked()
+                            }
+                        }
+                } else {
+                    BioLockView()
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .active {
+                                viewModel.authenticationService.checkBiometrics()
+                            }
+                        }
+                }
             } else {
                 OnboardingView()
                     .mainUIAlertService
@@ -48,12 +63,24 @@ struct AuthenticatorApp: App {
         .windowResizability(.contentMinSize)
         #endif
     }
+
+    var showEntriesView: Bool {
+        !viewModel.biometricEnabled || (viewModel.biometricEnabled && viewModel.biometricValid)
+    }
 }
 
 @Observable @MainActor
 private final class AuthenticatorAppViewModel {
     var onboarded: Bool {
         appSettings.onboarded
+    }
+
+    var biometricEnabled: Bool {
+        authenticationService.biometricEnabled
+    }
+
+    var biometricValid: Bool {
+        authenticationService.biometricChecked
     }
 
     @ObservationIgnored
@@ -67,6 +94,10 @@ private final class AuthenticatorAppViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
     private var appSettings
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.authenticationService)
+    private(set) var authenticationService
 
     var theme: Theme {
         appSettings.theme

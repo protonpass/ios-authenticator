@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import AuthenticatorRustCore
 import CommonUtilities
 import DataLayer
 import Factory
@@ -45,6 +46,18 @@ extension ToolsContainer {
                                                                        cloudKitDatabase: .private("iCloud.me.proton.authenticator")))
             } catch {
                 fatalError("Should have persistence storage \(error)")
+            }
+        }
+    }
+
+    var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
+        self {
+            do {
+                return try MobileTotpGenerator(periodMs: UInt32(300),
+                                               onlyOnCodeChange: true,
+                                               currentTime: TotpTimeProvider())
+            } catch {
+                fatalError("Could not instanciate MobileTotpGenerator \(error)")
             }
         }
     }

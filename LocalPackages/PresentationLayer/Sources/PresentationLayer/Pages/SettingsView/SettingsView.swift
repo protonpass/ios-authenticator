@@ -115,8 +115,9 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("App lock"),
-                       trailingMode: .detailChevron(.verbatim("Face ID"), onTap: {}))
+            SettingRow(title: .localized("Biometric lock"),
+                       trailingMode: .toggle(isOn: viewModel.biometricLock,
+                                             onToggle: viewModel.toggleBioLock))
 
             SettingDivider()
 

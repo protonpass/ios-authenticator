@@ -29,7 +29,6 @@ public struct EntriesView: View {
     @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var showCreationOptions = false
-    @FocusState private var isTextFieldFocused: Bool
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
 
@@ -46,49 +45,34 @@ public struct EntriesView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                Color.clear
-                    .mainBackground()
-                    .ignoresSafeArea()
-
-                mainContainer
-                    .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-                        if viewModel.dataState.data?.isEmpty == false {
-                            actionBar
-                        }
+            mainContainer
+                .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
+                    if viewModel.dataState.data?.isEmpty == false {
+                        actionBar
                     }
-                    .onTapGesture {
-                        isTextFieldFocused = false
-                    }
-                    .refreshable {
-                        viewModel.refreshTokens()
-                    }
-                    .withSheetDestinations(sheetDestinations: $router.presentedSheet,
-                                           colorScheme: viewModel.settingsService.theme.preferredColorScheme)
-                    .environment(router)
-                    .task {
-                        await viewModel.setUp()
-                        viewModel.refreshTokens()
-                    }
-                    .toolbar { toolbarContent }
-                    .overlay {
-                        overlay
-                    }
-                    .adaptiveConfirmationDialog("Create",
-                                                isPresented: $showCreationOptions,
-                                                actions: {
-                                                    #if os(iOS)
-                                                    scanQrCodeButton
-                                                    #endif
-                                                    manuallyAddEntryButton
-                                                })
-                    .onChange(of: router.presentedSheet) { _, newValue in
-                        // Pause refreshing when a sheet is presented
-                        // Only applicable to iPad because sheets on iPad are not full screen
-                        guard horizontalSizeClass == .regular else { return }
-                        viewModel.toggleCodeRefresh(newValue != nil)
-                    }
-            }
+                }
+                .refreshable {
+                    viewModel.reloadData()
+                }
+                .withSheetDestinations(sheetDestinations: $router.presentedSheet,
+                                       colorScheme: viewModel.settingsService.theme.preferredColorScheme)
+                .environment(router)
+                .toolbar { toolbarContent }
+                .overlay {
+                    overlay
+                }
+                .adaptiveConfirmationDialog("Create",
+                                            isPresented: $showCreationOptions,
+                                            actions: {
+                                                #if os(iOS)
+                                                scanQrCodeButton
+                                                #endif
+                                                manuallyAddEntryButton
+                                            })
+                .onChange(of: router.presentedSheet) { _, newValue in
+                    viewModel.toggleCodeRefresh(newValue != nil)
+                }
+                .fullScreeMainBackground()
         }
         .scrollContentBackground(.hidden)
     }
@@ -209,7 +193,6 @@ private extension EntriesView {
     func cell(for entry: EntryUiModel) -> some View {
         EntryCell(entry: entry.entry,
                   code: entry.code,
-                  progress: entry.progress,
                   configuration: viewModel.settingsService.entryUIConfiguration,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) })
             .listRowBackground(Color.clear)
@@ -223,14 +206,11 @@ private extension EntriesView {
     var actionBar: some View {
         HStack(alignment: .bottom, spacing: 8) {
             searchBar
-            if !isTextFieldFocused {
-                addButton
-                    .padding(10)
-                    .frame(width: 44, height: 44, alignment: .center)
-                    .coloredBackgroundButton(.circle)
-            }
+            addButton
+                .padding(10)
+                .frame(width: 44, height: 44, alignment: .center)
+                .coloredBackgroundButton(.circle)
         }
-        .animation(.default, value: isTextFieldFocused)
         .padding(.horizontal, 20)
         .padding(.top, 10)
         .padding(.bottom, 20)
@@ -256,14 +236,8 @@ private extension EntriesView {
                       label: {
                           Text("Search")
                       })
-                      .focused($isTextFieldFocused)
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
-                      .onSubmit {
-                          withAnimation {
-                              isTextFieldFocused = false
-                          }
-                      }
         }
 
         .padding(.horizontal, 16)
@@ -375,7 +349,7 @@ private extension EntriesView {
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
-                viewModel.refreshTokens()
+                viewModel.reloadData()
             }
         }
     }

@@ -77,25 +77,12 @@ final class EntriesViewModel {
     @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
 
     @ObservationIgnored
-    private var cancellable: (any Cancellable)?
-
-    @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        cancellable = Timer.publish(every: 1, on: .main, in: .common)
-            .autoconnect()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, !pauseRefreshing else {
-                    return
-                }
-                refreshTokens()
-            }
-
         searchTextStream
             .dropFirst()
             .removeDuplicates()
@@ -130,22 +117,8 @@ final class EntriesViewModel {
 }
 
 extension EntriesViewModel {
-    func setUp() async {}
-
-    func refreshTokens() {
-        generateTokensTask?.cancel()
-        generateTokensTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                if qaService.showMockEntries {
-                    await qaService.mockedEntries()
-                } else {
-                    try await entryDataService.updateEntries()
-                }
-            } catch {
-                handle(error)
-            }
-        }
+    func reloadData() {
+        entryDataService.loadEntries()
     }
 
     func copyTokenToClipboard(_ entry: EntryUiModel) {
@@ -155,10 +128,12 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
-        pauseRefreshing = shouldPause
-        if !pauseRefreshing {
-            refreshTokens()
-        }
+        // TODO: check si on peux arrater rust timer et cell timers le temp du display de sheet
+        print("woot paused code refresh")
+//        pauseRefreshing = shouldPause
+//        if !pauseRefreshing {
+//            refreshTokens()
+//        }
     }
 
     func delete(_ entry: EntryUiModel) {
