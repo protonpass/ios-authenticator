@@ -218,10 +218,10 @@ private struct TOTPCountdownView: View {
         .onDisappear {
             stopTimer()
         }
-        .onChange(of: pauseCountDown) { newValue in
-            if !newValue, timerCancellable == nil {
+        .onChange(of: pauseCountDown) {
+            if !pauseCountDown, timerCancellable == nil {
                 startTimer()
-            } else if newValue {
+            } else if pauseCountDown {
                 stopTimer()
             }
         }
