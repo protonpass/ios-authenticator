@@ -29,35 +29,35 @@ import SwiftUI
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
-    @Environment(\.scenePhase) var scenePhase
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
-            if viewModel.onboarded {
-                if showEntriesView {
-                    EntriesView()
-                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                        .onOpenURL { url in
-                            viewModel.handleDeepLink(url)
-                        }
-                        .mainUIAlertService
-                        .onChange(of: scenePhase) { _, newPhase in
-                            if newPhase == .background {
-                                viewModel.authenticationService.resetBiometricChecked()
+            Group {
+                if viewModel.onboarded {
+                    if showEntriesView {
+                        EntriesView()
+                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                            .onOpenURL { url in
+                                viewModel.handleDeepLink(url)
                             }
-                        }
+                            .onChange(of: scenePhase) { _, newPhase in
+                                if newPhase == .background {
+                                    viewModel.resetBiometricCheck()
+                                }
+                            }
+                    } else {
+                        BioLockView()
+                            .onChange(of: scenePhase) { _, newPhase in
+                                if newPhase == .active {
+                                    viewModel.checkBiometrics()
+                                }
+                            }
+                    }
                 } else {
-                    BioLockView()
-                        .onChange(of: scenePhase) { _, newPhase in
-                            if newPhase == .active {
-                                viewModel.authenticationService.checkBiometrics()
-                            }
-                        }
+                    OnboardingView()
                 }
-            } else {
-                OnboardingView()
-                    .mainUIAlertService
-            }
+            }.mainUIAlertService
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -109,6 +109,20 @@ private final class AuthenticatorAppViewModel {
         Task {
             do {
                 try await deepLinkService.handleDeeplink(url)
+            } catch {
+                alertService.showError(error)
+            }
+        }
+    }
+
+    func resetBiometricCheck() {
+        authenticationService.resetBiometricValidation()
+    }
+
+    func checkBiometrics() {
+        Task {
+            do {
+                try await authenticationService.checkBiometrics()
             } catch {
                 alertService.showError(error)
             }

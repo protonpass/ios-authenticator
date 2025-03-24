@@ -43,6 +43,8 @@ final class EntriesViewModel {
         qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
     }
 
+    var pauseCountDown = false
+
     @ObservationIgnored var search = "" {
         didSet {
             searchTextStream.send(search)
@@ -128,12 +130,8 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
-        // TODO: check si on peux arrater rust timer et cell timers le temp du display de sheet
-        print("woot paused code refresh")
-//        pauseRefreshing = shouldPause
-//        if !pauseRefreshing {
-//            refreshTokens()
-//        }
+        pauseCountDown = shouldPause
+        pauseCountDown ? entryDataService.stopTotpGenerator() : entryDataService.startTotpGenerator()
     }
 
     func delete(_ entry: EntryUiModel) {

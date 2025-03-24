@@ -194,7 +194,8 @@ private extension EntriesView {
         EntryCell(entry: entry.entry,
                   code: entry.code,
                   configuration: viewModel.settingsService.entryUIConfiguration,
-                  onCopyToken: { viewModel.copyTokenToClipboard(entry) })
+                  onCopyToken: { viewModel.copyTokenToClipboard(entry) },
+                  pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
     }

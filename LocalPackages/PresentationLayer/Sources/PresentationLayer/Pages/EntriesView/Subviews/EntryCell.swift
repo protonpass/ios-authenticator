@@ -30,6 +30,7 @@ struct EntryCell: View {
     let code: Code
     let configuration: EntryCellConfiguration
     let onCopyToken: () -> Void
+    @Binding var pauseCountDown: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,7 +70,7 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.period)
+                TOTPCountdownView(period: entry.period, pauseCountDown: $pauseCountDown)
                     .disableAnimations()
             }
             .padding(.vertical, 12)
@@ -172,13 +173,16 @@ private struct TOTPCountdownView: View {
     private let period: Int // TOTP period in seconds (typically 30 or 60)
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
+    @Binding private var pauseCountDown: Bool
 
     init(period: Int,
          size: CGFloat = 32,
-         lineWidth: CGFloat = 4) {
+         lineWidth: CGFloat = 4,
+         pauseCountDown: Binding<Bool>) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
+        _pauseCountDown = pauseCountDown
     }
 
     @State private var timeRemaining: Double = 0
@@ -214,6 +218,13 @@ private struct TOTPCountdownView: View {
         .onDisappear {
             stopTimer()
         }
+        .onChange(of: pauseCountDown) { newValue in
+            if !newValue, timerCancellable == nil {
+                startTimer()
+            } else if newValue {
+                stopTimer()
+            }
+        }
     }
 
     private func calculateTime() {
@@ -246,11 +257,5 @@ private struct TOTPCountdownView: View {
         default:
             .timer3
         }
-    }
-}
-
-struct TOTPCountdownView_Previews: PreviewProvider {
-    static var previews: some View {
-        TOTPCountdownView(period: 30)
     }
 }

@@ -42,6 +42,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func getTotpParams(entry: Entry) throws -> TotpParams
     func exportEntries() throws -> String
     func importEntries(from provenance: TwofaImportDestination) async throws -> Int
+    func stopTotpGenerator()
+    func startTotpGenerator()
 }
 
 public final class TotpTimeProvider: MobileCurrentTimeProvider {
@@ -103,7 +105,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
             .sink { [weak self] codes in
                 guard let self else { return }
                 dataState = .loaded(codes)
-            }.store(in: &cancellables)
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -221,6 +224,28 @@ public extension EntryDataService {
             updateData(data)
         }
         return uiEntries.count
+    }
+
+    func stopTotpGenerator() {
+        entryUpdateTask?.cancel()
+        entryUpdateTask = nil
+        Task {
+            await totpGenerator.stopUpdating()
+        }
+    }
+
+    func startTotpGenerator() {
+        entryUpdateTask?.cancel()
+        entryUpdateTask = Task { [weak self] in
+            guard let self, let data = dataState.data?.map(\.entry) else { return }
+            do {
+                try await totpGenerator.totpUpdate(data)
+            } catch {
+                // swiftlint:disable:next todo
+                // TODO: log error
+                print(error)
+            }
+        }
     }
 }
 
