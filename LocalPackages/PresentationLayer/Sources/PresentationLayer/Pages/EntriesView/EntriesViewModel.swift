@@ -131,7 +131,7 @@ extension EntriesViewModel {
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
         pauseCountDown = shouldPause
-        pauseCountDown ? entryDataService.stopTotpGenerator() : entryDataService.startTotpGenerator()
+        shouldPause ? entryDataService.stopTotpGenerator() : entryDataService.startTotpGenerator()
     }
 
     func delete(_ entry: EntryUiModel) {
