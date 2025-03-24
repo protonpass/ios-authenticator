@@ -21,7 +21,6 @@ let package = Package(
             targets: ["DomainLayer"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Matejkob/swift-spyable", .upToNextMajor(from: "0.8.0")),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
@@ -32,7 +31,6 @@ let package = Package(
         .target(name: "DomainLayer",
                 dependencies: [
                     "DataLayer",
-                    .product(name: "Spyable", package: "swift-spyable"),
                     .product(name: "CommonUtilities", package: "CommonUtilities")
                 ]),
         .testTarget(

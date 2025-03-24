@@ -62,6 +62,12 @@ extension ToolsContainer {
         }
     }
 
+    var totpGenerator: Factory<any TotpGeneratorProtocol> {
+        self {
+            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
+        }
+    }
+
     var logService: Factory<any LoggerProtocol> {
         self {
             LogService()

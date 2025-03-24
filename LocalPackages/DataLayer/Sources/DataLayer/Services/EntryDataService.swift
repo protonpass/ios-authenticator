@@ -54,15 +54,10 @@ public final class TotpTimeProvider: MobileCurrentTimeProvider {
 
 @MainActor
 @Observable
-public final class EntryDataService: EntryDataServiceProtocol, MobileTotpGeneratorCallback {
+public final class EntryDataService: EntryDataServiceProtocol {
     // MARK: - Properties
 
-    public private(set) var dataState: DataState<[EntryUiModel]> = .loading {
-        didSet {
-            guard let data: [Entry] = dataState.data?.map(\.entry) else { return }
-            totpUpdate(data)
-        }
-    }
+    public private(set) var dataState: DataState<[EntryUiModel]> = .loading
 
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
@@ -73,15 +68,15 @@ public final class EntryDataService: EntryDataServiceProtocol, MobileTotpGenerat
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
-    private var cancellableGenerator: (any MobileTotpGenerationHandle)?
+    private var totpGenerator: any TotpGeneratorProtocol
     @ObservationIgnored
-    private var totpGenerator: any MobileTotpGeneratorProtocol
+    private var entryUpdateTask: Task<Void, Never>?
 
     // MARK: - Init
 
     public init(repository: any EntryRepositoryProtocol,
                 importService: any ImportingServicing,
-                totpGenerator: any MobileTotpGeneratorProtocol) {
+                totpGenerator: any TotpGeneratorProtocol) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
@@ -101,16 +96,14 @@ public final class EntryDataService: EntryDataServiceProtocol, MobileTotpGenerat
                 loadEntries()
             }
             .store(in: &cancellables)
-    }
 
-    public nonisolated func onCodes(codes: [AuthenticatorCodeResponse]) {
-        var results = [EntryUiModel]()
-        for (index, code) in codes.enumerated() {
-            results.append(.init(entry: code.entry.toEntry, code: code.toCode, order: index))
-        }
-        Task { @MainActor in
-            dataState = .loaded(results)
-        }
+        totpGenerator.currentCode
+            .receive(on: DispatchQueue.main)
+            .compactMap(\.self)
+            .sink { [weak self] codes in
+                guard let self else { return }
+                dataState = .loaded(codes)
+            }.store(in: &cancellables)
     }
 }
 
@@ -142,7 +135,7 @@ public extension EntryDataService {
         if let index = data.firstIndex(where: { $0.id == entryId }) {
             data[index] = data[index].copy(newEntry: entry)
         }
-        dataState = .loaded(data)
+        updateData(data)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
@@ -153,7 +146,7 @@ public extension EntryDataService {
         data = data.filter { $0.entry.id != entry.entry.id }
         data = updateOrder(data: data)
         try await repository.updateOrder(data)
-        dataState = .loaded(data)
+        updateData(data)
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
@@ -167,7 +160,7 @@ public extension EntryDataService {
         data.insert(entry, at: newPosition)
         data = updateOrder(data: data)
         try await repository.updateOrder(data)
-        dataState = .loaded(data)
+        updateData(data)
     }
 
     func loadEntries() {
@@ -178,12 +171,18 @@ public extension EntryDataService {
                 if Task.isCancelled { return }
                 let entriesStates = try await repository.getAllEntries()
                 if Task.isCancelled { return }
-                dataState = try await .loaded(generateUIEntries(from: entriesStates.decodedEntries))
+                let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+                updateData(entries)
             } catch {
                 if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
             }
         }
+    }
+
+    func updateData(_ entries: [EntryUiModel]) {
+        dataState = .loaded(entries)
+        totpUpdate(entries.map(\.entry))
     }
 }
 
@@ -219,7 +218,7 @@ public extension EntryDataService {
 
         data.append(contentsOf: uiEntries)
         await MainActor.run {
-            dataState = .loaded(data)
+            updateData(data)
         }
         return uiEntries.count
     }
@@ -227,13 +226,16 @@ public extension EntryDataService {
 
 private extension EntryDataService {
     func totpUpdate(_ entries: [Entry]) {
-        cancellableGenerator?.cancel()
-        cancellableGenerator = nil
-
-        do {
-            cancellableGenerator = try totpGenerator.start(entries: entries.toRustEntries, callback: self)
-        } catch {
-            print("woot \(error.localizedDescription)")
+        entryUpdateTask?.cancel()
+        entryUpdateTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await totpGenerator.totpUpdate(entries)
+            } catch {
+                // swiftlint:disable:next todo
+                // TODO: log error
+                print(error)
+            }
         }
     }
 
@@ -254,7 +256,7 @@ private extension EntryDataService {
         try await repository.save(entryUI)
 
         data.append(entryUI)
-        dataState = .loaded(data)
+        updateData(data)
     }
 
     func createEntry(with params: EntryParameters) throws -> Entry {

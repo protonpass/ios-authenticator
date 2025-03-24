@@ -51,16 +51,6 @@
         }
       }
     },
-    "App lock" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App lock"
-          }
-        }
-      }
-    },
     "APPEARANCE" : {
       "localizations" : {
         "en" : {
@@ -97,6 +87,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup"
+          }
+        }
+      }
+    },
+    "Biometric lock" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometric lock"
           }
         }
       }

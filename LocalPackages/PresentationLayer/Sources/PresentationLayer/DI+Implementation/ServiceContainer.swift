@@ -43,7 +43,7 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository(),
                                               importService: self.importService(),
-                                              totpGenerator: ToolsContainer.shared.mobileTotpGenerator()) }
+                                              totpGenerator: ToolsContainer.shared.totpGenerator()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
