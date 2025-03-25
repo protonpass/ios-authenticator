@@ -141,6 +141,7 @@ struct EntryCell: View {
                         .foregroundStyle(.textNorm)
                 }
                 .padding(.horizontal, 5)
+                .frame(minWidth: 28)
                 .padding(.vertical, 4)
                 .background(.black.opacity(0.16))
                 .cornerRadius(8)
