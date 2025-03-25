@@ -22,6 +22,8 @@
 
 import SwiftUI
 
+// swiftlint:disable:next todo
+// TODO: check with team if this screen is needed
 struct ExportView: View {
     @State private var viewModel = ExportViewModel()
 

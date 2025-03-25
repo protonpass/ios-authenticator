@@ -54,7 +54,7 @@ private extension OnboardingView {
                 Spacer()
                 switch viewModel.currentStep {
                 case .intro:
-                    Image(.backRectangle)
+                    Image(.introBackground)
                         .overlay(Image("introPreview", bundle: .module)
                             .resizable()
                             .scaledToFit()

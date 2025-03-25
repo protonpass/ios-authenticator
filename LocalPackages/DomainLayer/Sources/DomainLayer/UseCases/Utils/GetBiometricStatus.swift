@@ -113,7 +113,7 @@ private extension GetBiometricStatus {
             .laError(error, .notInteractive)
 
         default:
-            if #available(iOS 18, *),
+            if #available(iOS 18, macOS 15, *),
                error.code == LAError.companionNotAvailable.rawValue {
                 .laError(error, .companionNotAvailable)
             } else {

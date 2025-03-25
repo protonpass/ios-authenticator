@@ -173,7 +173,7 @@ struct ImportingServiceTests {
     @Test("Test import json from lastpass")
     func importJsonEntriesFromLastpass() throws {
         // Act
-        let result = try sut.importEntries(from: .lasstpass(contents: .json(MockImporterData.lastpassJson)))
+        let result = try sut.importEntries(from: .lastpass(contents: .json(MockImporterData.lastpassJson)))
 
         // Assert
         #expect(result.entries.count == 3)

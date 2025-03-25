@@ -34,8 +34,8 @@ import UniformTypeIdentifiers
 struct ImportingServiceModifier: ViewModifier {
     @State private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
-    @State private var showPhotosPicker: Bool = false
-    @State private var showScanner: Bool = false
+    @State private var showPhotosPicker = false
+    @State private var showScanner = false
 
     @Binding var showImportOptions: Bool
 
@@ -158,7 +158,7 @@ final class ImportViewModel {
     @ObservationIgnored
     private var currentSelected: ImportOption?
     @ObservationIgnored
-    private var provenance: TwofaImportDestination?
+    private var provenance: TwofaImportSource?
 
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
@@ -270,14 +270,15 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
+        let action = ActionConfig.ok
         let alert: AlertDisplay = if mainDisplay {
             .main(.init(title: "Codes imported",
                         message: .localized("Successfully imported \(numberOfEntries) items"),
-                        actions: [.default]))
+                        actions: [action]))
         } else {
             .sheet(.init(title: "Codes imported",
                          message: .localized("Successfully imported \(numberOfEntries) items"),
-                         actions: [.default]))
+                         actions: [action]))
         }
         alertService.showAlert(alert)
     }
@@ -342,7 +343,7 @@ private extension ImportOption {
         }
     }
 
-    func importDestination(content: String, type: UTType, password: String?) -> TwofaImportDestination {
+    func importDestination(content: String, type: UTType, password: String?) -> TwofaImportSource {
         switch self {
         case .twoFas:
             .twofas(contents: content, password: password)
@@ -355,7 +356,7 @@ private extension ImportOption {
         case .googleAuthenticator:
             .googleQr(contents: content)
         case .lastPassAuthenticator:
-            .lasstpass(contents: type.toTwofaImportFileType(content: content))
+            .lastpass(contents: type.toTwofaImportFileType(content: content))
         case .protonAuthenticator:
             .protonAuthenticator(contents: content)
         }

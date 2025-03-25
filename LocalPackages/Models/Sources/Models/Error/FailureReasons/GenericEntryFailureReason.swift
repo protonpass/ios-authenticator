@@ -38,7 +38,7 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
         case .duplicatedEntry:
             "An entry with the same data already exists"
         case .exportEmptyData:
-            "Your are trying to export empty data"
+            "No data to export"
         }
     }
 }
