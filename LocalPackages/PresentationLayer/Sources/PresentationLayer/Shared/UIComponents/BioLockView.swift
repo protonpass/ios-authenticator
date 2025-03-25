@@ -33,6 +33,6 @@ public struct BioLockView: View {
             Spacer()
         }
         .padding(20)
-        .fullScreeMainBackground()
+        .fullScreenMainBackground()
     }
 }

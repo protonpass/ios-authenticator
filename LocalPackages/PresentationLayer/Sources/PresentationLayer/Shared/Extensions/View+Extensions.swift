@@ -83,7 +83,7 @@ public extension View {
         modifier(MainBackgroundColor())
     }
 
-    func fullScreeMainBackground() -> some View {
+    func fullScreenMainBackground() -> some View {
         ZStack {
             Color.clear
                 .mainBackground()

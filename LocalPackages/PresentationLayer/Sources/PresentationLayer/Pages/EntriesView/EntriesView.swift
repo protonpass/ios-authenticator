@@ -72,7 +72,7 @@ public struct EntriesView: View {
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
-                .fullScreeMainBackground()
+                .fullScreenMainBackground()
         }
         .scrollContentBackground(.hidden)
     }
