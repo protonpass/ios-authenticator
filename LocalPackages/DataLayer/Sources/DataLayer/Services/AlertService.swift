@@ -64,7 +64,11 @@ public struct ActionConfig: Sendable, Identifiable {
         self.action = action
     }
 
-    public static var `default`: ActionConfig {
+    public static var ok: ActionConfig {
+        .init(title: "OK", role: .generic, action: {})
+    }
+
+    public static var cancel: ActionConfig {
         .init(title: "OK", role: .cancel, action: {})
     }
 }

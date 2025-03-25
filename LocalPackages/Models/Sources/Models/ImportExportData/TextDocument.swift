@@ -23,7 +23,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 public struct TextDocument: FileDocument {
-    private var content: String = ""
+    private let content: String
 
     public init(_ content: String = "") {
         self.content = content
@@ -35,6 +35,9 @@ public struct TextDocument: FileDocument {
         if let data = configuration.file.regularFileContents,
            let newContent = String(data: data, encoding: .utf8) {
             content = newContent
+        } else {
+            assertionFailure("Failed to UTF8 decode")
+            content = ""
         }
     }
 

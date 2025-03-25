@@ -25,7 +25,7 @@ import Models
 public typealias ImportException = AuthenticatorImportException
 
 public protocol ImportingServicing: Sendable {
-    func importEntries(from provenance: TwofaImportDestination) throws -> ImportResult
+    func importEntries(from provenance: TwofaImportSource) throws -> ImportResult
 }
 
 public final class ImportingService: ImportingServicing {
@@ -35,7 +35,7 @@ public final class ImportingService: ImportingServicing {
         self.importer = importer
     }
 
-    public func importEntries(from provenance: TwofaImportDestination) throws -> ImportResult {
+    public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
         let result = switch provenance {
         case let .twofas(contents: contents, password: password):
             try parse2fas(contents, password: password)
@@ -47,7 +47,7 @@ public final class ImportingService: ImportingServicing {
             try parseEnte(contents)
         case let .googleQr(contents: contents):
             try parseGoogleQr(contents)
-        case let .lasstpass(contents: contents):
+        case let .lastpass(contents: contents):
             try parseLastpass(contents)
         case let .protonAuthenticator(contents: contents):
             try parseAuthenticator(contents)

@@ -1,5 +1,5 @@
 //
-// TwofaImportDestination.swift
+// TwofaImportSource.swift
 // Proton Authenticator - Created on 27/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -21,22 +21,22 @@
 import Foundation
 import UniformTypeIdentifiers
 
-public enum TwofaImportDestination: Sendable, Equatable {
+public enum TwofaImportSource: Sendable, Equatable {
     case twofas(contents: String, password: String?)
     case aegis(contents: TwofaImportFileType, password: String?)
     case bitwarden(contents: TwofaImportFileType)
     case ente(contents: String)
     case googleQr(contents: String)
-    case lasstpass(contents: TwofaImportFileType)
+    case lastpass(contents: TwofaImportFileType)
     case protonAuthenticator(contents: String)
 
-    public var autorizedFileExtensions: [UTType] {
+    public var authorizedFileTypes: [UTType] {
         switch self {
         case .aegis:
             [.json, .text, .plainText]
         case .bitwarden:
             [.json, .commaSeparatedText]
-        case .lasstpass:
+        case .lastpass:
             [.json]
         case .ente, .protonAuthenticator, .twofas:
             [.text, .plainText]
@@ -47,9 +47,9 @@ public enum TwofaImportDestination: Sendable, Equatable {
 
     public func updatePassword(_ password: String?) -> Self {
         switch self {
-        case .twofas(contents: let contents, password: _):
+        case let .twofas(contents: contents, _):
             .twofas(contents: contents, password: password)
-        case .aegis(contents: let contents, password: _):
+        case let .aegis(contents: contents, _):
             .aegis(contents: contents, password: password)
         default:
             self

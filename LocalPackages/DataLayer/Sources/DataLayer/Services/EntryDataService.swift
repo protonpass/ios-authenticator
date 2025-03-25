@@ -40,7 +40,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func getTotpParams(entry: Entry) throws -> TotpParams
     func exportEntries() throws -> String
-    func importEntries(from provenance: TwofaImportDestination) async throws -> Int
+    func importEntries(from source: TwofaImportSource) async throws -> Int
 }
 
 @MainActor
@@ -161,8 +161,8 @@ public extension EntryDataService {
         return try repository.export(entries: entries)
     }
 
-    nonisolated func importEntries(from provenance: TwofaImportDestination) async throws -> Int {
-        let results = try importService.importEntries(from: provenance)
+    nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
+        let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
             .filter { entry in !data.contains(where: { $0.entry.isDuplicate(of: entry) }) }
