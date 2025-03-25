@@ -68,11 +68,17 @@ private final class AuthenticatorAppViewModel {
     @LazyInjected(\ServiceContainer.settingsService)
     private var appSettings
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.updateAppAndRustVersion)
+    private var updateAppAndRustVersion
+
     var theme: Theme {
         appSettings.theme
     }
 
-    init() {}
+    init() {
+        updateAppAndRustVersion(for: .main, userDefaults: .standard)
+    }
 
     func handleDeepLink(_ url: URL) {
         Task {

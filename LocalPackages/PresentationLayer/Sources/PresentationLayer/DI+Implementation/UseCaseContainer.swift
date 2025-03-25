@@ -21,11 +21,11 @@
 import DomainLayer
 import Factory
 
-final class UseCaseContainer: SharedContainer, AutoRegistering {
-    static let shared = UseCaseContainer()
-    let manager = ContainerManager()
+public final class UseCaseContainer: SharedContainer, AutoRegistering {
+    public static let shared = UseCaseContainer()
+    public let manager = ContainerManager()
 
-    func autoRegister() {
+    public func autoRegister() {
         manager.defaultScope = .singleton
     }
 
@@ -43,5 +43,9 @@ final class UseCaseContainer: SharedContainer, AutoRegistering {
 
     var authenticateBiometrically: Factory<any AuthenticateBiometricallyUseCase> {
         self { AuthenticateBiometrically() }
+    }
+
+    public var updateAppAndRustVersion: Factory<any UpdateAppAndRustVersionUseCase> {
+        self { UpdateAppAndRustVersion() }
     }
 }

@@ -25,6 +25,7 @@ let package = Package(
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
+        .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -32,6 +33,7 @@ let package = Package(
         .target(name: "DomainLayer",
                 dependencies: [
                     "DataLayer",
+                    "AuthenticatorRustCore",
                     .product(name: "Spyable", package: "swift-spyable"),
                     .product(name: "CommonUtilities", package: "CommonUtilities")
                 ]),
