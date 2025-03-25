@@ -34,8 +34,8 @@ import UniformTypeIdentifiers
 struct ImportingServiceModifier: ViewModifier {
     @State private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
-    @State private var showPhotosPicker: Bool = false
-    @State private var showScanner: Bool = false
+    @State private var showPhotosPicker = false
+    @State private var showScanner = false
 
     @Binding var showImportOptions: Bool
 
@@ -270,14 +270,15 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
+        let action = ActionConfig.ok
         let alert: AlertDisplay = if mainDisplay {
             .main(.init(title: "Codes imported",
                         message: .localized("Successfully imported \(numberOfEntries) items"),
-                        actions: [ActionConfig.cancel]))
+                        actions: [action]))
         } else {
             .sheet(.init(title: "Codes imported",
                          message: .localized("Successfully imported \(numberOfEntries) items"),
-                         actions: [ActionConfig.cancel]))
+                         actions: [action]))
         }
         alertService.showAlert(alert)
     }

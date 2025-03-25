@@ -46,10 +46,9 @@ final class ExportViewModel {
 
     init() {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let date = Date()
         currentDate = dateFormatter.string(from: date)
-        setUp()
     }
 
     func createBackup() {
@@ -72,8 +71,4 @@ final class ExportViewModel {
             alertService.showError(error, mainDisplay: false, action: nil)
         }
     }
-}
-
-private extension ExportViewModel {
-    func setUp() {}
 }

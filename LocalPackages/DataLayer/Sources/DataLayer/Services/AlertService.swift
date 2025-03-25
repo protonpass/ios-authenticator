@@ -69,7 +69,7 @@ public struct ActionConfig: Sendable, Identifiable {
     }
 
     public static var cancel: ActionConfig {
-        .init(title: "OK", role: .cancel, action: {})
+        .init(title: "Cancel", role: .cancel, action: {})
     }
 }
 
