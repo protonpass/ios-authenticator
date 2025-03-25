@@ -21,8 +21,6 @@
 //
 
 #if os(iOS)
-import CommonUtilities
-import DataLayer
 import DocScanner
 import PhotosUI
 import SwiftUI

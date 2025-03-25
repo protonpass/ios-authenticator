@@ -131,6 +131,16 @@
         }
       }
     },
+    "Codes imported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codes imported"
+          }
+        }
+      }
+    },
     "Create" : {
       "localizations" : {
         "en" : {
@@ -257,6 +267,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Export"
+          }
+        }
+      }
+    },
+    "Export data to Backup File" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data to Backup File"
+          }
+        }
+      }
+    },
+    "Export to backup file" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export to backup file"
           }
         }
       }
@@ -437,6 +467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No codes"
+          }
+        }
+      }
+    },
+    "Password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
           }
         }
       }
@@ -632,6 +672,28 @@
         }
       }
     },
+    "Successfully imported %lld items" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Successfully imported %lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Successfully imported %lld items"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "SUPPORT" : {
       "localizations" : {
         "en" : {
@@ -732,6 +794,16 @@
         }
       }
     },
+    "Use this feature to import your data on an another device using Proton Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this feature to import your data on an another device using Proton Authenticator"
+          }
+        }
+      }
+    },
     "Use two-factor authentication to safeguard your accounts." : {
       "localizations" : {
         "en" : {
@@ -748,6 +820,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "Your import file is password protected. Please enter the password to proceed." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your import file is password protected. Please enter the password to proceed."
           }
         }
       }

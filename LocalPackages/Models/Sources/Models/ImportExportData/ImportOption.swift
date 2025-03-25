@@ -1,6 +1,6 @@
 //
-// TwofaImportDestination.swift
-// Proton Authenticator - Created on 27/02/2025.
+// ImportOption.swift
+// Proton Authenticator - Created on 21/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,13 +19,12 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import UniformTypeIdentifiers
 
-public enum TwofaImportDestination: Sendable, Equatable {
-    case twofas(contents: String, password: String?)
-    case aegis(contents: String, password: String?)
-    case bitwarden(contents: String)
-    case ente(contents: String)
-    case googleQr(contents: String)
-    case lasstpass(contents: String)
-    case protonAuthenticator(contents: String)
+public enum ImportOption: Sendable, CaseIterable, Identifiable {
+    case googleAuthenticator, twoFas, aegisAuthenticator
+    case bitwardenAuthenticator, enteAuth, lastPassAuthenticator
+    case protonAuthenticator
+
+    public var id: Self { self }
 }

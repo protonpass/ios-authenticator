@@ -51,12 +51,12 @@ public protocol EncryptionServicing: Sendable {
 // swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
-    private let authenticatorCrypto: AuthenticatorCrypto
+    private let authenticatorCrypto: any AuthenticatorCryptoProtocol
     private let keyStore: EncryptionKeyStoring
     private let logger: LoggerProtocol?
     private let deviceIdentifier: String
 
-    public init(authenticatorCrypto: AuthenticatorCrypto = AuthenticatorCrypto(),
+    public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
                 keyStore: EncryptionKeyStoring,
                 deviceIdentifier: String = DeviceIdentifier.current,
                 logger: LoggerProtocol? = nil) {

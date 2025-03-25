@@ -20,11 +20,24 @@
 
 import Foundation
 import SimplyPersist
-import CommonUtilities
 import Testing
 import Models
 import SwiftData
 import DataLayer
+
+
+struct OrderedEntry: IdentifiableOrderedEntry {
+    let entry: Entry
+    let order: Int
+
+    init(entry: Entry, order: Int) {
+        self.entry = entry
+        self.order = order
+    }
+
+    var id: String { entry.id }
+ }
+
 
 final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
     

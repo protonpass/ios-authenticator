@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import Macro
 import Models
 import SwiftUI
 
@@ -63,6 +62,14 @@ public struct ActionConfig: Sendable, Identifiable {
         self.title = title
         self.role = role
         self.action = action
+    }
+
+    public static var ok: ActionConfig {
+        .init(title: "OK", role: .generic, action: {})
+    }
+
+    public static var cancel: ActionConfig {
+        .init(title: "Cancel", role: .cancel, action: {})
     }
 }
 

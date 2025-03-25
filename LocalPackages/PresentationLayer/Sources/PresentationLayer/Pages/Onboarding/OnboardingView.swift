@@ -18,22 +18,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Models
 import SwiftUI
-
-private enum ImportOption: Sendable, CaseIterable {
-    case googleAuthenticator, twoFas, aegisAuthenticator
-    case bitwardenAuthenticator, enteAuth, lastPassAuthenticator
-    case protonPass, protonAuthenticator
-}
-
-private enum ImportFromGoogleOption: Sendable, CaseIterable {
-    case scanQrCode, pickPhoto, importFromFiles
-}
 
 public struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
     @State private var showImportOptions = false
-    @State private var showImportFromGoogleOptions = false
 
     public init() {}
 
@@ -51,9 +41,7 @@ public struct OnboardingView: View {
         }
         .tint(.purpleInteraction)
         .task { viewModel.getSupportedBiometric() }
-        .importOptionsDialog(isPresented: $showImportOptions, onSelect: handle)
-        .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
-                                       onSelect: handle)
+        .importingService($showImportOptions, onMainDisplay: true)
         .onChange(of: viewModel.biometricEnabled, goNext)
     }
 }
@@ -66,10 +54,11 @@ private extension OnboardingView {
                 Spacer()
                 switch viewModel.currentStep {
                 case .intro:
-                    Image("introPreview", bundle: .module)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 256)
+                    Image(.introBackground)
+                        .overlay(Image("introPreview", bundle: .module)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 256))
                     Spacer()
                         .frame(height: 30)
 
@@ -133,6 +122,7 @@ private extension OnboardingView {
     func actions(supportSkipping: Bool = true) -> some View {
         VStack(spacing: 16) {
             CapsuleButton(title: viewModel.currentStep.primaryActionTitle,
+                          textColor: .white,
                           style: .borderedFilled) {
                 switch viewModel.currentStep {
                 case .intro:
@@ -145,7 +135,7 @@ private extension OnboardingView {
             }
 
             if supportSkipping {
-                CapsuleButton(title: "Skip", style: .bordered, action: goNext)
+                CapsuleButton(title: "Skip", textColor: .textNorm, style: .bordered, action: goNext)
             } else {
                 Image("protonSlogan", bundle: .module)
                     .resizable()
@@ -164,47 +154,6 @@ private extension OnboardingView {
         withAnimation {
             if !viewModel.goNext() {
                 viewModel.finishOnboarding()
-            }
-        }
-    }
-
-    func handle(_ option: ImportOption) {
-        switch option {
-        case .googleAuthenticator:
-            showImportFromGoogleOptions.toggle()
-        default:
-            break
-        }
-    }
-
-    func handle(_ option: ImportFromGoogleOption) {
-        print(option)
-    }
-}
-
-private extension View {
-    func importOptionsDialog(isPresented: Binding<Bool>,
-                             onSelect: @escaping (ImportOption) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
-                           isPresented: isPresented,
-                           titleVisibility: .visible) {
-            ForEach(ImportOption.allCases, id: \.self) { option in
-                Button(action: { onSelect(option) }, label: {
-                    Text(verbatim: option.title)
-                })
-            }
-        }
-    }
-
-    func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
-                                       onSelect: @escaping (ImportFromGoogleOption) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
-                           isPresented: isPresented,
-                           titleVisibility: .hidden) {
-            ForEach(ImportFromGoogleOption.allCases, id: \.self) { option in
-                Button(action: { onSelect(option) }, label: {
-                    Text(option.title)
-                })
             }
         }
     }
@@ -255,42 +204,6 @@ private extension OnboardStep {
             case .opticID:
                 "Enable Optic ID"
             }
-        }
-    }
-}
-
-private extension ImportOption {
-    var title: String {
-        switch self {
-        case .googleAuthenticator:
-            "Google Authenticator"
-        case .twoFas:
-            "2FAS"
-        case .aegisAuthenticator:
-            "Aegis Authenticator"
-        case .bitwardenAuthenticator:
-            "Bitwarden Authenticator"
-        case .enteAuth:
-            "Ente Auth"
-        case .lastPassAuthenticator:
-            "LastPass Authenticator"
-        case .protonPass:
-            "Proton Pass"
-        case .protonAuthenticator:
-            "Proton Authenticator"
-        }
-    }
-}
-
-private extension ImportFromGoogleOption {
-    var title: LocalizedStringKey {
-        switch self {
-        case .scanQrCode:
-            "Scan a QR code"
-        case .pickPhoto:
-            "Choose a Photo"
-        case .importFromFiles:
-            "Import from Files"
         }
     }
 }

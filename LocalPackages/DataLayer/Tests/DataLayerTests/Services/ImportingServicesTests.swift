@@ -68,11 +68,10 @@ struct ImportingServiceTests {
             try sut.importEntries(from: .twofas(contents: "", password: nil))
         }
     }
-
     @Test("Test import json from Aegis")
     func importJsonEntriesFromAegis() throws {
         // Act
-        let result = try sut.importEntries(from: .aegis(contents: MockImporterData.decryptedAegisJson, password: nil))
+        let result = try sut.importEntries(from: .aegis(contents: .json(MockImporterData.decryptedAegisJson), password: nil))
 
         // Assert
         #expect(result.entries.count == 3)
@@ -84,7 +83,7 @@ struct ImportingServiceTests {
     @Test("Test import txt from Aegis")
     func importTxtEntriesFromAegis() throws {
         // Act
-        let result = try sut.importEntries(from: .aegis(contents: MockImporterData.txtAegis, password: nil))
+        let result = try sut.importEntries(from: .aegis(contents: .txt(MockImporterData.txtAegis), password: nil))
 
         // Assert
         #expect(result.entries.count == 3)
@@ -97,7 +96,7 @@ struct ImportingServiceTests {
     func importEncryptedJsonEntriesFromAegis() throws {
 
         // Act
-        let result = try sut.importEntries(from: .aegis(contents: MockImporterData.encryptedAegisJson, password: "test"))
+        let result = try sut.importEntries(from: .aegis(contents: .json(MockImporterData.encryptedAegisJson), password: "test"))
 
         // Assert
         #expect(result.entries.count == 3)
@@ -110,7 +109,7 @@ struct ImportingServiceTests {
     func failImportEntriesFromAegis() async throws {
 
         #expect(throws: AuthenticatorImportException.BadPassword(message: "BadPassword")) {
-            try sut.importEntries(from: .aegis(contents: MockImporterData.encryptedAegisJson, password: "wrong"))
+            try sut.importEntries(from: .aegis(contents: .json(MockImporterData.encryptedAegisJson), password: "wrong"))
         }
 
         //Should be commented out when we have a new version of the rust lib
@@ -119,14 +118,14 @@ struct ImportingServiceTests {
 //        }
 //        
         #expect(throws: AuthError.importing(.contentIsEmpty)) {
-            try sut.importEntries(from: .aegis(contents: "", password: nil))
+            try sut.importEntries(from: .aegis(contents: .txt(""), password: nil))
         }
     }
     
     @Test("Test import json from bitwarden")
     func importJsonEntriesFromBitwarden() throws {
         // Act
-        let result = try sut.importEntries(from: .bitwarden(contents: MockImporterData.bitwardenJson))
+        let result = try sut.importEntries(from: .bitwarden(contents: .json(MockImporterData.bitwardenJson)))
 
         // Assert
         #expect(result.entries.count == 4)
@@ -138,7 +137,7 @@ struct ImportingServiceTests {
     @Test("Test import csv from bitwarden")
     func importCsvEntriesFromBitwarden() throws {
         // Act
-        let result = try sut.importEntries(from: .bitwarden(contents: MockImporterData.bitwardenCsv))
+        let result = try sut.importEntries(from: .bitwarden(contents: .csv( MockImporterData.bitwardenCsv)))
 
         // Assert
         #expect(result.entries.count == 4)
@@ -150,7 +149,7 @@ struct ImportingServiceTests {
     @Test("Test import wrong csv from bitwarden")
     func failImportCsvEntriesFromBitwarden() throws {
         // Act
-        let result = try sut.importEntries(from: .bitwarden(contents:"plop, plop\nplop"))
+        let result = try sut.importEntries(from: .bitwarden(contents:.csv("plop, plop\nplop")))
 
         // Assert
         #expect(result.entries.count == 0)
@@ -174,7 +173,7 @@ struct ImportingServiceTests {
     @Test("Test import json from lastpass")
     func importJsonEntriesFromLastpass() throws {
         // Act
-        let result = try sut.importEntries(from: .lasstpass(contents: MockImporterData.lastpassJson))
+        let result = try sut.importEntries(from: .lastpass(contents: .json(MockImporterData.lastpassJson)))
 
         // Assert
         #expect(result.entries.count == 3)

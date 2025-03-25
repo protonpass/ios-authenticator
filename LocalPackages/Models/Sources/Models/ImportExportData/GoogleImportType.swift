@@ -1,6 +1,6 @@
 //
-// OrderedEntry.swift
-// Proton Authenticator - Created on 19/03/2025.
+// GoogleImportType.swift
+// Proton Authenticator - Created on 21/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,14 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public struct OrderedEntry: IdentifiableOrderedEntry {
-    public let entry: Entry
-    public let order: Int
+import Foundation
 
-    public init(entry: Entry, order: Int) {
-        self.entry = entry
-        self.order = order
-    }
-
-    public var id: String { entry.id }
+public enum GoogleImportType: Sendable, CaseIterable {
+    case scanQrCode, pickPhoto, importFromFiles
 }

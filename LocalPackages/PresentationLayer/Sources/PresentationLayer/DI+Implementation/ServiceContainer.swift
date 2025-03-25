@@ -41,7 +41,8 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     }
 
     var entryDataService: Factory<any EntryDataServiceProtocol> {
-        self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository()) }
+        self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository(),
+                                              importService: self.importService()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
@@ -55,5 +56,9 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
 
     public var alertService: Factory<any AlertServiceProtocol> {
         self { @MainActor in AlertService() }
+    }
+
+    public var importService: Factory<any ImportingServicing> {
+        self { ImportingService() }
     }
 }

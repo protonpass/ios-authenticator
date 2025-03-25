@@ -18,11 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+// periphery:ignore:all
+
 import Models
 import SwiftUI
 
 enum RouterDestination: Hashable {
     case appearance
+    case exportEntries
 }
 
 public enum SheetDestination: Hashable, Identifiable {
@@ -62,6 +65,8 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .appearance:
                     Text("appeareance")
+                case .exportEntries:
+                    ExportView()
                 }
             }
     }

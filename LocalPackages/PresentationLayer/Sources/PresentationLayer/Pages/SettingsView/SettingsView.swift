@@ -31,6 +31,7 @@ struct SettingsView: View {
     @State private var router = Router()
     @State private var showQaMenu = false
     @State private var showEditTheme = false
+    @State private var showImportOptions = false
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -62,6 +63,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .mainBackground()
+            .importingService($showImportOptions, onMainDisplay: false)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -199,11 +201,15 @@ private extension SettingsView {
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {
+                showImportOptions.toggle()
+            }))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {
+                router.navigate(to: .exportEntries)
+            }))
         }
     }
 

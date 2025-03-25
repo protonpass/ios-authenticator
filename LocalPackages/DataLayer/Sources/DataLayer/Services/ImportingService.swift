@@ -19,23 +19,24 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
-import CommonUtilities
 import Foundation
 import Models
 
+public typealias ImportException = AuthenticatorImportException
+
 public protocol ImportingServicing: Sendable {
-    func importEntries(from destination: TwofaImportDestination) throws -> ImportResult
+    func importEntries(from provenance: TwofaImportSource) throws -> ImportResult
 }
 
 public final class ImportingService: ImportingServicing {
-    private let importer: AuthenticatorImporter
+    private let importer: any AuthenticatorImporterProtocol
 
-    public init(importer: AuthenticatorImporter = AuthenticatorImporter()) {
+    public init(importer: any AuthenticatorImporterProtocol = AuthenticatorImporter()) {
         self.importer = importer
     }
 
-    public func importEntries(from destination: TwofaImportDestination) throws -> ImportResult {
-        let result = switch destination {
+    public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
+        let result = switch provenance {
         case let .twofas(contents: contents, password: password):
             try parse2fas(contents, password: password)
         case let .aegis(contents: contents, password: password):
@@ -46,7 +47,7 @@ public final class ImportingService: ImportingServicing {
             try parseEnte(contents)
         case let .googleQr(contents: contents):
             try parseGoogleQr(contents)
-        case let .lasstpass(contents: contents):
+        case let .lastpass(contents: contents):
             try parseLastpass(contents)
         case let .protonAuthenticator(contents: contents):
             try parseAuthenticator(contents)
@@ -71,16 +72,16 @@ private extension ImportingService {
         return try importer.importFromProtonAuthenticator(contents: content)
     }
 
-    func parseLastpass(_ content: String) throws -> AuthenticatorImportResult {
-        guard !content.isEmpty else {
+    func parseLastpass(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {
+        guard !content.content.isEmpty else {
             throw AuthError.importing(.contentIsEmpty)
         }
 
-        guard content.isValidJSON else {
-            throw AuthError.importing(.wrongFormat)
+        if case .json = content {
+            return try importer.importFromLastpassJson(contents: content.content)
         }
 
-        return try importer.importFromLastpassJson(contents: content)
+        throw AuthError.importing(.wrongFormat)
     }
 
     func parseGoogleQr(_ content: String) throws -> AuthenticatorImportResult {
@@ -99,26 +100,30 @@ private extension ImportingService {
         return try importer.importFromEnteTxt(contents: content)
     }
 
-    func parseBitwarden(_ content: String) throws -> AuthenticatorImportResult {
-        guard !content.isEmpty else {
+    func parseBitwarden(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {
+        guard !content.content.isEmpty else {
             throw AuthError.importing(.contentIsEmpty)
         }
 
-        if content.isValidJSON {
-            return try importer.importFromBitwardenJson(contents: content)
+        if case .json = content {
+            return try importer.importFromBitwardenJson(contents: content.content)
+        } else if case .csv = content {
+            return try importer.importFromBitwardenCsv(contents: content.content)
         }
-
-        return try importer.importFromBitwardenCsv(contents: content)
+        throw AuthError.importing(.wrongFormat)
     }
 
-    func parseAegis(_ content: String, password: String?) throws -> AuthenticatorImportResult {
-        guard !content.isEmpty else {
+    func parseAegis(_ content: TwofaImportFileType, password: String?) throws -> AuthenticatorImportResult {
+        guard !content.content.isEmpty else {
             throw AuthError.importing(.contentIsEmpty)
         }
-        if content.isValidJSON {
-            return try importer.importFromAegisJson(contents: content, password: password)
+
+        if case .json = content {
+            return try importer.importFromAegisJson(contents: content.content, password: password)
+        } else if case .txt = content {
+            return try importer.importFromAegisTxt(contents: content.content)
         }
 
-        return try importer.importFromAegisTxt(contents: content)
+        throw AuthError.importing(.wrongFormat)
     }
 }

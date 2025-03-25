@@ -81,8 +81,7 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
-    @ObservationIgnored
-    private var task: Task<Void, Never>?
+
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
@@ -100,24 +99,13 @@ final class EntriesViewModel {
         searchTextStream
             .dropFirst()
             .removeDuplicates()
-            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newSearch in
                 guard let self else { return }
                 lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             }
             .store(in: &cancellables)
-    }
-
-    func process(uri: String) {
-        task?.cancel()
-        task = Task {
-            do {
-                try await entryDataService.insertAndRefreshEntry(from: uri)
-            } catch {
-                handle(error)
-            }
-        }
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {

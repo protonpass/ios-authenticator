@@ -93,6 +93,6 @@ extension View {
             endPoint: UnitPoint(x: 0.5, y: 1)))
             .clipShape(shape)
             .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 12, x: 0, y: 1)
-            .overlay(shape.stroke(.white.opacity(0.12), lineWidth: 0.5))
+            .overlay(shape.stroke(Color.buttonShadowBorder, lineWidth: 0.5))
     }
 }

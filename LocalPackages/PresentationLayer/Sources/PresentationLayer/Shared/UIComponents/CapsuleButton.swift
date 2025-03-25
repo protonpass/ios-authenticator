@@ -23,6 +23,7 @@ import SwiftUI
 struct CapsuleButton: View {
     @Environment(\.colorScheme) private var colorScheme
     let title: LocalizedStringKey
+    let textColor: Color
     let style: Style
     var height: CGFloat = 52
     let action: () -> Void
@@ -48,7 +49,7 @@ private extension CapsuleButton {
     var text: some View {
         Text(title)
             .fontWeight(.semibold)
-            .foregroundStyle(.white)
+            .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding()

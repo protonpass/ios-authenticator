@@ -11,6 +11,16 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
     "Do you want to add this entry for the account %@?" : {
       "localizations" : {
         "en" : {

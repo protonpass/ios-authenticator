@@ -41,6 +41,7 @@ struct AuthenticatorApp: App {
                     .mainUIAlertService
             } else {
                 OnboardingView()
+                    .mainUIAlertService
             }
         }
         #if os(macOS)
