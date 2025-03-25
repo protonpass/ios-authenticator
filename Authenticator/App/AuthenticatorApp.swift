@@ -97,6 +97,9 @@ private final class AuthenticatorAppViewModel {
     private var appSettings
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.updateAppAndRustVersion)
+    private var updateAppAndRustVersion
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.authenticationService)
     private(set) var authenticationService
 
@@ -104,7 +107,9 @@ private final class AuthenticatorAppViewModel {
         appSettings.theme
     }
 
-    init() {}
+    init() {
+        updateAppAndRustVersion(for: .main, userDefaults: .standard)
+    }
 
     func handleDeepLink(_ url: URL) {
         Task {
@@ -117,12 +122,10 @@ private final class AuthenticatorAppViewModel {
     }
 
     func resetBiometricCheck() {
-        Task {
-            do {
-                try await authenticationService.setAuthenticationState(.locked(isChecked: false))
-            } catch {
-                alertService.showError(error)
-            }
+        do {
+            try authenticationService.setAuthenticationState(.locked(isChecked: false))
+        } catch {
+            alertService.showError(error)
         }
     }
 
