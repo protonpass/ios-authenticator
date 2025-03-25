@@ -111,8 +111,8 @@ extension SettingsViewModel {
                 if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
                                                        reason: #localized("Please authenticate")) {
                     biometricLock.toggle()
-                    try authenticationService.setBiometricEnabled(biometricLock)
-//                    biometricLock = newState
+                    try authenticationService
+                        .setAuthenticationState(biometricLock ? .locked(isChecked: true) : .unlocked)
                 }
             } catch {
 //                handle(error)

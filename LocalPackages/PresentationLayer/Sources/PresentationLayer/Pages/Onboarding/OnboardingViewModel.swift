@@ -108,7 +108,7 @@ final class OnboardingViewModel {
             do {
                 if try await authenticateBiometrically(policy: laEnablingPolicy,
                                                        reason: #localized("Please authenticate")) {
-                    try authenticationService.setBiometricEnabled(true)
+                    try authenticationService.setAuthenticationState(.locked(isChecked: true))
                     biometricEnabled = true
                 }
             } catch {

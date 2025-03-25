@@ -52,7 +52,7 @@ struct EditThemeView: View {
                     }
                     .padding(8)
                 }
-                
+
                 if theme != Theme.allCases.last {
                     Divider()
                 }

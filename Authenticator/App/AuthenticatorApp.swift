@@ -65,7 +65,12 @@ struct AuthenticatorApp: App {
     }
 
     var showEntriesView: Bool {
-        !viewModel.biometricEnabled || (viewModel.biometricEnabled && viewModel.biometricValid)
+        switch viewModel.authenticationState {
+        case .unlocked:
+            true
+        case let .locked(isChecked: isChecked):
+            isChecked
+        }
     }
 }
 
@@ -75,12 +80,8 @@ private final class AuthenticatorAppViewModel {
         appSettings.onboarded
     }
 
-    var biometricEnabled: Bool {
-        authenticationService.biometricEnabled
-    }
-
-    var biometricValid: Bool {
-        authenticationService.biometricChecked
+    var authenticationState: AuthenticationState {
+        authenticationService.currentState
     }
 
     @ObservationIgnored
@@ -116,7 +117,13 @@ private final class AuthenticatorAppViewModel {
     }
 
     func resetBiometricCheck() {
-        authenticationService.resetBiometricValidation()
+        Task {
+            do {
+                try await authenticationService.setAuthenticationState(.locked(isChecked: false))
+            } catch {
+                alertService.showError(error)
+            }
+        }
     }
 
     func checkBiometrics() {

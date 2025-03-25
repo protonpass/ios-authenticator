@@ -24,14 +24,18 @@ import Foundation
 import LocalAuthentication
 import Models
 
+public enum AuthenticationState: Sendable, Equatable, Hashable, Codable {
+    case unlocked
+    case locked(isChecked: Bool)
+}
+
 @MainActor
 public protocol AuthenticationServicing: Sendable, Observable {
+    var currentState: AuthenticationState { get }
     var biometricEnabled: Bool { get }
-    var biometricChecked: Bool { get }
 
-    func setBiometricEnabled(_ enabled: Bool) throws
+    func setAuthenticationState(_ newState: AuthenticationState) throws
     func checkBiometrics() async throws
-    func resetBiometricValidation()
 }
 
 @MainActor
@@ -40,25 +44,30 @@ public final class AuthenticationService: AuthenticationServicing {
     @ObservationIgnored
     private let keychain: any KeychainServicing
 
-    public private(set) var biometricEnabled: Bool = false
-    public private(set) var biometricChecked: Bool = false
+    public private(set) var currentState: AuthenticationState = .unlocked
+
+    public var biometricEnabled: Bool {
+        if case .locked = currentState {
+            true
+        } else {
+            false
+        }
+    }
 
     public init(keychain: any KeychainServicing = KeychainService(service: AppConstants.service,
                                                                   accessGroup: AppConstants.keychainGroup)) {
         self.keychain = keychain
-        if let keychainValue: Bool = try? keychain.get(key: AppConstants.Settings.faceIdEnabled) {
-            biometricEnabled = keychainValue
+        if let keychainValue: AuthenticationState = try? keychain
+            .get(key: AppConstants.Settings.authenticationState) {
+            currentState = keychainValue
         }
     }
 
-    public func setBiometricEnabled(_ enabled: Bool) throws {
-        try keychain.set(enabled, for: AppConstants.Settings.faceIdEnabled)
-        biometricEnabled = enabled
-        biometricChecked = enabled
-    }
+    public func setAuthenticationState(_ newState: AuthenticationState) throws {
+        guard currentState != newState else { return }
 
-    public func resetBiometricValidation() {
-        biometricChecked = false
+        try keychain.set(newState, for: AppConstants.Settings.authenticationState)
+        currentState = newState
     }
 
     public func checkBiometrics() async throws {
@@ -67,8 +76,13 @@ public final class AuthenticationService: AuthenticationServicing {
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             let reason = "Identify yourself!"
-            biometricChecked = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                                                localizedReason: reason)
+            do {
+                let bioCheckValue = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                                                     localizedReason: reason)
+                currentState = .locked(isChecked: bioCheckValue)
+            } catch {
+                currentState = .locked(isChecked: false)
+            }
         } else {
             guard let error else {
                 return

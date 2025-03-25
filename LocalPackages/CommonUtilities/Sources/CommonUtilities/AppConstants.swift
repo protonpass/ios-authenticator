@@ -49,7 +49,7 @@ public enum AppConstants {
         public static let displayCode = "DisplayCode"
         public static let numberBackground = "NumberBackground"
         public static let onboarded = "Onboarded"
-        public static let faceIdEnabled = "faceIdEnabled"
+        public static let authenticationState = "authenticationState"
     }
 
     @MainActor
