@@ -202,6 +202,22 @@ private extension EntriesView {
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+        #if os(macOS)
+            .contextMenu {
+                Button {
+                    router.presentedSheet = .createEditEntry(entry)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .keyboardShortcut("E", modifiers: [.command, .shift])
+
+                Button {
+                    viewModel.delete(entry)
+                } label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+            }
+        #endif
     }
 }
 
@@ -241,6 +257,7 @@ private extension EntriesView {
                       label: {
                           Text("Search")
                       })
+                      .macTextfieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
         }
@@ -275,6 +292,7 @@ private extension EntriesView {
         }, label: {
             plusIcon
         })
+        .macButtonStyle()
         #endif
     }
 
@@ -400,6 +418,7 @@ private extension EntriesView {
                     .scaledToFit()
                     .frame(width: 36, height: 36)
             }
+            .macButtonStyle()
         }
     }
 
@@ -422,4 +441,48 @@ private extension EntriesView {
 
 #Preview {
     EntriesView()
+}
+
+extension View {
+    @ViewBuilder
+    func resizableSheet() -> some View {
+        #if os(macOS)
+        presentationSizing(.form.sticky())
+        #else
+        self
+        #endif
+    }
+}
+
+extension Button {
+    @MainActor @ViewBuilder
+    func macButtonStyle() -> some View {
+        if #available(macOS 14.0, *) {
+            self.buttonStyle(.borderless)
+        } else {
+            self
+        }
+    }
+}
+
+extension TextField {
+    @MainActor @ViewBuilder
+    func macTextfieldStyle() -> some View {
+        if #available(macOS 14.0, *) {
+            self.textFieldStyle(.plain)
+        } else {
+            self
+        }
+    }
+}
+
+extension SecureField {
+    @MainActor @ViewBuilder
+    func macSecurefieldStyle() -> some View {
+        if #available(macOS 14.0, *) {
+            self.textFieldStyle(.plain)
+        } else {
+            self
+        }
+    }
 }

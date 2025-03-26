@@ -90,6 +90,7 @@ struct CreateEditEntryView: View {
                         .cornerRadius(16)
                         .padding(.horizontal, 16)
                     }
+                    .macButtonStyle()
                 }
             }
             .padding(.bottom, 10)
@@ -116,6 +117,7 @@ struct CreateEditEntryView: View {
                                 .foregroundStyle(Color.purpleInteraction)
                                 .padding(10)
                         }
+                        .macButtonStyle()
                     }
 
                     ToolbarItem(placement: toolbarItemTrailingPlacement) {
@@ -127,6 +129,7 @@ struct CreateEditEntryView: View {
                                 .foregroundStyle(Color.purpleInteraction)
                                 .padding(10)
                         }
+                        .macButtonStyle()
                         .disabled(!viewModel.canSave)
                         .opacity(viewModel.canSave ? 1 : 0.4)
                     }
@@ -138,6 +141,9 @@ struct CreateEditEntryView: View {
                     }
                 }
         }
+        #if os(macOS)
+        .frame(minWidth: 800, minHeight: 600)
+        #endif
     }
 
     private func textField(_ config: TextFieldConfig) -> some View {
@@ -148,12 +154,14 @@ struct CreateEditEntryView: View {
                 .foregroundStyle(.white)
             if config.isSecure {
                 SecureField(config.placeholder, text: config.binding)
+                    .macSecurefieldStyle()
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(.textWeak)
                     .autocorrectionDisabled(true)
                     .focused($focusedField, equals: .secret)
             } else {
                 TextField(config.placeholder, text: config.binding)
+                    .macTextfieldStyle()
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(.textWeak)
                     .focused($focusedField, equals: config.focusField)

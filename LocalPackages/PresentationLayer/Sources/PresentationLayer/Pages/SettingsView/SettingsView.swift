@@ -19,10 +19,11 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Models
 import SwiftUI
 
-struct SettingsView: View {
+public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
@@ -33,7 +34,9 @@ struct SettingsView: View {
     @State private var showEditTheme = false
     @State private var showImportOptions = false
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         NavigationStack(path: $router.path) {
             List {
                 if viewModel.showPassBanner {
@@ -53,6 +56,17 @@ struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
+            .toolbar {
+                ToolbarItem(placement: toolbarItemPlacement) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Close")
+                            .foregroundStyle(.textWeak)
+                    }
+                    .macButtonStyle()
+                }
+            }
             .scrollContentBackground(.hidden)
             .routingProvided
             .navigationTitle("Settings")
@@ -64,16 +78,6 @@ struct SettingsView: View {
             #endif
             .mainBackground()
             .importingService($showImportOptions, onMainDisplay: false)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close")
-                            .foregroundStyle(.textWeak)
-                    }
-                }
-            }
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
@@ -82,13 +86,16 @@ struct SettingsView: View {
                               onUpdate: viewModel.updateTheme)
             }
         }
+        #if os(macOS)
+        .frame(minWidth: 800, minHeight: 600)
+        #endif
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
         #if os(iOS)
         return .topBarLeading
         #else
-        return .navigation
+        return .automatic
         #endif
     }
 
@@ -143,8 +150,13 @@ private extension SettingsView {
                         })
                     }
                 }, label: {
-                    themeRow()
+                    if AppConstants.isIpad {
+                        themeRow()
+                    } else {
+                        Text("Theme")
+                    }
                 })
+                .macMenuStyle()
             } else {
                 themeRow {
                     showEditTheme.toggle()
@@ -166,10 +178,15 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("Search bar position"),
-                           trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
-                                                        onTap: {}))
+                if AppConstants.isIpad {
+                    SettingRow(title: .localized("Search bar position"),
+                               trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
+                                                            onTap: {}))
+                } else {
+                    Text("Search bar position")
+                }
             })
+            .macMenuStyle()
 
             SettingDivider()
 
@@ -330,6 +347,17 @@ private extension ProtonProduct {
         iOSAppUrl
         #else
         homepageUrl
+        #endif
+    }
+}
+
+extension Menu {
+    @MainActor @ViewBuilder
+    func macMenuStyle() -> some View {
+        self
+        #if os(macOS)
+        .menuStyle(.borderlessButton)
+        .padding(16)
         #endif
     }
 }

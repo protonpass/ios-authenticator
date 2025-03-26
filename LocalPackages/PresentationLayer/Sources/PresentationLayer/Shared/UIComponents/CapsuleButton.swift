@@ -42,6 +42,9 @@ struct CapsuleButton: View {
             }
         }
         .frame(height: height)
+        #if os(macOS)
+            .buttonStyle(.borderless)
+        #endif
     }
 }
 

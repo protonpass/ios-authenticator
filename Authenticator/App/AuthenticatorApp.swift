@@ -61,6 +61,15 @@ struct AuthenticatorApp: App {
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
+        .windowToolbarStyle(.expanded)
+        .windowStyle(.titleBar)
+        .defaultSize(width: 800, height: 600)
+        #endif
+
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
         #endif
     }
 
