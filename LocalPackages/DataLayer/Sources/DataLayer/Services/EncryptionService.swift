@@ -48,6 +48,9 @@ public protocol EncryptionServicing: Sendable {
     func encrypt(entries: [Entry]) throws -> [Data]
 }
 
+// swiftlint:disable:next todo
+// TODO: take into account user settings for backup sync of keychain
+
 // swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
