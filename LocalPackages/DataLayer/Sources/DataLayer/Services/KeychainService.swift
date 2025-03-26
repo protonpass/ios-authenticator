@@ -373,31 +373,3 @@ extension CFString {
 }
 
 // swiftlint:enable discouraged_optional_boolean
-
-import Foundation
-import os
-
-public final class LegacyMutex<Value: Sendable>: Sendable {
-    private let lock: OSAllocatedUnfairLock<Value>
-
-    public init(_ value: Value) {
-        lock = .init(uncheckedState: value)
-    }
-
-    public var value: Value {
-        lock.withLock { $0 }
-    }
-
-    public func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
-        try lock.withLock { value in
-            try block(value)
-        }
-    }
-
-    @discardableResult
-    public func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
-        try lock.withLock { value in
-            try block(&value)
-        }
-    }
-}
