@@ -402,6 +402,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		53D16E4E2D8D720500B33441 /* Copy appropriate Settings.bundle base on configuration */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);

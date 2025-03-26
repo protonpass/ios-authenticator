@@ -78,11 +78,24 @@ public extension View {
     }
 }
 
-extension View {
+public extension View {
     func mainBackground() -> some View {
         modifier(MainBackgroundColor())
     }
 
+    func fullScreenMainBackground() -> some View {
+        ZStack {
+            Color.clear
+                .mainBackground()
+                .ignoresSafeArea()
+            self
+        }
+    }
+}
+
+// MARK: - Non exposed extension
+
+extension View {
     func coloredBackgroundButton(_ shape: some Shape) -> some View {
         background(LinearGradient(stops:
             [

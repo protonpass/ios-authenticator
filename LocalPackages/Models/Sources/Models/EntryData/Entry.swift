@@ -64,13 +64,13 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     }
 
     public func isDuplicate(of other: Entry) -> Bool {
-        name == other.name
+        id == other.id || (name == other.name
             && issuer == other.issuer
             && type == other.type
             && uri == other.uri
             && note == other.note
             && period == other.period
-            && secret == other.secret
+            && secret == other.secret)
     }
 }
 

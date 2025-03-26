@@ -28,54 +28,49 @@ struct ExportView: View {
     @State private var viewModel = ExportViewModel()
 
     var body: some View {
-        ZStack {
-            Color.clear
-                .mainBackground()
-                .edgesIgnoringSafeArea(.all)
+        VStack {
+            Spacer()
+            Text("Export data to Backup File")
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.9)
+                .foregroundStyle(.textNorm)
+            Spacer()
+            Image(systemName: "externaldrive.fill")
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.textNorm)
+                .frame(maxWidth: 200)
+                .padding(.horizontal, 45)
+                .padding(.bottom, 20)
 
-            VStack {
-                Spacer()
-                Text("Export data to Backup File")
-                    .font(.largeTitle)
+            Text("Use this feature to import your data on an another device using Proton Authenticator")
+                .foregroundStyle(.textWeak)
+                .multilineTextAlignment(.center)
+
+            Spacer()
+
+            Button { viewModel.createBackup() } label: {
+                Text("Export to backup file")
+                    .foregroundStyle(.white)
                     .fontWeight(.semibold)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.9)
-                    .foregroundStyle(.textNorm)
-                Spacer()
-                Image(systemName: "externaldrive.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(.textNorm)
-                    .frame(maxWidth: 200)
-                    .padding(.horizontal, 45)
-                    .padding(.bottom, 20)
-
-                Text("Use this feature to import your data on an another device using Proton Authenticator")
-                    .foregroundStyle(.textWeak)
-                    .multilineTextAlignment(.center)
-
-                Spacer()
-
-                Button { viewModel.createBackup() } label: {
-                    Text("Export to backup file")
-                        .foregroundStyle(.white)
-                        .fontWeight(.semibold)
-                }
-                .padding(.horizontal, 30)
-                .padding(.vertical, 14)
-                .coloredBackgroundButton(.capsule)
-                Spacer()
             }
-            .padding(.horizontal, 16)
-            #if os(iOS)
-                .navigationBarTitle("Export")
-            #endif
+            .padding(.horizontal, 30)
+            .padding(.vertical, 14)
+            .coloredBackgroundButton(.capsule)
+            Spacer()
         }
-        .fileExporter(isPresented: $viewModel.showingExporter,
-                      document: viewModel.backup,
-                      contentType: .text,
-                      defaultFilename: viewModel.backupTitle,
-                      onCompletion: viewModel.parseExport)
+        .padding(.horizontal, 16)
+        #if os(iOS)
+            .navigationBarTitle("Export")
+        #endif
+            .fullScreenMainBackground()
+            .fileExporter(isPresented: $viewModel.showingExporter,
+                          document: viewModel.backup,
+                          contentType: .text,
+                          defaultFilename: viewModel.backupTitle,
+                          onCompletion: viewModel.parseExport)
         #if os(iOS)
             .edgesIgnoringSafeArea(.all)
             .toolbarBackground(.hidden, for: .navigationBar)

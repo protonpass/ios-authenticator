@@ -28,17 +28,12 @@ public struct OnboardingView: View {
     public init() {}
 
     public var body: some View {
-        ZStack {
-            Color.clear
-                .mainBackground()
-                .ignoresSafeArea()
-
-            GeometryReader { proxy in
-                let illustrationHeight = proxy.size.height * 0.55
-                illustration(height: illustrationHeight)
-                textAndButton(illustrationHeight: illustrationHeight)
-            }
+        GeometryReader { proxy in
+            let illustrationHeight = proxy.size.height * 0.55
+            illustration(height: illustrationHeight)
+            textAndButton(illustrationHeight: illustrationHeight)
         }
+        .fullScreenMainBackground()
         .tint(.purpleInteraction)
         .task { viewModel.getSupportedBiometric() }
         .importingService($showImportOptions, onMainDisplay: true)

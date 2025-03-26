@@ -29,24 +29,48 @@ import SwiftUI
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
-            if viewModel.onboarded {
-                EntriesView()
-                    .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                    .onOpenURL { url in
-                        viewModel.handleDeepLink(url)
+            Group {
+                if viewModel.onboarded {
+                    if showEntriesView {
+                        EntriesView()
+                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                            .onOpenURL { url in
+                                viewModel.handleDeepLink(url)
+                            }
+                            .onChange(of: scenePhase) { _, newPhase in
+                                if newPhase == .background {
+                                    viewModel.resetBiometricCheck()
+                                }
+                            }
+                    } else {
+                        BioLockView()
+                            .onChange(of: scenePhase) { _, newPhase in
+                                if newPhase == .active {
+                                    viewModel.checkBiometrics()
+                                }
+                            }
                     }
-                    .mainUIAlertService
-            } else {
-                OnboardingView()
-                    .mainUIAlertService
-            }
+                } else {
+                    OnboardingView()
+                }
+            }.mainUIAlertService()
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
         #endif
+    }
+
+    var showEntriesView: Bool {
+        switch viewModel.authenticationState {
+        case .inactive:
+            true
+        case let .active(authenticated: isChecked):
+            isChecked
+        }
     }
 }
 
@@ -54,6 +78,10 @@ struct AuthenticatorApp: App {
 private final class AuthenticatorAppViewModel {
     var onboarded: Bool {
         appSettings.onboarded
+    }
+
+    var authenticationState: AuthenticationState {
+        authenticationService.currentState
     }
 
     @ObservationIgnored
@@ -71,6 +99,9 @@ private final class AuthenticatorAppViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.updateAppAndRustVersion)
     private var updateAppAndRustVersion
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.authenticationService)
+    private(set) var authenticationService
 
     var theme: Theme {
         appSettings.theme
@@ -84,6 +115,25 @@ private final class AuthenticatorAppViewModel {
         Task {
             do {
                 try await deepLinkService.handleDeeplink(url)
+            } catch {
+                alertService.showError(error)
+            }
+        }
+    }
+
+    func resetBiometricCheck() {
+        guard authenticationService.biometricEnabled else { return }
+        do {
+            try authenticationService.setAuthenticationState(.active(authenticated: false))
+        } catch {
+            alertService.showError(error)
+        }
+    }
+
+    func checkBiometrics() {
+        Task {
+            do {
+                try await authenticationService.checkBiometrics()
             } catch {
                 alertService.showError(error)
             }

@@ -36,12 +36,25 @@ final class SettingsViewModel {
     private(set) var tapToRevealCodeEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
+    private(set) var biometricLock = false
 
     @ObservationIgnored
     private let bundle: Bundle
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.authenticationService)
+    private(set) var authenticationService
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private var alertService
 
     var theme: Theme {
         settingsService.theme
@@ -74,6 +87,7 @@ final class SettingsViewModel {
             #endif
             return true
         }
+        biometricLock = authenticationService.biometricEnabled
     }
 }
 
@@ -92,6 +106,22 @@ extension SettingsViewModel {
 
     func toggleSync() {
         syncEnabled.toggle()
+    }
+
+    func toggleBioLock() {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
+                                                       reason: #localized("Please authenticate")) {
+                    biometricLock.toggle()
+                    try authenticationService
+                        .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
+                }
+            } catch {
+                handle(error)
+            }
+        }
     }
 
     func toggleTapToRevealCode() {
@@ -114,5 +144,13 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
+    }
+}
+
+private extension SettingsViewModel {
+    func handle(_ error: any Error) {
+        // swiftlint:disable:next todo
+        // TODO: Log
+        alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

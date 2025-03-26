@@ -48,16 +48,19 @@ public protocol EncryptionServicing: Sendable {
     func encrypt(entries: [Entry]) throws -> [Data]
 }
 
+// swiftlint:disable:next todo
+// TODO: take into account user settings for backup sync of keychain
+
 // swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
-    private let keyStore: EncryptionKeyStoring
+    private let keyStore: KeychainServicing
     private let logger: LoggerProtocol?
     private let deviceIdentifier: String
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
-                keyStore: EncryptionKeyStoring,
+                keyStore: KeychainServicing,
                 deviceIdentifier: String = DeviceIdentifier.current,
                 logger: LoggerProtocol? = nil) {
         self.keyStore = keyStore
@@ -68,26 +71,27 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     private var localEncryptionKey: Data {
-        if let key = keyStore.retrieve(keyId: keyId) {
-            return key
+        get throws {
+            if let key: Data = try? keyStore.get(key: keyId, shouldSync: true) {
+                return key
+            }
+            logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Generating a new local encryption key")
+            let newKey = authenticatorCrypto.generateKey()
+            try keyStore.set(newKey, for: keyId, shouldSync: true)
+            return newKey
         }
-        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Generating a new local encryption key")
-        let newKey = authenticatorCrypto.generateKey()
-        keyStore.store(keyId: keyId, data: newKey)
-
-        return newKey
     }
 
-    private func getEncryptionKey(for keyId: String) -> Data? {
+    private func getEncryptionKey(for keyId: String) throws -> Data {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Fetching encryption key for \(keyId)")
-        let key = keyStore.retrieve(keyId: keyId)
+        let key: Data = try keyStore.get(key: keyId, shouldSync: true) // keyStore.retrieve(keyId: keyId)
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Retrieved key: \(String(describing: key))")
         return key
     }
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entry with id \(entry.id)")
-        guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
+        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
             logger?.dataLogger
                 .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
@@ -99,7 +103,7 @@ public final class EncryptionService: EncryptionServicing {
     public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entries")
         return try entries.map { entry in
-            guard let encryptionKey = getEncryptionKey(for: entry.keyId) else {
+            guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
                 logger?.dataLogger
                     .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
@@ -110,7 +114,7 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     public func encrypt(entry: Entry) throws -> Data {
-        let localKey = localEncryptionKey
+        let localKey = try localEncryptionKey
         logger?.dataLogger
             .notice("\(type(of: self)) - \(#function) - Encrypting entry \(entry.name) with local encryption key \(localKey)")
 
@@ -119,7 +123,7 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     public func encrypt(entries: [Entry]) throws -> [Data] {
-        let localKey = localEncryptionKey
+        let localKey = try localEncryptionKey
 
         logger?.dataLogger
             .notice("\(type(of: self)) - \(#function) - Encrypting \(entries.count) entries with local encryption key \(localKey)")

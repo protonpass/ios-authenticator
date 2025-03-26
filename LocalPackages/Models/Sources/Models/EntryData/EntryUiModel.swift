@@ -27,7 +27,6 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
     public let entry: Entry
     public let code: Code
     public let order: Int
-    public let progress: ProgressUiModel
 
     public var id: String {
         entry.id
@@ -35,16 +34,14 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
 
     public init(entry: Entry,
                 code: Code,
-                order: Int,
-                progress: ProgressUiModel) {
+                order: Int) {
         self.entry = entry
         self.code = code
         self.order = order
-        self.progress = progress
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry, code: code, order: order, progress: progress)
+        EntryUiModel(entry: newEntry, code: code, order: order)
     }
 
     public static var transferRepresentation: some TransferRepresentation {
@@ -57,60 +54,11 @@ public extension UTType {
 }
 
 public extension EntryUiModel {
-    init(entry: Entry, code: Code, order: Int, date: Date = .now) {
-        let timeInterval = date.timeIntervalSince1970
-        let period = Double(entry.period)
-        let remaining = (period - timeInterval.truncatingRemainder(dividingBy: period)).rounded(.down)
-
-        self.entry = entry
-        self.code = code
-        progress = .init(value: remaining / Double(entry.period), countdown: Int(remaining))
-        self.order = order
-    }
-
-    func updateProgress(date: Date = .now) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order, date: date)
-    }
-
     func updateCode(_ code: Code) -> EntryUiModel {
         EntryUiModel(entry: entry, code: code, order: order)
     }
 
     func updateOrder(_ order: Int) -> EntryUiModel {
         EntryUiModel(entry: entry, code: code, order: order)
-    }
-}
-
-public struct ProgressUiModel: Codable, Sendable, Equatable, Hashable, Identifiable {
-    /// From 0.0 to 1.0
-    public let id: String
-    public let value: Double
-    public let level: Level
-    /// Number of second left
-    public let countdown: Int
-    private let precomputedHash: Int
-
-    /// The less the level, the more critical it is
-    public enum Level: Sendable, Codable {
-        case level1, level2, level3
-    }
-
-    public init(id: String = UUID().uuidString,
-                value: Double,
-                countdown: Int) {
-        self.id = id
-        self.value = value
-        self.countdown = countdown
-
-        level = switch value {
-        case 0.0...0.05:
-            .level1
-        case 0.05...0.25:
-            .level2
-        default:
-            .level3
-        }
-        var hasher = Hasher()
-        precomputedHash = hasher.combineAndFinalize(id, value, level, countdown)
     }
 }

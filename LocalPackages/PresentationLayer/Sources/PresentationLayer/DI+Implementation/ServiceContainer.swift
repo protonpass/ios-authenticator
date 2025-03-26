@@ -42,23 +42,34 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
 
     var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository(),
-                                              importService: self.importService()) }
+                                              importService: self.importService(),
+                                              totpGenerator: ToolsContainer.shared.totpGenerator()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keyStore: ToolsContainer.shared.encryptionKeyStoreService()) }
+        self { EncryptionService(keyStore: self.keychainService()) }
     }
 
-    public var deepLinkService: Factory<any DeepLinkServicing> {
+    var keychainService: Factory<any KeychainServicing> {
+        self { KeychainService(service: AppConstants.service, accessGroup: AppConstants.keychainGroup) }
+    }
+}
+
+public extension ServiceContainer {
+    var deepLinkService: Factory<any DeepLinkServicing> {
         self { DeepLinkService(service: self.entryDataService(),
                                alertService: self.alertService()) }
     }
 
-    public var alertService: Factory<any AlertServiceProtocol> {
+    var alertService: Factory<any AlertServiceProtocol> {
         self { @MainActor in AlertService() }
     }
 
-    public var importService: Factory<any ImportingServicing> {
+    var importService: Factory<any ImportingServicing> {
         self { ImportingService() }
+    }
+
+    var authenticationService: Factory<any AuthenticationServicing> {
+        self { @MainActor in AuthenticationService(keychain: self.keychainService()) }
     }
 }

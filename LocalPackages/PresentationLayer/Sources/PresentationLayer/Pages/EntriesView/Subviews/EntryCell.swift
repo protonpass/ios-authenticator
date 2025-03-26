@@ -28,9 +28,9 @@ struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
-    let progress: ProgressUiModel
     let configuration: EntryCellConfiguration
     let onCopyToken: () -> Void
+    @Binding var pauseCountDown: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,7 +70,7 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                CircularProgressView(progress: progress)
+                TOTPCountdownView(period: entry.period, pauseCountDown: $pauseCountDown)
                     .disableAnimations()
             }
             .padding(.vertical, 12)
@@ -141,6 +141,7 @@ struct EntryCell: View {
                         .foregroundStyle(.textNorm)
                 }
                 .padding(.horizontal, 5)
+                .frame(minWidth: 28)
                 .padding(.vertical, 4)
                 .background(.black.opacity(0.16))
                 .cornerRadius(8)
@@ -169,49 +170,93 @@ private extension EntryCell {
     }
 }
 
-private struct CircularProgressView: View {
-    let progress: ProgressUiModel
-    let size: CGFloat // Diameter of the circle
-    let lineWidth: CGFloat // Thickness of the progress bar
+private struct TOTPCountdownView: View {
+    private let period: Int // TOTP period in seconds (typically 30 or 60)
+    private let size: CGFloat // Diameter of the circle
+    private let lineWidth: CGFloat // Thickness of the progress bar
+    @Binding private var pauseCountDown: Bool
 
-    init(progress: ProgressUiModel,
+    init(period: Int,
          size: CGFloat = 32,
-         lineWidth: CGFloat = 4) {
-        self.progress = progress
+         lineWidth: CGFloat = 4,
+         pauseCountDown: Binding<Bool>) {
+        self.period = period
         self.size = size
         self.lineWidth = lineWidth
+        _pauseCountDown = pauseCountDown
     }
+
+    @State private var timeRemaining: Double = 0
+    @State private var progress: CGFloat = 0.0
+    @State private var timerCancellable: AnyCancellable?
 
     var body: some View {
         ZStack {
-            // Background Circle
+            // Background circle
             Circle()
-                .stroke(progress.color.opacity(0.3), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(lineWidth: 4)
+                .foregroundStyle(color.opacity(0.3))
                 .frame(width: size, height: size)
 
-            // Progress Circle
+            // Progress circle
             Circle()
-                .trim(from: 1 - progress.value, to: 1)
-                .stroke(progress.color,
-                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .trim(from: 1 - progress, to: 1)
+                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .foregroundStyle(color)
                 .rotationEffect(.degrees(-90))
                 .frame(width: size, height: size)
 
-            // Timer Text
-            Text(verbatim: "\(progress.countdown)")
+            // Countdown text
+            Text(verbatim: "\(Int(timeRemaining))")
                 .font(.caption)
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
         }
+        .onAppear {
+            calculateTime()
+            startTimer()
+        }
+        .onDisappear {
+            stopTimer()
+        }
+        .onChange(of: pauseCountDown) {
+            if !pauseCountDown, timerCancellable == nil {
+                startTimer()
+            } else if pauseCountDown {
+                stopTimer()
+            }
+        }
     }
-}
 
-private extension ProgressUiModel {
-    var color: Color {
-        switch level {
-        case .level1: .timer1
-        case .level2: .timer2
-        case .level3: .timer3
+    private func calculateTime() {
+        let timeInterval = Date().timeIntervalSince1970
+        let newPeriod = Double(period)
+        timeRemaining = (newPeriod - timeInterval.truncatingRemainder(dividingBy: newPeriod)).rounded(.down)
+        progress = CGFloat(timeRemaining) / CGFloat(period)
+    }
+
+    private func startTimer() {
+        // Using a 0.1 second timer for smoother updates
+        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                calculateTime()
+            }
+    }
+
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
+    }
+
+    private var color: Color {
+        switch progress {
+        case 0.0...0.05:
+            .timer1
+        case 0.05...0.25:
+            .timer2
+        default:
+            .timer3
         }
     }
 }

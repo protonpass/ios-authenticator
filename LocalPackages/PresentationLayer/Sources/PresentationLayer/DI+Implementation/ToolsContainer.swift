@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import AuthenticatorRustCore
 import CommonUtilities
 import DataLayer
 import Factory
@@ -49,15 +50,27 @@ extension ToolsContainer {
         }
     }
 
-    var logService: Factory<any LoggerProtocol> {
+    var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
         self {
-            LogService()
+            do {
+                return try MobileTotpGenerator(periodMs: UInt32(300),
+                                               onlyOnCodeChange: true,
+                                               currentTime: CurrentTimeProviderImpl())
+            } catch {
+                fatalError("Could not instanciate MobileTotpGenerator \(error)")
+            }
         }
     }
 
-    var encryptionKeyStoreService: Factory<any EncryptionKeyStoring> {
+    var totpGenerator: Factory<any TotpGeneratorProtocol> {
         self {
-            EncryptionKeyStoreService(logger: self.logService())
+            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
+        }
+    }
+
+    var logService: Factory<any LoggerProtocol> {
+        self {
+            LogService()
         }
     }
 

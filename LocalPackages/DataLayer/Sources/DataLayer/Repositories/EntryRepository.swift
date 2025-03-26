@@ -59,6 +59,9 @@ public extension EntryRepositoryProtocol {
     }
 }
 
+// swiftlint:disable:next todo
+// TODO: take into account user settings for backup sync local data
+
 public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let rustClient: AuthenticatorMobileClientProtocol
     private let persistentStorage: any PersistenceServicing
