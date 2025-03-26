@@ -63,6 +63,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .mainBackground()
+            .sheetUIAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {

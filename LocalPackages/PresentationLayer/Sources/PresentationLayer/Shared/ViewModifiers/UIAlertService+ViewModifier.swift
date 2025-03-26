@@ -43,11 +43,11 @@ struct UIAlertService: ViewModifier {
 }
 
 public extension View {
-    var mainUIAlertService: some View {
+    func mainUIAlertService() -> some View {
         modifier(UIAlertService(isMainDisplay: true))
     }
 
-    var sheetUIAlertService: some View {
+    func sheetUIAlertService() -> some View {
         modifier(UIAlertService(isMainDisplay: false))
     }
 }

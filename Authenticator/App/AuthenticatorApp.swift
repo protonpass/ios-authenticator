@@ -57,7 +57,7 @@ struct AuthenticatorApp: App {
                 } else {
                     OnboardingView()
                 }
-            }.mainUIAlertService
+            }.mainUIAlertService()
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -66,9 +66,9 @@ struct AuthenticatorApp: App {
 
     var showEntriesView: Bool {
         switch viewModel.authenticationState {
-        case .unlocked:
+        case .inactive:
             true
-        case let .locked(isChecked: isChecked):
+        case let .active(authenticated: isChecked):
             isChecked
         }
     }
@@ -122,8 +122,9 @@ private final class AuthenticatorAppViewModel {
     }
 
     func resetBiometricCheck() {
+        guard authenticationService.biometricEnabled else { return }
         do {
-            try authenticationService.setAuthenticationState(.locked(isChecked: false))
+            try authenticationService.setAuthenticationState(.active(authenticated: false))
         } catch {
             alertService.showError(error)
         }

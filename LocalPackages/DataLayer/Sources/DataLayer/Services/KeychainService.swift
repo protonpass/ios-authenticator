@@ -18,56 +18,87 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import Foundation
 
+public struct KeychainQueryConfig {
+    public let itemClassType: ItemClassType
+    public let access: KeychainAccessOptions
+    public let attributes: [CFString: any Sendable]?
+
+    public init(itemClassType: ItemClassType,
+                access: KeychainAccessOptions,
+                attributes: [CFString: any Sendable]?) {
+        self.itemClassType = itemClassType
+        self.access = access
+        self.attributes = attributes
+    }
+
+    public static var `default`: KeychainQueryConfig {
+        KeychainQueryConfig(itemClassType: .generic, access: .default, attributes: nil)
+    }
+}
+
+// swiftlint:disable discouraged_optional_boolean
 public protocol KeychainServicing: Sendable {
-    @discardableResult
-    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType) throws -> T
+    func get<T: Decodable & Sendable>(key: String,
+                                      ofType itemClassType: ItemClassType,
+                                      shouldSync: Bool?) throws -> T
     func set<T: Encodable & Sendable>(_ item: T,
                                       for key: String,
-                                      ofType itemClassType: ItemClassType,
-                                      with access: KeychainAccessOptions,
-                                      attributes: [CFString: any Sendable]?) throws
-    func delete(_ key: String, ofType itemClassType: ItemClassType) throws
-    func clear(ofType itemClassType: ItemClassType) throws
+                                      config: KeychainQueryConfig,
+                                      shouldSync: Bool?) throws
+    func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
+    func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
+    func clear(key: String, shouldSync: Bool?) throws
+    func setGlobalSyncState(_ syncState: Bool)
 }
 
 extension KeychainServicing {
-    @discardableResult
-    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType = .generic) throws -> T {
-        try get(key: key, ofType: itemClassType)
+    func get<T: Decodable & Sendable>(key: String,
+                                      ofType itemClassType: ItemClassType = .generic,
+                                      shouldSync: Bool? = nil) throws -> T {
+        try get(key: key, ofType: itemClassType, shouldSync: shouldSync)
     }
 
     func set(_ item: some Encodable & Sendable,
              for key: String,
-             ofType itemClassType: ItemClassType = .generic,
-             with access: KeychainAccessOptions = .default,
-             attributes: [CFString: any Sendable]? = nil) throws {
-        try set(item, for: key, ofType: itemClassType, with: access, attributes: attributes)
+             config: KeychainQueryConfig = .default,
+             shouldSync: Bool? = nil) throws {
+        try set(item,
+                for: key,
+                config: config,
+                shouldSync: shouldSync)
     }
 
-    func delete(_ key: String, ofType itemClassType: ItemClassType = .generic) throws {
-        try delete(key, ofType: itemClassType)
+    func delete(_ key: String, ofType itemClassType: ItemClassType = .generic, shouldSync: Bool? = nil) throws {
+        try delete(key, ofType: itemClassType, shouldSync: shouldSync)
     }
 
-    func clear(ofType itemClassType: ItemClassType = .generic) throws {
-        try clear(ofType: itemClassType)
+    func clearAll(ofType itemClassType: ItemClassType = .generic, shouldSync: Bool? = nil) throws {
+        try clearAll(ofType: itemClassType, shouldSync: shouldSync)
     }
 }
 
 public final class KeychainService: KeychainServicing {
     private let service: String?
     private let accessGroup: String?
+    private let logger: LoggerProtocol?
 
-    public init(service: String? = nil, accessGroup: String? = nil) {
+    private let serviceSyncState: LegacyMutex<Bool> = .init(false)
+
+    public init(service: String? = nil, accessGroup: String? = nil, logger: LoggerProtocol? = nil) {
         self.service = service
         self.accessGroup = accessGroup
+        self.logger = logger
     }
 
-    @discardableResult
     public func get<T: Decodable & Sendable>(key: String,
-                                             ofType itemClassType: ItemClassType = .generic) throws -> T {
-        var query = createQuery(for: key, ofType: itemClassType)
+                                             ofType itemClassType: ItemClassType = .generic,
+                                             shouldSync: Bool?) throws -> T {
+        let shouldSyncData = shouldSync ?? serviceSyncState.value
+
+        var query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
         query[kSecMatchLimit] = kSecMatchLimitOne
         query[kSecReturnAttributes] = kCFBooleanTrue
         query[kSecReturnData] = kCFBooleanTrue
@@ -75,12 +106,12 @@ public final class KeychainService: KeychainServicing {
         var item: CFTypeRef?
         let result = SecItemCopyMatching(query as CFDictionary, &item)
         if result != errSecSuccess {
-            throw result.toSimpleKeychainError
+            throw result.toKeychainError
         }
 
         guard let keychainItem = item as? [CFString: Any],
               let data = keychainItem[kSecValueData] as? Data else {
-            throw SimpleKeychainError.invalidData
+            throw KeychainError.invalidData
         }
 
         return try JSONDecoder().decode(T.self, from: data)
@@ -88,23 +119,29 @@ public final class KeychainService: KeychainServicing {
 
     public func set(_ item: some Encodable & Sendable,
                     for key: String,
-                    ofType itemClassType: ItemClassType = .generic,
-                    with access: KeychainAccessOptions = .default,
-                    attributes: [CFString: any Sendable]? = nil) throws {
+                    config: KeychainQueryConfig,
+                    shouldSync: Bool?) throws {
         let data = try JSONEncoder().encode(item)
-
+        let shouldSyncData = shouldSync ?? serviceSyncState.value
         do {
-            try add(with: data, key: key, ofType: itemClassType, with: access, attributes: attributes)
-        } catch SimpleKeychainError.duplicateItem {
-            try update(with: data, key: key, ofType: itemClassType, with: access, attributes: attributes)
+            try add(with: data,
+                    key: key,
+                    config: config,
+                    remoteSync: shouldSyncData)
+        } catch KeychainError.duplicateItem {
+            try update(with: data,
+                       key: key,
+                       config: config,
+                       remoteSync: shouldSyncData)
         }
     }
 
-    public func delete(_ key: String, ofType itemClassType: ItemClassType = .generic) throws {
-        let query = createQuery(for: key, ofType: itemClassType)
+    public func delete(_ key: String, ofType itemClassType: ItemClassType = .generic, shouldSync: Bool?) throws {
+        let shouldSyncData = shouldSync ?? serviceSyncState.value
+        let query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
         let result = SecItemDelete(query as CFDictionary)
         if result != errSecSuccess {
-            let error = result.toSimpleKeychainError
+            let error = result.toKeychainError
             switch error {
             case .itemNotFound:
                 break
@@ -114,15 +151,34 @@ public final class KeychainService: KeychainServicing {
         }
     }
 
-    public func clear(ofType itemClassType: ItemClassType = .generic) throws {
+    public func clearAll(ofType itemClassType: ItemClassType = .generic, shouldSync: Bool?) throws {
+        let shouldSyncData = shouldSync ?? serviceSyncState.value
         var query: [CFString: Any] = [kSecClass: itemClassType.rawValue]
+        query[kSecAttrSynchronizable] = shouldSyncData
+
         if let accessGroup {
             query[kSecAttrAccessGroup] = accessGroup
         }
 
         let result = SecItemDelete(query as CFDictionary)
         if result != errSecSuccess {
-            throw result.toSimpleKeychainError
+            throw result.toKeychainError
+        }
+    }
+
+    public func clear(key: String, shouldSync: Bool?) throws {
+        let shouldSyncData = shouldSync ?? serviceSyncState.value
+        let query = createQuery(for: key, ofType: .generic, remoteSync: shouldSyncData)
+
+        let result = SecItemDelete(query as CFDictionary)
+        if result != errSecSuccess {
+            throw result.toKeychainError
+        }
+    }
+
+    public func setGlobalSyncState(_ syncState: Bool) {
+        serviceSyncState.modify {
+            $0 = syncState
         }
     }
 }
@@ -130,34 +186,37 @@ public final class KeychainService: KeychainServicing {
 private extension KeychainService {
     func update(with data: Data,
                 key: String,
-                ofType itemClassType: ItemClassType,
-                with access: KeychainAccessOptions,
-                attributes: [CFString: Any]? = nil) throws {
-        let query = createQuery(for: key, ofType: itemClassType, access: access, attributes: attributes)
+                config: KeychainQueryConfig,
+                remoteSync: Bool) throws {
+        let query = createQuery(for: key,
+                                ofType: config.itemClassType,
+                                access: config.access,
+                                remoteSync: remoteSync,
+                                attributes: config.attributes)
         let updates: [CFString: Any] = [
             kSecValueData: data
         ]
 
         let result = SecItemUpdate(query as CFDictionary, updates as CFDictionary)
         if result != errSecSuccess {
-            throw result.toSimpleKeychainError
+            throw result.toKeychainError
         }
     }
 
     func add(with data: Data,
              key: String,
-             ofType itemClassType: ItemClassType,
-             with access: KeychainAccessOptions,
-             attributes: [CFString: Any]? = nil) throws {
+             config: KeychainQueryConfig,
+             remoteSync: Bool) throws {
         let query = createQuery(for: key,
-                                ofType: itemClassType,
+                                ofType: config.itemClassType,
                                 with: data,
-                                access: access,
-                                attributes: attributes)
+                                access: config.access,
+                                remoteSync: remoteSync,
+                                attributes: config.attributes)
 
         let result = SecItemAdd(query as CFDictionary, nil)
         if result != errSecSuccess {
-            throw result.toSimpleKeychainError
+            throw result.toKeychainError
         }
     }
 
@@ -165,12 +224,14 @@ private extension KeychainService {
                      ofType itemClassType: ItemClassType,
                      with data: Data? = nil,
                      access: KeychainAccessOptions = .default,
+                     remoteSync: Bool,
                      attributes: [CFString: Any]? = nil) -> [CFString: Any] {
         var query: [CFString: Any] = [:]
         query[kSecClass] = itemClassType.rawValue
         query[kSecAttrAccount] = key
         query[kSecAttrAccessible] = access.value
         query[kSecUseDataProtectionKeychain] = kCFBooleanTrue
+        query[kSecAttrSynchronizable] = remoteSync
 
         if let data {
             query[kSecValueData] = data
@@ -267,7 +328,7 @@ public enum KeychainAccessOptions: Sendable {
     }
 }
 
-public enum SimpleKeychainError: Error, Equatable {
+public enum KeychainError: Error, Equatable {
     case invalidData
     case itemNotFound
     case duplicateItem
@@ -291,7 +352,7 @@ public enum SimpleKeychainError: Error, Equatable {
 }
 
 extension OSStatus {
-    var toSimpleKeychainError: SimpleKeychainError {
+    var toKeychainError: KeychainError {
         switch self {
         case errSecItemNotFound:
             .itemNotFound
@@ -308,5 +369,35 @@ extension OSStatus {
 extension CFString {
     var toString: String {
         self as String
+    }
+}
+
+// swiftlint:enable discouraged_optional_boolean
+
+import Foundation
+import os
+
+public final class LegacyMutex<Value: Sendable>: Sendable {
+    private let lock: OSAllocatedUnfairLock<Value>
+
+    public init(_ value: Value) {
+        lock = .init(uncheckedState: value)
+    }
+
+    public var value: Value {
+        lock.withLock { $0 }
+    }
+
+    public func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
+        try lock.withLock { value in
+            try block(value)
+        }
+    }
+
+    @discardableResult
+    public func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
+        try lock.withLock { value in
+            try block(&value)
+        }
     }
 }

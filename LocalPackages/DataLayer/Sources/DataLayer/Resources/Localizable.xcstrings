@@ -51,6 +51,16 @@
         }
       }
     },
+    "Please authenticate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please authenticate"
+          }
+        }
+      }
+    },
     "Warning" : {
       "localizations" : {
         "en" : {

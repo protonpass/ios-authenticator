@@ -22,11 +22,12 @@ import Combine
 import CommonUtilities
 import Foundation
 import LocalAuthentication
+import Macro
 import Models
 
 public enum AuthenticationState: Sendable, Equatable, Hashable, Codable {
-    case unlocked
-    case locked(isChecked: Bool)
+    case inactive
+    case active(authenticated: Bool)
 }
 
 @MainActor
@@ -44,22 +45,27 @@ public final class AuthenticationService: AuthenticationServicing {
     @ObservationIgnored
     private let keychain: any KeychainServicing
 
-    public private(set) var currentState: AuthenticationState = .unlocked
+    public private(set) var currentState: AuthenticationState = .inactive
 
     public var biometricEnabled: Bool {
-        if case .locked = currentState {
+        if case .active = currentState {
             true
         } else {
             false
         }
     }
 
-    public init(keychain: any KeychainServicing = KeychainService(service: AppConstants.service,
-                                                                  accessGroup: AppConstants.keychainGroup)) {
+    public init(keychain: any KeychainServicing) {
         self.keychain = keychain
-        if let keychainValue: AuthenticationState = try? keychain
-            .get(key: AppConstants.Settings.authenticationState) {
-            currentState = keychainValue
+        do {
+            if let keychainValue: AuthenticationState = try keychain
+                .get(key: AppConstants.Settings.authenticationState) {
+                currentState = keychainValue
+            }
+        } catch {
+            // swiftlint:disable:next todo
+            // TODO: log error
+            print("error")
         }
     }
 
@@ -75,13 +81,13 @@ public final class AuthenticationService: AuthenticationServicing {
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = "Identify yourself!"
+            let reason = #localized("Please authenticate")
             do {
                 let bioCheckValue = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
                                                                      localizedReason: reason)
-                currentState = .locked(isChecked: bioCheckValue)
+                currentState = .active(authenticated: bioCheckValue)
             } catch {
-                currentState = .locked(isChecked: false)
+                currentState = .active(authenticated: false)
             }
         } else {
             guard let error else {
