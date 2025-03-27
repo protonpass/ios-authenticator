@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "current-rms.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

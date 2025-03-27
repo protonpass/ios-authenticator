@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "dyn.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

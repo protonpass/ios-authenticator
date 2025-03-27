@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "bibox.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

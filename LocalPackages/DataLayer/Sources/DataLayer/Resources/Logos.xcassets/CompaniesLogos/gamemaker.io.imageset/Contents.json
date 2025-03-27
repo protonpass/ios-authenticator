@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "gamemaker.io.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

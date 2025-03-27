@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "auth.opera.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

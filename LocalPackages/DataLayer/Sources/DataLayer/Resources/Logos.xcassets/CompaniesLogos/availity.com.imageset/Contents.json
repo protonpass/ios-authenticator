@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "availity.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

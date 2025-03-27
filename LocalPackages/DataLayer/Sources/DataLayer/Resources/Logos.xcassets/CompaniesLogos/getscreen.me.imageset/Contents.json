@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "getscreen.me.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

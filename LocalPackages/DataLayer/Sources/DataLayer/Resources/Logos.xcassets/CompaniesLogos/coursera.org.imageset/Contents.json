@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "coursera.org.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

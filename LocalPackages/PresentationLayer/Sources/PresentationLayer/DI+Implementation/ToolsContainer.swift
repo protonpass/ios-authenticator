@@ -64,7 +64,8 @@ extension ToolsContainer {
 
     var totpGenerator: Factory<any TotpGeneratorProtocol> {
         self {
-            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
+            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator(),
+                          totpIssuerMapper: self.totpIssuerMapper())
         }
     }
 
@@ -81,6 +82,10 @@ extension ToolsContainer {
     /// Used when users enable biometric authentication. Always fallback to device passcode in this case.
     var laEnablingPolicy: Factory<LAPolicy> {
         self { .deviceOwnerAuthentication }
+    }
+
+    var totpIssuerMapper: Factory<any TOTPIssuerMapperServicing> {
+        self { TOTPIssuerMapper() }
     }
 }
 

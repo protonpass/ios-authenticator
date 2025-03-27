@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "degiro.nl.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

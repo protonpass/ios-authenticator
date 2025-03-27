@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "buddy.works.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

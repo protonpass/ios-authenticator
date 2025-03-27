@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "codeberg.org.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

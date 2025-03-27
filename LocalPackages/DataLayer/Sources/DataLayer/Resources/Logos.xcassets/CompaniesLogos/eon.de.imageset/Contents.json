@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "eon.de.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

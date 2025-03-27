@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "artists.spotify.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

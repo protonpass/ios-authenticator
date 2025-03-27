@@ -31,12 +31,15 @@ public protocol TotpGeneratorProtocol: Sendable {
 
 public actor TotpGenerator: TotpGeneratorProtocol {
     private let rustTotpGenerator: any MobileTotpGeneratorProtocol
+    private let totpIssuerMapper: any TOTPIssuerMapperServicing
     private var cancellableGenerator: (any MobileTotpGenerationHandle)?
 
     public nonisolated let currentCode: CurrentValueSubject<[EntryUiModel]?, Never> = .init(nil)
 
-    public init(rustTotpGenerator: any MobileTotpGeneratorProtocol) {
+    public init(rustTotpGenerator: any MobileTotpGeneratorProtocol,
+                totpIssuerMapper: any TOTPIssuerMapperServicing) {
         self.rustTotpGenerator = rustTotpGenerator
+        self.totpIssuerMapper = totpIssuerMapper
     }
 
     deinit {
@@ -61,7 +64,11 @@ extension TotpGenerator: MobileTotpGeneratorCallback {
     public nonisolated func onCodes(codes: [AuthenticatorCodeResponse]) {
         var results = [EntryUiModel]()
         for (index, code) in codes.enumerated() {
-            results.append(.init(entry: code.entry.toEntry, code: code.toCode, order: index))
+            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+            results.append(.init(entry: code.entry.toEntry,
+                                 code: code.toCode,
+                                 order: index,
+                                 issuerInfo: issuerInfo))
         }
         currentCode.send(results)
     }

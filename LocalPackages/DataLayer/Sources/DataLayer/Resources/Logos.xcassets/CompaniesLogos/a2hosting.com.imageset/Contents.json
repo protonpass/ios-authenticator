@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "a2hosting.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

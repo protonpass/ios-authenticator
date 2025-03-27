@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "guildwars2.com.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

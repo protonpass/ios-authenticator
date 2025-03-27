@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "123-reg.co.uk.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
