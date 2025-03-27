@@ -52,6 +52,10 @@ final class SettingsViewModel {
     @LazyInjected(\UseCaseContainer.authenticateBiometrically)
     private var authenticateBiometrically
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private var alertService
+
     var theme: Theme {
         settingsService.theme
     }
@@ -112,10 +116,10 @@ extension SettingsViewModel {
                                                        reason: #localized("Please authenticate")) {
                     biometricLock.toggle()
                     try authenticationService
-                        .setAuthenticationState(biometricLock ? .locked(isChecked: true) : .unlocked)
+                        .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
                 }
             } catch {
-//                handle(error)
+                handle(error)
             }
         }
     }
@@ -140,5 +144,13 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
+    }
+}
+
+private extension SettingsViewModel {
+    func handle(_ error: any Error) {
+        // swiftlint:disable:next todo
+        // TODO: Log
+        alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

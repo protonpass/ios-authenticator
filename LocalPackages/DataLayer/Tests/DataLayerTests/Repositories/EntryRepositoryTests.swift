@@ -38,27 +38,57 @@ struct OrderedEntry: IdentifiableOrderedEntry {
     var id: String { entry.id }
  }
 
+final class MockKeychainService: @unchecked Sendable, KeychainServicing {
 
-final class EncryptionKeyStoreMock: @unchecked Sendable, EncryptionKeyStoring {
+    private var storage: [String: Any] = [:]
+    private var globalSyncState: Bool = false
     
-    // Dictionary to store key-value pairs
-    private var storage: [String: Data] = [:]
+    // For tracking calls for verification in tests
+    private(set) var callLog: [String: [Any]] = [:]
     
-    func store(keyId: String, data: Data, shouldSync: Bool = false) {
-        storage[keyId] = data
+    init() {}
+    
+    // MARK: - KeychainServicing Implementation
+    
+    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws -> T {
+        guard let value = storage[key] as? T else {
+            throw MockKeychainError.itemNotFound
+        }
+        return value
     }
     
-    func clear(keyId: String, shouldSync: Bool = false) {
-        storage[keyId] = nil
+    func set<T: Encodable & Sendable>(_ item: T, for key: String, config: KeychainQueryConfig, shouldSync: Bool?) throws {
+        storage[key] = item
     }
     
-    func retrieve(keyId: String, shouldSync: Bool = false) -> Data? {
-        storage[keyId]
+    func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
+        guard storage.removeValue(forKey: key) != nil else {
+            throw MockKeychainError.itemNotFound
+        }
     }
+    
+    func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
+        storage.removeAll()
+    }
+    
+    func clear(key: String, shouldSync: Bool?) throws {
+        try delete(key, ofType: .generic, shouldSync: shouldSync)
+    }
+    
+    func setGlobalSyncState(_ syncState: Bool) {
+        globalSyncState = syncState
+    }
+    
+    func reset() {
+        storage.removeAll()
+        callLog.removeAll()
+        globalSyncState = false
+    }
+}
 
-    func clearAll(shouldSync: Bool = false) {
-        storage = [:]
-    }
+enum MockKeychainError: Error {
+    case itemNotFound
+    case typeMismatch
 }
 
 struct EntryRepositoryTests {
@@ -67,7 +97,7 @@ struct EntryRepositoryTests {
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
-        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: EncryptionKeyStoreMock()))
+        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: MockKeychainService()))
     }
     
     @Test("Test generating entry for uri")

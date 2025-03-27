@@ -55,7 +55,7 @@ extension ToolsContainer {
             do {
                 return try MobileTotpGenerator(periodMs: UInt32(300),
                                                onlyOnCodeChange: true,
-                                               currentTime: TotpTimeProvider())
+                                               currentTime: CurrentTimeProviderImpl())
             } catch {
                 fatalError("Could not instanciate MobileTotpGenerator \(error)")
             }
@@ -71,12 +71,6 @@ extension ToolsContainer {
     var logService: Factory<any LoggerProtocol> {
         self {
             LogService()
-        }
-    }
-
-    var encryptionKeyStoreService: Factory<any EncryptionKeyStoring> {
-        self {
-            EncryptionKeyStoreService(logger: self.logService())
         }
     }
 

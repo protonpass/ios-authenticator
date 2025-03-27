@@ -46,7 +46,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func startTotpGenerator()
 }
 
-public final class TotpTimeProvider: MobileCurrentTimeProvider {
+public final class CurrentTimeProviderImpl: MobileCurrentTimeProvider {
     public init() {}
 
     public func now() -> UInt64 {

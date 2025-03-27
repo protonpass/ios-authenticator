@@ -91,8 +91,12 @@ public extension View {
             self
         }
     }
+}
 
-    internal func coloredBackgroundButton(_ shape: some Shape) -> some View {
+// MARK: - Non exposed extension
+
+extension View {
+    func coloredBackgroundButton(_ shape: some Shape) -> some View {
         background(LinearGradient(stops:
             [
                 Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1), location: 0.00),

@@ -134,7 +134,7 @@ struct CreateEditEntryView: View {
                         .opacity(viewModel.canSave ? 1 : 0.4)
                     }
                 }
-                .sheetUIAlertService
+                .sheetUIAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
                         dismiss()
