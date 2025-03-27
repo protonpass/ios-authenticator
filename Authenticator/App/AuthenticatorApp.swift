@@ -47,6 +47,8 @@ struct AuthenticatorApp: App {
                                 }
                             }
                     } else {
+                        
+                        //TODO: fix issue if the usser had set up faceid but uninstall the app we end up in a kinda of deadlock
                         BioLockView()
                             .onChange(of: scenePhase) { _, newPhase in
                                 if newPhase == .active {

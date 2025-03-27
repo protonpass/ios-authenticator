@@ -447,7 +447,11 @@ extension View {
     @ViewBuilder
     func resizableSheet() -> some View {
         #if os(macOS)
-        presentationSizing(.form.sticky())
+        if #available(macOS 15.0, *) {
+            presentationSizing(.form.sticky())
+        } else {
+            self
+        }
         #else
         self
         #endif
