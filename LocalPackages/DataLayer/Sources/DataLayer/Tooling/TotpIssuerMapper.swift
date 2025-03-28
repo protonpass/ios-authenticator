@@ -77,11 +77,11 @@ private extension TOTPIssuerMapper {
     /// - Returns: IssuerInfo if a match is found
     func fuzzyLookup(normalized: String) -> IssuerInfo? {
         // Check if issuer contains or is contained within a key
-        for (key, domainInfos) in issuerInfos {
-            if normalized.contains(key) || key.contains(normalized) {
-                return domainInfos
-            }
-        }
+//        for (key, domainInfos) in issuerInfos {
+//            if normalized.contains(key) || key.contains(normalized) {
+//                return domainInfos
+//            }
+//        }
 
         // Check for partial matches (e.g., "gitlb" matching "gitlab")
         if normalized.count > 3 {

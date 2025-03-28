@@ -50,6 +50,19 @@ extension ToolsContainer {
         }
     }
 
+    var logPersistenceService: Factory<any PersistenceServicing> {
+        self {
+            do {
+                let schema = Schema([LogEntryEntity.self])
+                return try PersistenceService(with: ModelConfiguration(schema: schema,
+                                                                       isStoredInMemoryOnly: false,
+                                                                       cloudKitDatabase: .none))
+            } catch {
+                fatalError("Should have persistence storage \(error)")
+            }
+        }
+    }
+
     var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
         self {
             do {
@@ -69,9 +82,15 @@ extension ToolsContainer {
         }
     }
 
-    var logService: Factory<any LoggerProtocol> {
+//    var logService: Factory<any LoggerProtocol> {
+//        self {
+//            LogService()
+//        }
+//    }
+
+    var logManager: Factory<any LoggerProtocol> {
         self {
-            LogService()
+            LogManager(persistentStorage: self.logPersistenceService())
         }
     }
 
