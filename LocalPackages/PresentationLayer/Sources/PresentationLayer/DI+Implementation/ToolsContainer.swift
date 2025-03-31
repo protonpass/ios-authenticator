@@ -82,12 +82,6 @@ extension ToolsContainer {
         }
     }
 
-//    var logService: Factory<any LoggerProtocol> {
-//        self {
-//            LogService()
-//        }
-//    }
-
     var logManager: Factory<any LoggerProtocol> {
         self {
             LogManager(persistentStorage: self.logPersistenceService())

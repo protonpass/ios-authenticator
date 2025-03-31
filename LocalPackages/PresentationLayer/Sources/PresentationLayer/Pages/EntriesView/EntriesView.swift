@@ -21,6 +21,8 @@
 
 import CommonUtilities
 import Models
+
+import SimpleToast
 import SwiftUI
 
 public struct EntriesView: View {
@@ -46,6 +48,7 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
+                .uiToastService()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar

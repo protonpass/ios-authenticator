@@ -73,4 +73,8 @@ public extension ServiceContainer {
     var authenticationService: Factory<any AuthenticationServicing> {
         self { @MainActor in AuthenticationService(keychain: self.keychainService()) }
     }
+
+    var toastService: Factory<any ToastServiceProtocol> {
+        self { @MainActor in ToastService() }
+    }
 }
