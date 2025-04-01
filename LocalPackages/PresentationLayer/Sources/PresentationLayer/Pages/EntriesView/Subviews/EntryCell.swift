@@ -24,49 +24,63 @@ import Factory
 import Models
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+import SVGKit
+
+struct SVGImageView: UIViewRepresentable {
+    let svgData: Data
+
+    func makeUIView(context: Context) -> SVGKFastImageView {
+        let svgImage = SVGKImage(data: svgData)
+        let imageView = SVGKFastImageView(svgkImage: svgImage)
+        return imageView ?? SVGKFastImageView()
+    }
+
+    func updateUIView(_ uiView: SVGKFastImageView, context: Context) {}
+}
+
+extension Data {
+    var toImage: Image? {
+        createImage(self)
+    }
+
+    func createImage(_ value: Data) -> Image? {
+        #if canImport(UIKit)
+        guard let songArtwork = UIImage(data: value) else {
+            return nil
+        }
+        let configuration = UIImage.SymbolConfiguration(textStyle: .body, scale: .large)
+        return Image(uiImage: songArtwork.withConfiguration(configuration))
+        #elseif canImport(AppKit)
+        guard let songArtwork = NSImage(data: value) else {
+            return nil
+        }
+        return Image(nsImage: songArtwork)
+        #else
+        return Image(systemImage: "some_default")
+        #endif
+    }
+}
+
 struct EntryCell: View {
+    private let totpissuerMapper = resolve(\ToolsContainer.totpIssuerMapper)
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
-    let issuerInfos: IssuerInfo?
+    let issuerInfos: AuthIssuerInfo?
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                HStack(alignment: .center, spacing: 10) {
-                    if let imageName = issuerInfos?.iconName, let bundleIdentifier = issuerInfos?.bundleId {
-                        Image(imageName, bundle: Bundle(identifier: bundleIdentifier))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 36, height: 36)
-                            .cornerRadius(8)
-                    } else {
-                        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-                            .font(.headline)
-                            .fontWeight(.medium)
-                            .foregroundStyle(LinearGradient(gradient:
-                                Gradient(colors: [
-                                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 6)
-                            .frame(width: 36, height: 36, alignment: .center)
-                            .background(.black.opacity(0.16))
-                            .cornerRadius(8)
-                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .inset(by: -0.5)
-                                .stroke(.black.opacity(0.23), lineWidth: 1))
-                    }
-                }
+                icon
 
                 VStack(alignment: .leading) {
                     Text(verbatim: entry.name)
@@ -96,7 +110,7 @@ struct EntryCell: View {
                         x: 0,
                         y: -0.5)
 
-            HStack {
+            HStack(alignment: .bottom) {
                 numberView
 
                 Spacer()
@@ -166,6 +180,50 @@ struct EntryCell: View {
                 .foregroundStyle(.textNorm)
                 .monospaced()
         }
+    }
+
+    @ViewBuilder
+    var icon: some View {
+        if let path = issuerInfos?.iconPath,
+           let data = totpissuerMapper.getIcon(path: path) {
+            if let image = data.toImage {
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+                    .cornerRadius(8)
+            } else {
+                SVGImageView(svgData: data)
+                    .frame(width: 36, height: 36)
+                    .cornerRadius(8)
+            }
+        } else {
+            letterDisplay
+        }
+    }
+
+    var letterDisplay: some View {
+        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
+            .font(.headline)
+            .fontWeight(.medium)
+            .foregroundStyle(LinearGradient(gradient:
+                Gradient(colors: [
+                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
+                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
+                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
+                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing))
+            .padding(.horizontal, 5)
+            .padding(.vertical, 6)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.black.opacity(0.16))
+            .cornerRadius(8)
+            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .inset(by: -0.5)
+                .stroke(.black.opacity(0.23), lineWidth: 1))
     }
 }
 

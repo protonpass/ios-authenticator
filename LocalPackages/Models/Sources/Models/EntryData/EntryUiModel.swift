@@ -27,7 +27,7 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
     public let entry: Entry
     public let code: Code
     public let order: Int
-    public let issuerInfo: IssuerInfo?
+    public let issuerInfo: AuthIssuerInfo?
 
     public var id: String {
         entry.id
@@ -36,7 +36,7 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
     public init(entry: Entry,
                 code: Code,
                 order: Int,
-                issuerInfo: IssuerInfo?) {
+                issuerInfo: AuthIssuerInfo?) {
         self.entry = entry
         self.code = code
         self.order = order
