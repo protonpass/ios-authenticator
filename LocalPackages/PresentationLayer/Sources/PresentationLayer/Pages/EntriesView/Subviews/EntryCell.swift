@@ -30,19 +30,7 @@ import UIKit
 import AppKit
 #endif
 
-import SVGKit
-
-struct SVGImageView: UIViewRepresentable {
-    let svgData: Data
-
-    func makeUIView(context: Context) -> SVGKFastImageView {
-        let svgImage = SVGKImage(data: svgData)
-        let imageView = SVGKFastImageView(svgkImage: svgImage)
-        return imageView ?? SVGKFastImageView()
-    }
-
-    func updateUIView(_ uiView: SVGKFastImageView, context: Context) {}
-}
+import SDWebImageSwiftUI
 
 extension Data {
     var toImage: Image? {
@@ -184,19 +172,19 @@ struct EntryCell: View {
 
     @ViewBuilder
     var icon: some View {
-        if let path = issuerInfos?.iconPath,
-           let data = totpissuerMapper.getIcon(path: path) {
-            if let image = data.toImage {
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 36, height: 36)
-                    .cornerRadius(8)
-            } else {
-                SVGImageView(svgData: data)
-                    .frame(width: 36, height: 36)
-                    .cornerRadius(8)
+        if let iconUrl = issuerInfos?.iconUrl, let url = URL(string: iconUrl) {
+            WebImage(url: url) { image in
+                image.resizable()
+            } placeholder: {
+                letterDisplay
             }
+            .indicator(.activity)
+            .transition(.fade(duration: 0.5))
+            .scaledToFit()
+            .padding(4)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         } else {
             letterDisplay
         }
