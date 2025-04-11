@@ -24,6 +24,7 @@ import Factory
 import Foundation
 import Models
 import SimpleToast
+import Macro
 
 @Observable
 @MainActor
@@ -132,7 +133,7 @@ extension EntriesViewModel {
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
         toastService
-            .showToast(SimpleToast(title: "Copied to clipboard"))
+            .showToast(SimpleToast(title: #localized("Copied to clipboard")))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

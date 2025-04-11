@@ -351,14 +351,3 @@ private extension ProtonProduct {
         #endif
     }
 }
-
-extension Menu {
-    @MainActor @ViewBuilder
-    func macMenuStyle() -> some View {
-        self
-        #if os(macOS)
-        .menuStyle(.borderlessButton)
-        .padding(16)
-        #endif
-    }
-}

@@ -20,6 +20,7 @@
 
 import SwiftUI
 
+// MARK: - View builder functions
 public extension View {
     /// Applies the given transform if the given condition evaluates to `true`.
     /// - Parameters:
@@ -48,15 +49,20 @@ public extension View {
             self
         }
     }
-}
-
-public extension View {
-    func plainListRow() -> some View {
-        listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets())
+    
+    @ViewBuilder
+    func resizableSheet() -> some View {
+        #if os(macOS)
+        if #available(macOS 15.0, *) {
+            presentationSizing(.form.sticky())
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
     }
-
+    
     /// Show as confirmation dialog on iPhone, as alert on iPad because iPad doesn't support confirmation dialog
     @ViewBuilder
     func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
@@ -72,17 +78,24 @@ public extension View {
         alert(title, isPresented: isPresented, actions: actions)
         #endif
     }
+}
+
+// MARK: - Common UI modification tools
+public extension View {
+    func plainListRow() -> some View {
+        listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets())
+    }
 
     func disableAnimations() -> some View {
         transaction { $0.animation = nil }
     }
-}
-
-public extension View {
+    
     func mainBackground() -> some View {
         modifier(MainBackgroundColor())
     }
-
+    
     func fullScreenMainBackground() -> some View {
         ZStack {
             Color.clear
