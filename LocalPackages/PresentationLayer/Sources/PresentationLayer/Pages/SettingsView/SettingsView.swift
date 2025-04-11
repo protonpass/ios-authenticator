@@ -64,7 +64,7 @@ public struct SettingsView: View {
                         Text("Close")
                             .foregroundStyle(.textWeak)
                     }
-                    .macButtonStyle()
+                    .adaptiveButtonStyle()
                 }
             }
             .scrollContentBackground(.hidden)
@@ -157,7 +157,7 @@ private extension SettingsView {
                         Text("Theme")
                     }
                 })
-                .macMenuStyle()
+                .adaptiveMenuStyle()
             } else {
                 themeRow {
                     showEditTheme.toggle()
@@ -187,7 +187,7 @@ private extension SettingsView {
                     Text("Search bar position")
                 }
             })
-            .macMenuStyle()
+            .adaptiveMenuStyle()
 
             SettingDivider()
 

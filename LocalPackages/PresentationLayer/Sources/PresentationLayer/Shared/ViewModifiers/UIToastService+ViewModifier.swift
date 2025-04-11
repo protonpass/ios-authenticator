@@ -33,7 +33,7 @@ struct ToastDisplay: ViewModifier {
 }
 
 public extension View {
-    func uiToastService(_ callback: (() -> Void)? = nil) -> some View {
+    func toastDisplay(_ callback: (() -> Void)? = nil) -> some View {
         modifier(ToastDisplay(completion: callback))
     }
 }

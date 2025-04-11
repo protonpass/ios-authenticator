@@ -22,7 +22,7 @@ import SwiftUI
 
 extension SecureField {
     @ViewBuilder
-    func macSecurefieldStyle() -> some View {
+    func adaptiveSecureFieldStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.textFieldStyle(.plain)
         }

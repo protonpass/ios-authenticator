@@ -74,7 +74,7 @@ public final class EncryptionService: EncryptionServicing {
             if let key: Data = try? keyStore.get(key: keyId, shouldSync: true) {
                 return key
             }
-            logger.log(.info, category: .data, "Generating a new local encryption key")
+            log(.info, "Generating a new local encryption key")
             let newKey = authenticatorCrypto.generateKey()
             try keyStore.set(newKey, for: keyId, shouldSync: true)
             return newKey
@@ -82,16 +82,16 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     private func getEncryptionKey(for keyId: String) throws -> Data {
-        logger.log(.info, category: .data, "Fetching encryption key for \(keyId)")
+        log(.info, "Fetching encryption key for \(keyId)")
         let key: Data = try keyStore.get(key: keyId, shouldSync: true) // keyStore.retrieve(keyId: keyId)
-        logger.log(.info, category: .data, "Retrieved key: \(String(describing: key))")
+        log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         logger.log(.info, category: .data, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            logger.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
+            log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
         let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
@@ -102,7 +102,7 @@ public final class EncryptionService: EncryptionServicing {
         logger.log(.info, category: .data, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-                logger.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
+                log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
             }
             let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
@@ -112,7 +112,7 @@ public final class EncryptionService: EncryptionServicing {
 
     public func encrypt(entry: Entry) throws -> Data {
         let localKey = try localEncryptionKey
-        logger.log(.info, category: .data, "Encrypting entry \(entry.name) with local encryption key")
+        log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: localKey)
@@ -120,9 +120,15 @@ public final class EncryptionService: EncryptionServicing {
 
     public func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
-        logger.log(.info, category: .data, "Encrypting \(entries.count) entries with local encryption key ")
+        log(.info, "Encrypting \(entries.count) entries with local encryption key ")
 
         return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
+    }
+}
+
+private extension EncryptionService {
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .data, message)
     }
 }

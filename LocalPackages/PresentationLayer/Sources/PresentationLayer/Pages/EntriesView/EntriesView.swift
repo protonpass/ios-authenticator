@@ -48,7 +48,7 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
-                .uiToastService()
+                .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
@@ -261,7 +261,7 @@ private extension EntriesView {
                       label: {
                           Text("Search")
                       })
-                      .macTextfieldStyle()
+                      .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
         }
@@ -422,7 +422,7 @@ private extension EntriesView {
                     .scaledToFit()
                     .frame(width: 36, height: 36)
             }
-            .macButtonStyle()
+            .adaptiveButtonStyle()
         }
     }
 

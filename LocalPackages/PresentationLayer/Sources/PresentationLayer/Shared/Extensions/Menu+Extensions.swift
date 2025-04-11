@@ -22,7 +22,7 @@ import SwiftUI
 
 extension Menu {
     @MainActor @ViewBuilder
-    func macMenuStyle() -> some View {
+    func adaptiveMenuStyle() -> some View {
         self
         #if os(macOS)
         .menuStyle(.borderlessButton)

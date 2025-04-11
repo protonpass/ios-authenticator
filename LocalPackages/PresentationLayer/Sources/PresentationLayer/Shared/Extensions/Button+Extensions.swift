@@ -22,7 +22,7 @@ import SwiftUI
 
 extension Button {
     @MainActor @ViewBuilder
-    func macButtonStyle() -> some View {
+    func adaptiveButtonStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.buttonStyle(.borderless)
         }

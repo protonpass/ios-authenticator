@@ -19,9 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import Models
 import SimpleToast
-import SwiftUI
 
 @MainActor
 public protocol ToastServiceProtocol: Sendable, Observable {

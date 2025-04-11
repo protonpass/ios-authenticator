@@ -22,7 +22,7 @@ import SwiftUI
 
 extension TextField {
     @ViewBuilder
-    func macTextfieldStyle() -> some View {
+    func adaptiveTextFieldStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.textFieldStyle(.plain)
         }
