@@ -22,7 +22,7 @@ import Factory
 import SimpleToast
 import SwiftUI
 
-struct UIToastService: ViewModifier {
+struct ToastDisplay: ViewModifier {
     @State private var toastService = resolve(\ServiceContainer.toastService)
     let completion: (() -> Void)?
 
@@ -34,6 +34,6 @@ struct UIToastService: ViewModifier {
 
 public extension View {
     func uiToastService(_ callback: (() -> Void)? = nil) -> some View {
-        modifier(UIToastService(completion: callback))
+        modifier(ToastDisplay(completion: callback))
     }
 }
