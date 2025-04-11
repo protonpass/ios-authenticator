@@ -91,7 +91,7 @@ public final class EncryptionService: EncryptionServicing {
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         logger.log(.info, category: .data, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            logger?.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
+            logger.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
         let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
@@ -102,7 +102,7 @@ public final class EncryptionService: EncryptionServicing {
         logger.log(.info, category: .data, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-                logger?.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
+                logger.log(.warning, category: .data, "Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
             }
             let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)

@@ -1,4 +1,4 @@
-//  
+//
 // TextField+Extensions.swift
 // Proton Authenticator - Created on 11/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -25,8 +25,6 @@ extension TextField {
     func macTextfieldStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.textFieldStyle(.plain)
-        } else {
-            self
         }
     }
 }

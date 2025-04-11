@@ -141,6 +141,16 @@
         }
       }
     },
+    "Copied to clipboard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied to clipboard"
+          }
+        }
+      }
+    },
     "Create" : {
       "localizations" : {
         "en" : {

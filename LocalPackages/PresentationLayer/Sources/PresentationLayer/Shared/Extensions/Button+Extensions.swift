@@ -1,4 +1,4 @@
-//  
+//
 // Button+Extensions.swift
 // Proton Authenticator - Created on 11/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -25,8 +25,6 @@ extension Button {
     func macButtonStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.buttonStyle(.borderless)
-        } else {
-            self
         }
     }
 }

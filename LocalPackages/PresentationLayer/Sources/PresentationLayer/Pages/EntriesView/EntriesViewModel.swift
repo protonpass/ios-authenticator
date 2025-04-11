@@ -22,9 +22,9 @@
 import Combine
 import Factory
 import Foundation
+import Macro
 import Models
 import SimpleToast
-import Macro
 
 @Observable
 @MainActor

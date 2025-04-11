@@ -1,4 +1,4 @@
-//  
+//
 // Menu+Extensions.swift
 // Proton Authenticator - Created on 11/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
