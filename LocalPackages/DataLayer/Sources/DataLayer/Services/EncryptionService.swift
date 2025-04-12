@@ -89,7 +89,7 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
-        logger.log(.info, category: .data, "Decrypting entry with id \(entry.id)")
+        log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
@@ -99,7 +99,7 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
-        logger.log(.info, category: .data, "Decrypting entries")
+        log(.info, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
                 log(.warning, "Could not retrieve encryption key for \(entry.keyId)")

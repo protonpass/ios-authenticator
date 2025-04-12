@@ -175,7 +175,6 @@ public final actor LogManager: LoggerProtocol {
             let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
 
             try logString.write(to: fileURL, atomically: true, encoding: .utf8)
-            try await deleteAllLogs(category: category) // Clear logs after export
             return fileURL
         } catch {
             print("Failed to export logs: \(error.localizedDescription)")

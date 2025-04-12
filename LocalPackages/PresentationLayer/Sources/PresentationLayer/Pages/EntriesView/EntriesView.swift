@@ -296,7 +296,7 @@ private extension EntriesView {
         }, label: {
             plusIcon
         })
-        .macButtonStyle()
+        .adaptiveButtonStyle()
         #endif
     }
 
