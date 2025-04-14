@@ -33,7 +33,6 @@ final class SettingsViewModel {
     private(set) var showPassBanner = true
     private(set) var backUpEnabled = false
     private(set) var syncEnabled = false
-    private(set) var tapToRevealCodeEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
@@ -122,10 +121,6 @@ extension SettingsViewModel {
                 handle(error)
             }
         }
-    }
-
-    func toggleTapToRevealCode() {
-        tapToRevealCodeEnabled.toggle()
     }
 
     func toggleHideCode() {

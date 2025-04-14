@@ -57,6 +57,8 @@ public extension View {
         if #available(macOS 15.0, *) {
             presentationSizing(.form.sticky())
         }
+        #else
+        self
         #endif
     }
 

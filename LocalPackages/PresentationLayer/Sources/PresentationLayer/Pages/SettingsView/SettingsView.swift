@@ -56,13 +56,14 @@ public struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
+            .listSectionSpacing(DesignConstant.padding * 2)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
                         dismiss()
                     } label: {
                         Text("Close")
-                            .foregroundStyle(.textWeak)
+                            .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()
                 }
@@ -129,9 +130,9 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Tap to reveal codes"),
-                       trailingMode: .toggle(isOn: viewModel.tapToRevealCodeEnabled,
-                                             onToggle: viewModel.toggleTapToRevealCode))
+            SettingRow(title: .localized("Hide codes"),
+                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
+                                             onToggle: viewModel.toggleHideCode))
         }
     }
 
@@ -181,8 +182,7 @@ private extension SettingsView {
             }, label: {
                 if AppConstants.isIpad {
                     SettingRow(title: .localized("Search bar position"),
-                               trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
-                                                            onTap: {}))
+                               trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title)))
                 } else {
                     Text("Search bar position")
                 }
@@ -190,24 +190,19 @@ private extension SettingsView {
             .adaptiveMenuStyle()
 
             SettingDivider()
-
-            SettingRow(title: .localized("Hide cell entry code"),
-                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
-                                             onToggle: viewModel.toggleHideCode))
-            SettingDivider()
             SettingRow(title: .localized("Show number background"),
                        trailingMode: .toggle(isOn: viewModel.showNumberBackground,
                                              onToggle: viewModel.toggleDisplayNumberBackground))
             SettingDivider()
             SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
+                       trailingMode: .detailChevron(.verbatim("Regular")))
         }
     }
 
     func themeRow(_ onTap: (() -> Void)? = nil) -> some View {
         SettingRow(title: .localized("Theme"),
-                   trailingMode: .detailChevron(.localized(viewModel.theme.title),
-                                                onTap: { onTap?() }))
+                   trailingMode: .detailChevron(.localized(viewModel.theme.title)),
+                   onTap: onTap)
     }
 
     var useMenuForTheme: Bool {
@@ -220,26 +215,21 @@ private extension SettingsView {
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {
-                showImportOptions.toggle()
-            }))
+            SettingRow(title: .localized("Import"), onTap: { showImportOptions.toggle() })
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {
-                router.navigate(to: .exportEntries)
-            }))
+            SettingRow(title: .localized("Export"), onTap: { router.navigate(to: .exportEntries) })
         }
     }
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator"),
-                       trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("How to use Proton Authenticator"))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Feedback"))
         }
     }
 
@@ -248,7 +238,8 @@ private extension SettingsView {
             ForEach(ProtonProduct.allCases, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
-                           trailingMode: .chevron(onTap: { open(urlString: product.finalUrl) }))
+                           subtitle: product.description,
+                           onTap: { open(urlString: product.finalUrl) })
 
                 if product != ProtonProduct.allCases.last {
                     SettingDivider()
@@ -287,22 +278,20 @@ private extension SettingsView {
                 content()
             }
             .padding(.horizontal, 0)
-            .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-            .padding(.top, 8)
         } header: {
             Text(title)
                 .font(.callout)
-                .padding(.leading)
+                .padding(.horizontal, DesignConstant.padding)
                 .foregroundStyle(.textWeak)
         }
         .plainListRow()
-        .padding(.horizontal, 16)
+        .padding(.horizontal, DesignConstant.padding)
     }
 
     func open(urlString: String) {
@@ -339,7 +328,21 @@ private extension ProtonProduct {
         case .mail: .logoMail
         case .drive: .logoDrive
         case .calendar: .logoCalendar
-        case .wallet: .logoWallet
+        }
+    }
+
+    var description: LocalizedStringKey {
+        switch self {
+        case .pass:
+            "Store strong, unique passwords to avoid identity theft and breaches."
+        case .vpn:
+            "Browse without being tracked and access blocked content."
+        case .mail:
+            "Protect your inbox from spam, tracking, and targeted ads."
+        case .drive:
+            "Organize your schedule and keep your plans to yourself."
+        case .calendar:
+            "Give your precious photos and files the safe home they deserve."
         }
     }
 

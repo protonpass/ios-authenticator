@@ -111,6 +111,16 @@
         }
       }
     },
+    "Browse without being tracked and access blocked content." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse without being tracked and access blocked content."
+          }
+        }
+      }
+    },
     "Choose a Photo" : {
       "localizations" : {
         "en" : {
@@ -341,12 +351,22 @@
         }
       }
     },
-    "Hide cell entry code" : {
+    "Give your precious photos and files the safe home they deserve." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide cell entry code"
+            "value" : "Give your precious photos and files the safe home they deserve."
+          }
+        }
+      }
+    },
+    "Hide codes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide codes"
           }
         }
       }
@@ -481,6 +501,16 @@
         }
       }
     },
+    "Organize your schedule and keep your plans to yourself." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize your schedule and keep your plans to yourself."
+          }
+        }
+      }
+    },
     "Password" : {
       "localizations" : {
         "en" : {
@@ -527,6 +557,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protect your data"
+          }
+        }
+      }
+    },
+    "Protect your inbox from spam, tracking, and targeted ads." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your inbox from spam, tracking, and targeted ads."
           }
         }
       }
@@ -682,6 +722,16 @@
         }
       }
     },
+    "Store strong, unique passwords to avoid identity theft and breaches." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Store strong, unique passwords to avoid identity theft and breaches."
+          }
+        }
+      }
+    },
     "Successfully imported %lld items" : {
       "localizations" : {
         "en" : {
@@ -720,16 +770,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sync between devices"
-          }
-        }
-      }
-    },
-    "Tap to reveal codes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap to reveal codes"
           }
         }
       }
