@@ -43,11 +43,12 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository(),
                                               importService: self.importService(),
-                                              totpGenerator: ToolsContainer.shared.totpGenerator()) }
+                                              totpGenerator: ToolsContainer.shared.totpGenerator(),
+                                              totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keyStore: self.keychainService()) }
+        self { EncryptionService(keyStore: self.keychainService(), logger: ToolsContainer.shared.logManager()) }
     }
 
     var keychainService: Factory<any KeychainServicing> {
@@ -71,5 +72,9 @@ public extension ServiceContainer {
 
     var authenticationService: Factory<any AuthenticationServicing> {
         self { @MainActor in AuthenticationService(keychain: self.keychainService()) }
+    }
+
+    var toastService: Factory<any ToastServiceProtocol> {
+        self { @MainActor in ToastService() }
     }
 }

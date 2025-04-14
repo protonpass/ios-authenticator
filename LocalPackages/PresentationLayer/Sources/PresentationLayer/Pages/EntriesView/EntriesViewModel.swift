@@ -22,7 +22,9 @@
 import Combine
 import Factory
 import Foundation
+import Macro
 import Models
+import SimpleToast
 
 @Observable
 @MainActor
@@ -79,6 +81,9 @@ final class EntriesViewModel {
     @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.toastService) var toastService
+
+    @ObservationIgnored
     private var generateTokensTask: Task<Void, Never>?
 
     @ObservationIgnored
@@ -127,6 +132,8 @@ extension EntriesViewModel {
         let code = entry.code.current
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
+        toastService
+            .showToast(SimpleToast(title: #localized("Copied to clipboard")))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

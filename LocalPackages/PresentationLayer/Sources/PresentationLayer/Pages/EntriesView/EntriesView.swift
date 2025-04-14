@@ -21,6 +21,8 @@
 
 import CommonUtilities
 import Models
+
+import SimpleToast
 import SwiftUI
 
 public struct EntriesView: View {
@@ -46,6 +48,7 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
+                .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
@@ -198,10 +201,27 @@ private extension EntriesView {
         EntryCell(entry: entry.entry,
                   code: entry.code,
                   configuration: viewModel.settingsService.entryUIConfiguration,
+                  issuerInfos: entry.issuerInfo,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+        #if os(macOS)
+            .contextMenu {
+                Button {
+                    router.presentedSheet = .createEditEntry(entry)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .keyboardShortcut("E", modifiers: [.command, .shift])
+
+                Button {
+                    viewModel.delete(entry)
+                } label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+            }
+        #endif
     }
 }
 
@@ -241,6 +261,7 @@ private extension EntriesView {
                       label: {
                           Text("Search")
                       })
+                      .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
         }
@@ -275,6 +296,7 @@ private extension EntriesView {
         }, label: {
             plusIcon
         })
+        .adaptiveButtonStyle()
         #endif
     }
 
@@ -346,6 +368,7 @@ private extension EntriesView {
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
+                    .adaptiveButtonStyle()
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
@@ -400,6 +423,7 @@ private extension EntriesView {
                     .scaledToFit()
                     .frame(width: 36, height: 36)
             }
+            .adaptiveButtonStyle()
         }
     }
 

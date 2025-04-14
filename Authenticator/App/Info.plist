@@ -37,16 +37,19 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>EntryUiModel</string>
-			<key>UTTypeIcons</key>
-			<dict/>
 			<key>UTTypeIdentifier</key>
 			<string>me.proton.authenticator</string>
 			<key>UTTypeTagSpecification</key>
-			<dict/>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>entryUIModelType</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>

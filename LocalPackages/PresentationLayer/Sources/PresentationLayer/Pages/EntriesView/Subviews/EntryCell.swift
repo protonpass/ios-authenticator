@@ -29,6 +29,7 @@ struct EntryCell: View {
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
+    let issuerInfos: IssuerInfo?
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
@@ -36,28 +37,36 @@ struct EntryCell: View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
                 HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(LinearGradient(gradient:
-                            Gradient(colors: [
-                                Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                                Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                                Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                                Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing))
+                    if let imageName = issuerInfos?.iconName, let bundleIdentifier = issuerInfos?.bundleId {
+                        Image(imageName, bundle: Bundle(identifier: bundleIdentifier))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .cornerRadius(8)
+                    } else {
+                        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(LinearGradient(gradient:
+                                Gradient(colors: [
+                                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
+                                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
+                                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
+                                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 6)
+                            .frame(width: 36, height: 36, alignment: .center)
+                            .background(.black.opacity(0.16))
+                            .cornerRadius(8)
+                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .inset(by: -0.5)
+                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                    }
                 }
-                .padding(.horizontal, 5)
-                .padding(.vertical, 6)
-                .frame(width: 32, height: 32, alignment: .center)
-                .background(.black.opacity(0.16))
-                .cornerRadius(8)
-                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8)
-                    .inset(by: -0.5)
-                    .stroke(.black.opacity(0.23), lineWidth: 1))
 
                 VStack(alignment: .leading) {
                     Text(verbatim: entry.name)

@@ -47,6 +47,8 @@ struct AuthenticatorApp: App {
                                 }
                             }
                     } else {
+                        // swiftlint:disable:next todo
+                        // TODO: fix issue if the user had set up faceid but uninstall the app we end up in a kinda of deadlock
                         BioLockView()
                             .onChange(of: scenePhase) { _, newPhase in
                                 if newPhase == .active {
@@ -61,6 +63,15 @@ struct AuthenticatorApp: App {
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
+        .windowToolbarStyle(.expanded)
+        .windowStyle(.titleBar)
+        .defaultSize(width: 800, height: 600)
+        #endif
+
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
         #endif
     }
 

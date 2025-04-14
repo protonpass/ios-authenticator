@@ -83,9 +83,11 @@ public extension View {
             switch destination {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
+                    .resizableSheet()
             case .settings:
                 SettingsView()
                     .preferredColorScheme(colorScheme)
+                    .resizableSheet()
             #if os(iOS)
             case .qrCodeScanner:
                 ScannerView()

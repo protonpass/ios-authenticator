@@ -25,6 +25,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
+        .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
         .package(name: "DomainLayer", path: "../DomainLayer"),
@@ -43,7 +44,8 @@ let package = Package(
                 .product(name: "DataLayer", package: "DataLayer"),
                 .product(name: "DomainLayer", package: "DomainLayer"),
                 .product(name: "Macro", package: "Macro"),
-                .product(name: "CommonUtilities", package: "CommonUtilities")
+                .product(name: "CommonUtilities", package: "CommonUtilities"),
+                .product(name: "SimpleToast", package: "SimpleToast")
             ],
             resources: [.process("Resources")]),
         .testTarget(

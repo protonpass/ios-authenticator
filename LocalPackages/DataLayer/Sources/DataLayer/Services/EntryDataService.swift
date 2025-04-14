@@ -73,15 +73,19 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var totpGenerator: any TotpGeneratorProtocol
     @ObservationIgnored
     private var entryUpdateTask: Task<Void, Never>?
+    @ObservationIgnored
+    private let totpIssuerMapper: any TOTPIssuerMapperServicing
 
     // MARK: - Init
 
     public init(repository: any EntryRepositoryProtocol,
                 importService: any ImportingServicing,
-                totpGenerator: any TotpGeneratorProtocol) {
+                totpGenerator: any TotpGeneratorProtocol,
+                totpIssuerMapper: any TOTPIssuerMapperServicing) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
+        self.totpIssuerMapper = totpIssuerMapper
         setUp()
     }
 
@@ -214,7 +218,8 @@ public extension EntryDataService {
         var index = data.count
         var uiEntries: [EntryUiModel] = []
         for code in codes {
-            uiEntries.append(EntryUiModel(entry: code.entry, code: code, order: index))
+            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+            uiEntries.append(EntryUiModel(entry: code.entry, code: code, order: index, issuerInfo: issuerInfo))
             index += 1
         }
         try await repository.save(uiEntries)
@@ -277,7 +282,9 @@ private extension EntryDataService {
                                                            entryCount: 1))
         }
         let order = data.count
-        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order)
+        let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+
+        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order, issuerInfo: issuerInfo)
         try await repository.save(entryUI)
 
         data.append(entryUI)
@@ -305,7 +312,8 @@ private extension EntryDataService {
             guard let entry = entries[safeIndex: index] else {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
-            results.append(.init(entry: entry, code: code, order: index))
+            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+            results.append(.init(entry: entry, code: code, order: index, issuerInfo: issuerInfo))
         }
 
         return results
