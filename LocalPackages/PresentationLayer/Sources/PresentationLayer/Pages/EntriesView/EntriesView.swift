@@ -368,6 +368,7 @@ private extension EntriesView {
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
+                    .adaptiveButtonStyle()
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)

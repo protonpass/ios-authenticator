@@ -42,7 +42,7 @@ extension ToolsContainer {
                 let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
                                                      cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let logConfig = ModelConfiguration("database2",
+                let logConfig = ModelConfiguration("logs",
                                                    schema: Schema([LogEntryEntity.self]),
                                                    isStoredInMemoryOnly: false,
                                                    cloudKitDatabase: .none)
