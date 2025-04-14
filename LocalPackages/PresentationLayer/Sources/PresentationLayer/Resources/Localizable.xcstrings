@@ -321,22 +321,23 @@
         }
       }
     },
-    "Free password manager with identity protection." : {
+    "Free" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free password manager with identity protection."
+            "value" : "Free"
           }
         }
       }
     },
-    "Get Proton Pass" : {
+    "GET" : {
+      "comment" : "Title of the button to download Proton Pass",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Proton Pass"
+            "value" : "GET"
           }
         }
       }

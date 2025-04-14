@@ -26,10 +26,13 @@ struct CapsuleButton: View {
     let textColor: Color
     let style: Style
     var height: CGFloat = 52
+    var minWidth: CGFloat?
+    var maxWidth: CGFloat? = .infinity
+    var weight: Font.Weight = .semibold
     let action: () -> Void
 
     enum Style {
-        case borderedFilled, bordered
+        case borderedFilled, bordered, filled
     }
 
     var body: some View {
@@ -39,11 +42,12 @@ struct CapsuleButton: View {
                 borderedFilledText
             case .bordered:
                 borderedText
+            case .filled:
+                filledText
             }
         }
-        .frame(height: height)
         #if os(macOS)
-            .buttonStyle(.borderless)
+        .buttonStyle(.borderless)
         #endif
     }
 }
@@ -51,11 +55,13 @@ struct CapsuleButton: View {
 private extension CapsuleButton {
     var text: some View {
         Text(title)
-            .fontWeight(.semibold)
+            .fontWeight(weight)
             .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding()
+            .padding(.vertical, DesignConstant.padding / 2)
+            .padding(.horizontal, DesignConstant.padding * 1.5)
+            .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .center)
+            .frame(height: height)
     }
 
     var borderedFilledText: some View {
@@ -83,5 +89,11 @@ private extension CapsuleButton {
                 .inset(by: 0.25)
                 .stroke(colorScheme == .dark ? .white.opacity(0.32) : .black.opacity(0.18),
                         lineWidth: 0.5))
+    }
+
+    var filledText: some View {
+        text
+            .background(Color(red: 0.43, green: 0.29, blue: 1))
+            .clipShape(.capsule)
     }
 }

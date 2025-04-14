@@ -33,16 +33,11 @@ struct PassBanner: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24)
-                    .padding(8)
-                    .foregroundStyle(.textNorm.opacity(0.5))
+                    .padding(DesignConstant.padding)
+                    .foregroundStyle(.textNorm.opacity(0.7))
             }
         }
-        .cornerRadius(24)
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .inset(by: 0.5)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
-        }
+        .frame(height: 220)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(.black.opacity(0.5))
         .background(EllipticalGradient(stops:
@@ -60,52 +55,107 @@ struct PassBanner: View {
             ],
             center: UnitPoint(x: 0.04, y: 1)))
         .cornerRadius(24)
+        .shadow(color: .black.opacity(0.25), radius: 12, x: 0, y: 4)
+        .overlay(RoundedRectangle(cornerRadius: 24)
+            .inset(by: 0.5)
+            .stroke(.white.opacity(0.2), lineWidth: 1))
     }
 }
 
 private extension PassBanner {
     var mainContent: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading) {
-                HStack {
-                    Image("logoPass", bundle: .module)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 32)
-                    Spacer()
-                }
+        ZStack {
+            HStack {
+                Spacer()
+                Image("passPreview", bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+//                    .padding(.top)
+                    .frame(maxWidth: 150, alignment: .trailing)
+            }
+            .frame(maxWidth: .infinity)
 
+            VStack(alignment: .leading, spacing: 0) {
                 Text(verbatim: "Proton Pass")
                     .foregroundStyle(.white)
-                    .font(.title3)
+                    .font(.title2)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, DesignConstant.padding)
 
-                Text("Free password manager with identity protection.")
+                GeometryReader { proxy in
+                    Text("Store strong, unique passwords to avoid identity theft and breaches.",
+                         bundle: .module)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: proxy.size.width * 0.75, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, DesignConstant.padding)
+                        .padding(.top, DesignConstant.padding / 3)
+                }
+
+                Spacer()
+
+                HStack(spacing: DesignConstant.padding / 2) {
+                    passItem(imageName: "user", color: .passLogin)
+                    passItem(imageName: "alias", color: .passAlias)
+                    passItem(imageName: "fileLines", color: .passNote)
+                    passItem(imageName: "creditCard", color: .passCreditCard)
+                    passItem(imageName: "key", color: .passPassword)
+                    Spacer()
+                }
+                .padding(.horizontal, DesignConstant.padding)
+
+                Spacer()
+
+                HStack(spacing: DesignConstant.padding / 2) {
+                    ZStack {
+                        Color.white
+                        Image("logoPass", bundle: .module)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 22)
+                    }
+                    .frame(width: 36, height: 36)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(verbatim: "Proton Pass")
+                            .fontWeight(.bold)
+                        Text("Free")
+                            .font(.callout)
+                    }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
 
-                Button(action: onGetPass) {
-                    Text("Get Proton Pass")
-                        .foregroundStyle(.white)
-                        .font(.callout)
-                        .fontWeight(.medium)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
-                        .background(.passPurple)
-                        .clipShape(.capsule)
+                    Spacer()
+
+                    CapsuleButton(title: "GET",
+                                  textColor: .white,
+                                  style: .filled,
+                                  height: 36,
+                                  minWidth: 78,
+                                  maxWidth: nil,
+                                  weight: .bold,
+                                  action: onGetPass)
                 }
+                .padding(DesignConstant.padding)
+                .background(.ultraThinMaterial)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .padding([.vertical, .leading])
-
-            Image("passPreview", bundle: .module)
-                .resizable()
-                .scaledToFit()
-                .padding(.top)
-                .frame(maxWidth: 150)
+            .padding(.top, DesignConstant.padding)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    func passItem(imageName: String, color: Color) -> some View {
+        ZStack {
+            color.opacity(0.16)
+            Image(imageName, bundle: .module)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20)
+                .foregroundStyle(color)
+        }
+        .frame(width: 36, height: 36)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
