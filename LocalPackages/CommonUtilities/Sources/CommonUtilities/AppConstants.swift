@@ -79,4 +79,8 @@ public enum AppConstants {
         public static let supportedDigits: [Int] = [6, 8]
         public static let supportedPeriod: [Int] = [30, 60]
     }
+
+    public enum CommonUrls {
+        public static let feedbackUrl: String = "https://proton.me/support/contact"
+    }
 }

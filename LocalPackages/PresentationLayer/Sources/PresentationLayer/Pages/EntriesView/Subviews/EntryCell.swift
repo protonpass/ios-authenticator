@@ -33,7 +33,6 @@ import AppKit
 import SDWebImageSwiftUI
 
 struct EntryCell: View {
-    private let totpissuerMapper = resolve(\ToolsContainer.totpIssuerMapper)
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
@@ -189,16 +188,6 @@ struct EntryCell: View {
             .overlay(RoundedRectangle(cornerRadius: 8)
                 .inset(by: -0.5)
                 .stroke(.black.opacity(0.23), lineWidth: 1))
-    }
-}
-
-private extension EntryCell {
-    var borderColor: Color {
-        Color.passPurple.opacity(0.5)
-    }
-
-    var backgroundColor: Color {
-        borderColor.opacity(0.5)
     }
 }
 

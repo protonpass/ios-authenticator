@@ -29,19 +29,23 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func entry(for uri: String) async throws -> Entry
     func export(entries: [Entry]) throws -> String
-    func deserialize(serializedData: [Data]) throws -> [Entry]
     func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]
     func createSteamEntry(params: SteamParams) throws -> Entry
     func createTotpEntry(params: TotpParams) throws -> Entry
+    // periphery:ignore
     func serialize(entries: [Entry]) throws -> [Data]
+    // periphery:ignore
+    func deserialize(serializedData: [Data]) throws -> [Entry]
     func getTotpParams(entry: Entry) throws -> TotpParams
 
     // MARK: - CRUD
 
     func getAllEntries() async throws -> [EntryState]
     func save(_ entries: [any IdentifiableOrderedEntry]) async throws
+    // periphery:ignore
     func remove(_ entry: Entry) async throws
     func remove(_ entryId: String) async throws
+    // periphery:ignore
     func removeAll() async throws
     func update(_ entry: Entry) async throws
     func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws
@@ -128,7 +132,7 @@ public extension EntryRepository {
                                                                                          sortingDescriptor: [
                                                                                              SortDescriptor(\.order)
                                                                                          ])
-        return try encryptionService.decryptMany(entries: encryptedEntries)
+        return try encryptionService.decrypt(entries: encryptedEntries)
     }
 
     func save(_ entries: [any IdentifiableOrderedEntry]) async throws {
@@ -136,6 +140,7 @@ public extension EntryRepository {
         try await persistentStorage.batchSave(content: encryptedEntries)
     }
 
+    // periphery:ignore
     func remove(_ entry: Entry) async throws {
         let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entry.id }
         guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
@@ -149,6 +154,7 @@ public extension EntryRepository {
         try await persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
     }
 
+    // periphery:ignore
     func removeAll() async throws {
         try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
     }

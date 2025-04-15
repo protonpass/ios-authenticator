@@ -32,7 +32,6 @@ public struct SettingsView: View {
     @State private var router = Router()
     @State private var showQaMenu = false
     @State private var showImportOptions = false
-    @State private var showFileExporter = false
 
     public init() {}
 
@@ -210,7 +209,13 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback"))
+            SettingRow(title: .localized("Feedback")) {
+                open(urlString: AppConstants.CommonUrls.feedbackUrl)
+            }
+
+            SettingDivider()
+
+            SettingRow(title: .localized("Export Logs"), onTap: viewModel.exportLogs)
         }
     }
 

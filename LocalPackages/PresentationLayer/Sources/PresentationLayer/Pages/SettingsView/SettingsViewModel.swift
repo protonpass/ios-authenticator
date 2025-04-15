@@ -28,15 +28,24 @@ import Models
 import UIKit
 #endif
 
+enum ExportedType {
+    case none
+    case data
+    case logs
+}
+
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var showPassBanner = true
-    private(set) var backUpEnabled = false
+    private(set) var backUpEnabled = true
     private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
     var exportedDocument: TextDocument?
+
+    @ObservationIgnored
+    private var exportingType: ExportedType = .none
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -158,11 +167,14 @@ extension SettingsViewModel {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
-        return "Authenticator_backup_\(currentDate).txt"
+
+        return exportingType == .logs ? "Authenticator_logs_\(currentDate).txt" :
+            "Authenticator_backup_\(currentDate).txt"
     }
 
     func exportData() {
         do {
+            exportingType = .data
             let data = try entryDataService.exportEntries()
             exportedDocument = TextDocument(data)
         } catch {
@@ -170,10 +182,23 @@ extension SettingsViewModel {
         }
     }
 
+    func exportLogs() {
+        Task {
+            do {
+                guard let logsContent = try await logManager.logsContent() else { return }
+                exportingType = .logs
+                exportedDocument = TextDocument(logsContent)
+            } catch {
+                alertService.showError(error, mainDisplay: false, action: nil)
+            }
+        }
+    }
+
     func handleExportResult(_ result: Result<URL, any Error>) {
         switch result {
         case .success:
-            toastService.showToast(.init(title: #localized("Successfully exported")))
+            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
+                                         title: #localized("Successfully exported")))
         case let .failure(error):
             handle(error)
         }
@@ -183,6 +208,6 @@ extension SettingsViewModel {
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
-        alertService.showError(error, mainDisplay: true, action: nil)
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 }

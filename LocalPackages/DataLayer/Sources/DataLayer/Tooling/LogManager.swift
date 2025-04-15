@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+// periphery:ignore:all
 import Combine
 import CommonUtilities
 import Foundation
@@ -86,6 +87,7 @@ public protocol LoggerProtocol: Sendable {
                          function: String,
                          line: Int)
     func exportLogs(category: LogCategory?) async -> URL?
+    func logsContent(category: LogCategory?) async throws -> String?
 }
 
 public extension LoggerProtocol {
@@ -96,6 +98,10 @@ public extension LoggerProtocol {
                          function: String = #function,
                          line: Int = #line) {
         log(level, category: category, message, file: file, function: function, line: line)
+    }
+
+    func logsContent(category: LogCategory? = nil) async throws -> String? {
+        try await logsContent(category: category)
     }
 }
 
@@ -181,6 +187,15 @@ public final actor LogManager: LoggerProtocol {
             return nil
         }
     }
+
+    public func logsContent(category: LogCategory? = nil) async throws -> String? {
+        let logs = try await fetchLogs(category: category)
+        let logString = logs.map { log in
+            "[\(log.timestamp)] [\(log.category)] [\(log.level)] [\(log.file)] \(log.message)"
+        }
+        .joined(separator: "\n")
+        return logString
+    }
 }
 
 private extension LogManager {
@@ -261,7 +276,7 @@ private extension LogManager {
 
 // MARK: - Log models
 
-public struct LogEntry: Sendable {
+struct LogEntry: Sendable {
     let timestamp: Date
     let level: LogLevel
     let message: String

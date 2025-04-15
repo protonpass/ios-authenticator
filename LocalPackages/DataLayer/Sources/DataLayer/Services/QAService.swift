@@ -28,6 +28,7 @@ public protocol QAServicing: Sendable, Observable {
     var numberOfMockEntries: Int { get set }
     var dataState: DataState<[EntryUiModel]> { get }
 
+    // periphery:ignore
     func mockedEntries() async
 }
 

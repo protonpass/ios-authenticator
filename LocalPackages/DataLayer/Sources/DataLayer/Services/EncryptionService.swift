@@ -42,10 +42,12 @@ public enum EntryState: Sendable {
 public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
 
-    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
-    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState]
     func encrypt(entry: Entry) throws -> Data
+    // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
+    // periphery:ignore
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
+    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 }
 
 // swiftlint:disable:next todo
@@ -88,6 +90,7 @@ public final class EncryptionService: EncryptionServicing {
         return key
     }
 
+    // periphery:ignore
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
@@ -98,7 +101,7 @@ public final class EncryptionService: EncryptionServicing {
         return .decrypted(entry.toEntry)
     }
 
-    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+    public func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         log(.info, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
@@ -118,6 +121,7 @@ public final class EncryptionService: EncryptionServicing {
                                                     key: localKey)
     }
 
+    // periphery:ignore
     public func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
         log(.info, "Encrypting \(entries.count) entries with local encryption key ")

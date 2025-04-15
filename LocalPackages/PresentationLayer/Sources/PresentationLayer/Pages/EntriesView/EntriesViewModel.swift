@@ -59,9 +59,6 @@ final class EntriesViewModel {
     private let searchTextStream: CurrentValueSubject<String, Never> = .init("")
 
     @ObservationIgnored
-    private var pauseRefreshing = false
-
-    @ObservationIgnored
     @LazyInjected(\ServiceContainer.qaService)
     private var qaService
 
@@ -82,9 +79,6 @@ final class EntriesViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.toastService) var toastService
-
-    @ObservationIgnored
-    private var generateTokensTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
