@@ -98,6 +98,7 @@ struct EntryCell: View {
 
             HStack {
                 numberView
+                    .animation(.bouncy, value: configuration.animateNumberTransition ? code : .default)
 
                 Spacer()
 
@@ -148,6 +149,7 @@ struct EntryCell: View {
                         .font(.title)
                         .fontWeight(.semibold)
                         .foregroundStyle(.textNorm)
+                        .contentTransition(.numericText())
                 }
                 .padding(.horizontal, 5)
                 .frame(minWidth: 28)
@@ -165,6 +167,7 @@ struct EntryCell: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.textNorm)
                 .monospaced()
+                .contentTransition(.numericText())
         }
     }
 }

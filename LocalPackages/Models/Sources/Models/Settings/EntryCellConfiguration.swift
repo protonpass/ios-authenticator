@@ -23,13 +23,15 @@ import Foundation
 public struct EntryCellConfiguration {
     public let hideEntryCode: Bool
     public let displayNumberBackground: Bool
+    public let animateNumberTransition: Bool
 
-    public init(hideEntryCode: Bool, displayNumberBackground: Bool) {
+    public init(hideEntryCode: Bool, displayNumberBackground: Bool, animateNumberTransition: Bool) {
         self.hideEntryCode = hideEntryCode
         self.displayNumberBackground = displayNumberBackground
+        self.animateNumberTransition = animateNumberTransition
     }
 
     public static var `default`: EntryCellConfiguration {
-        EntryCellConfiguration(hideEntryCode: true, displayNumberBackground: false)
+        EntryCellConfiguration(hideEntryCode: true, displayNumberBackground: false, animateNumberTransition: true)
     }
 }

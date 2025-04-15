@@ -34,6 +34,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setSearchBarMode(_ value: SearchBarDisplayMode)
     func setHideEntryCode(_ value: Bool)
     func setDisplayNumberBackground(_ value: Bool)
+    func setCodeAnimation(_ value: Bool)
     func setOnboarded(_ value: Bool)
 }
 
@@ -56,8 +57,10 @@ public final class SettingsService: SettingsServicing {
             .bottom
         let displayNumberBackground: Bool = store.bool(forKey: AppConstants.Settings.numberBackground)
         let hideEntryCode: Bool = store.bool(forKey: AppConstants.Settings.displayCode)
+        let animateCodeChange = store.bool(forKey: AppConstants.Settings.animateCode)
         entryUIConfiguration = .init(hideEntryCode: hideEntryCode,
-                                     displayNumberBackground: displayNumberBackground)
+                                     displayNumberBackground: displayNumberBackground,
+                                     animateNumberTransition: animateCodeChange)
         onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
     }
 }
@@ -87,7 +90,8 @@ public extension SettingsService {
         }
         store.set(value, forKey: AppConstants.Settings.displayCode)
         entryUIConfiguration = .init(hideEntryCode: value,
-                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground)
+                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground,
+                                     animateNumberTransition: entryUIConfiguration.animateNumberTransition)
     }
 
     func setDisplayNumberBackground(_ value: Bool) {
@@ -96,7 +100,18 @@ public extension SettingsService {
         }
         store.set(value, forKey: AppConstants.Settings.numberBackground)
         entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
-                                     displayNumberBackground: value)
+                                     displayNumberBackground: value,
+                                     animateNumberTransition: entryUIConfiguration.animateNumberTransition)
+    }
+
+    func setCodeAnimation(_ value: Bool) {
+        guard entryUIConfiguration.animateNumberTransition != value else {
+            return
+        }
+        store.set(value, forKey: AppConstants.Settings.animateCode)
+        entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
+                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground,
+                                     animateNumberTransition: value)
     }
 
     func setOnboarded(_ value: Bool) {

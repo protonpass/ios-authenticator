@@ -48,6 +48,7 @@ public enum AppConstants {
         public static let theme = "Theme"
         public static let displayCode = "DisplayCode"
         public static let numberBackground = "NumberBackground"
+        public static let animateCode = "AnimateCode"
         public static let onboarded = "Onboarded"
         public static let authenticationState = "authenticationState"
     }
