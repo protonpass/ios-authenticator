@@ -32,29 +32,6 @@ import AppKit
 
 import SDWebImageSwiftUI
 
-extension Data {
-    var toImage: Image? {
-        createImage(self)
-    }
-
-    func createImage(_ value: Data) -> Image? {
-        #if canImport(UIKit)
-        guard let songArtwork = UIImage(data: value) else {
-            return nil
-        }
-        let configuration = UIImage.SymbolConfiguration(textStyle: .body, scale: .large)
-        return Image(uiImage: songArtwork.withConfiguration(configuration))
-        #elseif canImport(AppKit)
-        guard let songArtwork = NSImage(data: value) else {
-            return nil
-        }
-        return Image(nsImage: songArtwork)
-        #else
-        return Image(systemImage: "some_default")
-        #endif
-    }
-}
-
 struct EntryCell: View {
     private let totpissuerMapper = resolve(\ToolsContainer.totpIssuerMapper)
     @Environment(\.colorScheme) private var colorScheme
@@ -192,7 +169,7 @@ struct EntryCell: View {
 
     var letterDisplay: some View {
         Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-            .font(.headline)
+            .font(.title)
             .fontWeight(.medium)
             .foregroundStyle(LinearGradient(gradient:
                 Gradient(colors: [

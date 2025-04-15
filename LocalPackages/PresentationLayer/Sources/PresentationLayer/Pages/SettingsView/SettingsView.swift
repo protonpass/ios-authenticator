@@ -58,7 +58,6 @@ public struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
-            .listSectionSpacing(DesignConstant.padding * 2)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -77,6 +76,7 @@ public struct SettingsView: View {
                 await viewModel.setUp()
             }
             #if os(iOS)
+            .listSectionSpacing(DesignConstant.padding * 2)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toastDisplay()

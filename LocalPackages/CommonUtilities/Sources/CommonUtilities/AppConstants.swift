@@ -61,6 +61,7 @@ public enum AppConstants {
         #endif
     }
 
+    // periphery:ignore
     @MainActor
     public static var isIpad: Bool {
         #if canImport(UIKit)

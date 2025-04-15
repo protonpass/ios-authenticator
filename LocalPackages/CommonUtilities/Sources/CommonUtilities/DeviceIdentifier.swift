@@ -40,6 +40,7 @@ public extension DeviceIdentifier {
         return newIdentifier
     }
 
+    // periphery:ignore
     /// Resets the device identifier (creates a new one)
     @discardableResult
     static func reset() -> String {
