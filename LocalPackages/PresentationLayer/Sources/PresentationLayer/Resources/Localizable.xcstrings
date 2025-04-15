@@ -111,6 +111,26 @@
         }
       }
     },
+    "Bottom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottom"
+          }
+        }
+      }
+    },
+    "Boxed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxed"
+          }
+        }
+      }
+    },
     "Bring your security with you.\nTransfer your data to stay protected." : {
       "localizations" : {
         "en" : {
@@ -512,6 +532,16 @@
         }
       }
     },
+    "Plain" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain"
+          }
+        }
+      }
+    },
     "Please authenticate" : {
       "localizations" : {
         "en" : {
@@ -791,6 +821,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title (Required)"
+          }
+        }
+      }
+    },
+    "Top" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top"
           }
         }
       }

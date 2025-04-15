@@ -1,5 +1,5 @@
 //
-// DigitStyle.swift
+// SearchBarDisplayMode+Extensions.swift
 // Proton Authenticator - Created on 15/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,8 +18,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
+import Models
+import SwiftUI
 
-public enum DigitStyle: Int, Sendable, CaseIterable, Equatable {
-    case plain, boxed
+extension SearchBarDisplayMode {
+    var title: LocalizedStringKey {
+        switch self {
+        case .bottom:
+            "Bottom"
+        case .top:
+            "Top"
+        }
+    }
 }
