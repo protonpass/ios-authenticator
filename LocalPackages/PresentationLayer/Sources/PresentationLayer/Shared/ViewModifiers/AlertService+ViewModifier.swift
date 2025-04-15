@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import CommonUtilities
+import DataLayer
 import Factory
 import Foundation
 import SwiftUI
@@ -29,19 +30,17 @@ struct AlertServiceModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .if(alertService.alert) { view, alert in
-                view.alert(alert.title,
-                           isPresented: isMainDisplay ? $alertService.showMainAlert : $alertService.showSheetAlert,
-                           presenting: alertService.alert,
-                           actions: { display in
-                               display.actions
-                           },
-                           message: { display in
-                               if let message = display.message {
-                                   Text(message)
-                               }
-                           })
-            }
+            .alert(alertService.alert.titleText,
+                   isPresented: isMainDisplay ? $alertService.showMainAlert : $alertService.showSheetAlert,
+                   presenting: alertService.alert,
+                   actions: { display in
+                       display.actions
+                   },
+                   message: { display in
+                       if let message = display.message {
+                           Text(message)
+                       }
+                   })
     }
 }
 
@@ -52,5 +51,16 @@ public extension View {
 
     func sheetAlertService() -> some View {
         modifier(AlertServiceModifier(isMainDisplay: false))
+    }
+}
+
+private extension AlertDisplay? {
+    var titleText: Text {
+        // swiftlint:disable:next discouraged_optional_self
+        if let title = self?.title {
+            Text(title)
+        } else {
+            Text(verbatim: "")
+        }
     }
 }
