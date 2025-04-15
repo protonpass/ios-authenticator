@@ -79,7 +79,7 @@ final class SettingsViewModel {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
             #if canImport(UIKit)
-            if let url = URL(string: product.iOSAppUrl),
+            if let url = URL(string: "\(product.iOSAppBundleId)://"),
                UIApplication.shared.canOpenURL(url) {
                 return false
             }
