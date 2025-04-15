@@ -33,7 +33,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
     func setHideEntryCode(_ value: Bool)
-    func setDisplayNumberBackground(_ value: Bool)
+    func setDigitStyle(_ value: DigitStyle)
     func setCodeAnimation(_ value: Bool)
     func setOnboarded(_ value: Bool)
 }
@@ -55,12 +55,12 @@ public final class SettingsService: SettingsServicing {
         searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
             .integer(forKey: AppConstants.Settings.searchBarMode)) ??
             .bottom
-        let displayNumberBackground: Bool = store.bool(forKey: AppConstants.Settings.numberBackground)
+        let digitStyle = DigitStyle(rawValue: store.integer(forKey: AppConstants.Settings.digitStyle)) ?? .plain
         let hideEntryCode: Bool = store.bool(forKey: AppConstants.Settings.displayCode)
         let animateCodeChange = store.bool(forKey: AppConstants.Settings.animateCode)
         entryUIConfiguration = .init(hideEntryCode: hideEntryCode,
-                                     displayNumberBackground: displayNumberBackground,
-                                     animateNumberTransition: animateCodeChange)
+                                     digitStyle: digitStyle,
+                                     animateCodeChange: animateCodeChange)
         onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
     }
 }
@@ -90,28 +90,28 @@ public extension SettingsService {
         }
         store.set(value, forKey: AppConstants.Settings.displayCode)
         entryUIConfiguration = .init(hideEntryCode: value,
-                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground,
-                                     animateNumberTransition: entryUIConfiguration.animateNumberTransition)
+                                     digitStyle: entryUIConfiguration.digitStyle,
+                                     animateCodeChange: entryUIConfiguration.animateCodeChange)
     }
 
-    func setDisplayNumberBackground(_ value: Bool) {
-        guard entryUIConfiguration.displayNumberBackground != value else {
+    func setDigitStyle(_ value: DigitStyle) {
+        guard entryUIConfiguration.digitStyle != value else {
             return
         }
-        store.set(value, forKey: AppConstants.Settings.numberBackground)
+        store.set(value.rawValue, forKey: AppConstants.Settings.digitStyle)
         entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
-                                     displayNumberBackground: value,
-                                     animateNumberTransition: entryUIConfiguration.animateNumberTransition)
+                                     digitStyle: value,
+                                     animateCodeChange: entryUIConfiguration.animateCodeChange)
     }
 
     func setCodeAnimation(_ value: Bool) {
-        guard entryUIConfiguration.animateNumberTransition != value else {
+        guard entryUIConfiguration.animateCodeChange != value else {
             return
         }
         store.set(value, forKey: AppConstants.Settings.animateCode)
         entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
-                                     displayNumberBackground: entryUIConfiguration.displayNumberBackground,
-                                     animateNumberTransition: value)
+                                     digitStyle: entryUIConfiguration.digitStyle,
+                                     animateCodeChange: value)
     }
 
     func setOnboarded(_ value: Bool) {
