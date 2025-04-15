@@ -57,8 +57,7 @@ public struct EntriesView: View {
                 .refreshable {
                     viewModel.reloadData()
                 }
-                .withSheetDestinations(sheetDestinations: $router.presentedSheet,
-                                       colorScheme: viewModel.settingsService.theme.preferredColorScheme)
+                .sheetDestinations($router.presentedSheet)
                 .environment(router)
                 .toolbar { toolbarContent }
                 .overlay {
@@ -77,6 +76,7 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
         }
+        .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
     }
 }

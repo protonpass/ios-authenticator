@@ -25,6 +25,9 @@ import Models
 import PresentationLayer
 import SwiftData
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @main
 struct AuthenticatorApp: App {
@@ -59,7 +62,15 @@ struct AuthenticatorApp: App {
                 } else {
                     OnboardingView()
                 }
-            }.mainUIAlertService()
+            }
+            .onAppear {
+                viewModel.updateWindowUserInterfaceStyle()
+                viewModel.setWindowTintColor()
+            }
+            .mainAlertService()
+        }
+        .onChange(of: viewModel.theme) { _, _ in
+            viewModel.updateWindowUserInterfaceStyle()
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -150,4 +161,36 @@ private final class AuthenticatorAppViewModel {
             }
         }
     }
+
+    func setWindowTintColor() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts buttons' tint color always being blue
+        let window = getFirstWindow()
+        window?.tintColor = AuthenticatorColor.UIColor.purpleInteraction
+        #endif
+    }
+
+    func updateWindowUserInterfaceStyle() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts don't respect theme settings (always dark)
+        let window = getFirstWindow()
+        window?.overrideUserInterfaceStyle = switch appSettings.theme {
+        case .dark: .dark
+        case .light: .light
+        case .system: .unspecified
+        }
+        #endif
+    }
+}
+
+private extension AuthenticatorAppViewModel {
+    #if canImport(UIKit)
+    func getFirstWindow() -> UIWindow? {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            return window
+        }
+        return nil
+    }
+    #endif
 }

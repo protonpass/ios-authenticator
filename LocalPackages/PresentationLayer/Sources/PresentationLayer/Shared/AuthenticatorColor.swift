@@ -1,6 +1,6 @@
 //
-// UIToastService+ViewModifier.swift
-// Proton Authenticator - Created on 31/03/2025.
+// AuthenticatorColor.swift
+// Proton Authenticator - Created on 15/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,22 +18,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Factory
-import SimpleToast
-import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
-struct ToastDisplay: ViewModifier {
-    @State private var toastService = resolve(\ServiceContainer.toastService)
-    let completion: (() -> Void)?
+public enum AuthenticatorColor {}
 
-    func body(content: Content) -> some View {
-        content
-            .toast(toast: $toastService.currentToast, completion: completion)
+#if canImport(UIKit)
+public extension AuthenticatorColor {
+    enum UIColor {
+        public static let purpleInteraction = UIKit.UIColor.purpleInteraction
     }
 }
-
-public extension View {
-    func toastDisplay(_ callback: (() -> Void)? = nil) -> some View {
-        modifier(ToastDisplay(completion: callback))
-    }
-}
+#endif

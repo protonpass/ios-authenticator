@@ -25,35 +25,26 @@ struct SettingRow: View {
     var icon: ImageResource?
     let title: TextContent
     var subtitle: LocalizedStringKey?
-    let trailingMode: TrailingMode
+    var trailingMode: TrailingMode?
+    var onTap: (() -> Void)?
 
     enum TrailingMode {
         case toggle(isOn: Bool, onToggle: () -> Void)
-        case chevron(onTap: () -> Void)
-        case detailChevron(TextContent, onTap: () -> Void)
-
-        var onTap: (() -> Void)? {
-            switch self {
-            case let .chevron(onTap):
-                onTap
-            case let .detailChevron(_, onTap):
-                onTap
-            default:
-                nil
-            }
-        }
+        case detailChevronUpDown(TextContent)
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             if let icon {
                 Image(icon)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: 24)
+                    .frame(maxWidth: 22)
+                    .padding(6)
+                    .padding(.trailing, DesignConstant.padding)
             }
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .foregroundStyle(.textNorm)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -68,29 +59,28 @@ struct SettingRow: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
 
-            Spacer()
+            if let trailingMode {
+                Spacer()
 
-            switch trailingMode {
-            case let .toggle(isOn, onToggle):
-                StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
-                    .fixedSize(horizontal: true, vertical: false)
+                switch trailingMode {
+                case let .toggle(isOn, onToggle):
+                    StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
+                        .fixedSize(horizontal: true, vertical: false)
 
-            case .chevron:
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.textWeak)
+                case let .detailChevronUpDown(detail):
+                    Text(detail)
+                        .foregroundStyle(.textNorm)
+                        .padding(.trailing, DesignConstant.padding / 2)
 
-            case let .detailChevron(detail, _):
-                Text(detail)
-                    .foregroundStyle(.textNorm)
-
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.textWeak)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .foregroundStyle(.textNorm)
+                }
             }
         }
-        .padding(16)
+        .padding(DesignConstant.padding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(.rect)
-        .if(trailingMode.onTap) { view, onTap in
+        .if(onTap) { view, onTap in
             view.onTapGesture(perform: onTap)
         }
     }
