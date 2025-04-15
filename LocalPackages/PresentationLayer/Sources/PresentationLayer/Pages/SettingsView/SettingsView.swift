@@ -77,7 +77,7 @@ public struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .mainBackground()
-            .sheetUIAlertService()
+            .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()

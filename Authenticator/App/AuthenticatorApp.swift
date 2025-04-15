@@ -63,7 +63,7 @@ struct AuthenticatorApp: App {
                 }
             }
             .onAppear(perform: viewModel.updateWindowUserInterfaceStyle)
-            .mainUIAlertService()
+            .mainAlertService()
         }
         .onChange(of: viewModel.theme) { _, _ in
             viewModel.updateWindowUserInterfaceStyle()

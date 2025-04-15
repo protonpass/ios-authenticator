@@ -1,5 +1,5 @@
 //
-// UIToastService+ViewModifier.swift
+// ToastService+ViewModifier.swift
 // Proton Authenticator - Created on 31/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //

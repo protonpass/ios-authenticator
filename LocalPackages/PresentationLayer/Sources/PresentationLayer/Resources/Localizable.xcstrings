@@ -815,16 +815,6 @@
         }
       }
     },
-    "Unknown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unknown"
-          }
-        }
-      }
-    },
     "Update entry" : {
       "localizations" : {
         "en" : {
