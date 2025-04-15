@@ -48,7 +48,9 @@ public struct SettingsView: View {
                 appearanceSection
                 dataSection
                 supportSection
-                discoverySection
+                if !viewModel.products.isEmpty {
+                    discoverySection
+                }
                 versionLabel
                     .padding(.top, 32)
                     .padding(.bottom)

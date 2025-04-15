@@ -40,6 +40,7 @@ struct AuthenticatorApp: App {
                 if viewModel.onboarded {
                     if showEntriesView {
                         EntriesView()
+                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
                             .onOpenURL { url in
                                 viewModel.handleDeepLink(url)
                             }
@@ -62,7 +63,10 @@ struct AuthenticatorApp: App {
                     OnboardingView()
                 }
             }
-            .onAppear(perform: viewModel.updateWindowUserInterfaceStyle)
+            .onAppear {
+                viewModel.updateWindowUserInterfaceStyle()
+                viewModel.setWindowTintColor()
+            }
             .mainAlertService()
         }
         .onChange(of: viewModel.theme) { _, _ in
@@ -158,17 +162,35 @@ private final class AuthenticatorAppViewModel {
         }
     }
 
+    func setWindowTintColor() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts buttons' tint color always being blue
+        let window = getFirstWindow()
+        window?.tintColor = AuthenticatorColor.UIColor.purpleInteraction
+        #endif
+    }
+
     func updateWindowUserInterfaceStyle() {
         #if canImport(UIKit)
         // Workaround confirmation dialogs and alerts don't respect theme settings (always dark)
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.overrideUserInterfaceStyle = switch appSettings.theme {
-            case .dark: .dark
-            case .light: .light
-            case .system: .unspecified
-            }
+        let window = getFirstWindow()
+        window?.overrideUserInterfaceStyle = switch appSettings.theme {
+        case .dark: .dark
+        case .light: .light
+        case .system: .unspecified
         }
         #endif
     }
+}
+
+private extension AuthenticatorAppViewModel {
+    #if canImport(UIKit)
+    func getFirstWindow() -> UIWindow? {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            return window
+        }
+        return nil
+    }
+    #endif
 }
