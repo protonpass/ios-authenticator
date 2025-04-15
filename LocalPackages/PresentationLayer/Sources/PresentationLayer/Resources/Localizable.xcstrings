@@ -51,6 +51,16 @@
         }
       }
     },
+    "Animate code change" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animate code change"
+          }
+        }
+      }
+    },
     "APPEARANCE" : {
       "localizations" : {
         "en" : {
@@ -97,6 +107,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Biometric lock"
+          }
+        }
+      }
+    },
+    "Bottom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottom"
+          }
+        }
+      }
+    },
+    "Boxed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxed"
           }
         }
       }
@@ -197,6 +227,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Digit style" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digit style"
           }
         }
       }
@@ -422,16 +462,6 @@
         }
       }
     },
-    "List style" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "List style"
-          }
-        }
-      }
-    },
     "MANAGE YOUR DATA" : {
       "localizations" : {
         "en" : {
@@ -498,6 +528,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Password"
+          }
+        }
+      }
+    },
+    "Plain" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain"
           }
         }
       }
@@ -683,16 +723,6 @@
         }
       }
     },
-    "Show number background" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show number background"
-          }
-        }
-      }
-    },
     "Skip" : {
       "localizations" : {
         "en" : {
@@ -791,6 +821,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title (Required)"
+          }
+        }
+      }
+    },
+    "Top" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top"
           }
         }
       }

@@ -1,6 +1,6 @@
 //
-// EntryCellConfiguration.swift
-// Proton Authenticator - Created on 19/03/2025.
+// SearchBarDisplayMode+Extensions.swift
+// Proton Authenticator - Created on 15/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,20 +18,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
+import Models
+import SwiftUI
 
-public struct EntryCellConfiguration {
-    public let hideEntryCode: Bool
-    public let digitStyle: DigitStyle
-    public let animateCodeChange: Bool
-
-    public init(hideEntryCode: Bool, digitStyle: DigitStyle, animateCodeChange: Bool) {
-        self.hideEntryCode = hideEntryCode
-        self.digitStyle = digitStyle
-        self.animateCodeChange = animateCodeChange
-    }
-
-    public static var `default`: EntryCellConfiguration {
-        EntryCellConfiguration(hideEntryCode: true, digitStyle: .plain, animateCodeChange: true)
+extension SearchBarDisplayMode {
+    var title: LocalizedStringKey {
+        switch self {
+        case .bottom:
+            "Bottom"
+        case .top:
+            "Top"
+        }
     }
 }
