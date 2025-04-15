@@ -765,16 +765,6 @@
         }
       }
     },
-    "Sync between devices" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync between devices"
-          }
-        }
-      }
-    },
     "Theme" : {
       "localizations" : {
         "en" : {

@@ -31,7 +31,6 @@ public struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showQaMenu = false
-    @State private var showEditTheme = false
     @State private var showImportOptions = false
 
     public init() {}
@@ -83,10 +82,6 @@ public struct SettingsView: View {
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
-            .sheet(isPresented: $showEditTheme) {
-                EditThemeView(currentTheme: viewModel.theme,
-                              onUpdate: viewModel.updateTheme)
-            }
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)
@@ -118,11 +113,13 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Sync between devices"),
-                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                             onToggle: viewModel.toggleSync))
+            /*
+             SettingRow(title: .localized("Sync between devices"),
+                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                              onToggle: viewModel.toggleSync))
 
-            SettingDivider()
+             SettingDivider()
+              */
 
             SettingRow(title: .localized("Biometric lock"),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
@@ -138,32 +135,23 @@ private extension SettingsView {
 
     var appearanceSection: some View {
         section("APPEARANCE") {
-            if useMenuForTheme {
-                Menu(content: {
-                    ForEach(Theme.allCases, id: \.self) { theme in
-                        Button(action: {
-                            viewModel.updateTheme(theme)
-                        }, label: {
-                            if theme == viewModel.theme {
-                                Label(theme.title, systemImage: "checkmark")
-                            } else {
-                                Text(theme.title)
-                            }
-                        })
-                    }
-                }, label: {
-                    if AppConstants.isIpad {
-                        themeRow()
-                    } else {
-                        Text("Theme")
-                    }
-                })
-                .adaptiveMenuStyle()
-            } else {
-                themeRow {
-                    showEditTheme.toggle()
+            Menu(content: {
+                ForEach(Theme.allCases, id: \.self) { theme in
+                    Button(action: {
+                        viewModel.updateTheme(theme)
+                    }, label: {
+                        if theme == viewModel.theme {
+                            Label(theme.title, systemImage: "checkmark")
+                        } else {
+                            Text(theme.title)
+                        }
+                    })
                 }
-            }
+            }, label: {
+                SettingRow(title: .localized("Theme"),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title)))
+            })
+            .adaptiveMenuStyle()
 
             SettingDivider()
 
@@ -180,12 +168,8 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                if AppConstants.isIpad {
-                    SettingRow(title: .localized("Search bar position"),
-                               trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title)))
-                } else {
-                    Text("Search bar position")
-                }
+                SettingRow(title: .localized("Search bar position"),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title)))
             })
             .adaptiveMenuStyle()
 
@@ -195,22 +179,8 @@ private extension SettingsView {
                                              onToggle: viewModel.toggleDisplayNumberBackground))
             SettingDivider()
             SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevron(.verbatim("Regular")))
+                       trailingMode: .detailChevronUpDown(.verbatim("Regular")))
         }
-    }
-
-    func themeRow(_ onTap: (() -> Void)? = nil) -> some View {
-        SettingRow(title: .localized("Theme"),
-                   trailingMode: .detailChevron(.localized(viewModel.theme.title)),
-                   onTap: onTap)
-    }
-
-    var useMenuForTheme: Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .pad
-        #else
-        true
-        #endif
     }
 
     var dataSection: some View {
@@ -352,5 +322,18 @@ private extension ProtonProduct {
         #else
         homepageUrl
         #endif
+    }
+}
+
+private extension Theme {
+    var title: LocalizedStringKey {
+        switch self {
+        case .dark:
+            "Dark"
+        case .light:
+            "Light"
+        case .system:
+            "Match system"
+        }
     }
 }

@@ -30,8 +30,7 @@ struct SettingRow: View {
 
     enum TrailingMode {
         case toggle(isOn: Bool, onToggle: () -> Void)
-        case chevron
-        case detailChevron(TextContent)
+        case detailChevronUpDown(TextContent)
     }
 
     var body: some View {
@@ -68,16 +67,13 @@ struct SettingRow: View {
                     StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
                         .fixedSize(horizontal: true, vertical: false)
 
-                case .chevron:
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.textWeak)
-
-                case let .detailChevron(detail):
+                case let .detailChevronUpDown(detail):
                     Text(detail)
                         .foregroundStyle(.textNorm)
+                        .padding(.trailing, DesignConstant.padding / 2)
 
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.textWeak)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .foregroundStyle(.textNorm)
                 }
             }
         }
