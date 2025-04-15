@@ -25,6 +25,9 @@ import Models
 import PresentationLayer
 import SwiftData
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @main
 struct AuthenticatorApp: App {
@@ -37,7 +40,6 @@ struct AuthenticatorApp: App {
                 if viewModel.onboarded {
                     if showEntriesView {
                         EntriesView()
-                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
                             .onOpenURL { url in
                                 viewModel.handleDeepLink(url)
                             }
@@ -59,7 +61,12 @@ struct AuthenticatorApp: App {
                 } else {
                     OnboardingView()
                 }
-            }.mainUIAlertService()
+            }
+            .onAppear(perform: viewModel.updateWindowUserInterfaceStyle)
+            .mainUIAlertService()
+        }
+        .onChange(of: viewModel.theme) { _, _ in
+            viewModel.updateWindowUserInterfaceStyle()
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
@@ -149,5 +156,19 @@ private final class AuthenticatorAppViewModel {
                 alertService.showError(error)
             }
         }
+    }
+
+    func updateWindowUserInterfaceStyle() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts don't respect theme settings (always dark)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.overrideUserInterfaceStyle = switch appSettings.theme {
+            case .dark: .dark
+            case .light: .light
+            case .system: .unspecified
+            }
+        }
+        #endif
     }
 }

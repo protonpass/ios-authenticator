@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import SwiftUI
 
 // MARK: - View builder functions
@@ -67,15 +68,11 @@ public extension View {
     func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
                                     isPresented: Binding<Bool>,
                                     @ViewBuilder actions: () -> some View) -> some View {
-        #if canImport(UIKit)
-        if UIDevice.current.userInterfaceIdiom == .phone {
+        if AppConstants.isPhone {
             confirmationDialog(title, isPresented: isPresented, actions: actions)
         } else {
             alert(title, isPresented: isPresented, actions: actions)
         }
-        #else
-        alert(title, isPresented: isPresented, actions: actions)
-        #endif
     }
 }
 

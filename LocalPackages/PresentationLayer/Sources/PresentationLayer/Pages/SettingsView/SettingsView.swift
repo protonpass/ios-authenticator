@@ -83,8 +83,10 @@ public struct SettingsView: View {
                 QAMenuView()
             }
         }
+        .animation(.default, value: viewModel.theme)
+        .preferredColorScheme(viewModel.theme.preferredColorScheme)
         #if os(macOS)
-        .frame(minWidth: 800, minHeight: 600)
+            .frame(minWidth: 800, minHeight: 600)
         #endif
     }
 
@@ -205,7 +207,7 @@ private extension SettingsView {
 
     var discoverySection: some View {
         section("DISCOVER PROTON") {
-            ForEach(ProtonProduct.allCases, id: \.self) { product in
+            ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
                            subtitle: product.description,
@@ -249,7 +251,7 @@ private extension SettingsView {
             }
             .padding(.horizontal, 0)
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
+            .background(isDarkMode ? .white.opacity(0.08) : .white)
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
