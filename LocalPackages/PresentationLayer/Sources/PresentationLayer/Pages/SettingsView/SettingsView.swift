@@ -83,14 +83,11 @@ public struct SettingsView: View {
             .mainBackground()
             .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
-            .if(viewModel.exportedDocument) { view, exportedDocument in
-                view
-                    .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                                  document: exportedDocument,
-                                  contentType: .text,
-                                  defaultFilename: viewModel.generateExportFileName(),
-                                  onCompletion: viewModel.handleExportResult)
-            }
+            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                          document: viewModel.exportedDocument,
+                          contentType: .text,
+                          defaultFilename: viewModel.generateExportFileName(),
+                          onCompletion: viewModel.handleExportResult)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
