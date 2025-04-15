@@ -1,6 +1,6 @@
 //
-// ToastService.swift
-// Proton Authenticator - Created on 31/03/2025.
+// AuthenticatorColor.swift
+// Proton Authenticator - Created on 15/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,24 +18,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-import SimpleToast
+#if canImport(UIKit)
+import UIKit
+#endif
 
-@MainActor
-public protocol ToastServiceProtocol: Sendable, Observable {
-    var currentToast: SimpleToast? { get set }
+public enum AuthenticatorColor {}
 
-    func showToast(_ toast: SimpleToast)
-}
-
-@MainActor
-@Observable
-public final class ToastService: ToastServiceProtocol {
-    public var currentToast: SimpleToast?
-
-    public init() {}
-
-    public func showToast(_ toast: SimpleToast) {
-        currentToast = toast
+#if canImport(UIKit)
+public extension AuthenticatorColor {
+    enum UIColor {
+        public static let purpleInteraction = UIKit.UIColor.purpleInteraction
     }
 }
+#endif

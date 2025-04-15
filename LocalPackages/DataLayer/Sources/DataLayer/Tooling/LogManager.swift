@@ -37,10 +37,15 @@ public enum LogCategory: String, CaseIterable, Sendable, Codable {
 }
 
 public enum LogLevel: String, Sendable, Codable {
-    case debug = "DEBUG"
+    // info: Call this function to capture information that may be helpful, but isn’t essential, for troubleshooting.
     case info = "INFO"
-    case warning = "WARNING"
+    // debug: Debug-level messages to use in a development environment while actively debugging.
+    case debug = "DEBUG"
+    // error: Error-level messages for reporting critical errors and failures.
     case error = "ERROR"
+    // warning: Warning-level messages for reporting unexpected non-fatal failures.
+    case warning = "WARNING"
+    // critical: messages for capturing system-level or multi-process errors only.
     case critical = "CRITICAL"
 
     var osLogType: OSLogType {
@@ -55,21 +60,18 @@ public enum LogLevel: String, Sendable, Codable {
 }
 
 public struct LogManagerConfiguration: Sendable {
-    public let logRetentionDays: Int
     public let maxLogEntries: Int
     public let saveInterval: TimeInterval
     public let batchSize: Int
 
-    public init(logRetentionDays: Int, maxLogEntries: Int, saveInterval: TimeInterval, batchSize: Int) {
-        self.logRetentionDays = logRetentionDays
+    public init(maxLogEntries: Int, saveInterval: TimeInterval, batchSize: Int) {
         self.maxLogEntries = maxLogEntries
         self.saveInterval = saveInterval
         self.batchSize = batchSize
     }
 
     public static var `default`: LogManagerConfiguration {
-        LogManagerConfiguration(logRetentionDays: 3,
-                                maxLogEntries: 5_000,
+        LogManagerConfiguration(maxLogEntries: 5_000,
                                 saveInterval: 5,
                                 batchSize: 10)
     }
@@ -173,7 +175,6 @@ public final actor LogManager: LoggerProtocol {
             let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
 
             try logString.write(to: fileURL, atomically: true, encoding: .utf8)
-            try await deleteAllLogs(category: category) // Clear logs after export
             return fileURL
         } catch {
             print("Failed to export logs: \(error.localizedDescription)")
@@ -233,15 +234,6 @@ private extension LogManager {
     // MARK: - Cleanup Old Logs
 
     func cleanupOldLogs() async throws {
-        guard let retentionDate = Calendar.current.date(byAdding: .day,
-                                                        value: -configuration.logRetentionDays,
-                                                        to: Date()) else {
-            return
-        }
-        let predicate = #Predicate<LogEntryEntity> { $0.timestamp == retentionDate }
-
-        try await persistentStorage.delete(LogEntryEntity.self, predicate: predicate)
-
         let totalCount = try await persistentStorage.count(LogEntryEntity.self)
         if totalCount > configuration.maxLogEntries {
             var excessLogsDescriptor =

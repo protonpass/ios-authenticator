@@ -1,6 +1,6 @@
 //
-// ToastService.swift
-// Proton Authenticator - Created on 31/03/2025.
+// Button+Extensions.swift
+// Proton Authenticator - Created on 11/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,24 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-import SimpleToast
+import SwiftUI
 
-@MainActor
-public protocol ToastServiceProtocol: Sendable, Observable {
-    var currentToast: SimpleToast? { get set }
-
-    func showToast(_ toast: SimpleToast)
-}
-
-@MainActor
-@Observable
-public final class ToastService: ToastServiceProtocol {
-    public var currentToast: SimpleToast?
-
-    public init() {}
-
-    public func showToast(_ toast: SimpleToast) {
-        currentToast = toast
+extension Button {
+    @MainActor @ViewBuilder
+    func adaptiveButtonStyle() -> some View {
+        if #available(macOS 14.0, *) {
+            self.buttonStyle(.borderless)
+        }
     }
 }

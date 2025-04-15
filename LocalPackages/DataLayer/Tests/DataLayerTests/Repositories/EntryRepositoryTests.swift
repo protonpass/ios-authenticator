@@ -86,6 +86,20 @@ final class MockKeychainService: @unchecked Sendable, KeychainServicing {
     }
 }
 
+final class LoggerMock: LoggerProtocol {
+    nonisolated func log(_ level: LogLevel,
+                         category: LogCategory,
+                         _ message: String,
+                         file: String,
+                         function: String,
+                         line: Int) {
+    }
+    
+    func exportLogs(category: LogCategory?) async -> URL? {
+        nil
+    }
+}
+
 enum MockKeychainError: Error {
     case itemNotFound
     case typeMismatch
@@ -97,7 +111,8 @@ struct EntryRepositoryTests {
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
-        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: MockKeychainService()))
+        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: MockKeychainService(),
+                                                                                                          logger: LoggerMock()))
     }
     
     @Test("Test generating entry for uri")

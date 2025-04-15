@@ -48,7 +48,7 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keyStore: self.keychainService()) }
+        self { EncryptionService(keyStore: self.keychainService(), logger: ToolsContainer.shared.logManager()) }
     }
 
     var keychainService: Factory<any KeychainServicing> {

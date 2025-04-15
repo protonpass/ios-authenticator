@@ -18,7 +18,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import SwiftUI
+
+// MARK: - View builder functions
 
 public extension View {
     /// Applies the given transform if the given condition evaluates to `true`.
@@ -48,7 +51,32 @@ public extension View {
             self
         }
     }
+
+    @ViewBuilder
+    func resizableSheet() -> some View {
+        #if os(macOS)
+        if #available(macOS 15.0, *) {
+            presentationSizing(.form.sticky())
+        }
+        #else
+        self
+        #endif
+    }
+
+    /// Show as confirmation dialog on iPhone, as alert on iPad because iPad doesn't support confirmation dialog
+    @ViewBuilder
+    func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
+                                    isPresented: Binding<Bool>,
+                                    @ViewBuilder actions: () -> some View) -> some View {
+        if AppConstants.isPhone {
+            confirmationDialog(title, isPresented: isPresented, actions: actions)
+        } else {
+            alert(title, isPresented: isPresented, actions: actions)
+        }
+    }
 }
+
+// MARK: - Common UI modification tools
 
 public extension View {
     func plainListRow() -> some View {
@@ -57,28 +85,10 @@ public extension View {
             .listRowInsets(EdgeInsets())
     }
 
-    /// Show as confirmation dialog on iPhone, as alert on iPad because iPad doesn't support confirmation dialog
-    @ViewBuilder
-    func adaptiveConfirmationDialog(_ title: LocalizedStringKey,
-                                    isPresented: Binding<Bool>,
-                                    @ViewBuilder actions: () -> some View) -> some View {
-        #if canImport(UIKit)
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            confirmationDialog(title, isPresented: isPresented, actions: actions)
-        } else {
-            alert(title, isPresented: isPresented, actions: actions)
-        }
-        #else
-        alert(title, isPresented: isPresented, actions: actions)
-        #endif
-    }
-
     func disableAnimations() -> some View {
         transaction { $0.animation = nil }
     }
-}
 
-public extension View {
     func mainBackground() -> some View {
         modifier(MainBackgroundColor())
     }

@@ -22,6 +22,7 @@
 import Combine
 import Factory
 import Foundation
+import Macro
 import Models
 import SimpleToast
 
@@ -132,7 +133,7 @@ extension EntriesViewModel {
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
         toastService
-            .showToast(SimpleToast(title: "Copied to clipboard"))
+            .showToast(SimpleToast(title: #localized("Copied to clipboard")))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

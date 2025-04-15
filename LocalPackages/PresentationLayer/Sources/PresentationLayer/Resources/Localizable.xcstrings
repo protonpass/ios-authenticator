@@ -111,6 +111,16 @@
         }
       }
     },
+    "Browse without being tracked and access blocked content." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse without being tracked and access blocked content."
+          }
+        }
+      }
+    },
     "Choose a Photo" : {
       "localizations" : {
         "en" : {
@@ -137,6 +147,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Codes imported"
+          }
+        }
+      }
+    },
+    "Copied to clipboard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied to clipboard"
           }
         }
       }
@@ -271,26 +291,6 @@
         }
       }
     },
-    "Export data to Backup File" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data to Backup File"
-          }
-        }
-      }
-    },
-    "Export to backup file" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export to backup file"
-          }
-        }
-      }
-    },
     "Feedback" : {
       "localizations" : {
         "en" : {
@@ -301,22 +301,23 @@
         }
       }
     },
-    "Free password manager with identity protection." : {
+    "Free" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free password manager with identity protection."
+            "value" : "Free"
           }
         }
       }
     },
-    "Get Proton Pass" : {
+    "GET" : {
+      "comment" : "Title of the button to download Proton Pass",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Proton Pass"
+            "value" : "GET"
           }
         }
       }
@@ -331,12 +332,22 @@
         }
       }
     },
-    "Hide cell entry code" : {
+    "Give your precious photos and files the safe home they deserve." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide cell entry code"
+            "value" : "Give your precious photos and files the safe home they deserve."
+          }
+        }
+      }
+    },
+    "Hide codes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide codes"
           }
         }
       }
@@ -471,6 +482,16 @@
         }
       }
     },
+    "Organize your schedule and keep your plans to yourself." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize your schedule and keep your plans to yourself."
+          }
+        }
+      }
+    },
     "Password" : {
       "localizations" : {
         "en" : {
@@ -517,6 +538,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protect your data"
+          }
+        }
+      }
+    },
+    "Protect your inbox from spam, tracking, and targeted ads." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your inbox from spam, tracking, and targeted ads."
           }
         }
       }
@@ -672,6 +703,26 @@
         }
       }
     },
+    "Store strong, unique passwords to avoid identity theft and breaches." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Store strong, unique passwords to avoid identity theft and breaches."
+          }
+        }
+      }
+    },
+    "Successfully exported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully exported"
+          }
+        }
+      }
+    },
     "Successfully imported %lld items" : {
       "localizations" : {
         "en" : {
@@ -700,26 +751,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SUPPORT"
-          }
-        }
-      }
-    },
-    "Sync between devices" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync between devices"
-          }
-        }
-      }
-    },
-    "Tap to reveal codes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap to reveal codes"
           }
         }
       }
@@ -774,32 +805,12 @@
         }
       }
     },
-    "Unknown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unknown"
-          }
-        }
-      }
-    },
     "Update entry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Update entry"
-          }
-        }
-      }
-    },
-    "Use this feature to import your data on an another device using Proton Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use this feature to import your data on an another device using Proton Authenticator"
           }
         }
       }

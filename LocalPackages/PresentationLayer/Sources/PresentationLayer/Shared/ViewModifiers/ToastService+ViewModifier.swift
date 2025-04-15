@@ -1,5 +1,5 @@
 //
-// ToastService.swift
+// ToastService+ViewModifier.swift
 // Proton Authenticator - Created on 31/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,24 +18,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
+import Factory
 import SimpleToast
+import SwiftUI
 
-@MainActor
-public protocol ToastServiceProtocol: Sendable, Observable {
-    var currentToast: SimpleToast? { get set }
+struct ToastDisplay: ViewModifier {
+    @State private var toastService = resolve(\ServiceContainer.toastService)
+    let completion: (() -> Void)?
 
-    func showToast(_ toast: SimpleToast)
+    func body(content: Content) -> some View {
+        content
+            .toast(toast: $toastService.currentToast, completion: completion)
+    }
 }
 
-@MainActor
-@Observable
-public final class ToastService: ToastServiceProtocol {
-    public var currentToast: SimpleToast?
-
-    public init() {}
-
-    public func showToast(_ toast: SimpleToast) {
-        currentToast = toast
+public extension View {
+    func toastDisplay(_ callback: (() -> Void)? = nil) -> some View {
+        modifier(ToastDisplay(completion: callback))
     }
 }

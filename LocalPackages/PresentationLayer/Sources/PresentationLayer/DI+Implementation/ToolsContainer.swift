@@ -26,7 +26,6 @@ import LocalAuthentication
 import SimplyPersist
 import SwiftData
 
-// swiftlint:disable line_length
 final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
     static let shared = ToolsContainer()
     let manager = ContainerManager()
@@ -40,23 +39,17 @@ extension ToolsContainer {
     var persistenceService: Factory<any PersistenceServicing> {
         self {
             do {
-                let schema = Schema([EncryptedEntryEntity.self])
-                return try PersistenceService(with: ModelConfiguration(schema: schema,
-                                                                       isStoredInMemoryOnly: false,
-                                                                       cloudKitDatabase: .private("iCloud.me.proton.authenticator")))
-            } catch {
-                fatalError("Should have persistence storage \(error)")
-            }
-        }
-    }
-
-    var logPersistenceService: Factory<any PersistenceServicing> {
-        self {
-            do {
-                let schema = Schema([LogEntryEntity.self])
-                return try PersistenceService(with: ModelConfiguration(schema: schema,
-                                                                       isStoredInMemoryOnly: false,
-                                                                       cloudKitDatabase: .none))
+                let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
+                                                     isStoredInMemoryOnly: false,
+                                                     cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
+                let logConfig = ModelConfiguration("logs",
+                                                   schema: Schema([LogEntryEntity.self]),
+                                                   isStoredInMemoryOnly: false,
+                                                   cloudKitDatabase: .none)
+                return try PersistenceService(for: EncryptedEntryEntity.self,
+                                              LogEntryEntity.self,
+                                              configurations: entryConfig,
+                                              logConfig)
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
@@ -84,7 +77,7 @@ extension ToolsContainer {
 
     var logManager: Factory<any LoggerProtocol> {
         self {
-            LogManager(persistentStorage: self.logPersistenceService())
+            LogManager(persistentStorage: self.persistenceService())
         }
     }
 
@@ -101,5 +94,3 @@ extension ToolsContainer {
         self { TOTPIssuerMapper() }
     }
 }
-
-// swiftlint:enable line_length

@@ -48,7 +48,7 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
-                .uiToastService()
+                .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
@@ -57,8 +57,7 @@ public struct EntriesView: View {
                 .refreshable {
                     viewModel.reloadData()
                 }
-                .withSheetDestinations(sheetDestinations: $router.presentedSheet,
-                                       colorScheme: viewModel.settingsService.theme.preferredColorScheme)
+                .sheetDestinations($router.presentedSheet)
                 .environment(router)
                 .toolbar { toolbarContent }
                 .overlay {
@@ -77,6 +76,7 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
         }
+        .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
     }
 }
@@ -261,7 +261,7 @@ private extension EntriesView {
                       label: {
                           Text("Search")
                       })
-                      .macTextfieldStyle()
+                      .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
         }
@@ -296,7 +296,7 @@ private extension EntriesView {
         }, label: {
             plusIcon
         })
-        .macButtonStyle()
+        .adaptiveButtonStyle()
         #endif
     }
 
@@ -368,6 +368,7 @@ private extension EntriesView {
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
+                    .adaptiveButtonStyle()
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
@@ -422,7 +423,7 @@ private extension EntriesView {
                     .scaledToFit()
                     .frame(width: 36, height: 36)
             }
-            .macButtonStyle()
+            .adaptiveButtonStyle()
         }
     }
 
@@ -445,52 +446,4 @@ private extension EntriesView {
 
 #Preview {
     EntriesView()
-}
-
-extension View {
-    @ViewBuilder
-    func resizableSheet() -> some View {
-        #if os(macOS)
-        if #available(macOS 15.0, *) {
-            presentationSizing(.form.sticky())
-        } else {
-            self
-        }
-        #else
-        self
-        #endif
-    }
-}
-
-extension Button {
-    @MainActor @ViewBuilder
-    func macButtonStyle() -> some View {
-        if #available(macOS 14.0, *) {
-            self.buttonStyle(.borderless)
-        } else {
-            self
-        }
-    }
-}
-
-extension TextField {
-    @MainActor @ViewBuilder
-    func macTextfieldStyle() -> some View {
-        if #available(macOS 14.0, *) {
-            self.textFieldStyle(.plain)
-        } else {
-            self
-        }
-    }
-}
-
-extension SecureField {
-    @MainActor @ViewBuilder
-    func macSecurefieldStyle() -> some View {
-        if #available(macOS 14.0, *) {
-            self.textFieldStyle(.plain)
-        } else {
-            self
-        }
-    }
 }

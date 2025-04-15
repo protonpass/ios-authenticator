@@ -41,7 +41,7 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .sheetUIAlertService()
+        .sheetAlertService()
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
                       matching: .images,

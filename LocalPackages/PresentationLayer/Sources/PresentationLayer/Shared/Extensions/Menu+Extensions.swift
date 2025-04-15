@@ -1,6 +1,6 @@
 //
-// UIToastService+ViewModifier.swift
-// Proton Authenticator - Created on 31/03/2025.
+// Menu+Extensions.swift
+// Proton Authenticator - Created on 11/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,22 +18,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Factory
-import SimpleToast
 import SwiftUI
 
-struct UIToastService: ViewModifier {
-    @State private var toastService = resolve(\ServiceContainer.toastService)
-    let completion: (() -> Void)?
-
-    func body(content: Content) -> some View {
-        content
-            .toast(toast: $toastService.currentToast, completion: completion)
-    }
-}
-
-public extension View {
-    func uiToastService(_ callback: (() -> Void)? = nil) -> some View {
-        modifier(UIToastService(completion: callback))
+extension Menu {
+    @MainActor @ViewBuilder
+    func adaptiveMenuStyle() -> some View {
+        self
+        #if os(macOS)
+        .menuStyle(.borderlessButton)
+        .padding(16)
+        #endif
     }
 }

@@ -25,7 +25,6 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case appearance
-    case exportEntries
 }
 
 public enum SheetDestination: Hashable, Identifiable {
@@ -65,8 +64,6 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .appearance:
                     Text("appeareance")
-                case .exportEntries:
-                    ExportView()
                 }
             }
     }
@@ -77,16 +74,14 @@ public extension View {
         modifier(RouterEmbeded())
     }
 
-    func withSheetDestinations(sheetDestinations: Binding<SheetDestination?>,
-                               colorScheme: ColorScheme? = nil) -> some View {
-        sheet(item: sheetDestinations) { destination in
+    func sheetDestinations(_ item: Binding<SheetDestination?>) -> some View {
+        sheet(item: item) { destination in
             switch destination {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
                     .resizableSheet()
             case .settings:
                 SettingsView()
-                    .preferredColorScheme(colorScheme)
                     .resizableSheet()
             #if os(iOS)
             case .qrCodeScanner:

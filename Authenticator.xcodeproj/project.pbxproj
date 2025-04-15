@@ -417,7 +417,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "BUNDLE_DIR=\"$PROJECT_DIR/Authenticator/App/Settings Bundles\"\nBUILD_APP_DIR=\"$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app\"\n\nif [[ $CONFIGURATION =~ \"Debug\" ]] || [[ $CONFIGURATION =~ \"QA\" ]]; then\n    # If config contains \"Debug\" or \"QA\", copy QA variant of Settings.bundle into app bundle\n    cp -rf \"$BUNDLE_DIR/QA/Settings.bundle\" \"$BUILD_APP_DIR/Settings.bundle\"\n    echo  \"$BUNDLE_DIR/QA/Settings.bundle\"\n    echo \"Settings QA copied\"\nelse\n    # Otherwise copy the regular variant\n    cp -rf \"$BUNDLE_DIR/Regular/Settings.bundle\" \"$BUILD_APP_DIR/Settings.bundle\"\n    echo \"Settings normal copied\"\nfi\n";
+			shellScript = "if [ \"$PLATFORM_NAME\" != \"macosx\" ]; then\nBUNDLE_DIR=\"$PROJECT_DIR/Authenticator/App/Settings Bundles\"\nBUILD_APP_DIR=\"$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app\"\n\nif [[ $CONFIGURATION =~ \"Debug\" ]] || [[ $CONFIGURATION =~ \"QA\" ]]; then\n    # If config contains \"Debug\" or \"QA\", copy QA variant of Settings.bundle into app bundle\n    cp -rf \"$BUNDLE_DIR/QA/Settings.bundle\" \"$BUILD_APP_DIR/Settings.bundle\"\n    echo  \"$BUNDLE_DIR/QA/Settings.bundle\"\n    echo \"Settings QA copied\"\nelse\n    # Otherwise copy the regular variant\n    cp -rf \"$BUNDLE_DIR/Regular/Settings.bundle\" \"$BUILD_APP_DIR/Settings.bundle\"\n    echo \"Settings normal copied\"\nfi\nelse\n    echo \"Skipping for macOS build\"\nfi\n";
 		};
 		5B87655D2D527A0800B4CC30 /* Swiftformat */ = {
 			isa = PBXShellScriptBuildPhase;
