@@ -32,6 +32,7 @@ public struct SettingsView: View {
     @State private var router = Router()
     @State private var showQaMenu = false
     @State private var showImportOptions = false
+    @State private var showFileExporter = false
 
     public init() {}
 
@@ -78,9 +79,18 @@ public struct SettingsView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            .toastDisplay()
             .mainBackground()
             .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
+            .if(viewModel.exportedDocument) { view, exportedDocument in
+                view
+                    .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                                  document: exportedDocument,
+                                  contentType: .text,
+                                  defaultFilename: viewModel.generateExportFileName(),
+                                  onCompletion: viewModel.handleExportResult)
+            }
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
@@ -193,7 +203,7 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), onTap: { router.navigate(to: .exportEntries) })
+            SettingRow(title: .localized("Export"), onTap: viewModel.exportData)
         }
     }
 

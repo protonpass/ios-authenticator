@@ -70,7 +70,6 @@ private extension PassBanner {
                 Image("passPreview", bundle: .module)
                     .resizable()
                     .scaledToFit()
-//                    .padding(.top)
                     .frame(maxWidth: 150, alignment: .trailing)
             }
             .frame(maxWidth: .infinity)

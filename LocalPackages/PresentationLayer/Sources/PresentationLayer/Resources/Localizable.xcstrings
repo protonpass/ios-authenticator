@@ -291,26 +291,6 @@
         }
       }
     },
-    "Export data to Backup File" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data to Backup File"
-          }
-        }
-      }
-    },
-    "Export to backup file" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export to backup file"
-          }
-        }
-      }
-    },
     "Feedback" : {
       "localizations" : {
         "en" : {
@@ -733,6 +713,16 @@
         }
       }
     },
+    "Successfully exported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully exported"
+          }
+        }
+      }
+    },
     "Successfully imported %lld items" : {
       "localizations" : {
         "en" : {
@@ -821,16 +811,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Update entry"
-          }
-        }
-      }
-    },
-    "Use this feature to import your data on an another device using Proton Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use this feature to import your data on an another device using Proton Authenticator"
           }
         }
       }

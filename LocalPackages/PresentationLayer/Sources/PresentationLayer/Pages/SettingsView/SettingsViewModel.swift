@@ -36,6 +36,7 @@ final class SettingsViewModel {
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
+    var exportedDocument: TextDocument?
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -54,6 +55,18 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.toastService)
+    private var toastService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.entryDataService)
+    private(set) var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private(set) var logManager
 
     var theme: Theme {
         settingsService.theme
@@ -140,12 +153,36 @@ extension SettingsViewModel {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
     }
+
+    func generateExportFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let currentDate = dateFormatter.string(from: .now)
+        return "Authenticator_backup_\(currentDate).txt"
+    }
+
+    func exportData() {
+        do {
+            let data = try entryDataService.exportEntries()
+            exportedDocument = TextDocument(data)
+        } catch {
+            alertService.showError(error, mainDisplay: false, action: nil)
+        }
+    }
+
+    func handleExportResult(_ result: Result<URL, any Error>) {
+        switch result {
+        case .success:
+            toastService.showToast(.init(title: #localized("Successfully exported")))
+        case let .failure(error):
+            handle(error)
+        }
+    }
 }
 
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
-        // swiftlint:disable:next todo
-        // TODO: Log
+        logManager.log(.error, category: .ui, error.localizedDescription)
         alertService.showError(error, mainDisplay: true, action: nil)
     }
 }
