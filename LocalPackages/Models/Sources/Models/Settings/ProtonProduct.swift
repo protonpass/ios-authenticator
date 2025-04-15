@@ -21,38 +21,47 @@
 import Foundation
 
 public enum ProtonProduct: Sendable, CaseIterable {
-    case pass, vpn, mail, drive, calendar, wallet
+    case pass, vpn, mail, drive, calendar
+}
 
-    public var name: String {
+public extension ProtonProduct {
+    var name: String {
         switch self {
         case .pass: "Proton Pass"
         case .vpn: "Proton VPN"
         case .mail: "Proton Mail"
         case .drive: "Proton Drive"
         case .calendar: "Proton Calendar"
-        case .wallet: "Proton Wallet"
         }
     }
 
-    public var iOSAppUrl: String {
+    var iOSAppBundleId: String {
+        switch self {
+        case .pass: "me.proton.pass.ios"
+        case .vpn: "ch.protonmail.vpn"
+        case .mail: "ch.protonmail.protonmail"
+        case .drive: "ch.protonmail.drive"
+        case .calendar: "ch.protonmail.calendar"
+        }
+    }
+
+    var iOSAppUrl: String {
         switch self {
         case .pass: "itms-apps://itunes.apple.com/app/id6443490629"
         case .vpn: "itms-apps://itunes.apple.com/app/id1437005085"
         case .mail: "itms-apps://itunes.apple.com/app/id979659905"
         case .drive: "itms-apps://itunes.apple.com/app/id1509667851"
         case .calendar: "itms-apps://itunes.apple.com/app/id1514709943"
-        case .wallet: "itms-apps://itunes.apple.com/app/id6479609548"
         }
     }
 
-    public var homepageUrl: String {
+    var homepageUrl: String {
         switch self {
         case .pass: "https://proton.me/pass"
         case .vpn: "https://proton.me/vpn"
         case .mail: "https://proton.me/mail"
         case .drive: "https://proton.me/drive"
         case .calendar: "https://proton.me/calendar"
-        case .wallet: "https://proton.me/wallet"
         }
     }
 }

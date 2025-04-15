@@ -31,8 +31,8 @@ public struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showQaMenu = false
-    @State private var showEditTheme = false
     @State private var showImportOptions = false
+    @State private var showFileExporter = false
 
     public init() {}
 
@@ -49,20 +49,23 @@ public struct SettingsView: View {
                 appearanceSection
                 dataSection
                 supportSection
-                discoverySection
+                if !viewModel.products.isEmpty {
+                    discoverySection
+                }
                 versionLabel
                     .padding(.top, 32)
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
+            .listSectionSpacing(DesignConstant.padding * 2)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
                         dismiss()
                     } label: {
                         Text("Close")
-                            .foregroundStyle(.textWeak)
+                            .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()
                 }
@@ -76,19 +79,23 @@ public struct SettingsView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            .toastDisplay()
             .mainBackground()
-            .sheetUIAlertService()
+            .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
+            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                          document: viewModel.exportedDocument,
+                          contentType: .text,
+                          defaultFilename: viewModel.generateExportFileName(),
+                          onCompletion: viewModel.handleExportResult)
             .sheet(isPresented: $showQaMenu) {
                 QAMenuView()
             }
-            .sheet(isPresented: $showEditTheme) {
-                EditThemeView(currentTheme: viewModel.theme,
-                              onUpdate: viewModel.updateTheme)
-            }
         }
+        .animation(.default, value: viewModel.theme)
+        .preferredColorScheme(viewModel.theme.preferredColorScheme)
         #if os(macOS)
-        .frame(minWidth: 800, minHeight: 600)
+            .frame(minWidth: 800, minHeight: 600)
         #endif
     }
 
@@ -117,11 +124,13 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Sync between devices"),
-                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                             onToggle: viewModel.toggleSync))
+            /*
+             SettingRow(title: .localized("Sync between devices"),
+                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                              onToggle: viewModel.toggleSync))
 
-            SettingDivider()
+             SettingDivider()
+              */
 
             SettingRow(title: .localized("Biometric lock"),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
@@ -129,40 +138,31 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Tap to reveal codes"),
-                       trailingMode: .toggle(isOn: viewModel.tapToRevealCodeEnabled,
-                                             onToggle: viewModel.toggleTapToRevealCode))
+            SettingRow(title: .localized("Hide codes"),
+                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
+                                             onToggle: viewModel.toggleHideCode))
         }
     }
 
     var appearanceSection: some View {
         section("APPEARANCE") {
-            if useMenuForTheme {
-                Menu(content: {
-                    ForEach(Theme.allCases, id: \.self) { theme in
-                        Button(action: {
-                            viewModel.updateTheme(theme)
-                        }, label: {
-                            if theme == viewModel.theme {
-                                Label(theme.title, systemImage: "checkmark")
-                            } else {
-                                Text(theme.title)
-                            }
-                        })
-                    }
-                }, label: {
-                    if AppConstants.isIpad {
-                        themeRow()
-                    } else {
-                        Text("Theme")
-                    }
-                })
-                .adaptiveMenuStyle()
-            } else {
-                themeRow {
-                    showEditTheme.toggle()
+            Menu(content: {
+                ForEach(Theme.allCases, id: \.self) { theme in
+                    Button(action: {
+                        viewModel.updateTheme(theme)
+                    }, label: {
+                        if theme == viewModel.theme {
+                            Label(theme.title, systemImage: "checkmark")
+                        } else {
+                            Text(theme.title)
+                        }
+                    })
                 }
-            }
+            }, label: {
+                SettingRow(title: .localized("Theme"),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title)))
+            })
+            .adaptiveMenuStyle()
 
             SettingDivider()
 
@@ -179,76 +179,48 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                if AppConstants.isIpad {
-                    SettingRow(title: .localized("Search bar position"),
-                               trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
-                                                            onTap: {}))
-                } else {
-                    Text("Search bar position")
-                }
+                SettingRow(title: .localized("Search bar position"),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title)))
             })
             .adaptiveMenuStyle()
 
-            SettingDivider()
-
-            SettingRow(title: .localized("Hide cell entry code"),
-                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
-                                             onToggle: viewModel.toggleHideCode))
             SettingDivider()
             SettingRow(title: .localized("Show number background"),
                        trailingMode: .toggle(isOn: viewModel.showNumberBackground,
                                              onToggle: viewModel.toggleDisplayNumberBackground))
             SettingDivider()
             SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
+                       trailingMode: .detailChevronUpDown(.verbatim("Regular")))
         }
-    }
-
-    func themeRow(_ onTap: (() -> Void)? = nil) -> some View {
-        SettingRow(title: .localized("Theme"),
-                   trailingMode: .detailChevron(.localized(viewModel.theme.title),
-                                                onTap: { onTap?() }))
-    }
-
-    var useMenuForTheme: Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .pad
-        #else
-        true
-        #endif
     }
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {
-                showImportOptions.toggle()
-            }))
+            SettingRow(title: .localized("Import"), onTap: { showImportOptions.toggle() })
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {
-                router.navigate(to: .exportEntries)
-            }))
+            SettingRow(title: .localized("Export"), onTap: viewModel.exportData)
         }
     }
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator"),
-                       trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("How to use Proton Authenticator"))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Feedback"))
         }
     }
 
     var discoverySection: some View {
         section("DISCOVER PROTON") {
-            ForEach(ProtonProduct.allCases, id: \.self) { product in
+            ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
-                           trailingMode: .chevron(onTap: { open(urlString: product.finalUrl) }))
+                           subtitle: product.description,
+                           onTap: { open(urlString: product.finalUrl) })
 
                 if product != ProtonProduct.allCases.last {
                     SettingDivider()
@@ -287,22 +259,20 @@ private extension SettingsView {
                 content()
             }
             .padding(.horizontal, 0)
-            .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
+            .background(isDarkMode ? .white.opacity(0.08) : .white)
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-            .padding(.top, 8)
         } header: {
             Text(title)
                 .font(.callout)
-                .padding(.leading)
+                .padding(.horizontal, DesignConstant.padding)
                 .foregroundStyle(.textWeak)
         }
         .plainListRow()
-        .padding(.horizontal, 16)
+        .padding(.horizontal, DesignConstant.padding)
     }
 
     func open(urlString: String) {
@@ -339,7 +309,21 @@ private extension ProtonProduct {
         case .mail: .logoMail
         case .drive: .logoDrive
         case .calendar: .logoCalendar
-        case .wallet: .logoWallet
+        }
+    }
+
+    var description: LocalizedStringKey {
+        switch self {
+        case .pass:
+            "Store strong, unique passwords to avoid identity theft and breaches."
+        case .vpn:
+            "Browse without being tracked and access blocked content."
+        case .mail:
+            "Protect your inbox from spam, tracking, and targeted ads."
+        case .drive:
+            "Organize your schedule and keep your plans to yourself."
+        case .calendar:
+            "Give your precious photos and files the safe home they deserve."
         }
     }
 
@@ -349,5 +333,18 @@ private extension ProtonProduct {
         #else
         homepageUrl
         #endif
+    }
+}
+
+private extension Theme {
+    var title: LocalizedStringKey {
+        switch self {
+        case .dark:
+            "Dark"
+        case .light:
+            "Light"
+        case .system:
+            "Match system"
+        }
     }
 }

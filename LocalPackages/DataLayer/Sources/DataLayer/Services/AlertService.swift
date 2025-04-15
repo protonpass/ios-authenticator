@@ -110,8 +110,7 @@ public enum AlertDisplay: Identifiable {
         configuration.message
     }
 
-    @ViewBuilder
-    public var buildActions: some View {
+    public var actions: some View {
         ForEach(configuration.actions) { actionConfig in
             if let role = actionConfig.role.role {
                 Button(role: role) {

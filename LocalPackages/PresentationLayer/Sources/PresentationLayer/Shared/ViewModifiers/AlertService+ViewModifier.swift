@@ -1,5 +1,5 @@
 //
-// UIAlertService+ViewModifier.swift
+// AlertService+ViewModifier.swift
 // Proton Authenticator - Created on 17/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -19,22 +19,24 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import CommonUtilities
+import DataLayer
 import Factory
 import Foundation
 import SwiftUI
 
-struct UIAlertService: ViewModifier {
+struct AlertServiceModifier: ViewModifier {
     @State private var alertService = resolve(\ServiceContainer.alertService)
     let isMainDisplay: Bool
 
     func body(content: Content) -> some View {
         content
-            .alert(alertService.alert?.title ?? "Unknown",
+            .alert(alertService.alert.titleText,
                    isPresented: isMainDisplay ? $alertService.showMainAlert : $alertService.showSheetAlert,
                    presenting: alertService.alert,
                    actions: { display in
-                       display.buildActions
-                   }, message: { display in
+                       display.actions
+                   },
+                   message: { display in
                        if let message = display.message {
                            Text(message)
                        }
@@ -43,11 +45,22 @@ struct UIAlertService: ViewModifier {
 }
 
 public extension View {
-    func mainUIAlertService() -> some View {
-        modifier(UIAlertService(isMainDisplay: true))
+    func mainAlertService() -> some View {
+        modifier(AlertServiceModifier(isMainDisplay: true))
     }
 
-    func sheetUIAlertService() -> some View {
-        modifier(UIAlertService(isMainDisplay: false))
+    func sheetAlertService() -> some View {
+        modifier(AlertServiceModifier(isMainDisplay: false))
+    }
+}
+
+private extension AlertDisplay? {
+    var titleText: Text {
+        // swiftlint:disable:next discouraged_optional_self
+        if let title = self?.title {
+            Text(title)
+        } else {
+            Text(verbatim: "")
+        }
     }
 }
