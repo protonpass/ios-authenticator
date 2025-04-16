@@ -23,6 +23,21 @@ import CommonUtilities
 import Models
 import SwiftUI
 
+enum SettingsSheetStates {
+    case logs
+    case qa
+
+    @MainActor @ViewBuilder
+    var destination: some View {
+        switch self {
+        case .logs:
+            LogsView()
+        case .qa:
+            QAMenuView()
+        }
+    }
+}
+
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -30,7 +45,7 @@ public struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-    @State private var showQaMenu = false
+    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
 
     public init() {}
@@ -89,8 +104,8 @@ public struct SettingsView: View {
                           contentType: .text,
                           defaultFilename: viewModel.generateExportFileName(),
                           onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $showQaMenu) {
-                QAMenuView()
+            .sheet(isPresented: $settingSheet.mappedToBool()) {
+                settingSheet?.destination
             }
         }
         .animation(.default, value: viewModel.theme)
@@ -217,7 +232,7 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export Logs"), onTap: viewModel.exportLogs)
+            SettingRow(title: .localized("Logs"), onTap: { settingSheet = .logs })
         }
     }
 
@@ -246,7 +261,7 @@ private extension SettingsView {
                 .plainListRow()
                 .if(viewModel.isQaBuild) { view in
                     view.onTapGesture(count: 3) {
-                        showQaMenu.toggle()
+                        settingSheet = .qa
                     }
                 }
         }

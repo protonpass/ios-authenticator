@@ -28,11 +28,6 @@ import Models
 import UIKit
 #endif
 
-enum ExportedType {
-    case data
-    case logs
-}
-
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var backUpEnabled = true
@@ -41,9 +36,6 @@ final class SettingsViewModel {
     private(set) var versionString: String?
     private(set) var biometricLock = false
     var exportedDocument: TextDocument?
-
-    @ObservationIgnored
-    private var exportingType: ExportedType?
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -173,29 +165,15 @@ extension SettingsViewModel {
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return exportingType == .logs ? "Authenticator_logs_\(currentDate).txt" :
-            "Authenticator_backup_\(currentDate).txt"
+        return "Authenticator_backup_\(currentDate).txt"
     }
 
     func exportData() {
         do {
-            exportingType = .data
             let data = try entryDataService.exportEntries()
             exportedDocument = TextDocument(data)
         } catch {
             alertService.showError(error, mainDisplay: false, action: nil)
-        }
-    }
-
-    func exportLogs() {
-        Task {
-            do {
-                let logsContent = try await logManager.logsContent()
-                exportingType = .logs
-                exportedDocument = TextDocument(logsContent)
-            } catch {
-                alertService.showError(error, mainDisplay: false, action: nil)
-            }
         }
     }
 

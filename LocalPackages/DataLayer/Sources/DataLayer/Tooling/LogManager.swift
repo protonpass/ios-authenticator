@@ -87,6 +87,7 @@ public protocol LoggerProtocol: Sendable {
                          function: String,
                          line: Int)
     func logsContent(category: LogCategory?) async throws -> String
+    func fetchLogs(category: LogCategory?) async throws -> [LogEntry]
 }
 
 public extension LoggerProtocol {
@@ -101,6 +102,10 @@ public extension LoggerProtocol {
 
     func logsContent(category: LogCategory? = nil) async throws -> String {
         try await logsContent(category: category)
+    }
+
+    func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntry] {
+        try await fetchLogs(category: category)
     }
 
     // MARK: - Export Logs (Per Category)
@@ -173,20 +178,20 @@ public final actor LogManager: LoggerProtocol {
 
     // MARK: - Fetch Logs by Category
 
-    func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntryEntity] {
+    public func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntry] {
         let descriptor = if let category {
             FetchDescriptor<LogEntryEntity>(predicate: #Predicate { $0.category == category.rawValue },
                                             sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         } else {
             FetchDescriptor<LogEntryEntity>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         }
-        return try await persistentStorage.fetch(fetchDescriptor: descriptor)
+        return try await persistentStorage.fetch(fetchDescriptor: descriptor).toLogEntries
     }
 
     public func logsContent(category: LogCategory? = nil) async throws -> String {
         let logs = try await fetchLogs(category: category)
         let logString = logs.map { log in
-            "[\(log.timestamp)] [\(log.category)] [\(log.level)] [\(log.file)] \(log.message)"
+            log.description
         }
         .joined(separator: "\n")
         return logString
@@ -271,7 +276,8 @@ private extension LogManager {
 
 // MARK: - Log models
 
-struct LogEntry: Sendable {
+public struct LogEntry: Sendable, Equatable, Identifiable {
+    public let id: String
     let timestamp: Date
     let level: LogLevel
     let message: String
@@ -280,13 +286,15 @@ struct LogEntry: Sendable {
     let function: String
     let line: Int
 
-    init(timestamp: Date = Date.now,
-         level: LogLevel,
-         message: String,
-         category: LogCategory,
-         file: String,
-         function: String,
-         line: Int) {
+    public init(id: String = UUID().uuidString,
+                timestamp: Date = Date.now,
+                level: LogLevel,
+                message: String,
+                category: LogCategory,
+                file: String,
+                function: String,
+                line: Int) {
+        self.id = id
         self.timestamp = timestamp
         self.level = level
         self.message = message
@@ -294,6 +302,10 @@ struct LogEntry: Sendable {
         self.file = file
         self.function = function
         self.line = line
+    }
+
+    public var description: String {
+        "[\(timestamp)] [\(category)] [\(level)] [\(file)] \(message)"
     }
 }
 
@@ -339,6 +351,24 @@ private extension LogEntry {
               file: file,
               function: function,
               line: line)
+    }
+}
+
+private extension LogEntryEntity {
+    var toLogEntry: LogEntry {
+        .init(timestamp: timestamp,
+              level: LogLevel(rawValue: level) ?? .info,
+              message: message,
+              category: LogCategory(rawValue: category) ?? .system,
+              file: file,
+              function: function,
+              line: line)
+    }
+}
+
+private extension [LogEntryEntity] {
+    var toLogEntries: [LogEntry] {
+        map(\.toLogEntry)
     }
 }
 
