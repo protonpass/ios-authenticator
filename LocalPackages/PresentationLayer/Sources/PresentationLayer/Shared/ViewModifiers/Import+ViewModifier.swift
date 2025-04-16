@@ -103,6 +103,7 @@ struct ImportingServiceModifier: ViewModifier {
 }
 
 private extension View {
+    //periphery:ignore
     func importOptionsDialog(isPresented: Binding<Bool>,
                              onSelect: @escaping (ImportOption) -> Void) -> some View {
         confirmationDialog("Select your provider",
