@@ -45,7 +45,7 @@ public final class TOTPIssuerMapper: TOTPIssuerMapperServicing {
     }
 }
 
-extension IssuerInfo {
+private extension IssuerInfo {
     var toAuthIssuerInfo: AuthIssuerInfo {
         AuthIssuerInfo(domain: domain, iconUrl: iconUrl)
     }

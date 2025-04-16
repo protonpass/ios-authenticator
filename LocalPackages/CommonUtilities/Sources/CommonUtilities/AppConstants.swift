@@ -49,8 +49,8 @@ public enum AppConstants {
         public static let displayCode = "DisplayCode"
         public static let numberBackground = "NumberBackground"
         public static let onboarded = "Onboarded"
-        public static let showPassBanner = "showPassBanner"
-        public static let authenticationState = "authenticationState"
+        public static let showPassBanner = "ShowPassBanner"
+        public static let authenticationState = "AuthenticationState"
     }
 
     @MainActor
@@ -82,6 +82,6 @@ public enum AppConstants {
     }
 
     public enum CommonUrls {
-        public static let feedbackUrl: String = "https://proton.me/support/contact"
+        public static let feedbackUrl = "https://proton.me/support/contact"
     }
 }

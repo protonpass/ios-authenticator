@@ -88,7 +88,6 @@ public final class EncryptionService: EncryptionServicing {
         return key
     }
 
-    // periphery:ignore
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
@@ -119,7 +118,6 @@ public final class EncryptionService: EncryptionServicing {
                                                     key: localKey)
     }
 
-    // periphery:ignore
     public func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
         log(.info, "Encrypting \(entries.count) entries with local encryption key ")

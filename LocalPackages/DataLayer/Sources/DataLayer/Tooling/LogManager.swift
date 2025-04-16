@@ -86,8 +86,7 @@ public protocol LoggerProtocol: Sendable {
                          file: String,
                          function: String,
                          line: Int)
-    func exportLogs(category: LogCategory?) async -> URL?
-    func logsContent(category: LogCategory?) async throws -> String?
+    func logsContent(category: LogCategory?) async throws -> String
 }
 
 public extension LoggerProtocol {
@@ -100,8 +99,29 @@ public extension LoggerProtocol {
         log(level, category: category, message, file: file, function: function, line: line)
     }
 
-    func logsContent(category: LogCategory? = nil) async throws -> String? {
+    func logsContent(category: LogCategory? = nil) async throws -> String {
         try await logsContent(category: category)
+    }
+
+    // MARK: - Export Logs (Per Category)
+
+    func exportLogs(category: LogCategory? = nil) async -> URL? {
+        do {
+            let logContent = try await logsContent(category: category)
+
+            let filename = if let category {
+                "logs_\(category.rawValue).txt"
+            } else {
+                "logs.txt"
+            }
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+
+            try logContent.write(to: fileURL, atomically: true, encoding: .utf8)
+            return fileURL
+        } catch {
+            print("Failed to export logs: \(error.localizedDescription)")
+            return nil
+        }
     }
 }
 
@@ -163,32 +183,7 @@ public final actor LogManager: LoggerProtocol {
         return try await persistentStorage.fetch(fetchDescriptor: descriptor)
     }
 
-    // MARK: - Export Logs (Per Category)
-
-    public func exportLogs(category: LogCategory? = nil) async -> URL? {
-        do {
-            let logs = try await fetchLogs(category: category)
-            let logString = logs.map { log in
-                "[\(log.timestamp)] [\(log.level)] \(log.message)"
-            }
-            .joined(separator: "\n")
-
-            let filename = if let category {
-                "logs_\(category.rawValue).txt"
-            } else {
-                "logs.txt"
-            }
-            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-
-            try logString.write(to: fileURL, atomically: true, encoding: .utf8)
-            return fileURL
-        } catch {
-            print("Failed to export logs: \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-    public func logsContent(category: LogCategory? = nil) async throws -> String? {
+    public func logsContent(category: LogCategory? = nil) async throws -> String {
         let logs = try await fetchLogs(category: category)
         let logString = logs.map { log in
             "[\(log.timestamp)] [\(log.category)] [\(log.level)] [\(log.file)] \(log.message)"

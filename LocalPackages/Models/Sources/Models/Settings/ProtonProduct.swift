@@ -35,7 +35,7 @@ public extension ProtonProduct {
         }
     }
 
-    var iOSAppBundleId: String {
+    var iOSAppUrlScheme: String {
         switch self {
         case .pass: "protonpass"
         case .vpn: "protonvpn"

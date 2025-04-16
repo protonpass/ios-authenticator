@@ -103,7 +103,7 @@ final class SettingsViewModel {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
             #if canImport(UIKit)
-            if let url = URL(string: "\(product.iOSAppBundleId)://"),
+            if let url = URL(string: "\(product.iOSAppUrlScheme)://"),
                UIApplication.shared.canOpenURL(url) {
                 return false
             }
@@ -190,7 +190,7 @@ extension SettingsViewModel {
     func exportLogs() {
         Task {
             do {
-                guard let logsContent = try await logManager.logsContent() else { return }
+                let logsContent = try await logManager.logsContent()
                 exportingType = .logs
                 exportedDocument = TextDocument(logsContent)
             } catch {

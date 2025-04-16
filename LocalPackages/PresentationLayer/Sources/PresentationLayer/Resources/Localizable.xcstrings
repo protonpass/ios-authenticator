@@ -673,6 +673,7 @@
       }
     },
     "Select your provider" : {
+      "comment" : "Title of the alert to ask for which provider to import from",
       "localizations" : {
         "en" : {
           "stringUnit" : {

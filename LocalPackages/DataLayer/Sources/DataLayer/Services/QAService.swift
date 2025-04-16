@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+// periphery:ignore:all
+
 import CommonUtilities
 import Foundation
 import Models
@@ -28,7 +30,6 @@ public protocol QAServicing: Sendable, Observable {
     var numberOfMockEntries: Int { get set }
     var dataState: DataState<[EntryUiModel]> { get }
 
-    // periphery:ignore
     func mockedEntries() async
 }
 

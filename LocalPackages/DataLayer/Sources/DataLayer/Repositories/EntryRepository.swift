@@ -140,7 +140,6 @@ public extension EntryRepository {
         try await persistentStorage.batchSave(content: encryptedEntries)
     }
 
-    // periphery:ignore
     func remove(_ entry: Entry) async throws {
         let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entry.id }
         guard let entity: EncryptedEntryEntity = try await persistentStorage.fetchOne(predicate: predicate) else {
@@ -154,7 +153,6 @@ public extension EntryRepository {
         try await persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
     }
 
-    // periphery:ignore
     func removeAll() async throws {
         try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
     }
