@@ -52,7 +52,7 @@ struct LogsView: View {
                     Button {
                         viewModel.exportLogs()
                     } label: {
-                        Text("Export")
+                        Text("Share")
                             .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()

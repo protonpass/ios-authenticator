@@ -733,6 +733,16 @@
         }
       }
     },
+    "Share" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
+          }
+        }
+      }
+    },
     "Skip" : {
       "localizations" : {
         "en" : {

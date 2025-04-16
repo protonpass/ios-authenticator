@@ -58,6 +58,15 @@ public enum LogLevel: String, Sendable, Codable {
         case .critical: .fault
         }
     }
+
+    var visualQueue: String {
+        switch self {
+        case .debug: "🟣"
+        case .info: "🔵"
+        case .warning: "🟡"
+        case .error, .critical: "🔴"
+        }
+    }
 }
 
 public struct LogManagerConfiguration: Sendable {
@@ -305,7 +314,7 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
     }
 
     public var description: String {
-        "[\(timestamp)] [\(category)] [\(level)] [\(file)] \(message)"
+        "\(level.visualQueue) [\(timestamp)] [\(category)] [\(level)] [\(file)] \(message)"
     }
 }
 
