@@ -394,15 +394,16 @@ private extension EntriesView {
                 .font(.title)
                 .fontWeight(.bold)
         }
+        #if os(iOS)
         ToolbarItem(placement: toolbarItemTrailingPlacement) {
             trailingContent
         }
+        #endif
     }
 
     @ViewBuilder
     var trailingContent: some View {
         HStack {
-            #if os(iOS)
             if AppConstants.isIpad {
                 Button {
                     withAnimation {
@@ -414,7 +415,6 @@ private extension EntriesView {
                         .foregroundStyle(isEditing ? .textNorm : .textWeak)
                 }
             }
-            #endif
             Button {
                 router.presentedSheet = .settings
             } label: {
