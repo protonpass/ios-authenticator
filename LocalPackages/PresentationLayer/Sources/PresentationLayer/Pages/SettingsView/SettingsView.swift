@@ -39,10 +39,12 @@ public struct SettingsView: View {
         NavigationStack(path: $router.path) {
             List {
                 if viewModel.showPassBanner {
-                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {})
-                        .padding(.horizontal, 16)
-                        .buttonStyle(.plain)
-                        .plainListRow()
+                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {
+                        open(urlString: ProtonProduct.pass.finalUrl)
+                    })
+                    .padding(.horizontal, 16)
+                    .buttonStyle(.plain)
+                    .plainListRow()
                 }
                 securitySection
                 appearanceSection

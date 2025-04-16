@@ -291,6 +291,16 @@
         }
       }
     },
+    "Export Logs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Logs"
+          }
+        }
+      }
+    },
     "Feedback" : {
       "localizations" : {
         "en" : {

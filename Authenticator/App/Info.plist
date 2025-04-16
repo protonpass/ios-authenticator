@@ -19,6 +19,14 @@
 	</array>
 	<key>IS_QA_BUILD =
 	<string>$(IS_QA_BUILD =
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>protonpass</string>
+		<string>ch.protonmail.vpn</string>
+		<string>ch.protonmail.protonmail</string>
+		<string>ch.protonmail.drive</string>
+		<string>ch.protonmail.calendar</string>
+	</array>
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -51,14 +59,6 @@
 				</array>
 			</dict>
 		</dict>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>me.proton.pass.ios</string>
-		<string>ch.protonmail.vpn</string>
-		<string>ch.protonmail.protonmail</string>
-		<string>ch.protonmail.drive</string>
-		<string>ch.protonmail.calendar</string>
 	</array>
 </dict>
 </plist>

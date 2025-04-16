@@ -36,7 +36,6 @@ enum ExportedType {
 
 @Observable @MainActor
 final class SettingsViewModel {
-    private(set) var showPassBanner = true
     private(set) var backUpEnabled = true
     private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
@@ -97,6 +96,10 @@ final class SettingsViewModel {
         bundle.isQaBuild
     }
 
+    var showPassBanner: Bool {
+        !products.contains(.pass) && settingsService.showPassBanner
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
@@ -118,7 +121,7 @@ extension SettingsViewModel {
     }
 
     func togglePassBanner() {
-        showPassBanner.toggle()
+        settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
 
     func toggleBackUp() {
