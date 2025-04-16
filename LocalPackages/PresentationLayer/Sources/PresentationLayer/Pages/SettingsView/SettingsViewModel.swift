@@ -79,8 +79,12 @@ final class SettingsViewModel {
         settingsService.entryUIConfiguration.hideEntryCode
     }
 
-    var showNumberBackground: Bool {
-        settingsService.entryUIConfiguration.displayNumberBackground
+    var digitStyle: DigitStyle {
+        settingsService.entryUIConfiguration.digitStyle
+    }
+
+    var animateCodeChange: Bool {
+        settingsService.entryUIConfiguration.animateCodeChange
     }
 
     var isQaBuild: Bool {
@@ -146,8 +150,12 @@ extension SettingsViewModel {
         settingsService.setHideEntryCode(!shouldHideCode)
     }
 
-    func toggleDisplayNumberBackground() {
-        settingsService.setDisplayNumberBackground(!showNumberBackground)
+    func updateDigitStyle(_ newValue: DigitStyle) {
+        settingsService.setDigitStyle(newValue)
+    }
+
+    func toggleCodeAnimation() {
+        settingsService.setCodeAnimation(!animateCodeChange)
     }
 
     func updateTheme(_ newValue: Theme) {

@@ -76,6 +76,7 @@ struct EntryCell: View {
 
             HStack(alignment: .bottom) {
                 numberView
+                    .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
 
                 Spacer()
 
@@ -119,13 +120,14 @@ struct EntryCell: View {
     @ViewBuilder
     private var numberView: some View {
         let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
-        if configuration.displayNumberBackground {
+        if configuration.digitStyle == .boxed {
             ForEach(Array(code.enumerated()), id: \.offset) { _, char in
                 HStack(alignment: .center, spacing: 10) {
                     Text(verbatim: "\(char)")
                         .font(.title)
                         .fontWeight(.semibold)
                         .foregroundStyle(.textNorm)
+                        .contentTransition(.numericText())
                 }
                 .padding(.horizontal, 5)
                 .frame(minWidth: 28)
@@ -143,6 +145,7 @@ struct EntryCell: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.textNorm)
                 .monospaced()
+                .contentTransition(.numericText())
         }
     }
 

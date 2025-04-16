@@ -201,12 +201,27 @@ private extension SettingsView {
             .adaptiveMenuStyle()
 
             SettingDivider()
-            SettingRow(title: .localized("Show number background"),
-                       trailingMode: .toggle(isOn: viewModel.showNumberBackground,
-                                             onToggle: viewModel.toggleDisplayNumberBackground))
+            Menu(content: {
+                ForEach(DigitStyle.allCases, id: \.self) { style in
+                    Button(action: {
+                        viewModel.updateDigitStyle(style)
+                    }, label: {
+                        if style == viewModel.digitStyle {
+                            Label(style.title, systemImage: "checkmark")
+                        } else {
+                            Text(style.title)
+                        }
+                    })
+                }
+            }, label: {
+                SettingRow(title: .localized("Digit style"),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title)))
+            })
+            .adaptiveMenuStyle()
             SettingDivider()
-            SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevronUpDown(.verbatim("Regular")))
+            SettingRow(title: .localized("Animate code change"),
+                       trailingMode: .toggle(isOn: viewModel.animateCodeChange,
+                                             onToggle: viewModel.toggleCodeAnimation))
         }
     }
 
