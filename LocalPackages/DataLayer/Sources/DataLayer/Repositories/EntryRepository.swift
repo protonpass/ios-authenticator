@@ -49,6 +49,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func removeAll() async throws
     func update(_ entry: Entry) async throws
     func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws
+    func fetch()
 }
 
 public extension EntryRepositoryProtocol {
@@ -177,6 +178,8 @@ public extension EntryRepository {
         }
         try await persistentStorage.batchSave(content: encryptedEntries)
     }
+
+    func fetch() {}
 }
 
 private extension EntryRepository {

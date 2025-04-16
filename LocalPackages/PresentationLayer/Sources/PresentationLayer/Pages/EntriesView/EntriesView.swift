@@ -395,12 +395,13 @@ private extension EntriesView {
                 .fontWeight(.bold)
         }
         #if os(iOS)
-        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+        ToolbarItem(placement: .topBarTrailing) {
             trailingContent
         }
         #endif
     }
 
+    // periphery:ignore
     @ViewBuilder
     var trailingContent: some View {
         HStack {
@@ -425,14 +426,6 @@ private extension EntriesView {
             }
             .adaptiveButtonStyle()
         }
-    }
-
-    var toolbarItemTrailingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarTrailing
-        #else
-        return .automatic
-        #endif
     }
 
     var toolbarItemLeadingPlacement: ToolbarItemPlacement {
