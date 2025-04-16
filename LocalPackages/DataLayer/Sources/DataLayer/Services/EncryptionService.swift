@@ -58,7 +58,6 @@ public final class EncryptionService: EncryptionServicing {
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
     private let keyStore: KeychainServicing
     private let logger: LoggerProtocol
-    private let deviceIdentifier: String
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
                 keyStore: KeychainServicing,
@@ -66,7 +65,6 @@ public final class EncryptionService: EncryptionServicing {
                 logger: LoggerProtocol) {
         self.keyStore = keyStore
         self.logger = logger
-        self.deviceIdentifier = deviceIdentifier
         keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
     }
