@@ -29,7 +29,6 @@ import UIKit
 #endif
 
 enum ExportedType {
-    case none
     case data
     case logs
 }
@@ -44,7 +43,7 @@ final class SettingsViewModel {
     var exportedDocument: TextDocument?
 
     @ObservationIgnored
-    private var exportingType: ExportedType = .none
+    private var exportingType: ExportedType?
 
     @ObservationIgnored
     private let bundle: Bundle
