@@ -50,7 +50,8 @@ public enum AppConstants {
         public static let digitStyle = "DigitStyle"
         public static let animateCode = "AnimateCode"
         public static let onboarded = "Onboarded"
-        public static let authenticationState = "authenticationState"
+        public static let showPassBanner = "ShowPassBanner"
+        public static let authenticationState = "AuthenticationState"
     }
 
     @MainActor
@@ -62,6 +63,7 @@ public enum AppConstants {
         #endif
     }
 
+    // periphery:ignore
     @MainActor
     public static var isIpad: Bool {
         #if canImport(UIKit)
@@ -78,5 +80,9 @@ public enum AppConstants {
     public enum EntryOptions {
         public static let supportedDigits: [Int] = [6, 8]
         public static let supportedPeriod: [Int] = [30, 60]
+    }
+
+    public enum CommonUrls {
+        public static let feedbackUrl = "https://proton.me/support/contact"
     }
 }

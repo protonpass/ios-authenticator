@@ -35,13 +35,13 @@ public extension ProtonProduct {
         }
     }
 
-    var iOSAppBundleId: String {
+    var iOSAppUrlScheme: String {
         switch self {
-        case .pass: "me.proton.pass.ios"
-        case .vpn: "ch.protonmail.vpn"
-        case .mail: "ch.protonmail.protonmail"
+        case .pass: "protonpass"
+        case .vpn: "protonvpn"
+        case .mail: "ch.protonmail.protonmail.mailto"
         case .drive: "ch.protonmail.drive"
-        case .calendar: "ch.protonmail.calendar"
+        case .calendar: "protoncalendar"
         }
     }
 

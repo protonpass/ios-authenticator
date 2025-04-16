@@ -42,10 +42,12 @@ public enum EntryState: Sendable {
 public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
 
-    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
-    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState]
     func encrypt(entry: Entry) throws -> Data
+    // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
+    // periphery:ignore
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
+    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 }
 
 // swiftlint:disable:next todo
@@ -56,7 +58,6 @@ public final class EncryptionService: EncryptionServicing {
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
     private let keyStore: KeychainServicing
     private let logger: LoggerProtocol
-    private let deviceIdentifier: String
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
                 keyStore: KeychainServicing,
@@ -64,7 +65,6 @@ public final class EncryptionService: EncryptionServicing {
                 logger: LoggerProtocol) {
         self.keyStore = keyStore
         self.logger = logger
-        self.deviceIdentifier = deviceIdentifier
         keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
     }
@@ -98,7 +98,7 @@ public final class EncryptionService: EncryptionServicing {
         return .decrypted(entry.toEntry)
     }
 
-    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+    public func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         log(.info, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {

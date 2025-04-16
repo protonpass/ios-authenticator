@@ -394,15 +394,17 @@ private extension EntriesView {
                 .font(.title)
                 .fontWeight(.bold)
         }
-        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+        #if os(iOS)
+        ToolbarItem(placement: .topBarTrailing) {
             trailingContent
         }
+        #endif
     }
 
+    // periphery:ignore
     @ViewBuilder
     var trailingContent: some View {
         HStack {
-            #if os(iOS)
             if AppConstants.isIpad {
                 Button {
                     withAnimation {
@@ -414,7 +416,6 @@ private extension EntriesView {
                         .foregroundStyle(isEditing ? .textNorm : .textWeak)
                 }
             }
-            #endif
             Button {
                 router.presentedSheet = .settings
             } label: {
@@ -425,14 +426,6 @@ private extension EntriesView {
             }
             .adaptiveButtonStyle()
         }
-    }
-
-    var toolbarItemTrailingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarTrailing
-        #else
-        return .automatic
-        #endif
     }
 
     var toolbarItemLeadingPlacement: ToolbarItemPlacement {

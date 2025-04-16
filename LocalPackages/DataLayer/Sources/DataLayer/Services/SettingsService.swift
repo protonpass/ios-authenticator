@@ -29,6 +29,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var searchBarDisplayMode: SearchBarDisplayMode { get }
     var entryUIConfiguration: EntryCellConfiguration { get }
     var onboarded: Bool { get }
+    var showPassBanner: Bool { get }
 
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
@@ -36,6 +37,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setDigitStyle(_ value: DigitStyle)
     func setCodeAnimation(_ value: Bool)
     func setOnboarded(_ value: Bool)
+    func togglePassBanner(_ value: Bool)
 }
 
 @MainActor
@@ -48,6 +50,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var theme: Theme
     public private(set) var entryUIConfiguration: EntryCellConfiguration
     public private(set) var onboarded: Bool
+    public private(set) var showPassBanner: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -62,6 +65,7 @@ public final class SettingsService: SettingsServicing {
                                      digitStyle: digitStyle,
                                      animateCodeChange: animateCodeChange)
         onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
+        showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
     }
 }
 
@@ -118,5 +122,11 @@ public extension SettingsService {
         guard value != onboarded else { return }
         store.set(value, forKey: AppConstants.Settings.onboarded)
         onboarded = value
+    }
+
+    func togglePassBanner(_ value: Bool) {
+        guard value != showPassBanner else { return }
+        store.set(value, forKey: AppConstants.Settings.showPassBanner)
+        showPassBanner = value
     }
 }

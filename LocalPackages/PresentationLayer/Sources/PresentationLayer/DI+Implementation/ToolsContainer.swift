@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
-import CommonUtilities
 import DataLayer
 import Factory
 import LocalAuthentication

@@ -29,6 +29,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
 
     func getEntry(from uri: String) async throws -> Entry
+    // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws
     func insertAndRefreshEntry(from params: EntryParameters) async throws
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
@@ -123,6 +124,7 @@ public extension EntryDataService {
         try await save(entry)
     }
 
+    // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws {
         let entry = try await repository.entry(for: uri)
         try await save(entry)

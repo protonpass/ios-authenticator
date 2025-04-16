@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+// periphery:ignore:all
 import Combine
 import CommonUtilities
 import Foundation
@@ -57,6 +58,15 @@ public enum LogLevel: String, Sendable, Codable {
         case .critical: .fault
         }
     }
+
+    var visualQueue: String {
+        switch self {
+        case .debug: "🟣"
+        case .info: "🔵"
+        case .warning: "🟡"
+        case .critical, .error: "🔴"
+        }
+    }
 }
 
 public struct LogManagerConfiguration: Sendable {
@@ -85,7 +95,8 @@ public protocol LoggerProtocol: Sendable {
                          file: String,
                          function: String,
                          line: Int)
-    func exportLogs(category: LogCategory?) async -> URL?
+    func logsContent(category: LogCategory?) async throws -> String
+    func fetchLogs(category: LogCategory?) async throws -> [LogEntry]
 }
 
 public extension LoggerProtocol {
@@ -96,6 +107,35 @@ public extension LoggerProtocol {
                          function: String = #function,
                          line: Int = #line) {
         log(level, category: category, message, file: file, function: function, line: line)
+    }
+
+    func logsContent(category: LogCategory? = nil) async throws -> String {
+        try await logsContent(category: category)
+    }
+
+    func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntry] {
+        try await fetchLogs(category: category)
+    }
+
+    // MARK: - Export Logs (Per Category)
+
+    func exportLogs(category: LogCategory? = nil) async -> URL? {
+        do {
+            let logContent = try await logsContent(category: category)
+
+            let filename = if let category {
+                "logs_\(category.rawValue).txt"
+            } else {
+                "logs.txt"
+            }
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+
+            try logContent.write(to: fileURL, atomically: true, encoding: .utf8)
+            return fileURL
+        } catch {
+            print("Failed to export logs: \(error.localizedDescription)")
+            return nil
+        }
     }
 }
 
@@ -147,39 +187,23 @@ public final actor LogManager: LoggerProtocol {
 
     // MARK: - Fetch Logs by Category
 
-    func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntryEntity] {
+    public func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntry] {
         let descriptor = if let category {
             FetchDescriptor<LogEntryEntity>(predicate: #Predicate { $0.category == category.rawValue },
                                             sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         } else {
             FetchDescriptor<LogEntryEntity>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         }
-        return try await persistentStorage.fetch(fetchDescriptor: descriptor)
+        return try await persistentStorage.fetch(fetchDescriptor: descriptor).toLogEntries
     }
 
-    // MARK: - Export Logs (Per Category)
-
-    public func exportLogs(category: LogCategory? = nil) async -> URL? {
-        do {
-            let logs = try await fetchLogs(category: category)
-            let logString = logs.map { log in
-                "[\(log.timestamp)] [\(log.level)] \(log.message)"
-            }
-            .joined(separator: "\n")
-
-            let filename = if let category {
-                "logs_\(category.rawValue).txt"
-            } else {
-                "logs.txt"
-            }
-            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-
-            try logString.write(to: fileURL, atomically: true, encoding: .utf8)
-            return fileURL
-        } catch {
-            print("Failed to export logs: \(error.localizedDescription)")
-            return nil
+    public func logsContent(category: LogCategory? = nil) async throws -> String {
+        let logs = try await fetchLogs(category: category)
+        let logString = logs.map { log in
+            log.description
         }
+        .joined(separator: "\n")
+        return logString
     }
 }
 
@@ -261,7 +285,8 @@ private extension LogManager {
 
 // MARK: - Log models
 
-public struct LogEntry: Sendable {
+public struct LogEntry: Sendable, Equatable, Identifiable {
+    public let id: String
     let timestamp: Date
     let level: LogLevel
     let message: String
@@ -270,13 +295,15 @@ public struct LogEntry: Sendable {
     let function: String
     let line: Int
 
-    init(timestamp: Date = Date.now,
-         level: LogLevel,
-         message: String,
-         category: LogCategory,
-         file: String,
-         function: String,
-         line: Int) {
+    public init(id: String = UUID().uuidString,
+                timestamp: Date = Date.now,
+                level: LogLevel,
+                message: String,
+                category: LogCategory,
+                file: String,
+                function: String,
+                line: Int) {
+        self.id = id
         self.timestamp = timestamp
         self.level = level
         self.message = message
@@ -284,6 +311,10 @@ public struct LogEntry: Sendable {
         self.file = file
         self.function = function
         self.line = line
+    }
+
+    public var description: String {
+        "\(level.visualQueue) [\(timestamp)] [\(category)] [\(level)] [\(file)] \(message)"
     }
 }
 
@@ -329,6 +360,24 @@ private extension LogEntry {
               file: file,
               function: function,
               line: line)
+    }
+}
+
+private extension LogEntryEntity {
+    var toLogEntry: LogEntry {
+        .init(timestamp: timestamp,
+              level: LogLevel(rawValue: level) ?? .info,
+              message: message,
+              category: LogCategory(rawValue: category) ?? .system,
+              file: file,
+              function: function,
+              line: line)
+    }
+}
+
+private extension [LogEntryEntity] {
+    var toLogEntries: [LogEntry] {
+        map(\.toLogEntry)
     }
 }
 

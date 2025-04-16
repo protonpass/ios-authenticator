@@ -462,6 +462,16 @@
         }
       }
     },
+    "Logs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logs"
+          }
+        }
+      }
+    },
     "MANAGE YOUR DATA" : {
       "localizations" : {
         "en" : {
@@ -702,13 +712,13 @@
         }
       }
     },
-    "Select your prodiver" : {
+    "Select your provider" : {
       "comment" : "Title of the alert to ask for which provider to import from",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select your prodiver"
+            "value" : "Select your provider"
           }
         }
       }
@@ -719,6 +729,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
           }
         }
       }

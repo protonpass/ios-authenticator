@@ -68,6 +68,7 @@ public struct ActionConfig: Sendable, Identifiable {
         .init(title: "OK", role: .generic, action: {})
     }
 
+    // periphery:ignore
     public static var cancel: ActionConfig {
         .init(title: "Cancel", role: .cancel, action: {})
     }

@@ -23,6 +23,21 @@ import CommonUtilities
 import Models
 import SwiftUI
 
+enum SettingsSheetStates {
+    case logs
+    case qa
+
+    @MainActor @ViewBuilder
+    var destination: some View {
+        switch self {
+        case .logs:
+            LogsView()
+        case .qa:
+            QAMenuView()
+        }
+    }
+}
+
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -30,9 +45,8 @@ public struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-    @State private var showQaMenu = false
+    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
-    @State private var showFileExporter = false
 
     public init() {}
 
@@ -40,10 +54,12 @@ public struct SettingsView: View {
         NavigationStack(path: $router.path) {
             List {
                 if viewModel.showPassBanner {
-                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {})
-                        .padding(.horizontal, 16)
-                        .buttonStyle(.plain)
-                        .plainListRow()
+                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {
+                        open(urlString: ProtonProduct.pass.finalUrl)
+                    })
+                    .padding(.horizontal, 16)
+                    .buttonStyle(.plain)
+                    .plainListRow()
                 }
                 securitySection
                 appearanceSection
@@ -58,7 +74,6 @@ public struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
-            .listSectionSpacing(DesignConstant.padding * 2)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -77,6 +92,7 @@ public struct SettingsView: View {
                 await viewModel.setUp()
             }
             #if os(iOS)
+            .listSectionSpacing(DesignConstant.padding * 2)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toastDisplay()
@@ -88,8 +104,8 @@ public struct SettingsView: View {
                           contentType: .text,
                           defaultFilename: viewModel.generateExportFileName(),
                           onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $showQaMenu) {
-                QAMenuView()
+            .sheet(isPresented: $settingSheet.mappedToBool()) {
+                settingSheet?.destination
             }
         }
         .animation(.default, value: viewModel.theme)
@@ -225,7 +241,13 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback"))
+            SettingRow(title: .localized("Feedback")) {
+                open(urlString: AppConstants.CommonUrls.feedbackUrl)
+            }
+
+            SettingDivider()
+
+            SettingRow(title: .localized("Logs"), onTap: { settingSheet = .logs })
         }
     }
 
@@ -254,7 +276,7 @@ private extension SettingsView {
                 .plainListRow()
                 .if(viewModel.isQaBuild) { view in
                     view.onTapGesture(count: 3) {
-                        showQaMenu.toggle()
+                        settingSheet = .qa
                     }
                 }
         }

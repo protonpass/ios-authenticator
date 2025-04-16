@@ -30,8 +30,7 @@ import UIKit
 
 @Observable @MainActor
 final class SettingsViewModel {
-    private(set) var showPassBanner = true
-    private(set) var backUpEnabled = false
+    private(set) var backUpEnabled = true
     private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
@@ -92,11 +91,15 @@ final class SettingsViewModel {
         bundle.isQaBuild
     }
 
+    var showPassBanner: Bool {
+        !products.contains(.pass) && settingsService.showPassBanner
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
             #if canImport(UIKit)
-            if let url = URL(string: "\(product.iOSAppBundleId)://"),
+            if let url = URL(string: "\(product.iOSAppUrlScheme)://"),
                UIApplication.shared.canOpenURL(url) {
                 return false
             }
@@ -113,13 +116,16 @@ extension SettingsViewModel {
     }
 
     func togglePassBanner() {
-        showPassBanner.toggle()
+        settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
 
     func toggleBackUp() {
         backUpEnabled.toggle()
     }
 
+    // swiftlint:disable:next todo
+    // TODO: use this function
+    // periphery:ignore
     func toggleSync() {
         syncEnabled.toggle()
     }
@@ -166,6 +172,7 @@ extension SettingsViewModel {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
+
         return "Authenticator_backup_\(currentDate).txt"
     }
 
@@ -181,7 +188,8 @@ extension SettingsViewModel {
     func handleExportResult(_ result: Result<URL, any Error>) {
         switch result {
         case .success:
-            toastService.showToast(.init(title: #localized("Successfully exported")))
+            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
+                                         title: #localized("Successfully exported")))
         case let .failure(error):
             handle(error)
         }
@@ -191,6 +199,6 @@ extension SettingsViewModel {
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
-        alertService.showError(error, mainDisplay: true, action: nil)
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 }

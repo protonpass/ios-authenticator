@@ -24,49 +24,27 @@ import Factory
 import Models
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+import SDWebImageSwiftUI
+
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
-    let issuerInfos: IssuerInfo?
+    let issuerInfos: AuthIssuerInfo?
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                HStack(alignment: .center, spacing: 10) {
-                    if let imageName = issuerInfos?.iconName, let bundleIdentifier = issuerInfos?.bundleId {
-                        Image(imageName, bundle: Bundle(identifier: bundleIdentifier))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 36, height: 36)
-                            .cornerRadius(8)
-                    } else {
-                        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-                            .font(.headline)
-                            .fontWeight(.medium)
-                            .foregroundStyle(LinearGradient(gradient:
-                                Gradient(colors: [
-                                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 6)
-                            .frame(width: 36, height: 36, alignment: .center)
-                            .background(.black.opacity(0.16))
-                            .cornerRadius(8)
-                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .inset(by: -0.5)
-                                .stroke(.black.opacity(0.23), lineWidth: 1))
-                    }
-                }
+                icon
 
                 VStack(alignment: .leading) {
                     Text(verbatim: entry.name)
@@ -96,7 +74,7 @@ struct EntryCell: View {
                         x: 0,
                         y: -0.5)
 
-            HStack {
+            HStack(alignment: .bottom) {
                 numberView
                     .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
 
@@ -170,15 +148,49 @@ struct EntryCell: View {
                 .contentTransition(.numericText())
         }
     }
-}
 
-private extension EntryCell {
-    var borderColor: Color {
-        Color.passPurple.opacity(0.5)
+    @ViewBuilder
+    var icon: some View {
+        if let iconUrl = issuerInfos?.iconUrl, let url = URL(string: iconUrl) {
+            WebImage(url: url) { image in
+                image.resizable()
+            } placeholder: {
+                letterDisplay
+            }
+            .indicator(.activity)
+            .transition(.fade(duration: 0.5))
+            .scaledToFit()
+            .padding(4)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            letterDisplay
+        }
     }
 
-    var backgroundColor: Color {
-        borderColor.opacity(0.5)
+    var letterDisplay: some View {
+        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
+            .font(.title)
+            .fontWeight(.medium)
+            .foregroundStyle(LinearGradient(gradient:
+                Gradient(colors: [
+                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
+                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
+                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
+                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing))
+            .padding(.horizontal, 5)
+            .padding(.vertical, 6)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.black.opacity(0.16))
+            .cornerRadius(8)
+            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .inset(by: -0.5)
+                .stroke(.black.opacity(0.23), lineWidth: 1))
     }
 }
 

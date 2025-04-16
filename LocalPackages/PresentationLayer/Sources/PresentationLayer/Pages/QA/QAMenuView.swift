@@ -30,6 +30,7 @@ struct QAMenuView: View {
             List {
                 mockEntriesSection
                 onboardingSection
+                passBannerSection
             }
             .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -80,6 +81,14 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })
         }, header: {
             Text(verbatim: "Onboarding")
+        })
+    }
+
+    var passBannerSection: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.displayPassBanner, label: { Text(verbatim: "Display Pass Banner") })
+        }, header: {
+            Text(verbatim: "Pass Banner")
         })
     }
 }

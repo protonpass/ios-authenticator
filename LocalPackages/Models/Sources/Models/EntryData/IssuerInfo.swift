@@ -18,15 +18,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-/// Represents an issuer with its domain and optional icon
-public struct IssuerInfo: Sendable, Hashable, Codable {
+public struct AuthIssuerInfo: Sendable, Hashable, Codable {
     public let domain: String
-    public let iconName: String?
-    public let bundleId: String?
+    public let iconUrl: String
 
-    public init(domain: String, iconName: String? = nil, bundleId: String?) {
+    public init(domain: String, iconUrl: String) {
         self.domain = domain
-        self.iconName = iconName
-        self.bundleId = bundleId
+        self.iconUrl = iconUrl
     }
 }
