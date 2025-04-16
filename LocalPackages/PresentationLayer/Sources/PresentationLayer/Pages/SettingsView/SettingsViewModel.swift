@@ -127,6 +127,9 @@ extension SettingsViewModel {
         backUpEnabled.toggle()
     }
 
+    // swiftlint:disable:next todo
+    // TODO: use this function
+    // periphery:ignore
     func toggleSync() {
         syncEnabled.toggle()
     }
