@@ -672,13 +672,12 @@
         }
       }
     },
-    "Select your prodiver" : {
-      "comment" : "Title of the alert to ask for which provider to import from",
+    "Select your provider" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select your prodiver"
+            "value" : "Select your provider"
           }
         }
       }

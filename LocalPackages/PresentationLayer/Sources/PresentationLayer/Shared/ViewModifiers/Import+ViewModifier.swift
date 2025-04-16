@@ -105,7 +105,7 @@ struct ImportingServiceModifier: ViewModifier {
 private extension View {
     func importOptionsDialog(isPresented: Binding<Bool>,
                              onSelect: @escaping (ImportOption) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
+        confirmationDialog("Select your provider",
                            isPresented: isPresented,
                            titleVisibility: .visible) {
             ForEach(ImportOption.allCases, id: \.self) { option in
@@ -118,7 +118,7 @@ private extension View {
 
     func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
                                        onSelect: @escaping (GoogleImportType) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
+        confirmationDialog("Select your provider",
                            isPresented: isPresented,
                            titleVisibility: .hidden) {
             ForEach(GoogleImportType.allCases, id: \.self) { option in
