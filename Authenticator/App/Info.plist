@@ -22,10 +22,10 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>protonpass</string>
-		<string>ch.protonmail.vpn</string>
-		<string>ch.protonmail.protonmail</string>
+		<string>protonvpn</string>
+		<string>ch.protonmail.protonmail.mailto</string>
 		<string>ch.protonmail.drive</string>
-		<string>ch.protonmail.calendar</string>
+		<string>protoncalendar</string>
 	</array>
 	<key>NSServices</key>
 	<array>

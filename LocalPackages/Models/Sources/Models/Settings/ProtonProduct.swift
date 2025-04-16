@@ -38,10 +38,10 @@ public extension ProtonProduct {
     var iOSAppBundleId: String {
         switch self {
         case .pass: "protonpass"
-        case .vpn: "ch.protonmail.vpn"
-        case .mail: "ch.protonmail.protonmail"
+        case .vpn: "protonvpn"
+        case .mail: "ch.protonmail.protonmail.mailto"
         case .drive: "ch.protonmail.drive"
-        case .calendar: "ch.protonmail.calendar"
+        case .calendar: "protoncalendar"
         }
     }
 
