@@ -76,15 +76,15 @@ final class SettingsViewModel {
     }
 
     var shouldHideCode: Bool {
-        settingsService.entryUIConfiguration.hideEntryCode
+        settingsService.entryCellConfiguration.hideEntryCode
     }
 
     var digitStyle: DigitStyle {
-        settingsService.entryUIConfiguration.digitStyle
+        settingsService.entryCellConfiguration.digitStyle
     }
 
     var animateCodeChange: Bool {
-        settingsService.entryUIConfiguration.animateCodeChange
+        settingsService.entryCellConfiguration.animateCodeChange
     }
 
     var isQaBuild: Bool {

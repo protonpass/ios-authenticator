@@ -21,7 +21,7 @@
 import Foundation
 import SwiftUI
 
-public enum Theme: Int, Sendable, CaseIterable {
+public enum Theme: Int, Sendable, CaseIterable, IntegerDefaulting {
     case dark, light, system
 
     public static var `default`: Theme { .dark }

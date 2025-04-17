@@ -28,7 +28,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var isFirstRun: Bool { get }
     var theme: Theme { get }
     var searchBarDisplayMode: SearchBarDisplayMode { get }
-    var entryUIConfiguration: EntryCellConfiguration { get }
+    var entryCellConfiguration: EntryCellConfiguration { get }
     var onboarded: Bool { get }
     var showPassBanner: Bool { get }
 
@@ -51,7 +51,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var isFirstRun: Bool
     public private(set) var searchBarDisplayMode: SearchBarDisplayMode
     public private(set) var theme: Theme
-    public private(set) var entryUIConfiguration: EntryCellConfiguration
+    public private(set) var entryCellConfiguration: EntryCellConfiguration
     public private(set) var onboarded: Bool
     public private(set) var showPassBanner: Bool
 
@@ -60,16 +60,14 @@ public final class SettingsService: SettingsServicing {
         store.register(defaults: [AppConstants.Settings.isFirstRun: true])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
-        theme = Theme(rawValue: store.integer(forKey: AppConstants.Settings.theme)) ?? .default
-        searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
-            .integer(forKey: AppConstants.Settings.searchBarMode)) ??
-            .bottom
-        let digitStyle = DigitStyle(rawValue: store.integer(forKey: AppConstants.Settings.digitStyle)) ?? .plain
-        let hideEntryCode: Bool = store.bool(forKey: AppConstants.Settings.displayCode)
+        theme = store.value(for: AppConstants.Settings.theme)
+        searchBarDisplayMode = store.value(for: AppConstants.Settings.searchBarMode)
+        let digitStyle: DigitStyle = store.value(for: AppConstants.Settings.digitStyle)
+        let hideEntryCode = store.bool(forKey: AppConstants.Settings.displayCode)
         let animateCodeChange = store.bool(forKey: AppConstants.Settings.animateCode)
-        entryUIConfiguration = .init(hideEntryCode: hideEntryCode,
-                                     digitStyle: digitStyle,
-                                     animateCodeChange: animateCodeChange)
+        entryCellConfiguration = .init(hideEntryCode: hideEntryCode,
+                                       digitStyle: digitStyle,
+                                       animateCodeChange: animateCodeChange)
         onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
         showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
     }
@@ -101,33 +99,33 @@ public extension SettingsService {
     }
 
     func setHideEntryCode(_ value: Bool) {
-        guard entryUIConfiguration.hideEntryCode != value else {
+        guard entryCellConfiguration.hideEntryCode != value else {
             return
         }
         store.set(value, forKey: AppConstants.Settings.displayCode)
-        entryUIConfiguration = .init(hideEntryCode: value,
-                                     digitStyle: entryUIConfiguration.digitStyle,
-                                     animateCodeChange: entryUIConfiguration.animateCodeChange)
+        entryCellConfiguration = .init(hideEntryCode: value,
+                                       digitStyle: entryCellConfiguration.digitStyle,
+                                       animateCodeChange: entryCellConfiguration.animateCodeChange)
     }
 
     func setDigitStyle(_ value: DigitStyle) {
-        guard entryUIConfiguration.digitStyle != value else {
+        guard entryCellConfiguration.digitStyle != value else {
             return
         }
         store.set(value.rawValue, forKey: AppConstants.Settings.digitStyle)
-        entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
-                                     digitStyle: value,
-                                     animateCodeChange: entryUIConfiguration.animateCodeChange)
+        entryCellConfiguration = .init(hideEntryCode: entryCellConfiguration.hideEntryCode,
+                                       digitStyle: value,
+                                       animateCodeChange: entryCellConfiguration.animateCodeChange)
     }
 
     func setCodeAnimation(_ value: Bool) {
-        guard entryUIConfiguration.animateCodeChange != value else {
+        guard entryCellConfiguration.animateCodeChange != value else {
             return
         }
         store.set(value, forKey: AppConstants.Settings.animateCode)
-        entryUIConfiguration = .init(hideEntryCode: entryUIConfiguration.hideEntryCode,
-                                     digitStyle: entryUIConfiguration.digitStyle,
-                                     animateCodeChange: value)
+        entryCellConfiguration = .init(hideEntryCode: entryCellConfiguration.hideEntryCode,
+                                       digitStyle: entryCellConfiguration.digitStyle,
+                                       animateCodeChange: value)
     }
 
     func setOnboarded(_ value: Bool) {
@@ -140,5 +138,11 @@ public extension SettingsService {
         guard value != showPassBanner else { return }
         store.set(value, forKey: AppConstants.Settings.showPassBanner)
         showPassBanner = value
+    }
+}
+
+private extension UserDefaults {
+    func value<T: IntegerDefaulting>(for key: String) -> T {
+        T(rawValue: integer(forKey: key)) ?? .default
     }
 }

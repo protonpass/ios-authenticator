@@ -20,6 +20,8 @@
 
 import Foundation
 
-public enum DigitStyle: Int, Sendable, CaseIterable, Equatable {
+public enum DigitStyle: Int, Sendable, CaseIterable, Equatable, IntegerDefaulting {
     case plain, boxed
+
+    public static var `default`: Self { .plain }
 }

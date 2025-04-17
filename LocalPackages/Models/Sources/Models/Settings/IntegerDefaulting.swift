@@ -1,6 +1,6 @@
 //
-// SearchBarDisplayMode.swift
-// Proton Authenticator - Created on 19/02/2025.
+// IntegerDefaulting.swift
+// Proton Authenticator - Created on 17/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public enum SearchBarDisplayMode: Int, Sendable, CaseIterable, IntegerDefaulting {
-    case bottom, top
+public protocol IntegerDefaulting: Sendable {
+    init?(rawValue: Int)
 
-    public static var `default`: Self { .bottom }
+    static var `default`: Self { get }
 }
