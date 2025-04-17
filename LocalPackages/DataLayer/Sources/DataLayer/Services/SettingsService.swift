@@ -25,12 +25,14 @@ import Models
 
 @MainActor
 public protocol SettingsServicing: Sendable, Observable {
+    var isFirstRun: Bool { get }
     var theme: Theme { get }
     var searchBarDisplayMode: SearchBarDisplayMode { get }
     var entryUIConfiguration: EntryCellConfiguration { get }
     var onboarded: Bool { get }
     var showPassBanner: Bool { get }
 
+    func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
     func setSearchBarMode(_ value: SearchBarDisplayMode)
     func setHideEntryCode(_ value: Bool)
@@ -46,6 +48,7 @@ public final class SettingsService: SettingsServicing {
     @ObservationIgnored
     private let store: UserDefaults
 
+    public private(set) var isFirstRun: Bool
     public private(set) var searchBarDisplayMode: SearchBarDisplayMode
     public private(set) var theme: Theme
     public private(set) var entryUIConfiguration: EntryCellConfiguration
@@ -54,6 +57,9 @@ public final class SettingsService: SettingsServicing {
 
     public init(store: UserDefaults) {
         self.store = store
+        store.register(defaults: [AppConstants.Settings.isFirstRun: true])
+
+        isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
         theme = Theme(rawValue: store.integer(forKey: AppConstants.Settings.theme)) ?? .default
         searchBarDisplayMode = SearchBarDisplayMode(rawValue: store
             .integer(forKey: AppConstants.Settings.searchBarMode)) ??
@@ -72,6 +78,12 @@ public final class SettingsService: SettingsServicing {
 // MARK: - Setter
 
 public extension SettingsService {
+    func setFirstRun(_ value: Bool) {
+        guard isFirstRun != value else { return }
+        store.set(value, forKey: AppConstants.Settings.isFirstRun)
+        isFirstRun = value
+    }
+
     func setTheme(_ value: Theme) {
         guard theme != value else {
             return
