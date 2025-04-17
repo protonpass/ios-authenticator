@@ -30,33 +30,44 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
     public func autoRegister() {
         manager.defaultScope = .singleton
     }
+}
 
-    public var settingsService: Factory<any SettingsServicing> {
+private extension ServiceContainer {
+    var logger: any LoggerProtocol {
+        ToolsContainer.shared.logManager()
+    }
+
+    var entryRepository: any EntryRepositoryProtocol {
+        RepositoryContainer.shared.entryRepository()
+    }
+}
+
+public extension ServiceContainer {
+    var settingsService: Factory<any SettingsServicing> {
         self { @MainActor in SettingsService(store: kSharedUserDefaults) }
     }
 
     var qaService: Factory<any QAServicing> {
         self { @MainActor in QAService(store: kSharedUserDefaults,
-                                       repository: RepositoryContainer.shared.entryRepository()) }
+                                       repository: self.entryRepository) }
     }
 
     var entryDataService: Factory<any EntryDataServiceProtocol> {
-        self { @MainActor in EntryDataService(repository: RepositoryContainer.shared.entryRepository(),
+        self { @MainActor in EntryDataService(repository: self.entryRepository,
                                               importService: self.importService(),
                                               totpGenerator: ToolsContainer.shared.totpGenerator(),
                                               totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keyStore: self.keychainService(), logger: ToolsContainer.shared.logManager()) }
+        self { EncryptionService(keyStore: self.keychainService(), logger: self.logger) }
     }
 
     var keychainService: Factory<any KeychainServicing> {
-        self { KeychainService(service: AppConstants.service, accessGroup: AppConstants.keychainGroup) }
+        self { KeychainService(service: AppConstants.service,
+                               accessGroup: AppConstants.keychainGroup) }
     }
-}
 
-public extension ServiceContainer {
     var deepLinkService: Factory<any DeepLinkServicing> {
         self { DeepLinkService(service: self.entryDataService(),
                                alertService: self.alertService()) }
@@ -71,7 +82,8 @@ public extension ServiceContainer {
     }
 
     var authenticationService: Factory<any AuthenticationServicing> {
-        self { @MainActor in AuthenticationService(keychain: self.keychainService()) }
+        self { @MainActor in AuthenticationService(keychain: self.keychainService(),
+                                                   logger: self.logger) }
     }
 
     var toastService: Factory<any ToastServiceProtocol> {
