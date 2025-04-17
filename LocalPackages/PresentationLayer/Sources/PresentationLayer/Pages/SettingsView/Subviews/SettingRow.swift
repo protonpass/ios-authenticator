@@ -50,7 +50,7 @@ struct SettingRow: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 if let subtitle {
-                    Text(subtitle)
+                    Text(subtitle, bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

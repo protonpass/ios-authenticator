@@ -58,7 +58,7 @@ private extension AlertDisplay? {
     var titleText: Text {
         // swiftlint:disable:next discouraged_optional_self
         if let title = self?.title {
-            Text(title)
+            Text(title, bundle: .module)
         } else {
             Text(verbatim: "")
         }

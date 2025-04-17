@@ -94,9 +94,13 @@ final class LoggerMock: LoggerProtocol {
                          function: String,
                          line: Int) {
     }
+
+    func logsContent(category: LogCategory?) async throws -> String {
+        return ""
+    }
     
-    func exportLogs(category: LogCategory?) async -> URL? {
-        nil
+    func fetchLogs(category: LogCategory?) async throws -> [LogEntry] {
+        []
     }
 }
 

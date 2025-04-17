@@ -30,12 +30,16 @@ public protocol ImportingServicing: Sendable {
 
 public final class ImportingService: ImportingServicing {
     private let importer: any AuthenticatorImporterProtocol
+    private let logger: LoggerProtocol
 
-    public init(importer: any AuthenticatorImporterProtocol = AuthenticatorImporter()) {
+    public init(importer: any AuthenticatorImporterProtocol = AuthenticatorImporter(),
+                logger: any LoggerProtocol) {
         self.importer = importer
+        self.logger = logger
     }
 
     public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
+        log(.debug, "Starting import from provenance: \(provenance)")
         let result = switch provenance {
         case let .twofas(contents: contents, password: password):
             try parse2fas(contents, password: password)
@@ -53,39 +57,48 @@ public final class ImportingService: ImportingServicing {
             try parseAuthenticator(contents)
         }
 
+        log(.debug, "Successfully parsed entries from provenance: \(provenance)")
         return result.toImportResult
     }
 }
 
 private extension ImportingService {
     func parse2fas(_ content: String, password: String?) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing 2fas content")
         guard !content.isEmpty else {
+            log(.warning, "2fas content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
         return try importer.importFrom2fas(contents: content, password: password)
     }
 
     func parseAuthenticator(_ content: String) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Proton Authenticator content")
         guard !content.isEmpty else {
+            log(.warning, "Proton Authenticator content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
         return try importer.importFromProtonAuthenticator(contents: content)
     }
 
     func parseLastpass(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing LastPass content")
         guard !content.content.isEmpty else {
+            log(.warning, "LastPass content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
 
         if case .json = content {
             return try importer.importFromLastpassJson(contents: content.content)
         }
-
+        log(.error, "LastPass content is in wrong format")
         throw AuthError.importing(.wrongFormat)
     }
 
     func parseGoogleQr(_ content: String) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Google QR content")
         guard !content.isEmpty else {
+            log(.warning, "Google QR content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
 
@@ -93,7 +106,9 @@ private extension ImportingService {
     }
 
     func parseEnte(_ content: String) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Ente content")
         guard !content.isEmpty else {
+            log(.warning, "Ente content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
 
@@ -101,7 +116,9 @@ private extension ImportingService {
     }
 
     func parseBitwarden(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Bitwarden content")
         guard !content.content.isEmpty else {
+            log(.warning, "Bitwarden content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
 
@@ -110,11 +127,14 @@ private extension ImportingService {
         } else if case .csv = content {
             return try importer.importFromBitwardenCsv(contents: content.content)
         }
+        log(.error, "Bitwarden content is in wrong format")
         throw AuthError.importing(.wrongFormat)
     }
 
     func parseAegis(_ content: TwofaImportFileType, password: String?) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Aegis content")
         guard !content.content.isEmpty else {
+            log(.warning, "Aegis content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
 
@@ -124,6 +144,11 @@ private extension ImportingService {
             return try importer.importFromAegisTxt(contents: content.content)
         }
 
+        log(.error, "Aegis content is in wrong format")
         throw AuthError.importing(.wrongFormat)
+    }
+
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .data, message)
     }
 }

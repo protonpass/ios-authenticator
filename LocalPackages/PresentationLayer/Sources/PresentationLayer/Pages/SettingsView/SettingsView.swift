@@ -79,7 +79,7 @@ public struct SettingsView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("Close")
+                        Text("Close", bundle: .module)
                             .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()
@@ -170,7 +170,7 @@ private extension SettingsView {
                         if theme == viewModel.theme {
                             Label(theme.title, systemImage: "checkmark")
                         } else {
-                            Text(theme.title)
+                            Text(theme.title, bundle: .module)
                         }
                     })
                 }
@@ -190,7 +190,7 @@ private extension SettingsView {
                         if theme == viewModel.searchBarDisplay {
                             Label(theme.title, systemImage: "checkmark")
                         } else {
-                            Text(theme.title)
+                            Text(theme.title, bundle: .module)
                         }
                     })
                 }
@@ -209,7 +209,7 @@ private extension SettingsView {
                         if style == viewModel.digitStyle {
                             Label(style.title, systemImage: "checkmark")
                         } else {
-                            Text(style.title)
+                            Text(style.title, bundle: .module)
                         }
                     })
                 }
@@ -303,7 +303,7 @@ private extension SettingsView {
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
         } header: {
-            Text(title)
+            Text(title, bundle: .module)
                 .font(.callout)
                 .padding(.horizontal, DesignConstant.padding)
                 .foregroundStyle(.textWeak)

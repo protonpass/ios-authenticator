@@ -26,7 +26,7 @@ struct ImportingServiceTests {
     let sut: ImportingService
 
     init() {
-        sut = ImportingService()
+        sut = ImportingService(logger: LoggerMock())
     }
     
     @Test("Test import from decrypted 2fas")

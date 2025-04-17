@@ -81,7 +81,7 @@ struct EntryCell: View {
                 Spacer()
 
                 VStack(alignment: .trailing) {
-                    Text("Next")
+                    Text("Next", bundle: .module)
                         .foregroundStyle(.textWeak)
                     Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
                         .monospaced()
