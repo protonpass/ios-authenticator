@@ -66,7 +66,8 @@ public extension ServiceContainer {
 
     var keychainService: Factory<any KeychainServicing> {
         self { KeychainService(service: AppConstants.service,
-                               accessGroup: AppConstants.keychainGroup) }
+                               accessGroup: AppConstants.keychainGroup,
+                               logger: self.logger) }
     }
 
     var deepLinkService: Factory<any DeepLinkServicing> {
@@ -79,7 +80,7 @@ public extension ServiceContainer {
     }
 
     var importService: Factory<any ImportingServicing> {
-        self { ImportingService() }
+        self { ImportingService(logger: self.logger) }
     }
 
     var authenticationService: Factory<any AuthenticationServicing> {

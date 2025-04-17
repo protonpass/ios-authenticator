@@ -85,11 +85,11 @@ extension KeychainServicing {
 public final class KeychainService: KeychainServicing {
     private let service: String?
     private let accessGroup: String?
-    private let logger: LoggerProtocol?
+    private let logger: LoggerProtocol
 
     private let serviceSyncState: LegacyMutex<Bool> = .init(false)
 
-    public init(service: String? = nil, accessGroup: String? = nil, logger: LoggerProtocol? = nil) {
+    public init(service: String? = nil, accessGroup: String? = nil, logger: LoggerProtocol) {
         self.service = service
         self.accessGroup = accessGroup
         self.logger = logger
@@ -98,6 +98,8 @@ public final class KeychainService: KeychainServicing {
     public func get<T: Decodable & Sendable>(key: String,
                                              ofType itemClassType: ItemClassType = .generic,
                                              shouldSync: Bool?) throws -> T {
+        log(.debug, "Getting key '\(key)' from keychain")
+
         let shouldSyncData = shouldSync ?? serviceSyncState.value
 
         var query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
@@ -108,21 +110,26 @@ public final class KeychainService: KeychainServicing {
         var item: CFTypeRef?
         let result = SecItemCopyMatching(query as CFDictionary, &item)
         if result != errSecSuccess {
+            log(.error, "Failed to get key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
 
         guard let keychainItem = item as? [CFString: Any],
               let data = keychainItem[kSecValueData] as? Data else {
+            log(.error, "Invalid keychain data for key '\(key)'")
             throw KeychainError.invalidData
         }
 
-        return try JSONDecoder().decode(T.self, from: data)
+        let decoded = try JSONDecoder().decode(T.self, from: data)
+        log(.info, "Successfully retrieved key '\(key)'")
+        return decoded
     }
 
     public func set(_ item: some Encodable & Sendable,
                     for key: String,
                     config: KeychainQueryConfig,
                     shouldSync: Bool?) throws {
+        log(.debug, "Setting key '\(key)' in keychain with config \(config)")
         let data = try JSONEncoder().encode(item)
         let shouldSyncData = shouldSync ?? serviceSyncState.value
         do {
@@ -130,15 +137,19 @@ public final class KeychainService: KeychainServicing {
                     key: key,
                     config: config,
                     remoteSync: shouldSyncData)
+            log(.info, "Successfully added key '\(key)' to keychain")
         } catch KeychainError.duplicateItem {
+            log(.debug, "Key '\(key)' already exists. Attempting to update")
             try update(with: data,
                        key: key,
                        config: config,
                        remoteSync: shouldSyncData)
+            log(.info, "Successfully updated key '\(key)' in keychain")
         }
     }
 
     public func delete(_ key: String, ofType itemClassType: ItemClassType = .generic, shouldSync: Bool?) throws {
+        log(.debug, "Deleting key '\(key)' from keychain")
         let shouldSyncData = shouldSync ?? serviceSyncState.value
         let query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
         let result = SecItemDelete(query as CFDictionary)
@@ -146,14 +157,18 @@ public final class KeychainService: KeychainServicing {
             let error = result.toKeychainError
             switch error {
             case .itemNotFound:
-                break
+                log(.debug, "Key '\(key)' not found in keychain")
             default:
+                log(.error, "Failed to delete key '\(key)': \(error)")
                 throw error
             }
+        } else {
+            log(.info, "Successfully deleted key '\(key)' from keychain")
         }
     }
 
     public func clearAll(ofType itemClassType: ItemClassType = .generic, shouldSync: Bool?) throws {
+        log(.debug, "Clearing all keychain entries of type \(itemClassType)")
         let shouldSyncData = shouldSync ?? serviceSyncState.value
         var query: [CFString: Any] = [kSecClass: itemClassType.rawValue]
         query[kSecAttrSynchronizable] = shouldSyncData
@@ -164,21 +179,28 @@ public final class KeychainService: KeychainServicing {
 
         let result = SecItemDelete(query as CFDictionary)
         if result != errSecSuccess {
+            log(.error, "Failed to clear keychain items: \(result.toKeychainError)")
             throw result.toKeychainError
+        } else {
+            log(.info, "Successfully cleared keychain items")
         }
     }
 
     public func clear(key: String, shouldSync: Bool?) throws {
+        log(.debug, "Clearing key '\(key)' from keychain")
         let shouldSyncData = shouldSync ?? serviceSyncState.value
         let query = createQuery(for: key, ofType: .generic, remoteSync: shouldSyncData)
 
         let result = SecItemDelete(query as CFDictionary)
         if result != errSecSuccess {
+            log(.error, "Failed to clear key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
+        log(.info, "Successfully cleared key '\(key)' from keychain")
     }
 
     public func setGlobalSyncState(_ syncState: Bool) {
+        log(.debug, "Setting global sync state to \(syncState)")
         serviceSyncState.modify {
             $0 = syncState
         }
@@ -190,6 +212,7 @@ private extension KeychainService {
                 key: String,
                 config: KeychainQueryConfig,
                 remoteSync: Bool) throws {
+        log(.debug, "Updating key '\(key)' with new data")
         let query = createQuery(for: key,
                                 ofType: config.itemClassType,
                                 access: config.access,
@@ -201,6 +224,7 @@ private extension KeychainService {
 
         let result = SecItemUpdate(query as CFDictionary, updates as CFDictionary)
         if result != errSecSuccess {
+            log(.error, "Failed to update key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
     }
@@ -209,6 +233,7 @@ private extension KeychainService {
              key: String,
              config: KeychainQueryConfig,
              remoteSync: Bool) throws {
+        log(.debug, "Adding key '\(key)' to keychain")
         let query = createQuery(for: key,
                                 ofType: config.itemClassType,
                                 with: data,
@@ -218,6 +243,7 @@ private extension KeychainService {
 
         let result = SecItemAdd(query as CFDictionary, nil)
         if result != errSecSuccess {
+            log(.error, "Failed to add key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
     }
@@ -254,6 +280,10 @@ private extension KeychainService {
         }
 
         return query
+    }
+
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .data, message)
     }
 }
 
