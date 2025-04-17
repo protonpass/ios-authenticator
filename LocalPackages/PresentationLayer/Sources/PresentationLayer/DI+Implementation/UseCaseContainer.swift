@@ -61,8 +61,8 @@ public extension UseCaseContainer {
     }
 
     var setUpFirstRun: Factory<any SetUpFirstRunUseCase> {
-        self { SetUpFirstRun(settingsService: ServiceContainer.shared.settingsService(),
-                             authenticationService: ServiceContainer.shared.authenticationService(),
-                             logger: self.logger) }
+        self { @MainActor in SetUpFirstRun(settingsService: ServiceContainer.shared.settingsService(),
+                                           authenticationService: ServiceContainer.shared.authenticationService(),
+                                           logger: self.logger) }
     }
 }

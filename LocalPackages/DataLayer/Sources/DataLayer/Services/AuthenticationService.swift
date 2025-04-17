@@ -66,10 +66,10 @@ public final class AuthenticationService: AuthenticationServicing {
                 .get(key: AppConstants.Settings.authenticationState) {
                 currentState = keychainValue
             }
-        } catch KeychainError.invalidData {
+        } catch KeychainError.invalidData, KeychainError.itemNotFound {
             logger.log(.info, category: .data, "AuthenticationState not init. Use default value.")
         } catch {
-            logger.log(.error, category: .data, error.localizedDescription)
+            logger.log(.error, category: .data, "error type: \(error), \(error.localizedDescription)")
         }
     }
 

@@ -21,13 +21,14 @@
 
 import DataLayer
 
+@MainActor
 public protocol SetUpFirstRunUseCase: Sendable {
-    func execute() async
+    func execute()
 }
 
 public extension SetUpFirstRunUseCase {
-    func callAsFunction() async {
-        await execute()
+    func callAsFunction() {
+        execute()
     }
 }
 
@@ -44,21 +45,19 @@ public final class SetUpFirstRun: SetUpFirstRunUseCase {
         self.logger = logger
     }
 
-    public func execute() async {
+    public func execute() {
         log(.debug, "Setting up first run if applicable")
-        guard await settingsService.isFirstRun else {
+        guard settingsService.isFirstRun else {
             log(.debug, "Not the first run. Skipped set up.")
             return
         }
 
-        await MainActor.run {
-            defer { settingsService.setFirstRun(false) }
-            do {
-                try authenticationService.setAuthenticationState(.inactive)
-                log(.info, "Finished setting up for first run")
-            } catch {
-                log(.error, "Failed to set up for first run \(error.localizedDescription)")
-            }
+        defer { settingsService.setFirstRun(false) }
+        do {
+            try authenticationService.setAuthenticationState(.inactive)
+            log(.info, "Finished setting up for first run")
+        } catch {
+            log(.error, "Failed to set up for first run \(error.localizedDescription)")
         }
     }
 }

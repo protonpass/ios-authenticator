@@ -85,9 +85,6 @@ private extension AuthenticatorApp {
         }
         .animation(.default, value: viewModel.onboarded)
         .animation(.default, value: viewModel.showEntries)
-        .task {
-            await viewModel.setUp()
-        }
         .onAppear {
             viewModel.updateWindowUserInterfaceStyle()
             viewModel.setWindowTintColor()
@@ -139,11 +136,9 @@ private final class AuthenticatorAppViewModel {
     @LazyInjected(\ServiceContainer.authenticationService)
     private var authenticationService
 
-    init() {}
-
-    func setUp() async {
+    init() {
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
-        await setUpFirstRun()
+        setUpFirstRun()
     }
 
     func handleDeepLink(_ url: URL) {
