@@ -105,6 +105,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 guard let self,
                       let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
                       event.endDate != nil, event.type == .import else { return }
+                log(.debug, "Received notification of updates from iCloud Database")
                 loadEntries()
             }
             .store(in: &cancellables)
