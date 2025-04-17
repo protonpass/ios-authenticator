@@ -42,7 +42,7 @@ struct LogsView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("Close")
+                        Text("Close", bundle: .module)
                             .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()
@@ -52,7 +52,7 @@ struct LogsView: View {
                     Button {
                         viewModel.exportLogs()
                     } label: {
-                        Text("Share")
+                        Text("Share", bundle: .module)
                             .foregroundStyle(.purpleInteraction)
                     }
                     .adaptiveButtonStyle()

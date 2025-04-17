@@ -259,7 +259,7 @@ private extension EntriesView {
             // The actual text field.
             TextField(text: $viewModel.search,
                       label: {
-                          Text("Search")
+                          Text("Search", bundle: .module)
                       })
                       .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
@@ -344,13 +344,13 @@ private extension EntriesView {
                         .padding(.bottom, 16)
                 } description: {
                     VStack(spacing: 16) {
-                        Text("No codes")
+                        Text("No codes", bundle: .module)
                             .font(.headline)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
-                        Text("Protect your accounts with an extra layer of security.")
+                        Text("Protect your accounts with an extra layer of security.", bundle: .module)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
@@ -364,7 +364,7 @@ private extension EntriesView {
                         router.presentedSheet = .createEditEntry(nil)
                         #endif
                     } label: {
-                        Text("Create new code")
+                        Text("Create new code", bundle: .module)
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
@@ -389,7 +389,7 @@ private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
-            Text("Authenticator")
+            Text(verbatim: "Authenticator")
                 .foregroundStyle(.textNorm)
                 .font(.title)
                 .fontWeight(.bold)
@@ -411,7 +411,7 @@ private extension EntriesView {
                         isEditing.toggle()
                     }
                 } label: {
-                    Text(isEditing ? "Done" : "Edit")
+                    Text(isEditing ? "Done" : "Edit", bundle: .module)
                         .fontWeight(.medium)
                         .foregroundStyle(isEditing ? .textNorm : .textWeak)
                 }

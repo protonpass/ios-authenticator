@@ -120,7 +120,7 @@ private extension PassBanner {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(verbatim: "Proton Pass")
                             .fontWeight(.bold)
-                        Text("Free")
+                        Text("Free", bundle: .module)
                             .font(.callout)
                     }
                     .foregroundStyle(.white)

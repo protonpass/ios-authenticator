@@ -86,13 +86,13 @@ private extension OnboardingView {
             VStack(alignment: .center, spacing: 0) {
                 Spacer(minLength: illustrationHeight)
 
-                Text(viewModel.currentStep.title)
+                Text(viewModel.currentStep.title, bundle: .module)
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundStyle(.textNorm)
                     .padding(.horizontal, 40)
 
-                Text(viewModel.currentStep.description)
+                Text(viewModel.currentStep.description, bundle: .module)
                     .font(.title3)
                     .foregroundStyle(.textWeak)
                     .padding(.horizontal, 40)

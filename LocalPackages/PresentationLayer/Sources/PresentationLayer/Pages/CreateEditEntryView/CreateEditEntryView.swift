@@ -72,7 +72,7 @@ struct CreateEditEntryView: View {
                 } else {
                     Button { showAdvanceOptions.toggle() } label: {
                         HStack(alignment: .center, spacing: 8) {
-                            Text("Advanced options")
+                            Text("Advanced options", bundle: .module)
                                 .foregroundStyle(.textNorm)
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                             Spacer()
@@ -112,7 +112,7 @@ struct CreateEditEntryView: View {
                         Button {
                             dismiss()
                         } label: {
-                            Text("Close")
+                            Text("Close", bundle: .module)
                                 .foregroundStyle(Color.purpleInteraction)
                                 .padding(10)
                         }
@@ -123,7 +123,7 @@ struct CreateEditEntryView: View {
                         Button {
                             viewModel.save()
                         } label: {
-                            Text("Save")
+                            Text("Save", bundle: .module)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Color.purpleInteraction)
                                 .padding(10)
@@ -147,7 +147,7 @@ struct CreateEditEntryView: View {
 
     private func textField(_ config: TextFieldConfig) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(config.title)
+            Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
@@ -207,7 +207,7 @@ private extension CreateEditEntryView {
 
     func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
-            Text(title)
+            Text(title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
@@ -242,7 +242,7 @@ private extension CreateEditEntryView {
             CustomSegmentedControl(data: data, selection: binding)
         } header: {
             HStack {
-                Text(title)
+                Text(title, bundle: .module)
                     .foregroundStyle(.textNorm)
                     .opacity(0.7)
                     .padding(.leading, 16)

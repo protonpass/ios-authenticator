@@ -51,7 +51,8 @@ struct ImportingServiceModifier: ViewModifier {
                                            onSelect: handle)
             .sheet(isPresented: $viewModel.showPasswordSheet) {
                 VStack {
-                    Text("Your import file is password protected. Please enter the password to proceed.")
+                    Text("Your import file is password protected. Please enter the password to proceed.",
+                         bundle: .module)
                     TextField("Password", text: $viewModel.password)
 
                     CapsuleButton(title: "Import",
@@ -124,7 +125,7 @@ private extension View {
                            titleVisibility: .hidden) {
             ForEach(GoogleImportType.allCases, id: \.self) { option in
                 Button(action: { onSelect(option) }, label: {
-                    Text(option.title)
+                    Text(option.title, bundle: .module)
                 })
             }
         }

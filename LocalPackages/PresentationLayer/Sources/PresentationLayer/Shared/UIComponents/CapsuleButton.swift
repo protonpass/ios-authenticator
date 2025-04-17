@@ -54,7 +54,7 @@ struct CapsuleButton: View {
 
 private extension CapsuleButton {
     var text: some View {
-        Text(title)
+        Text(title, bundle: .module)
             .fontWeight(weight)
             .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
