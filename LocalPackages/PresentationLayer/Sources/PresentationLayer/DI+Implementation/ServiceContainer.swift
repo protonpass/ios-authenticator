@@ -56,7 +56,8 @@ public extension ServiceContainer {
         self { @MainActor in EntryDataService(repository: self.entryRepository,
                                               importService: self.importService(),
                                               totpGenerator: ToolsContainer.shared.totpGenerator(),
-                                              totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper()) }
+                                              totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper(),
+                                              logger: self.logger) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
