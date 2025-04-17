@@ -200,7 +200,7 @@ private extension EntriesView {
     func cell(for entry: EntryUiModel) -> some View {
         EntryCell(entry: entry.entry,
                   code: entry.code,
-                  configuration: viewModel.settingsService.entryUIConfiguration,
+                  configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)

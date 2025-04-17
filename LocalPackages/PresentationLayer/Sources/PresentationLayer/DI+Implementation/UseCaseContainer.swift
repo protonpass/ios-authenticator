@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import DataLayer
 import DomainLayer
 import Factory
 
@@ -28,7 +29,15 @@ public final class UseCaseContainer: SharedContainer, AutoRegistering {
     public func autoRegister() {
         manager.defaultScope = .singleton
     }
+}
 
+private extension UseCaseContainer {
+    var logger: any LoggerProtocol {
+        ToolsContainer.shared.logManager()
+    }
+}
+
+extension UseCaseContainer {
     var copyTextToClipboard: Factory<any CopyTextToClipboardUseCase> {
         self { CopyTextToClipboard() }
     }
@@ -44,8 +53,16 @@ public final class UseCaseContainer: SharedContainer, AutoRegistering {
     var authenticateBiometrically: Factory<any AuthenticateBiometricallyUseCase> {
         self { AuthenticateBiometrically() }
     }
+}
 
-    public var updateAppAndRustVersion: Factory<any UpdateAppAndRustVersionUseCase> {
+public extension UseCaseContainer {
+    var updateAppAndRustVersion: Factory<any UpdateAppAndRustVersionUseCase> {
         self { UpdateAppAndRustVersion() }
+    }
+
+    var setUpFirstRun: Factory<any SetUpFirstRunUseCase> {
+        self { @MainActor in SetUpFirstRun(settingsService: ServiceContainer.shared.settingsService(),
+                                           authenticationService: ServiceContainer.shared.authenticationService(),
+                                           logger: self.logger) }
     }
 }

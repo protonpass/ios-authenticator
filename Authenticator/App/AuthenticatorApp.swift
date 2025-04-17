@@ -36,38 +36,7 @@ struct AuthenticatorApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if viewModel.onboarded {
-                    if showEntriesView {
-                        EntriesView()
-                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                            .onOpenURL { url in
-                                viewModel.handleDeepLink(url)
-                            }
-                            .onChange(of: scenePhase) { _, newPhase in
-                                if newPhase == .background {
-                                    viewModel.resetBiometricCheck()
-                                }
-                            }
-                    } else {
-                        // swiftlint:disable:next todo
-                        // TODO: fix issue if the user had set up faceid but uninstall the app we end up in a kinda of deadlock
-                        BioLockView()
-                            .onChange(of: scenePhase) { _, newPhase in
-                                if newPhase == .active {
-                                    viewModel.checkBiometrics()
-                                }
-                            }
-                    }
-                } else {
-                    OnboardingView()
-                }
-            }
-            .onAppear {
-                viewModel.updateWindowUserInterfaceStyle()
-                viewModel.setWindowTintColor()
-            }
-            .mainAlertService()
+            mainContainer
         }
         .onChange(of: viewModel.theme) { _, _ in
             viewModel.updateWindowUserInterfaceStyle()
@@ -85,14 +54,42 @@ struct AuthenticatorApp: App {
         }
         #endif
     }
+}
 
-    var showEntriesView: Bool {
-        switch viewModel.authenticationState {
-        case .inactive:
-            true
-        case let .active(authenticated: isChecked):
-            isChecked
+private extension AuthenticatorApp {
+    var mainContainer: some View {
+        Group {
+            if viewModel.onboarded {
+                if viewModel.showEntries {
+                    EntriesView()
+                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                        .onOpenURL { url in
+                            viewModel.handleDeepLink(url)
+                        }
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .background {
+                                viewModel.resetBiometricCheck()
+                            }
+                        }
+                } else {
+                    BioLockView()
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .active {
+                                viewModel.checkBiometrics()
+                            }
+                        }
+                }
+            } else {
+                OnboardingView()
+            }
         }
+        .animation(.default, value: viewModel.onboarded)
+        .animation(.default, value: viewModel.showEntries)
+        .onAppear {
+            viewModel.updateWindowUserInterfaceStyle()
+            viewModel.setWindowTintColor()
+        }
+        .mainAlertService()
     }
 }
 
@@ -102,8 +99,17 @@ private final class AuthenticatorAppViewModel {
         appSettings.onboarded
     }
 
-    var authenticationState: AuthenticationState {
-        authenticationService.currentState
+    var showEntries: Bool {
+        switch authenticationService.currentState {
+        case .inactive:
+            true
+        case let .active(authenticated: isChecked):
+            isChecked
+        }
+    }
+
+    var theme: Theme {
+        appSettings.theme
     }
 
     @ObservationIgnored
@@ -112,7 +118,7 @@ private final class AuthenticatorAppViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
-    var alertService
+    private var alertService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
@@ -121,16 +127,18 @@ private final class AuthenticatorAppViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.updateAppAndRustVersion)
     private var updateAppAndRustVersion
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.setUpFirstRun)
+    private var setUpFirstRun
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.authenticationService)
-    private(set) var authenticationService
-
-    var theme: Theme {
-        appSettings.theme
-    }
+    private var authenticationService
 
     init() {
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
+        setUpFirstRun()
     }
 
     func handleDeepLink(_ url: URL) {
