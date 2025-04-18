@@ -68,6 +68,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         modifiedTime = Date().timeIntervalSince1970
     }
 
+    // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
         syncState = newState
         modifiedTime = Date().timeIntervalSince1970
