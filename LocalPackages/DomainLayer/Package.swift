@@ -24,7 +24,8 @@ let package = Package(
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
-        .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore")
+        .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", .upToNextMajor(from: "8.49.0"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -33,6 +34,7 @@ let package = Package(
                 dependencies: [
                     "DataLayer",
                     "AuthenticatorRustCore",
+                    .product(name: "Sentry", package: "sentry-cocoa"),
                     .product(name: "CommonUtilities", package: "CommonUtilities")
                 ]),
         .testTarget(

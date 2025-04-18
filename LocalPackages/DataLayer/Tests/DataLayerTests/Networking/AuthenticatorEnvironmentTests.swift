@@ -28,7 +28,7 @@ struct AuthenticatorEnvironmentTests {
     @Test
     func prodParameters() {
         let params = AuthenticatorEnvironment.prod.parameters
-        #expect(params.sentryDns == "https://a053e81a23354f1eb6becdeb3a91440a@authenticator-api.proton.me/core/v4/reports/sentry/78")
+        #expect(params.sentryDns == "https://e15338cd3f8140cea28c9f1abbcfe275@pass-api.proton.me/core/v4/reports/sentry/78")
         #expect(params.defaultPath.isEmpty)
         #expect(params.apiHost == "pass-api.proton.me")
         #expect(params.defaultHost == "https://pass-api.proton.me")

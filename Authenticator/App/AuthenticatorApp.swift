@@ -32,7 +32,13 @@ import UIKit
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
+
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        let sentry = UseCaseContainer.shared.setUpSentry()
+        sentry()
+    }
 
     var body: some Scene {
         WindowGroup {
