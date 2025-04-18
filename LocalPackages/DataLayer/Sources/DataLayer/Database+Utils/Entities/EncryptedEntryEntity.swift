@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Models
 import SwiftData
 
 @Model
@@ -27,20 +28,48 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var encryptedData = Data()
     public private(set) var keyId: String = ""
     public private(set) var order: Int = 0
+    public private(set) var syncState = EntrySyncState.unsynced
+    public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
+    public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
+    public private(set) var flags: Int = 0
+    public private(set) var contentFormatVersion: Int = 0
+    public private(set) var revision: Int = 0
 
-    public init(id: String, encryptedData: Data, keyId: String, order: Int) {
+    public init(id: String,
+                encryptedData: Data,
+                keyId: String,
+                order: Int,
+                syncState: EntrySyncState = .unsynced,
+                creationDate: TimeInterval = Date().timeIntervalSince1970,
+                modifiedTime: TimeInterval = Date().timeIntervalSince1970,
+                flags: Int = 0,
+                contentFormatVersion: Int = 0,
+                revision: Int = 0) {
         self.id = id
         self.encryptedData = encryptedData
         self.keyId = keyId
         self.order = order
+        self.syncState = syncState
+        self.creationDate = creationDate
+        self.modifiedTime = modifiedTime
+        self.flags = flags
+        self.contentFormatVersion = contentFormatVersion
+        self.revision = revision
     }
 
     func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
         self.encryptedData = encryptedData
         self.keyId = keyId
+        modifiedTime = Date().timeIntervalSince1970
     }
 
     func updateOrder(newOrder: Int) {
         order = newOrder
+        modifiedTime = Date().timeIntervalSince1970
+    }
+
+    func updateSyncState(newState: EntrySyncState) {
+        syncState = newState
+        modifiedTime = Date().timeIntervalSince1970
     }
 }

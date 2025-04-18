@@ -69,8 +69,7 @@ extension ToolsContainer {
 
     var totpGenerator: Factory<any TotpGeneratorProtocol> {
         self {
-            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator(),
-                          totpIssuerMapper: self.totpIssuerMapper())
+            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
         }
     }
 

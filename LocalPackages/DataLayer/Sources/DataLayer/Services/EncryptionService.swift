@@ -26,13 +26,13 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(Entry)
+    case decrypted(Entry, EntrySyncState)
     case nonDecryptable
 
-    public var entry: Entry? {
+    public var entryAndSyncState: (Entry, EntrySyncState)? {
         switch self {
-        case let .decrypted(entry):
-            entry
+        case let .decrypted(entry, state):
+            (entry, state)
         default:
             nil
         }
@@ -94,8 +94,8 @@ public final class EncryptionService: EncryptionServicing {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
-        let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        return .decrypted(entry.toEntry)
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+        return .decrypted(rustEntry.toEntry, entry.syncState)
     }
 
     public func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
@@ -105,8 +105,9 @@ public final class EncryptionService: EncryptionServicing {
                 log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
             }
-            let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-            return .decrypted(entry.toEntry)
+            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
+                                                                 key: encryptionKey)
+            return .decrypted(rustEntry.toEntry, entry.syncState)
         }
     }
 

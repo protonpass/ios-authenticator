@@ -115,7 +115,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
             .compactMap(\.self)
             .sink { [weak self] codes in
                 guard let self else { return }
-                dataState = .loaded(codes)
+                updateCodes(newCodes: codes)
             }
             .store(in: &cancellables)
     }
@@ -244,7 +244,13 @@ public extension EntryDataService {
         var uiEntries: [EntryUiModel] = []
         for code in codes {
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            uiEntries.append(EntryUiModel(entry: code.entry, code: code, order: index, issuerInfo: issuerInfo))
+            // swiftlint:disable:next todo
+            // TODO: change state to sync if connection to BE
+            uiEntries.append(EntryUiModel(entry: code.entry,
+                                          code: code,
+                                          order: index,
+                                          syncState: .unsynced,
+                                          issuerInfo: issuerInfo))
             index += 1
         }
         try await repository.save(uiEntries)
@@ -310,8 +316,13 @@ private extension EntryDataService {
         }
         let order = data.count
         let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-
-        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order, issuerInfo: issuerInfo)
+        // swiftlint:disable:next todo
+        // TODO: change state to sync if connection to BE
+        let entryUI = EntryUiModel(entry: code.entry,
+                                   code: code,
+                                   order: order,
+                                   syncState: .unsynced,
+                                   issuerInfo: issuerInfo)
         try await repository.save(entryUI)
 
         data.append(entryUI)
@@ -330,9 +341,9 @@ private extension EntryDataService {
         }
     }
 
-    func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
+    func generateUIEntries(from entries: [(Entry, EntrySyncState)]) async throws -> [EntryUiModel] {
         log(.debug, "Generating UI entries from \(entries.count) entries")
-        let codes = try repository.generateCodes(entries: entries)
+        let codes = try repository.generateCodes(entries: entries.map(\.0))
         guard codes.count == entries.count else {
             log(.warning, "Mismatch between codes and entries: \(codes.count) codes, \(entries.count) entries")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
@@ -346,7 +357,11 @@ private extension EntryDataService {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            results.append(.init(entry: entry, code: code, order: index, issuerInfo: issuerInfo))
+            results.append(.init(entry: entry.0,
+                                 code: code,
+                                 order: index,
+                                 syncState: entry.1,
+                                 issuerInfo: issuerInfo))
         }
 
         return results
@@ -368,10 +383,20 @@ private extension EntryDataService {
     func log(_ level: LogLevel, _ message: String) {
         logger.log(level, category: .data, message)
     }
+
+    func updateCodes(newCodes: [Code]) {
+        guard let entries = dataState.data else { return }
+        let codes = newCodes.compactMap { newCode -> EntryUiModel? in
+            guard let entry = entries.first(where: { $0.id == newCode.entry.id }) else { return nil }
+            return entry.updateCode(newCode)
+        }
+
+        dataState = .loaded(codes)
+    }
 }
 
 public extension [EntryState] {
-    var decodedEntries: [Entry] {
-        compactMap(\.entry)
+    var decodedEntries: [(Entry, EntrySyncState)] {
+        compactMap(\.entryAndSyncState)
     }
 }

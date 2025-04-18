@@ -1,6 +1,6 @@
 //
-// IdentifiableOrderedEntry.swift
-// Proton Authenticator - Created on 19/03/2025.
+// EntrySyncState.swift
+// Proton Authenticator - Created on 18/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,11 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-
-public protocol IdentifiableOrderedEntry: Sendable {
-    var id: String { get }
-    var order: Int { get }
-    var entry: Entry { get }
-    var syncState: EntrySyncState { get }
+public enum EntrySyncState: Codable, Equatable, Sendable {
+    case synced
+    case unsynced
+    case toDelete
 }

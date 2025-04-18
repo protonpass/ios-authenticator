@@ -29,10 +29,12 @@ import DataLayer
 struct OrderedEntry: IdentifiableOrderedEntry {
     let entry: Entry
     let order: Int
+    let syncState: EntrySyncState
 
     init(entry: Entry, order: Int) {
         self.entry = entry
         self.order = order
+        syncState = .unsynced
     }
 
     var id: String { entry.id }
@@ -262,8 +264,8 @@ struct EntryRepositoryTests {
 
         // Assert
         #expect(entries.count == 1)
-        #expect(entries.first?.period == entry.entry.period)
-        #expect(entries.first?.uri == entry.entry.uri)
+        #expect(entries.first?.0.period == entry.entry.period)
+        #expect(entries.first?.0.uri == entry.entry.uri)
         
         let entry2 = OrderedEntry(entry: Entry(id: "id2",
                         name: "Test2",
@@ -451,7 +453,7 @@ struct EntryRepositoryTests {
         // Assert
         #expect(fetchedEntries.count == 3)
 
-        #expect(fetchedEntries.map(\.note).contains("new note") == true)
+        #expect(fetchedEntries.map(\.0.note).contains("new note") == true)
     }
     
     
@@ -531,16 +533,16 @@ struct EntryRepositoryTests {
         let fetchedEntries = try await sut.getAllEntries().decodedEntries
 
         // Assert
-        #expect(fetchedEntries.first?.id == "id0")
+        #expect(fetchedEntries.first?.0.id == "id0")
 
-        #expect(fetchedEntries.last?.id == "id3")
+        #expect(fetchedEntries.last?.0.id == "id3")
         
         try await sut.updateOrder(reorderEntries)
         
         let reorderedfetchedEntries = try await sut.getAllEntries().decodedEntries
         
-        #expect(reorderedfetchedEntries.first?.id == "id3")
+        #expect(reorderedfetchedEntries.first?.0.id == "id3")
 
-        #expect(reorderedfetchedEntries.last?.id == "id0")
+        #expect(reorderedfetchedEntries.last?.0.id == "id0")
     }
 }
