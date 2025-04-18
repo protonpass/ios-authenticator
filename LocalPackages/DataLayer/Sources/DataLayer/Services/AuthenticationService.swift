@@ -67,14 +67,15 @@ public final class AuthenticationService: AuthenticationServicing {
                 currentState = keychainValue
             }
         } catch KeychainError.invalidData, KeychainError.itemNotFound {
-            logger.log(.info, category: .data, "AuthenticationState not init. Use default value.")
+            self.logger.log(.info, category: .data, "AuthenticationState not init. Use default value.")
         } catch {
-            logger.log(.error, category: .data, "error type: \(error), \(error.localizedDescription)")
+            self.logger.log(.error, category: .data, "error type: \(error), \(error.localizedDescription)")
         }
     }
 
     public func setAuthenticationState(_ newState: AuthenticationState) throws {
         guard currentState != newState else { return }
+        logger.log(.info, category: .data, "Set new authentication state: \(newState)")
 
         try keychain.set(newState, for: AppConstants.Settings.authenticationState)
         currentState = newState
