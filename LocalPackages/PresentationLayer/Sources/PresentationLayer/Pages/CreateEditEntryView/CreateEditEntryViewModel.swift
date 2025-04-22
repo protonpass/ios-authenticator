@@ -41,7 +41,9 @@ final class CreateEditEntryViewModel {
     var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
 
     var canSave: Bool {
-        secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
+        secret.trimmingCharacters(in: .whitespacesAndNewlines).count >= 4
+            && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && (type == .totp ? !issuer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty : true)
     }
 
     @ObservationIgnored

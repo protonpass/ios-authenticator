@@ -146,6 +146,7 @@ struct EntryCell: View {
                 .foregroundStyle(.textNorm)
                 .monospaced()
                 .contentTransition(.numericText())
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
     }
 
@@ -220,7 +221,6 @@ private struct TOTPCountdownView: View {
             Circle()
                 .stroke(lineWidth: 4)
                 .foregroundStyle(color.opacity(0.3))
-                .frame(width: size, height: size)
 
             // Progress circle
             Circle()
@@ -228,14 +228,15 @@ private struct TOTPCountdownView: View {
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(color)
                 .rotationEffect(.degrees(-90))
-                .frame(width: size, height: size)
 
             // Countdown text
             Text(verbatim: "\(Int(timeRemaining))")
-                .font(.caption)
+                .font(.custom("SF Compact Text", size: 12).weight(.semibold))
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
+        .frame(width: size, height: size)
         .onAppear {
             calculateTime()
             startTimer()

@@ -82,6 +82,7 @@ public protocol AlertServiceProtocol: Sendable, Observable {
 
     func showAlert(_ alertDisplay: AlertDisplay)
     func showError(_ error: any Error, mainDisplay: Bool, action: (@MainActor () -> Void)?)
+    func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
 
 public extension AlertServiceProtocol {
@@ -162,6 +163,13 @@ public final class AlertService: AlertServiceProtocol {
     public func showError(_ error: any Error, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
         let config = AlertConfiguration(title: "An error occurred",
                                         message: .verbatim(error.localizedDescription),
+                                        actions: [.init(title: "OK", role: .cancel, action: action)])
+        alert = mainDisplay ? .main(config) : .sheet(config)
+    }
+
+    public func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
+        let config = AlertConfiguration(title: "An error occurred",
+                                        message: .verbatim(error),
                                         actions: [.init(title: "OK", role: .cancel, action: action)])
         alert = mainDisplay ? .main(config) : .sheet(config)
     }

@@ -201,19 +201,22 @@ final class ImportViewModel {
                   let currentSelected,
                   currentSelected.autorizedFileExtensions.contains(type) else { return }
             Task {
-                do {
-                    let fileContent = try String(contentsOf: url, encoding: .utf8)
-                    provenance = currentSelected.importDestination(content: fileContent,
-                                                                   type: type,
-                                                                   password: password.nilIfEmpty)
-                    guard let provenance else { return }
-                    let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
-                    showCompletion(numberOfImportedEntries)
-                } catch ImportException.MissingPassword {
-                    showPasswordSheet.toggle()
-                } catch {
-                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                if url.startAccessingSecurityScopedResource() {
+                    do {
+                        let fileContent = try String(contentsOf: url, encoding: .utf8)
+                        provenance = currentSelected.importDestination(content: fileContent,
+                                                                       type: type,
+                                                                       password: password.nilIfEmpty)
+                        guard let provenance else { return }
+                        let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
+                        showCompletion(numberOfImportedEntries)
+                    } catch ImportException.MissingPassword {
+                        showPasswordSheet.toggle()
+                    } catch {
+                        alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                    }
                 }
+                url.stopAccessingSecurityScopedResource()
             }
         case let .failure(error):
             alertService.showError(error, mainDisplay: mainDisplay, action: nil)

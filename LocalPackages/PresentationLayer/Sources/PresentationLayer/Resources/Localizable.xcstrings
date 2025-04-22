@@ -181,12 +181,12 @@
         }
       }
     },
-    "Create" : {
+    "Could not parse the image" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create"
+            "value" : "Could not parse the image"
           }
         }
       }
@@ -801,6 +801,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Theme"
+          }
+        }
+      }
+    },
+    "This item is already saved on the device" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This item is already saved on the device"
           }
         }
       }

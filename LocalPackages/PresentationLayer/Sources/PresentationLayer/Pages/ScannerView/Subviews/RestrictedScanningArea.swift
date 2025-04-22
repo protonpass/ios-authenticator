@@ -87,6 +87,7 @@ public struct RestrictedScanningArea: View {
                     })
 
                 Text("Point your camera at the QR code", bundle: .module)
+                    .foregroundStyle(.white)
                     .font(.headline)
                     .fontWeight(.medium)
                     .padding(.top, 20)
@@ -101,7 +102,9 @@ public struct RestrictedScanningArea: View {
                     }
 
                     Spacer()
-                    Button {} label: {
+                    Button {
+                        manualEntry()
+                    } label: {
                         Text("Enter manually", bundle: .module)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 36)
