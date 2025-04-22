@@ -83,7 +83,7 @@ public final class EncryptionService: EncryptionServicing {
 
     private func getEncryptionKey(for keyId: String) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keyStore.get(key: keyId, shouldSync: true) // keyStore.retrieve(keyId: keyId)
+        let key: Data = try keyStore.get(key: keyId, shouldSync: true)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }

@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
+import DomainLayer
 import Factory
 import Foundation
 import Models
@@ -32,11 +33,11 @@ import UIKit
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
+    private let sentry = resolve(\UseCaseContainer.setUpSentry)
 
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        let sentry = UseCaseContainer.shared.setUpSentry()
         sentry()
     }
 
