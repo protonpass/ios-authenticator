@@ -54,6 +54,7 @@ struct ScannerView: View {
     private var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
                                manualEntry: {
+                                   viewModel.clean()
                                    dismiss()
                                    router.presentedSheet = .createEditEntry(nil)
                                },

@@ -20,6 +20,7 @@
 //
 
 import Combine
+import DataLayer
 import Factory
 import Foundation
 import Macro
@@ -28,14 +29,15 @@ import SimpleToast
 
 @Observable
 @MainActor
-final class EntriesViewModel {
+final class EntriesViewModel: ObservableObject {
     var entries: [EntryUiModel] {
         guard !lastestQuery.isEmpty else {
             return (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
         }
 
         let newResults = entryDataService.dataState.data?.filter {
-            $0.entry.name.lowercased().contains(lastestQuery)
+            $0.entry.name.lowercased().contains(lastestQuery) ||
+                $0.entry.issuer.lowercased().contains(lastestQuery)
         } ?? []
 
         return newResults
@@ -140,13 +142,20 @@ extension EntriesViewModel {
     }
 
     func delete(_ entry: EntryUiModel) {
-        Task {
-            do {
-                try await entryDataService.delete(entry)
-            } catch {
-                handle(error)
+        let action: ActionConfig = .init(title: "Yes", role: .destructive, action: { [weak self] in
+            guard let self else { return }
+            Task {
+                do {
+                    try await entryDataService.delete(entry)
+                } catch {
+                    handle(error)
+                }
             }
-        }
+        })
+        alertService.showAlert(.main(.init(title: "Delete entry",
+                                           // swiftlint:disable:next line_length
+                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible"),
+                                           actions: [action])))
     }
 }
 

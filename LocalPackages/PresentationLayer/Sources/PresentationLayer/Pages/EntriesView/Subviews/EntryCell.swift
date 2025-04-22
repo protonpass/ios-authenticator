@@ -74,16 +74,16 @@ struct EntryCell: View {
                         x: 0,
                         y: -0.5)
 
-            HStack(alignment: .bottom) {
+            HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 numberView
                     .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                VStack(alignment: .trailing) {
+                VStack(alignment: .trailing, spacing: 3) {
                     Text("Next", bundle: .module)
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: nextCode)
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .fontWeight(.semibold)
@@ -114,33 +114,43 @@ struct EntryCell: View {
     }
 
     var nextCode: String {
-        configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        let text = configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        return text.count > 6 ? text : text.separatedByGroup(3, delimiter: " ")
+    }
+
+    var mainCode: String {
+        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
+        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
     }
 
     @ViewBuilder
     private var numberView: some View {
-        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
         if configuration.digitStyle == .boxed {
-            ForEach(Array(code.enumerated()), id: \.offset) { _, char in
-                HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(char)")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.textNorm)
-                        .contentTransition(.numericText())
+            HStack(alignment: .center, spacing: 6) {
+                ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
+                    if char.isWhitespace {
+                        Text(verbatim: " ")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                    } else {
+                        Text(verbatim: "\(char)")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                            .contentTransition(.numericText())
+                            .frame(minWidth: mainCode.count == 7 ? 28 : 22, minHeight: 36)
+                            .background(.black.opacity(0.16))
+                            .cornerRadius(8)
+                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .inset(by: -0.5)
+                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                    }
                 }
-                .padding(.horizontal, 5)
-                .frame(minWidth: 28)
-                .padding(.vertical, 4)
-                .background(.black.opacity(0.16))
-                .cornerRadius(8)
-                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8)
-                    .inset(by: -0.5)
-                    .stroke(.black.opacity(0.23), lineWidth: 1))
             }
         } else {
-            Text(verbatim: "\(code.separatedByGroup(3, delimiter: " "))")
+            Text(verbatim: mainCode)
                 .font(.title)
                 .fontWeight(.semibold)
                 .foregroundStyle(.textNorm)

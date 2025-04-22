@@ -28,6 +28,7 @@ private struct TextFieldConfig {
     let binding: Binding<String>
     let focusField: FocusableField
     var isSecure = false
+    var showToggle: Bool = false
 }
 
 private enum FocusableField: Hashable, CaseIterable {
@@ -57,7 +58,8 @@ struct CreateEditEntryView: View {
                                               placeholder: "Secret",
                                               binding: $viewModel.secret,
                                               focusField: .secret,
-                                              isSecure: true))
+                                              isSecure: true,
+                                              showToggle: true))
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
@@ -151,20 +153,30 @@ struct CreateEditEntryView: View {
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            if config.isSecure {
-                SecureField(config.placeholder, text: config.binding)
-                    .adaptiveSecureFieldStyle()
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .autocorrectionDisabled(true)
-                    .focused($focusedField, equals: .secret)
-            } else {
-                TextField(config.placeholder, text: config.binding)
-                    .adaptiveTextFieldStyle()
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .focused($focusedField, equals: config.focusField)
-                    .autocorrectionDisabled(true)
+                .keyboardType(.alphabet)
+            HStack {
+                if config.isSecure, !viewModel.showSecret {
+                    SecureField(config.placeholder, text: config.binding)
+                        .adaptiveSecureFieldStyle()
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(.textWeak)
+                        .autocorrectionDisabled(true)
+                        .focused($focusedField, equals: .secret)
+                } else {
+                    TextField(config.placeholder, text: config.binding)
+                        .adaptiveTextFieldStyle()
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(.textWeak)
+                        .focused($focusedField, equals: config.focusField)
+                        .autocorrectionDisabled(true)
+                }
+                if config.showToggle {
+                    Button {
+                        viewModel.showSecret.toggle()
+                    } label: {
+                        Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
+                    }
+                }
             }
         }
         .padding(16)

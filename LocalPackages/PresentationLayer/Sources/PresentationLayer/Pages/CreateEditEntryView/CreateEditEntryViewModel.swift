@@ -34,6 +34,7 @@ final class CreateEditEntryViewModel {
     var algo: TotpAlgorithm = .sha1
     var type: TotpType = .totp
     var note = ""
+    var showSecret: Bool = false
 
     var shouldDismiss = false
 
@@ -116,7 +117,7 @@ private extension CreateEditEntryViewModel {
                 secret = params.secret
                 issuer = params.issuer
                 if let newPeriod = params.period {
-                    period = period
+                    period = newPeriod
                     supportedPeriod.appendIfNotExists(newPeriod)
                     supportedPeriod.sort()
                 }

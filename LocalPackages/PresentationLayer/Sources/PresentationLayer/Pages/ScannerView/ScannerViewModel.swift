@@ -25,8 +25,11 @@ import Combine
 import DocScanner
 import Factory
 import Foundation
+import Macro
+import Models
 import PhotosUI
 import SwiftUI
+import VisionKit
 
 @Observable @MainActor
 final class ScannerViewModel {
@@ -71,15 +74,26 @@ final class ScannerViewModel {
             case let .success(result):
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
+                if Task.isCancelled { return }
                 await generateEntry(from: barcode.payload)
             case let .failure(error):
-                handleError(error)
+                if Task.isCancelled { return }
+                if let error = error as? DataScannerViewController.ScanningUnavailable,
+                   error == .cameraRestricted {
+                    // swiftlint:disable:next line_length
+                    handleError(#localized("Camera usage restricted. Please modify your device settings to be able to scan barcodes.",
+                                           bundle: .module))
+                } else {
+                    handleError(error)
+                }
             }
         }
     }
 
     func clean() {
         hasPayload = false
+        task?.cancel()
+        task = nil
     }
 }
 
@@ -104,6 +118,15 @@ private extension ScannerViewModel {
         }
     }
 
+    func handleError(_ error: String) {
+        alertService.showError(error, mainDisplay: false) { [weak self] in
+            guard let self else {
+                return
+            }
+            clean()
+        }
+    }
+
     func parseImage(_ imageSelection: PhotosPickerItem) {
         Task { [weak self] in
             guard let self else {
@@ -113,7 +136,7 @@ private extension ScannerViewModel {
                 let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
                 await generateEntry(from: content)
             } catch {
-                handleError(error)
+                handleError(#localized("Could not parse the image", bundle: .module))
             }
         }
     }
@@ -122,6 +145,8 @@ private extension ScannerViewModel {
         do {
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
+        } catch AuthError.generic(.duplicatedEntry) {
+            handleError(#localized("This item is already saved on the device", bundle: .module))
         } catch {
             handleError(error)
         }

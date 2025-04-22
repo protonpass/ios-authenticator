@@ -28,7 +28,7 @@ import SwiftUI
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
-    @State private var viewModel = EntriesViewModel()
+    @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
@@ -50,14 +50,17 @@ public struct EntriesView: View {
         NavigationStack {
             mainContainer
                 .scrollDismissesKeyboard(.immediately)
+                .onTapGesture {
+                    searchField = false
+                }
                 .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
                     }
                 }
-                .refreshable {
-                    viewModel.reloadData()
+                .refreshable { [weak viewModel] in
+                    viewModel?.reloadData()
                 }
                 .sheetDestinations($router.presentedSheet)
                 .fullScreenDestination($router.presentedFullscreenSheet)
@@ -65,6 +68,9 @@ public struct EntriesView: View {
                 .toolbar { toolbarContent }
                 .overlay {
                     overlay
+                }
+                .onChange(of: router.presentedFullscreenSheet) { _, newValue in
+                    viewModel.toggleCodeRefresh(newValue != nil)
                 }
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
@@ -365,6 +371,30 @@ private extension EntriesView {
                     .coloredBackgroundButton(.capsule)
                 }
                 .foregroundStyle(.textNorm)
+            }
+            // Empty search overlay
+            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.search.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("Couldn't find any entries corresponding to you search criteria \"\(viewModel.search)\"",
+                         bundle: .module)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .frame(maxWidth: .infinity, alignment: .center)
+
+                    Text("Try searching using different spelling or keywords", bundle: .module)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
+
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+                .padding(.horizontal)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
