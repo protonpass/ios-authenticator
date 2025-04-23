@@ -51,6 +51,7 @@ public final class SetUpSentry: SetUpSentryUseCase {
             options.enableFileIOTracing = true
             options.enableCoreDataTracing = true
             // EXPERIMENTAL
+            #if os(iOS)
             options.enablePreWarmedAppStartTracing = true
             options.attachScreenshot = true
             options.attachViewHierarchy = true
@@ -58,18 +59,9 @@ public final class SetUpSentry: SetUpSentryUseCase {
             options.swiftAsyncStacktraces = true
             options.enableAutoPerformanceTracing = true
             options.enableUserInteractionTracing = true
-
+            #endif
             options.configureProfiling = {
                 $0.sessionSampleRate = 1
-            }
-
-            options.configureUserFeedback = { config in
-                config.onSubmitSuccess = { data in
-                    print("Feedback submitted successfully: \(data)")
-                }
-                config.onSubmitError = { error in
-                    print("Failed to submit feedback: \(error)")
-                }
             }
         }
     }
