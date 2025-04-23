@@ -129,7 +129,7 @@ extension EntriesViewModel {
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
         toastService
-            .showToast(SimpleToast(title: #localized("Copied to clipboard")))
+            .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
@@ -142,19 +142,24 @@ extension EntriesViewModel {
     }
 
     func delete(_ entry: EntryUiModel) {
-        let action: ActionConfig = .init(title: "Yes", role: .destructive, action: { [weak self] in
-            guard let self else { return }
-            Task {
-                do {
-                    try await entryDataService.delete(entry)
-                } catch {
-                    handle(error)
-                }
-            }
-        })
+        let action: ActionConfig = .init(title: "Yes",
+                                         titleBundle: .module,
+                                         role: .destructive,
+                                         action: { [weak self] in
+                                             guard let self else { return }
+                                             Task {
+                                                 do {
+                                                     try await entryDataService.delete(entry)
+                                                 } catch {
+                                                     handle(error)
+                                                 }
+                                             }
+                                         })
         alertService.showAlert(.main(.init(title: "Delete entry",
+                                           titleBundle: .module,
                                            // swiftlint:disable:next line_length
-                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible"),
+                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible",
+                                                               .module),
                                            actions: [action])))
     }
 }

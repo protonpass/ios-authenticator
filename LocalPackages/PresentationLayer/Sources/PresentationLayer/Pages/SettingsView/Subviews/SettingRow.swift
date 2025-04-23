@@ -45,7 +45,7 @@ struct SettingRow: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(title) // ignore:missing_bundle
                     .foregroundStyle(.textNorm)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
@@ -68,7 +68,7 @@ struct SettingRow: View {
                         .fixedSize(horizontal: true, vertical: false)
 
                 case let .detailChevronUpDown(detail):
-                    Text(detail)
+                    Text(detail) // ignore:missing_bundle
                         .foregroundStyle(.textNorm)
                         .padding(.trailing, DesignConstant.padding / 2)
 

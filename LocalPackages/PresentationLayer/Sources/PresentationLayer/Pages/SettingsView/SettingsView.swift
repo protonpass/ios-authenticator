@@ -87,7 +87,7 @@ public struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .routingProvided
-            .navigationTitle("Settings")
+            .navigationTitle(Text("Settings", bundle: .module))
             .task {
                 await viewModel.setUp()
             }
@@ -133,7 +133,7 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("Backup"),
+            SettingRow(title: .localized("Backup", .module),
                        subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackUp))
@@ -148,13 +148,13 @@ private extension SettingsView {
              SettingDivider()
               */
 
-            SettingRow(title: .localized("Biometric lock"),
+            SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Hide codes"),
+            SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
         }
@@ -175,8 +175,8 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("Theme"),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title)))
+                SettingRow(title: .localized("Theme", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title, .module)))
             })
             .adaptiveMenuStyle()
 
@@ -195,8 +195,9 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("Search bar position"),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title)))
+                SettingRow(title: .localized("Search bar position", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
+                                                                         .module)))
             })
             .adaptiveMenuStyle()
 
@@ -214,12 +215,12 @@ private extension SettingsView {
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("Digit style"),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title)))
+                SettingRow(title: .localized("Digit style", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)))
             })
             .adaptiveMenuStyle()
             SettingDivider()
-            SettingRow(title: .localized("Animate code change"),
+            SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
         }
@@ -227,27 +228,27 @@ private extension SettingsView {
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), onTap: { showImportOptions.toggle() })
+            SettingRow(title: .localized("Import", .module), onTap: { showImportOptions.toggle() })
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), onTap: viewModel.exportData)
+            SettingRow(title: .localized("Export", .module), onTap: viewModel.exportData)
         }
     }
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator"))
+            SettingRow(title: .localized("How to use Proton Authenticator", .module))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback")) {
+            SettingRow(title: .localized("Feedback", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)
             }
 
             SettingDivider()
 
-            SettingRow(title: .localized("Logs"), onTap: { settingSheet = .logs })
+            SettingRow(title: .localized("Logs", .module), onTap: { settingSheet = .logs })
         }
     }
 
@@ -269,7 +270,7 @@ private extension SettingsView {
     @ViewBuilder
     var versionLabel: some View {
         if let version = viewModel.versionString {
-            Text(version)
+            Text(verbatim: version)
                 .font(.callout)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)

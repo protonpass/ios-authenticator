@@ -67,7 +67,6 @@ public final class DeepLinkService: DeepLinkServicing {
 
 // MARK: - Utils
 
-// swiftlint:disable line_length
 private extension DeepLinkService {
     func process(url: URL) async throws {
         let uri = url.absoluteString.decodeHTMLAndPercent
@@ -76,19 +75,21 @@ private extension DeepLinkService {
         }
 
         let entry = try await service.getEntry(from: uri)
-        await alertService.showAlert(.main(AlertConfiguration(title: "Warning",
-                                                              message: .localized("Do you want to add this entry for the account \(entry.name)?"),
-                                                              actions: [
-                                                                  .init(title: "Yes", action: {
-                                                                      Task { [weak self] in
-                                                                          guard let self else { return }
-                                                                          try? await service
-                                                                              .insertAndRefresh(entry: entry)
-                                                                      }
-                                                                  }),
-                                                                  .init(title: "No", role: .cancel)
-                                                              ])))
+        let message = TextContent.localized("Do you want to add this entry for the account \(entry.name)?",
+                                            .module)
+        let yes = ActionConfig(title: "Yes",
+                               titleBundle: .module,
+                               action: {
+                                   Task { [weak self] in
+                                       guard let self else { return }
+                                       try? await service
+                                           .insertAndRefresh(entry: entry)
+                                   }
+                               })
+        let no = ActionConfig(title: "No", titleBundle: .module, role: .cancel)
+        await alertService.showAlert(.main(.init(title: "Warning",
+                                                 titleBundle: .module,
+                                                 message: message,
+                                                 actions: [yes, no])))
     }
 }
-
-// swiftlint:enable line_length

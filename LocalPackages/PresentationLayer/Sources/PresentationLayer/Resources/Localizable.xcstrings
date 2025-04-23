@@ -71,16 +71,6 @@
         }
       }
     },
-    "appeareance" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "appeareance"
-          }
-        }
-      }
-    },
     "Are you sure you want to delete this entry? This action is irreversible" : {
       "localizations" : {
         "en" : {

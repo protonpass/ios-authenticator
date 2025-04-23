@@ -275,16 +275,12 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
-        let action = ActionConfig.ok
-        let alert: AlertDisplay = if mainDisplay {
-            .main(.init(title: "Codes imported",
-                        message: .localized("Successfully imported \(numberOfEntries) items"),
-                        actions: [action]))
-        } else {
-            .sheet(.init(title: "Codes imported",
-                         message: .localized("Successfully imported \(numberOfEntries) items"),
-                         actions: [action]))
-        }
+        let config = AlertConfiguration(title: "Codes imported",
+                                        titleBundle: .module,
+                                        message: .localized("Successfully imported \(numberOfEntries) items",
+                                                            .module),
+                                        actions: [.ok])
+        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
     }
 }
