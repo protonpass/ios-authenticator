@@ -112,7 +112,7 @@ final class SettingsViewModel {
 
 extension SettingsViewModel {
     func setUp() async {
-        versionString = #localized("Version %@", bundle.displayedAppVersion)
+        versionString = #localized("Version %@", bundle: .module, bundle.displayedAppVersion)
     }
 
     func togglePassBanner() {
@@ -134,8 +134,9 @@ extension SettingsViewModel {
         Task { [weak self] in
             guard let self else { return }
             do {
+                let reason = #localized("Please authenticate", bundle: .module)
                 if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
-                                                       reason: #localized("Please authenticate")) {
+                                                       reason: reason) {
                     biometricLock.toggle()
                     try authenticationService
                         .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
@@ -189,7 +190,7 @@ extension SettingsViewModel {
         switch result {
         case .success:
             toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
-                                         title: #localized("Successfully exported")))
+                                         title: #localized("Successfully exported", bundle: .module)))
         case let .failure(error):
             handle(error)
         }

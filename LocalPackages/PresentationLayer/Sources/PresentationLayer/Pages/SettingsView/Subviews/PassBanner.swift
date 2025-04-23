@@ -65,7 +65,6 @@ struct PassBanner: View {
 private extension PassBanner {
     var mainContent: some View {
         ZStack {
-            // Dummy change
             HStack {
                 Spacer()
                 Image("passPreview", bundle: .module)

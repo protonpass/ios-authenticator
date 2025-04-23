@@ -32,7 +32,7 @@ struct LogsView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.logs) { log in
-                    Text(log.description)
+                    Text(verbatim: log.description)
                         .listRowBackground(Color.clear)
                 }
             }
@@ -59,7 +59,7 @@ struct LogsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle("Logs")
+            .navigationTitle(Text("Logs", bundle: .module))
             #if os(iOS)
                 .listSectionSpacing(DesignConstant.padding * 2)
                 .navigationBarTitleDisplayMode(.inline)

@@ -71,16 +71,6 @@
         }
       }
     },
-    "appeareance" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "appeareance"
-          }
-        }
-      }
-    },
     "Backup" : {
       "localizations" : {
         "en" : {

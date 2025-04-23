@@ -127,7 +127,7 @@ extension EntriesViewModel {
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
         toastService
-            .showToast(SimpleToast(title: #localized("Copied to clipboard")))
+            .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

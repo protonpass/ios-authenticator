@@ -70,7 +70,7 @@ final class LogsViewModel {
         switch result {
         case .success:
             toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
-                                         title: #localized("Successfully exported")))
+                                         title: #localized("Successfully exported", bundle: .module)))
         case let .failure(error):
             alertService.showError(error, mainDisplay: false, action: nil)
         }
