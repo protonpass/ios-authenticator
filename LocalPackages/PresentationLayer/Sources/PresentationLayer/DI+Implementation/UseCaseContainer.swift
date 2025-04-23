@@ -65,4 +65,8 @@ public extension UseCaseContainer {
                                            authenticationService: ServiceContainer.shared.authenticationService(),
                                            logger: self.logger) }
     }
+
+    var setUpSentry: Factory<any SetUpSentryUseCase> {
+        self { SetUpSentry() }
+    }
 }

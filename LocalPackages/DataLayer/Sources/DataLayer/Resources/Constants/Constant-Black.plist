@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>SENTRY_DSN</key>
-	<string>https://a053e81a23354f1eb6becdeb3a91440a@authenticator-api.proton.me/core/v4/reports/sentry/78</string>
+	<string>https://e15338cd3f8140cea28c9f1abbcfe275@sentry-new.protontech.ch/78</string>
 	<key>DEFAULT_PATH</key>
 	<string>/api</string>
 	<key>API_HOST</key>

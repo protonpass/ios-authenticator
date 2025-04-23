@@ -183,6 +183,7 @@ private extension EntryRepository {
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     keyId: encryptionService.keyId,
-                                    order: entry.order)
+                                    order: entry.order,
+                                    syncState: entry.syncState)
     }
 }
