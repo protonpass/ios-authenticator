@@ -82,11 +82,13 @@ struct EntryCell: View {
 
                 VStack(alignment: .trailing, spacing: 3) {
                     Text("Next", bundle: .module)
+                        .font(.custom("SF Pro Text", size: 14))
                         .foregroundStyle(.textWeak)
                     Text(verbatim: nextCode)
+                        .font(.custom("SF Mono", size: 15).weight(.semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .fontWeight(.semibold)
+                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
                 }
             }
             .padding(.vertical, 12)
@@ -101,7 +103,6 @@ struct EntryCell: View {
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
-        .background(isLightMode ? .clear : .white.opacity(0.1))
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
