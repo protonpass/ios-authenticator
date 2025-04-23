@@ -63,7 +63,9 @@ public struct EntriesView: View {
                     viewModel?.reloadData()
                 }
                 .sheetDestinations($router.presentedSheet)
+            #if os(iOS)
                 .fullScreenDestination($router.presentedFullscreenSheet)
+            #endif
                 .environment(router)
                 .toolbar { toolbarContent }
                 .overlay {

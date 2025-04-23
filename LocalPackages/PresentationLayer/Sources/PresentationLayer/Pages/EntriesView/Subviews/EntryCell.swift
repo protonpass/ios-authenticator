@@ -77,6 +77,7 @@ struct EntryCell: View {
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 numberView
                     .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
+                    .privacySensitive()
 
                 Spacer(minLength: 0)
 
@@ -89,6 +90,7 @@ struct EntryCell: View {
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .privacySensitive()
                 }
             }
             .padding(.vertical, 12)

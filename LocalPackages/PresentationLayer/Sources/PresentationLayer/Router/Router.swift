@@ -93,14 +93,14 @@ public extension View {
         }
     }
 
+    #if os(iOS)
     func fullScreenDestination(_ item: Binding<FullScreenDestination?>) -> some View {
         fullScreenCover(item: item) { destination in
             switch destination {
-            #if os(iOS)
             case .qrCodeScanner:
                 ScannerView()
-            #endif
             }
         }
     }
+    #endif
 }

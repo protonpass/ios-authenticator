@@ -153,7 +153,6 @@ struct CreateEditEntryView: View {
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-                .keyboardType(.alphabet)
             HStack {
                 if config.isSecure, !viewModel.showSecret {
                     SecureField(config.placeholder, text: config.binding)
@@ -176,6 +175,7 @@ struct CreateEditEntryView: View {
                     } label: {
                         Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
                     }
+                    .adaptiveButtonStyle()
                 }
             }
         }
@@ -230,6 +230,7 @@ private extension CreateEditEntryView {
                 }
             }
             .accentColor(.textNorm)
+            .pickerStyle(pickerStyle)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
@@ -281,6 +282,14 @@ private extension CreateEditEntryView {
         return .topBarLeading
         #else
         return .automatic
+        #endif
+    }
+
+    var pickerStyle: some PickerStyle {
+        #if os(iOS)
+        return .automatic
+        #else
+        return .segmented
         #endif
     }
 
