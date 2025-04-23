@@ -91,7 +91,7 @@ final class ScannerViewModel {
                                            bundle: .module))
                 } else {
                     if Task.isCancelled { return }
-                    handleError(error)
+                    handleError(error.localizedDescription)
                 }
             }
         }
@@ -114,15 +114,6 @@ private extension ScannerViewModel {
                 parseImage(imageSelection)
             }
             .store(in: &cancellables)
-    }
-
-    func handleError(_ error: Error) {
-        alertService.showError(error, mainDisplay: false) { [weak self] in
-            guard let self else {
-                return
-            }
-            clean()
-        }
     }
 
     func handleError(_ error: String) {
@@ -160,7 +151,7 @@ private extension ScannerViewModel {
             handleError(#localized("This item is already saved on the device", bundle: .module))
         } catch {
             if Task.isCancelled { return }
-            handleError(error)
+            handleError(error.localizedDescription)
         }
     }
 }

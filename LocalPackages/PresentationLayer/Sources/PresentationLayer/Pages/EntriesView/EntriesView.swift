@@ -314,14 +314,6 @@ private extension EntriesView {
         })
     }
     #endif
-
-    var manuallyAddEntryButton: some View {
-        Button(action: {
-            router.presentedSheet = .createEditEntry(nil)
-        }, label: {
-            Label("Enter manually", systemImage: "character.cursor.ibeam")
-        })
-    }
 }
 
 // MARK: - Overlay screen

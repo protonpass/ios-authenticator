@@ -268,10 +268,10 @@ final class ImportViewModel {
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
                 case let .failure(error):
-                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                    alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
                 }
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
             }
         }
     }
