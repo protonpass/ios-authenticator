@@ -27,6 +27,8 @@ import Macro
 import Models
 import SimpleToast
 
+//swiftlint:disable:next todo
+// TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
 @MainActor
 final class EntriesViewModel: ObservableObject {
@@ -160,7 +162,7 @@ extension EntriesViewModel {
         alertService.showAlert(.main(.init(title: "Delete entry",
                                            titleBundle: .module,
                                            // swiftlint:disable:next line_length
-                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible",
+                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible.",
                                                                .module),
                                            actions: [action])))
     }
@@ -170,6 +172,6 @@ private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log
-        alertService.showError(error.localizedDescription, mainDisplay: true, action: nil)
+        alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

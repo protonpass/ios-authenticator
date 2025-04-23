@@ -136,6 +136,6 @@ private extension CreateEditEntryViewModel {
     }
 
     func handle(_ error: Error) {
-        alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 }

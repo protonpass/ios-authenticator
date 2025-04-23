@@ -98,6 +98,12 @@ public extension AlertServiceProtocol {
     func showError(_ error: String, mainDisplay: Bool = true, action: (@MainActor () -> Void)? = nil) {
         showError(error, mainDisplay: mainDisplay, action: action)
     }
+
+    func showError(_ error: any Error,
+                   mainDisplay: Bool = true,
+                   action: (@MainActor () -> Void)? = nil) {
+        showError(error.localizedDescription, mainDisplay: mainDisplay, action: action)
+    }
 }
 
 public enum AlertDisplay: Identifiable {

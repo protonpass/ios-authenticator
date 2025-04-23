@@ -192,7 +192,7 @@ extension SettingsViewModel {
             let data = try entryDataService.exportEntries()
             exportedDocument = TextDocument(data)
         } catch {
-            alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+            alertService.showError(error, mainDisplay: false, action: nil)
         }
     }
 
@@ -210,6 +210,6 @@ extension SettingsViewModel {
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
-        alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 }

@@ -71,12 +71,12 @@
         }
       }
     },
-    "Are you sure you want to delete this entry? This action is irreversible" : {
+    "Are you sure you want to delete this entry? This action is irreversible." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to delete this entry? This action is irreversible"
+            "value" : "Are you sure you want to delete this entry? This action is irreversible."
           }
         }
       }
@@ -141,12 +141,12 @@
         }
       }
     },
-    "Camera usage restricted. Please modify your device settings to be able to scan barcodes." : {
+    "Camera usage restricted" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Camera usage restricted. Please modify your device settings to be able to scan barcodes."
+            "value" : "Camera usage restricted"
           }
         }
       }
@@ -191,22 +191,22 @@
         }
       }
     },
-    "Could not parse the image" : {
+    "Could not process the image" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Could not parse the image"
+            "value" : "Could not process the image"
           }
         }
       }
     },
-    "Couldn't find any entries corresponding to you search criteria \"%@\"" : {
+    "Couldn't find any entries corresponding to your search criteria \"%@\"" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't find any entries corresponding to you search criteria \"%@\""
+            "value" : "Couldn't find any entries corresponding to your search criteria \"%@\""
           }
         }
       }
@@ -542,6 +542,16 @@
         }
       }
     },
+    "Open Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        }
+      }
+    },
     "Organize your schedule and keep your plans to yourself." : {
       "localizations" : {
         "en" : {
@@ -578,6 +588,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please authenticate"
+          }
+        }
+      }
+    },
+    "Please enable camera access from Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enable camera access from Settings"
           }
         }
       }
@@ -835,12 +855,12 @@
         }
       }
     },
-    "This item is already saved on the device" : {
+    "This item already exists" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This item is already saved on the device"
+            "value" : "This item already exists"
           }
         }
       }

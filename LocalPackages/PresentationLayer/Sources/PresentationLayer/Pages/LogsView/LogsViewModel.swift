@@ -54,7 +54,7 @@ final class LogsViewModel {
                 let logsContent = try await logManager.logsContent()
                 exportedDocument = TextDocument(logsContent)
             } catch {
-                alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+                alertService.showError(error, mainDisplay: false, action: nil)
             }
         }
     }
@@ -73,7 +73,7 @@ final class LogsViewModel {
             toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
                                          title: #localized("Successfully exported", bundle: .module)))
         case let .failure(error):
-            alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+            alertService.showError(error, mainDisplay: false, action: nil)
         }
     }
 }
@@ -85,7 +85,7 @@ private extension LogsViewModel {
             do {
                 logs = try await logManager.fetchLogs()
             } catch {
-                alertService.showError(error.localizedDescription, mainDisplay: false, action: nil)
+                alertService.showError(error, mainDisplay: false, action: nil)
             }
         }
     }

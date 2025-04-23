@@ -22,6 +22,7 @@
 
 #if os(iOS)
 import Combine
+import DataLayer
 import DocScanner
 import Factory
 import Foundation
@@ -86,9 +87,18 @@ final class ScannerViewModel {
                 if let error = error as? DataScannerViewController.ScanningUnavailable,
                    error == .cameraRestricted {
                     if Task.isCancelled { return }
-                    // swiftlint:disable:next line_length
-                    handleError(#localized("Camera usage restricted. Please modify your device settings to be able to scan barcodes.",
-                                           bundle: .module))
+                    let action = ActionConfig(title: "Open Settings", titleBundle: .module) {
+                        if let url = URL(string: UIApplication.openSettingsURLString),
+                           UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    let config = AlertConfiguration(title: "Camera usage restricted",
+                                                    titleBundle: .module,
+                                                    message: .localized("Please enable camera access from Settings",
+                                                                        .module),
+                                                    actions: [action, ActionConfig.cancel])
+                    alertService.showAlert(.sheet(config))
                 } else {
                     if Task.isCancelled { return }
                     handleError(error.localizedDescription)
@@ -136,7 +146,7 @@ private extension ScannerViewModel {
             } catch {
                 if Task.isCancelled { return }
 
-                handleError(#localized("Could not parse the image", bundle: .module))
+                handleError(#localized("Could not process the image", bundle: .module))
             }
         }
     }
@@ -148,7 +158,7 @@ private extension ScannerViewModel {
             shouldDismiss = true
         } catch AuthError.generic(.duplicatedEntry) {
             if Task.isCancelled { return }
-            handleError(#localized("This item is already saved on the device", bundle: .module))
+            handleError(#localized("This item already exists", bundle: .module))
         } catch {
             if Task.isCancelled { return }
             handleError(error.localizedDescription)

@@ -33,7 +33,7 @@ public struct EntriesView: View {
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
 
-    @FocusState private var searchField: Bool
+    @FocusState private var searchFieldFocus: Bool
 
     // periphery:ignore
     private var isPhone: Bool {
@@ -51,7 +51,7 @@ public struct EntriesView: View {
             mainContainer
                 .scrollDismissesKeyboard(.immediately)
                 .onTapGesture {
-                    searchField = false
+                    searchFieldFocus = false
                 }
                 .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
@@ -267,9 +267,9 @@ private extension EntriesView {
                       .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
-                      .focused($searchField)
+                      .focused($searchFieldFocus)
                       .onSubmit {
-                          searchField = false
+                          searchFieldFocus = false
                       }
         }
 
@@ -335,7 +335,8 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 16) {
                         Text("No codes", bundle: .module)
-                            .font(.custom("SF Mono", size: 20, relativeTo: .headline))
+                            .font(.title2)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
@@ -370,7 +371,7 @@ private extension EntriesView {
             if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.search.isEmpty {
                 VStack {
                     Spacer()
-                    Text("Couldn't find any entries corresponding to you search criteria \"\(viewModel.search)\"",
+                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.search)\"",
                          bundle: .module)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
