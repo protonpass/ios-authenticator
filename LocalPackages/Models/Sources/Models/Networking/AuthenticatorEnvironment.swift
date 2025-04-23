@@ -31,7 +31,7 @@ public enum AuthenticatorEnvironment: Sendable {
         public let defaultHost: String
         public let apiHost: String
         public let defaultPath: String
-        public let sentryDns: String
+        public let sentryDsn: String
 
         public init(signupDomain: String,
                     captchaHost: String,
@@ -40,7 +40,7 @@ public enum AuthenticatorEnvironment: Sendable {
                     defaultHost: String,
                     apiHost: String,
                     defaultPath: String,
-                    sentryDns: String) {
+                    sentryDsn: String) {
             self.signupDomain = signupDomain
             self.captchaHost = captchaHost
             self.humanVerificationV3Host = humanVerificationV3Host
@@ -48,7 +48,7 @@ public enum AuthenticatorEnvironment: Sendable {
             self.defaultHost = defaultHost
             self.apiHost = apiHost
             self.defaultPath = defaultPath
-            self.sentryDns = sentryDns
+            self.sentryDsn = sentryDsn
         }
     }
 }

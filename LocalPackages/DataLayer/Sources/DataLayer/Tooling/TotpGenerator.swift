@@ -23,7 +23,7 @@ import Combine
 import Models
 
 public protocol TotpGeneratorProtocol: Sendable {
-    var currentCode: CurrentValueSubject<[EntryUiModel]?, Never> { get }
+    var currentCode: CurrentValueSubject<[Code]?, Never> { get }
 
     func totpUpdate(_ entries: [Entry]) async throws
     func stopUpdating() async
@@ -31,15 +31,12 @@ public protocol TotpGeneratorProtocol: Sendable {
 
 public actor TotpGenerator: TotpGeneratorProtocol {
     private let rustTotpGenerator: any MobileTotpGeneratorProtocol
-    private let totpIssuerMapper: any TOTPIssuerMapperServicing
     private var cancellableGenerator: (any MobileTotpGenerationHandle)?
 
-    public nonisolated let currentCode: CurrentValueSubject<[EntryUiModel]?, Never> = .init(nil)
+    public nonisolated let currentCode: CurrentValueSubject<[Code]?, Never> = .init(nil)
 
-    public init(rustTotpGenerator: any MobileTotpGeneratorProtocol,
-                totpIssuerMapper: any TOTPIssuerMapperServicing) {
+    public init(rustTotpGenerator: any MobileTotpGeneratorProtocol) {
         self.rustTotpGenerator = rustTotpGenerator
-        self.totpIssuerMapper = totpIssuerMapper
     }
 
     deinit {
@@ -62,15 +59,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
 
 extension TotpGenerator: MobileTotpGeneratorCallback {
     public nonisolated func onCodes(codes: [AuthenticatorCodeResponse]) {
-        var results = [EntryUiModel]()
-        for (index, code) in codes.enumerated() {
-            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            results.append(.init(entry: code.entry.toEntry,
-                                 code: code.toCode,
-                                 order: index,
-                                 issuerInfo: issuerInfo))
-        }
-        currentCode.send(results)
+        currentCode.send(codes.map(\.toCode))
     }
 }
 

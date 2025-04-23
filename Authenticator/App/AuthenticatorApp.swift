@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
+import DomainLayer
 import Factory
 import Foundation
 import Models
@@ -136,7 +137,12 @@ private final class AuthenticatorAppViewModel {
     @LazyInjected(\ServiceContainer.authenticationService)
     private var authenticationService
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.setUpSentry)
+    private var sentry
+
     init() {
+        sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
         setUpFirstRun()
     }
