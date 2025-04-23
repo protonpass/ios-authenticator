@@ -109,7 +109,8 @@ final class EntriesViewModel: ObservableObject {
         if offset < destination {
             targetIndex -= 1
         }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
             } catch {
@@ -147,7 +148,8 @@ extension EntriesViewModel {
                                          role: .destructive,
                                          action: { [weak self] in
                                              guard let self else { return }
-                                             Task {
+                                             Task { [weak self] in
+                                                 guard let self else { return }
                                                  do {
                                                      try await entryDataService.delete(entry)
                                                  } catch {

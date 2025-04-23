@@ -200,7 +200,8 @@ final class ImportViewModel {
                   let type = url.mimeType,
                   let currentSelected,
                   currentSelected.autorizedFileExtensions.contains(type) else { return }
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
                 if url.startAccessingSecurityScopedResource() {
                     do {
                         let fileContent = try String(contentsOf: url, encoding: .utf8)
@@ -228,7 +229,8 @@ final class ImportViewModel {
             return
         }
         let updatedProvenance = provenance.updatePassword(password)
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
@@ -256,7 +258,8 @@ final class ImportViewModel {
 
     #if os(iOS)
     func processPayload(results: Result<ScanResult?, Error>) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 switch results {
                 case let .success(result):

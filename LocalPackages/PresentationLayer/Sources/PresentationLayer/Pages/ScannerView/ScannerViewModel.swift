@@ -67,23 +67,30 @@ final class ScannerViewModel {
         setUp()
     }
 
+    deinit {
+        task?.cancel()
+        task = nil
+    }
+
     func processPayload(results: Result<ScanResult?, Error>) {
         task?.cancel()
-        task = Task {
+        task = Task { [weak self] in
+            guard let self else { return }
             switch results {
             case let .success(result):
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
-                if Task.isCancelled { return }
                 await generateEntry(from: barcode.payload)
             case let .failure(error):
                 if Task.isCancelled { return }
                 if let error = error as? DataScannerViewController.ScanningUnavailable,
                    error == .cameraRestricted {
+                    if Task.isCancelled { return }
                     // swiftlint:disable:next line_length
                     handleError(#localized("Camera usage restricted. Please modify your device settings to be able to scan barcodes.",
                                            bundle: .module))
                 } else {
+                    if Task.isCancelled { return }
                     handleError(error)
                 }
             }
@@ -136,6 +143,8 @@ private extension ScannerViewModel {
                 let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
                 await generateEntry(from: content)
             } catch {
+                if Task.isCancelled { return }
+
                 handleError(#localized("Could not parse the image", bundle: .module))
             }
         }
@@ -143,11 +152,14 @@ private extension ScannerViewModel {
 
     func generateEntry(from barcodePayload: String) async {
         do {
+            if Task.isCancelled { return }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
         } catch AuthError.generic(.duplicatedEntry) {
+            if Task.isCancelled { return }
             handleError(#localized("This item is already saved on the device", bundle: .module))
         } catch {
+            if Task.isCancelled { return }
             handleError(error)
         }
     }

@@ -36,8 +36,8 @@ struct ScannerView: View {
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
-                    regionOfInterest: $regionOfInterest) { results in
-            viewModel.processPayload(results: results)
+                    regionOfInterest: $regionOfInterest) { [weak viewModel] results in
+            viewModel?.processPayload(results: results)
         }
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()

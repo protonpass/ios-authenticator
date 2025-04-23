@@ -142,7 +142,8 @@ private final class AuthenticatorAppViewModel {
     }
 
     func handleDeepLink(_ url: URL) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await deepLinkService.handleDeeplink(url)
             } catch {
@@ -161,7 +162,8 @@ private final class AuthenticatorAppViewModel {
     }
 
     func checkBiometrics() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await authenticationService.checkBiometrics()
             } catch {

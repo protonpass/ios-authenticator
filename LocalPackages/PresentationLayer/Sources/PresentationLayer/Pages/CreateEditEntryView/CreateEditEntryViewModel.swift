@@ -87,7 +87,9 @@ final class CreateEditEntryViewModel {
         } else {
             .steam(SteamParams(name: name, secret: secret, note: note.nilIfEmpty))
         }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+
             do {
                 if let entry {
                     try await entryDataService.updateAndRefreshEntry(for: entry.id, with: params)
