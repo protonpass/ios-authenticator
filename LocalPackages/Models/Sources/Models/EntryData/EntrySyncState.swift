@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public enum EntrySyncState: Codable, Equatable, Sendable {
+public enum EntrySyncState: Int, Codable, Equatable, Sendable {
     case synced
     case unsynced
     case toDelete
