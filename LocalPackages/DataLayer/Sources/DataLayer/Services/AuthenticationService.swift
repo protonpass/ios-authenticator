@@ -85,7 +85,7 @@ public final class AuthenticationService: AuthenticationServicing {
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = #localized("Please authenticate")
+            let reason = #localized("Please authenticate", bundle: .module)
             do {
                 let bioCheckValue = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
                                                                      localizedReason: reason)
@@ -97,6 +97,7 @@ public final class AuthenticationService: AuthenticationServicing {
             guard let error else {
                 return
             }
+            logger.log(.error, category: .data, error.localizedDescription)
             throw error
         }
     }

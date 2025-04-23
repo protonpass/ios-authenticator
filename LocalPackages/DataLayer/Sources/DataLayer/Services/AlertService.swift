@@ -25,11 +25,16 @@ import SwiftUI
 public struct AlertConfiguration: Sendable, Identifiable {
     public let id: String = UUID().uuidString
     public let title: LocalizedStringKey
+    public let titleBundle: Bundle
     public let message: TextContent?
     public let actions: [ActionConfig]
 
-    public init(title: LocalizedStringKey, message: TextContent?, actions: [ActionConfig]) {
+    public init(title: LocalizedStringKey,
+                titleBundle: Bundle,
+                message: TextContent?,
+                actions: [ActionConfig]) {
         self.title = title
+        self.titleBundle = titleBundle
         self.message = message
         self.actions = actions
     }
@@ -55,22 +60,27 @@ public enum ActionRole: Sendable {
 public struct ActionConfig: Sendable, Identifiable {
     public let id: String = UUID().uuidString
     public let title: LocalizedStringKey
+    public let titleBundle: Bundle
     public let role: ActionRole
     public let action: (@MainActor () -> Void)?
 
-    public init(title: LocalizedStringKey, role: ActionRole = .generic, action: (@MainActor () -> Void)? = nil) {
+    public init(title: LocalizedStringKey,
+                titleBundle: Bundle,
+                role: ActionRole = .generic,
+                action: (@MainActor () -> Void)? = nil) {
         self.title = title
+        self.titleBundle = titleBundle
         self.role = role
         self.action = action
     }
 
     public static var ok: ActionConfig {
-        .init(title: "OK", role: .generic, action: {})
+        .init(title: "OK", titleBundle: .module, role: .generic, action: {})
     }
 
     // periphery:ignore
     public static var cancel: ActionConfig {
-        .init(title: "Cancel", role: .cancel, action: {})
+        .init(title: "Cancel", titleBundle: .module, role: .cancel, action: {})
     }
 }
 
@@ -107,6 +117,10 @@ public enum AlertDisplay: Identifiable {
         configuration.title
     }
 
+    public var titleBundle: Bundle {
+        configuration.titleBundle
+    }
+
     public var message: TextContent? {
         configuration.message
     }
@@ -117,11 +131,11 @@ public enum AlertDisplay: Identifiable {
                 Button(role: role) {
                     actionConfig.action?()
                 } label: {
-                    Text(actionConfig.title)
+                    Text(actionConfig.title, bundle: actionConfig.titleBundle)
                 }
             } else {
                 Button(action: actionConfig.action ?? {}) {
-                    Text(actionConfig.title)
+                    Text(actionConfig.title, bundle: actionConfig.titleBundle)
                 }
             }
         }
@@ -161,8 +175,12 @@ public final class AlertService: AlertServiceProtocol {
 
     public func showError(_ error: any Error, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
         let config = AlertConfiguration(title: "An error occurred",
+                                        titleBundle: .module,
                                         message: .verbatim(error.localizedDescription),
-                                        actions: [.init(title: "OK", role: .cancel, action: action)])
+                                        actions: [.init(title: "OK",
+                                                        titleBundle: .module,
+                                                        role: .cancel,
+                                                        action: action)])
         alert = mainDisplay ? .main(config) : .sheet(config)
     }
 }

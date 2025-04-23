@@ -38,7 +38,7 @@ struct AlertServiceModifier: ViewModifier {
                    },
                    message: { display in
                        if let message = display.message {
-                           Text(message)
+                           Text(message) // ignore:missing_bundle
                        }
                    })
     }
@@ -56,11 +56,13 @@ public extension View {
 
 private extension AlertDisplay? {
     var titleText: Text {
-        // swiftlint:disable:next discouraged_optional_self
-        if let title = self?.title {
-            Text(title, bundle: .module)
+        // swiftlint:disable discouraged_optional_self
+        if let title = self?.title,
+           let titleBundle = self?.titleBundle {
+            Text(title, bundle: titleBundle)
         } else {
             Text(verbatim: "")
         }
+        // swiftlint:enable discouraged_optional_self
     }
 }

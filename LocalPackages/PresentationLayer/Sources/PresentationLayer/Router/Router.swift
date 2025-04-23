@@ -63,7 +63,7 @@ struct RouterEmbeded: ViewModifier {
             .navigationDestination(for: RouterDestination.self) { destination in
                 switch destination {
                 case .appearance:
-                    Text("appeareance")
+                    Text(verbatim: "appeareance")
                 }
             }
     }
