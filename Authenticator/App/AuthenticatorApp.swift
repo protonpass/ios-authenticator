@@ -33,13 +33,7 @@ import UIKit
 @main
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
-    private let sentry = resolve(\UseCaseContainer.setUpSentry)
-
     @Environment(\.scenePhase) private var scenePhase
-
-    init() {
-        sentry()
-    }
 
     var body: some Scene {
         WindowGroup {
@@ -143,7 +137,12 @@ private final class AuthenticatorAppViewModel {
     @LazyInjected(\ServiceContainer.authenticationService)
     private var authenticationService
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.setUpSentry)
+    private var sentry
+
     init() {
+        sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
         setUpFirstRun()
     }

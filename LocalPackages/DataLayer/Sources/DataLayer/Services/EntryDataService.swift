@@ -386,12 +386,12 @@ private extension EntryDataService {
 
     func updateCodes(newCodes: [Code]) {
         guard let entries = dataState.data else { return }
-        let codes = newCodes.compactMap { newCode -> EntryUiModel? in
+        let entryUiModels = newCodes.compactMap { newCode -> EntryUiModel? in
             guard let entry = entries.first(where: { $0.id == newCode.entry.id }) else { return nil }
             return entry.updateCode(newCode)
         }
 
-        dataState = .loaded(codes)
+        dataState = .loaded(entryUiModels)
     }
 }
 
