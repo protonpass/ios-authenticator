@@ -147,7 +147,7 @@ private final class AuthenticatorAppViewModel {
             do {
                 try await deepLinkService.handleDeeplink(url)
             } catch {
-                alertService.showError(error)
+                alertService.showError(error.localizedDescription)
             }
         }
     }
@@ -157,7 +157,7 @@ private final class AuthenticatorAppViewModel {
         do {
             try authenticationService.setAuthenticationState(.active(authenticated: false))
         } catch {
-            alertService.showError(error)
+            alertService.showError(error.localizedDescription)
         }
     }
 
@@ -167,7 +167,7 @@ private final class AuthenticatorAppViewModel {
             do {
                 try await authenticationService.checkBiometrics()
             } catch {
-                alertService.showError(error)
+                alertService.showError(error.localizedDescription)
             }
         }
     }

@@ -214,13 +214,13 @@ final class ImportViewModel {
                     } catch ImportException.MissingPassword {
                         showPasswordSheet.toggle()
                     } catch {
-                        alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                        alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
                     }
                 }
                 url.stopAccessingSecurityScopedResource()
             }
         case let .failure(error):
-            alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
         }
     }
 
@@ -235,7 +235,7 @@ final class ImportViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
             }
         }
     }
@@ -251,7 +251,7 @@ final class ImportViewModel {
                     .importEntries(from: .googleQr(contents: content))
                 showCompletion(numberOfImportedEntries)
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                alertService.showError(error.localizedDescription, mainDisplay: mainDisplay, action: nil)
             }
         }
     }

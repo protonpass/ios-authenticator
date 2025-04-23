@@ -28,7 +28,7 @@ private struct TextFieldConfig {
     let binding: Binding<String>
     let focusField: FocusableField
     var isSecure = false
-    var showToggle: Bool = false
+    var showToggle = false
 }
 
 private enum FocusableField: Hashable, CaseIterable {

@@ -170,6 +170,6 @@ private extension EntriesViewModel {
     func handle(_ error: any Error) {
         // swiftlint:disable:next todo
         // TODO: Log
-        alertService.showError(error, mainDisplay: true, action: nil)
+        alertService.showError(error.localizedDescription, mainDisplay: true, action: nil)
     }
 }
