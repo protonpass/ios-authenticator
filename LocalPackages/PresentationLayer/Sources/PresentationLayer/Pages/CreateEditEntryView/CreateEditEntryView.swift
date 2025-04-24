@@ -27,7 +27,7 @@ private struct TextFieldConfig {
     let placeholder: LocalizedStringKey
     let binding: Binding<String>
     let focusField: FocusableField
-    var showToggle = false
+    var capitalized: TextInputAutocapitalization = .sentences
 }
 
 private enum FocusableField: Int, Hashable, CaseIterable {
@@ -58,8 +58,17 @@ struct CreateEditEntryView: View {
                                               placeholder: "Secret",
                                               binding: $viewModel.secret,
                                               focusField: .secret,
-                                              showToggle: true),
+                                              capitalized: .characters),
                               shouldShow: viewModel.showSecret)
+                        .overlay(alignment: .trailing) {
+                            Button {
+                                viewModel.showSecret.toggle()
+                            } label: {
+                                Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
+                            }
+                            .adaptiveButtonStyle()
+                            .padding(.horizontal, 25)
+                        }
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
@@ -153,33 +162,24 @@ struct CreateEditEntryView: View {
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            HStack {
-                Group {
-                    if shouldShow {
-                        TextField(config.placeholder, text: config.binding)
-                            .adaptiveTextFieldStyle()
-                    } else {
-                        SecureField(config.placeholder, text: config.binding)
-                            .adaptiveSecureFieldStyle()
-                    }
-                }
-                .onSubmit(focusNextField)
-                .focused($focusedField, equals: config.focusField)
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.textWeak)
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                if config.showToggle {
-                    Button {
-                        viewModel.showSecret.toggle()
-                    } label: {
-                        Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
-                    }
-                    .adaptiveButtonStyle()
+            Group {
+                if shouldShow {
+                    TextField(config.placeholder, text: config.binding)
+                        .adaptiveTextFieldStyle()
+                } else {
+                    SecureField(config.placeholder, text: config.binding)
+                        .adaptiveSecureFieldStyle()
                 }
             }
+            .onSubmit(focusNextField)
+            .focused($focusedField, equals: config.focusField)
+            .font(.system(.body, design: .rounded))
+            .foregroundStyle(.textWeak)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(config.capitalized)
             .frame(minHeight: 25)
         }
+
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background((isDarkMode ? Color.black : .white).opacity(0.5))
