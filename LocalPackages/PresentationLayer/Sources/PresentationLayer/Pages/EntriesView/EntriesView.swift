@@ -28,11 +28,12 @@ import SwiftUI
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
-    @State private var viewModel = EntriesViewModel()
+    @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
-    @State private var showCreationOptions = false
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
+
+    @FocusState private var searchFieldFocus: Bool
 
     // periphery:ignore
     private var isPhone: Bool {
@@ -48,29 +49,31 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
+                .scrollDismissesKeyboard(.immediately)
+                .onTapGesture {
+                    searchFieldFocus = false
+                }
                 .toastDisplay()
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
                     }
                 }
-                .refreshable {
-                    viewModel.reloadData()
+                .refreshable { [weak viewModel] in
+                    viewModel?.reloadData()
                 }
                 .sheetDestinations($router.presentedSheet)
+            #if os(iOS)
+                .fullScreenDestination($router.presentedFullscreenSheet)
+            #endif
                 .environment(router)
                 .toolbar { toolbarContent }
                 .overlay {
                     overlay
                 }
-                .adaptiveConfirmationDialog("Create",
-                                            isPresented: $showCreationOptions,
-                                            actions: {
-                                                #if os(iOS)
-                                                scanQrCodeButton
-                                                #endif
-                                                manuallyAddEntryButton
-                                            })
+                .onChange(of: router.presentedFullscreenSheet) { _, newValue in
+                    viewModel.toggleCodeRefresh(newValue != nil)
+                }
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
@@ -264,6 +267,10 @@ private extension EntriesView {
                       .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
+                      .focused($searchFieldFocus)
+                      .onSubmit {
+                          searchFieldFocus = false
+                      }
         }
 
         .padding(.horizontal, 16)
@@ -276,20 +283,11 @@ private extension EntriesView {
     @ViewBuilder
     var addButton: some View {
         #if os(iOS)
-        if isPhone {
-            Button(action: {
-                showCreationOptions.toggle()
-            }, label: {
-                plusIcon
-            })
-        } else {
-            Menu(content: {
-                scanQrCodeButton
-                manuallyAddEntryButton
-            }, label: {
-                plusIcon
-            })
-        }
+        Button(action: {
+            router.presentedFullscreenSheet = .qrCodeScanner
+        }, label: {
+            plusIcon
+        })
         #else
         Button(action: {
             router.presentedSheet = .createEditEntry(nil)
@@ -310,20 +308,12 @@ private extension EntriesView {
     #if os(iOS)
     var scanQrCodeButton: some View {
         Button(action: {
-            router.presentedSheet = .qrCodeScanner
+            router.presentedFullscreenSheet = .qrCodeScanner
         }, label: {
             Label("Scan", systemImage: "qrcode.viewfinder")
         })
     }
     #endif
-
-    var manuallyAddEntryButton: some View {
-        Button(action: {
-            router.presentedSheet = .createEditEntry(nil)
-        }, label: {
-            Label("Enter manually", systemImage: "character.cursor.ibeam")
-        })
-    }
 }
 
 // MARK: - Overlay screen
@@ -345,21 +335,24 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 16) {
                         Text("No codes", bundle: .module)
-                            .font(.headline)
+                            .font(.title3)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
+                            .font(.headline)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
-                            .padding(.horizontal, 48)
+                            .padding(.horizontal, 16)
                     }
                 } actions: {
                     Button {
                         #if os(iOS)
-                        showCreationOptions.toggle()
+                        router.presentedFullscreenSheet = .qrCodeScanner
                         #else
                         router.presentedSheet = .createEditEntry(nil)
                         #endif
@@ -374,6 +367,30 @@ private extension EntriesView {
                     .coloredBackgroundButton(.capsule)
                 }
                 .foregroundStyle(.textNorm)
+            }
+            // Empty search overlay
+            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.search.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.search)\"",
+                         bundle: .module)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .frame(maxWidth: .infinity, alignment: .center)
+
+                    Text("Try searching using different spelling or keywords", bundle: .module)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
+
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+                .padding(.horizontal)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {

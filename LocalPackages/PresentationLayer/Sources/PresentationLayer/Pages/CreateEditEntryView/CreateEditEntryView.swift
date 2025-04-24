@@ -27,10 +27,10 @@ private struct TextFieldConfig {
     let placeholder: LocalizedStringKey
     let binding: Binding<String>
     let focusField: FocusableField
-    var isSecure = false
+    var capitalized: TextInputAutocapitalization = .sentences
 }
 
-private enum FocusableField: Hashable, CaseIterable {
+private enum FocusableField: Int, Hashable, CaseIterable {
     case name, secret, issuer
 }
 
@@ -53,11 +53,22 @@ struct CreateEditEntryView: View {
                                               placeholder: "Title",
                                               binding: $viewModel.name,
                                               focusField: .name))
+
                     textField(TextFieldConfig(title: "Secret (Required)",
                                               placeholder: "Secret",
                                               binding: $viewModel.secret,
                                               focusField: .secret,
-                                              isSecure: true))
+                                              capitalized: .characters),
+                              shouldShow: viewModel.showSecret)
+                        .overlay(alignment: .trailing) {
+                            Button {
+                                viewModel.showSecret.toggle()
+                            } label: {
+                                Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
+                            }
+                            .adaptiveButtonStyle()
+                            .padding(.horizontal, 25)
+                        }
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
@@ -66,6 +77,7 @@ struct CreateEditEntryView: View {
                                                   focusField: .issuer))
                     }
                 }
+                .onSubmit(focusNextField)
 
                 if showAdvanceOptions {
                     advancedOptions
@@ -106,7 +118,6 @@ struct CreateEditEntryView: View {
                         focusFirstField()
                     }
                 }
-                .onSubmit(focusNextField)
                 .toolbar {
                     ToolbarItem(placement: toolbarItemLeadingPlacement) {
                         Button {
@@ -145,28 +156,30 @@ struct CreateEditEntryView: View {
         #endif
     }
 
-    private func textField(_ config: TextFieldConfig) -> some View {
+    private func textField(_ config: TextFieldConfig, shouldShow: Bool = true) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            if config.isSecure {
-                SecureField(config.placeholder, text: config.binding)
-                    .adaptiveSecureFieldStyle()
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .autocorrectionDisabled(true)
-                    .focused($focusedField, equals: .secret)
-            } else {
-                TextField(config.placeholder, text: config.binding)
-                    .adaptiveTextFieldStyle()
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .focused($focusedField, equals: config.focusField)
-                    .autocorrectionDisabled(true)
+            Group {
+                if shouldShow {
+                    TextField(config.placeholder, text: config.binding)
+                        .adaptiveTextFieldStyle()
+                } else {
+                    SecureField(config.placeholder, text: config.binding)
+                        .adaptiveSecureFieldStyle()
+                }
             }
+            .onSubmit(focusNextField)
+            .focused($focusedField, equals: config.focusField)
+            .font(.system(.body, design: .rounded))
+            .foregroundStyle(.textWeak)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(config.capitalized)
+            .frame(minHeight: 25)
         }
+
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background((isDarkMode ? Color.black : .white).opacity(0.5))
@@ -218,6 +231,7 @@ private extension CreateEditEntryView {
                 }
             }
             .accentColor(.textNorm)
+            .pickerStyle(pickerStyle)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
@@ -269,6 +283,14 @@ private extension CreateEditEntryView {
         return .topBarLeading
         #else
         return .automatic
+        #endif
+    }
+
+    var pickerStyle: some PickerStyle {
+        #if os(iOS)
+        return .automatic
+        #else
+        return .segmented
         #endif
     }
 

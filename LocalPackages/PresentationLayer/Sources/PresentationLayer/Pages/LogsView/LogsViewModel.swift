@@ -48,7 +48,8 @@ final class LogsViewModel {
     }
 
     func exportLogs() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let logsContent = try await logManager.logsContent()
                 exportedDocument = TextDocument(logsContent)
@@ -79,7 +80,8 @@ final class LogsViewModel {
 
 private extension LogsViewModel {
     func setUp() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 logs = try await logManager.fetchLogs()
             } catch {

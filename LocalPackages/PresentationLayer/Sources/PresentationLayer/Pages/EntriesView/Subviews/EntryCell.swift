@@ -74,19 +74,23 @@ struct EntryCell: View {
                         x: 0,
                         y: -0.5)
 
-            HStack(alignment: .bottom) {
+            HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 numberView
                     .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
+                    .privacySensitive()
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                VStack(alignment: .trailing) {
+                VStack(alignment: .trailing, spacing: 3) {
                     Text("Next", bundle: .module)
+                        .font(.custom("SF Pro Text", size: 14))
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: nextCode)
+                        .font(.custom("SF Mono", size: 15).weight(.semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .fontWeight(.semibold)
+                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .privacySensitive()
                 }
             }
             .padding(.vertical, 12)
@@ -101,7 +105,6 @@ struct EntryCell: View {
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
-        .background(isLightMode ? .clear : .white.opacity(0.1))
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
@@ -114,38 +117,49 @@ struct EntryCell: View {
     }
 
     var nextCode: String {
-        configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        let text = configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        return text.count > 6 ? text : text.separatedByGroup(3, delimiter: " ")
+    }
+
+    var mainCode: String {
+        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
+        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
     }
 
     @ViewBuilder
     private var numberView: some View {
-        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
         if configuration.digitStyle == .boxed {
-            ForEach(Array(code.enumerated()), id: \.offset) { _, char in
-                HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(char)")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.textNorm)
-                        .contentTransition(.numericText())
+            HStack(alignment: .center, spacing: 6) {
+                ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
+                    if char.isWhitespace {
+                        Text(verbatim: " ")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                    } else {
+                        Text(verbatim: "\(char)")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                            .contentTransition(.numericText())
+                            .frame(minWidth: mainCode.count == 7 ? 28 : 22, minHeight: 36)
+                            .background(.black.opacity(0.16))
+                            .cornerRadius(8)
+                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .inset(by: -0.5)
+                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                    }
                 }
-                .padding(.horizontal, 5)
-                .frame(minWidth: 28)
-                .padding(.vertical, 4)
-                .background(.black.opacity(0.16))
-                .cornerRadius(8)
-                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8)
-                    .inset(by: -0.5)
-                    .stroke(.black.opacity(0.23), lineWidth: 1))
             }
         } else {
-            Text(verbatim: "\(code.separatedByGroup(3, delimiter: " "))")
+            Text(verbatim: mainCode)
                 .font(.title)
                 .fontWeight(.semibold)
                 .foregroundStyle(.textNorm)
                 .monospaced()
                 .contentTransition(.numericText())
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
     }
 
@@ -220,7 +234,6 @@ private struct TOTPCountdownView: View {
             Circle()
                 .stroke(lineWidth: 4)
                 .foregroundStyle(color.opacity(0.3))
-                .frame(width: size, height: size)
 
             // Progress circle
             Circle()
@@ -228,14 +241,15 @@ private struct TOTPCountdownView: View {
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(color)
                 .rotationEffect(.degrees(-90))
-                .frame(width: size, height: size)
 
             // Countdown text
             Text(verbatim: "\(Int(timeRemaining))")
-                .font(.caption)
+                .font(.custom("SF Compact Text", size: 12).weight(.semibold))
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
+        .frame(width: size, height: size)
         .onAppear {
             calculateTime()
             startTimer()

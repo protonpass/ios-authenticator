@@ -35,6 +35,7 @@ final class SettingsViewModel {
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
+
     var exportedDocument: TextDocument?
 
     @ObservationIgnored
@@ -66,6 +67,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
+
+    @ObservationIgnored
+    private var toggleBioLockTask: Task<Void, Never>?
 
     var theme: Theme {
         settingsService.theme
@@ -131,8 +135,14 @@ extension SettingsViewModel {
     }
 
     func toggleBioLock() {
-        Task { [weak self] in
+        guard toggleBioLockTask == nil else {
+            return
+        }
+        toggleBioLockTask = Task { [weak self] in
             guard let self else { return }
+            defer {
+                toggleBioLockTask = nil
+            }
             do {
                 let reason = #localized("Please authenticate", bundle: .module)
                 if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,

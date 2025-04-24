@@ -180,7 +180,8 @@ public final actor LogManager: LoggerProtocol {
                                 file: file,
                                 function: function,
                                 line: line)
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             await log(logEntry: logEntry)
         }
     }
@@ -215,7 +216,8 @@ private extension LogManager {
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self else { return }
-                Task {
+                Task { [weak self] in
+                    guard let self else { return }
                     await saveLogs()
                 }
             }

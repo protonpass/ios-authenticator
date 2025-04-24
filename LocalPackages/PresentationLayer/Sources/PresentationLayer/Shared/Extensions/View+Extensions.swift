@@ -63,6 +63,7 @@ public extension View {
         #endif
     }
 
+    // periphery:ignore
     /// Show as confirmation dialog on iPhone, as alert on iPad because iPad doesn't support confirmation dialog
     @ViewBuilder
     func adaptiveConfirmationDialog(_ title: LocalizedStringKey,

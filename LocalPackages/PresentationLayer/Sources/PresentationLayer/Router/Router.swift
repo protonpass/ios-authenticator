@@ -32,6 +32,11 @@ public enum SheetDestination: Hashable, Identifiable {
 
     case createEditEntry(EntryUiModel?)
     case settings
+}
+
+public enum FullScreenDestination: Hashable, Identifiable {
+    public var id: Int { hashValue }
+
     #if os(iOS)
     case qrCodeScanner
     #endif
@@ -43,6 +48,7 @@ final class Router {
     var path = NavigationPath()
 
     var presentedSheet: SheetDestination?
+    var presentedFullscreenSheet: FullScreenDestination?
 
     func navigate(to: RouterDestination) {
         path.append(to)
@@ -83,11 +89,18 @@ public extension View {
             case .settings:
                 SettingsView()
                     .resizableSheet()
-            #if os(iOS)
-            case .qrCodeScanner:
-                ScannerView()
-            #endif
             }
         }
     }
+
+    #if os(iOS)
+    func fullScreenDestination(_ item: Binding<FullScreenDestination?>) -> some View {
+        fullScreenCover(item: item) { destination in
+            switch destination {
+            case .qrCodeScanner:
+                ScannerView()
+            }
+        }
+    }
+    #endif
 }

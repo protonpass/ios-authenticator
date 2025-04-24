@@ -20,22 +20,26 @@
 //
 
 import Combine
+import DataLayer
 import Factory
 import Foundation
 import Macro
 import Models
 import SimpleToast
 
+// swiftlint:disable:next todo
+// TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
 @MainActor
-final class EntriesViewModel {
+final class EntriesViewModel: ObservableObject {
     var entries: [EntryUiModel] {
         guard !lastestQuery.isEmpty else {
             return (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
         }
 
         let newResults = entryDataService.dataState.data?.filter {
-            $0.entry.name.lowercased().contains(lastestQuery)
+            $0.entry.name.lowercased().contains(lastestQuery) ||
+                $0.entry.issuer.lowercased().contains(lastestQuery)
         } ?? []
 
         return newResults
@@ -107,7 +111,8 @@ final class EntriesViewModel {
         if offset < destination {
             targetIndex -= 1
         }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
             } catch {
@@ -140,13 +145,26 @@ extension EntriesViewModel {
     }
 
     func delete(_ entry: EntryUiModel) {
-        Task {
-            do {
-                try await entryDataService.delete(entry)
-            } catch {
-                handle(error)
-            }
-        }
+        let action: ActionConfig = .init(title: "Yes",
+                                         titleBundle: .module,
+                                         role: .destructive,
+                                         action: { [weak self] in
+                                             guard let self else { return }
+                                             Task { [weak self] in
+                                                 guard let self else { return }
+                                                 do {
+                                                     try await entryDataService.delete(entry)
+                                                 } catch {
+                                                     handle(error)
+                                                 }
+                                             }
+                                         })
+        alertService.showAlert(.main(.init(title: "Delete entry",
+                                           titleBundle: .module,
+                                           // swiftlint:disable:next line_length
+                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible.",
+                                                               .module),
+                                           actions: [action])))
     }
 }
 

@@ -22,11 +22,15 @@
 
 #if os(iOS)
 import Combine
+import DataLayer
 import DocScanner
 import Factory
 import Foundation
+import Macro
+import Models
 import PhotosUI
 import SwiftUI
+import VisionKit
 
 @Observable @MainActor
 final class ScannerViewModel {
@@ -64,22 +68,49 @@ final class ScannerViewModel {
         setUp()
     }
 
+    deinit {
+        task?.cancel()
+        task = nil
+    }
+
     func processPayload(results: Result<ScanResult?, Error>) {
         task?.cancel()
-        task = Task {
+        task = Task { [weak self] in
+            guard let self else { return }
             switch results {
             case let .success(result):
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
                 await generateEntry(from: barcode.payload)
             case let .failure(error):
-                handleError(error)
+                if Task.isCancelled { return }
+                if let error = error as? DataScannerViewController.ScanningUnavailable,
+                   error == .cameraRestricted {
+                    if Task.isCancelled { return }
+                    let action = ActionConfig(title: "Open Settings", titleBundle: .module) {
+                        if let url = URL(string: UIApplication.openSettingsURLString),
+                           UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    let config = AlertConfiguration(title: "Camera usage restricted",
+                                                    titleBundle: .module,
+                                                    message: .localized("Please enable camera access from Settings",
+                                                                        .module),
+                                                    actions: [action, ActionConfig.cancel])
+                    alertService.showAlert(.sheet(config))
+                } else {
+                    if Task.isCancelled { return }
+                    handleError(error.localizedDescription)
+                }
             }
         }
     }
 
     func clean() {
         hasPayload = false
+        task?.cancel()
+        task = nil
     }
 }
 
@@ -95,7 +126,7 @@ private extension ScannerViewModel {
             .store(in: &cancellables)
     }
 
-    func handleError(_ error: Error) {
+    func handleError(_ error: String) {
         alertService.showError(error, mainDisplay: false) { [weak self] in
             guard let self else {
                 return
@@ -113,17 +144,24 @@ private extension ScannerViewModel {
                 let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
                 await generateEntry(from: content)
             } catch {
-                handleError(error)
+                if Task.isCancelled { return }
+
+                handleError(#localized("Could not process the image", bundle: .module))
             }
         }
     }
 
     func generateEntry(from barcodePayload: String) async {
         do {
+            if Task.isCancelled { return }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
+        } catch AuthError.generic(.duplicatedEntry) {
+            if Task.isCancelled { return }
+            handleError(#localized("This item already exists", bundle: .module))
         } catch {
-            handleError(error)
+            if Task.isCancelled { return }
+            handleError(error.localizedDescription)
         }
     }
 }

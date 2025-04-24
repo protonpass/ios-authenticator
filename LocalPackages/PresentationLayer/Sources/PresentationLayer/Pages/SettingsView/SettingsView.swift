@@ -96,7 +96,7 @@ public struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toastDisplay()
-            .mainBackground()
+            .fullScreenMainBackground()
             .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
             .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
