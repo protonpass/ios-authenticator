@@ -27,7 +27,7 @@ import Macro
 import Models
 import SimpleToast
 
-//swiftlint:disable:next todo
+// swiftlint:disable:next todo
 // TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
 @MainActor

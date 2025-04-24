@@ -27,11 +27,10 @@ private struct TextFieldConfig {
     let placeholder: LocalizedStringKey
     let binding: Binding<String>
     let focusField: FocusableField
-    var isSecure = false
     var showToggle = false
 }
 
-private enum FocusableField: Hashable, CaseIterable {
+private enum FocusableField: Int, Hashable, CaseIterable {
     case name, secret, issuer
 }
 
@@ -54,12 +53,13 @@ struct CreateEditEntryView: View {
                                               placeholder: "Title",
                                               binding: $viewModel.name,
                                               focusField: .name))
+
                     textField(TextFieldConfig(title: "Secret (Required)",
                                               placeholder: "Secret",
                                               binding: $viewModel.secret,
                                               focusField: .secret,
-                                              isSecure: true,
-                                              showToggle: true))
+                                              showToggle: true),
+                              shouldShow: viewModel.showSecret)
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
@@ -68,6 +68,7 @@ struct CreateEditEntryView: View {
                                                   focusField: .issuer))
                     }
                 }
+                .onSubmit(focusNextField)
 
                 if showAdvanceOptions {
                     advancedOptions
@@ -108,7 +109,6 @@ struct CreateEditEntryView: View {
                         focusFirstField()
                     }
                 }
-                .onSubmit(focusNextField)
                 .toolbar {
                     ToolbarItem(placement: toolbarItemLeadingPlacement) {
                         Button {
@@ -147,28 +147,28 @@ struct CreateEditEntryView: View {
         #endif
     }
 
-    private func textField(_ config: TextFieldConfig) -> some View {
+    private func textField(_ config: TextFieldConfig, shouldShow: Bool = true) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
             HStack {
-                if config.isSecure, !viewModel.showSecret {
-                    SecureField(config.placeholder, text: config.binding)
-                        .adaptiveSecureFieldStyle()
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.textWeak)
-                        .autocorrectionDisabled(true)
-                        .focused($focusedField, equals: .secret)
-                } else {
-                    TextField(config.placeholder, text: config.binding)
-                        .adaptiveTextFieldStyle()
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.textWeak)
-                        .focused($focusedField, equals: config.focusField)
-                        .autocorrectionDisabled(true)
+                Group {
+                    if shouldShow {
+                        TextField(config.placeholder, text: config.binding)
+                            .adaptiveTextFieldStyle()
+                    } else {
+                        SecureField(config.placeholder, text: config.binding)
+                            .adaptiveSecureFieldStyle()
+                    }
                 }
+                .onSubmit(focusNextField)
+                .focused($focusedField, equals: config.focusField)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.textWeak)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
                 if config.showToggle {
                     Button {
                         viewModel.showSecret.toggle()
@@ -178,6 +178,7 @@ struct CreateEditEntryView: View {
                     .adaptiveButtonStyle()
                 }
             }
+            .frame(minHeight: 25)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)

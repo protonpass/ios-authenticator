@@ -335,18 +335,19 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 16) {
                         Text("No codes", bundle: .module)
-                            .font(.title2)
+                            .font(.title3)
                             .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .font(.custom("SF Mono", size: 18, relativeTo: .subheadline))
+                            .font(.headline)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
-                            .padding(.horizontal, 38)
+                            .padding(.horizontal, 16)
                     }
                 } actions: {
                     Button {
