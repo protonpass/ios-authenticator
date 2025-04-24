@@ -229,6 +229,10 @@ private extension SettingsView {
                        trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
                                              onToggle: viewModel.toggleHapticFeedback))
             #endif
+            SettingDivider()
+            SettingRow(title: .localized("Active Search", .module),
+                       trailingMode: .toggle(isOn: viewModel.activeSearch,
+                                             onToggle: viewModel.toggleActiveSearch))
         }
     }
 

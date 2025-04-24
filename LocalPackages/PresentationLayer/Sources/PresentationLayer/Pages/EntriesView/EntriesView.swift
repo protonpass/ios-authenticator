@@ -28,6 +28,7 @@ import SwiftUI
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
@@ -61,6 +62,18 @@ public struct EntriesView: View {
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
+                }
+                .onAppear {
+                    withAnimation {
+                        searchFieldFocus = viewModel.activeSearch
+                    }
+                }
+                .onChange(of: scenePhase) { _, newValue in
+                    if newValue == .active {
+                        withAnimation {
+                            searchFieldFocus = viewModel.activeSearch
+                        }
+                    }
                 }
                 .sheetDestinations($router.presentedSheet)
             #if os(iOS)
@@ -205,6 +218,7 @@ private extension EntriesView {
                   code: entry.code,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
+                  searchTerm: viewModel.search,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)

@@ -32,12 +32,31 @@ import AppKit
 
 import SDWebImageSwiftUI
 
+private struct HighlightedText: View {
+    let text: String
+    let highlighted: String
+
+    var body: some View {
+        Text(attributedString)
+    }
+
+    private var attributedString: AttributedString {
+        var attributedString = AttributedString(text)
+
+        if let range = attributedString.range(of: highlighted, options: .caseInsensitive) {
+            attributedString[range].foregroundColor = Color.accentColor
+        }
+        return attributedString
+    }
+}
+
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
     let issuerInfos: AuthIssuerInfo?
+    let searchTerm: String
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
@@ -47,11 +66,11 @@ struct EntryCell: View {
                 icon
 
                 VStack(alignment: .leading) {
-                    Text(verbatim: entry.name)
+                    HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(verbatim: entry.issuer)
+                    HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }

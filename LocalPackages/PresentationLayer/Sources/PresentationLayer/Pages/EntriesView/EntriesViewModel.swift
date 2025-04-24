@@ -51,6 +51,10 @@ final class EntriesViewModel: ObservableObject {
 
     var pauseCountDown = false
 
+    var activeSearch: Bool {
+        settingsService.activeSearch
+    }
+
     @ObservationIgnored var search = "" {
         didSet {
             searchTextStream.send(search)

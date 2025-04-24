@@ -99,6 +99,10 @@ final class SettingsViewModel {
         settingsService.hapticFeedbackEnabled
     }
 
+    var activeSearch: Bool {
+        settingsService.activeSearch
+    }
+
     var isQaBuild: Bool {
         bundle.isQaBuild
     }
@@ -192,6 +196,11 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
+        hapticsManager.execute(.impact(intensity: 1))
+    }
+
+    func toggleActiveSearch() {
+        settingsService.toggleActiveSearch(!activeSearch)
         hapticsManager.execute(.impact(intensity: 1))
     }
 

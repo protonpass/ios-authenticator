@@ -18,61 +18,98 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Foundation
+
 #if os(iOS)
 import CoreHaptics
-import Foundation
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 public enum AuthHapticFeedbackType {
     case impact(intensity: CGFloat)
+    #if os(iOS)
     case notify(type: UINotificationFeedbackGenerator.FeedbackType)
+    #elseif os(macOS)
+    case notify(type: MacOSNotificationType)
+    #endif
     case selection
 }
+
+#if os(macOS)
+public enum MacOSNotificationType: Sendable {
+    case success
+    case warning
+    case error
+}
+#endif
 
 @MainActor
 public protocol HapticsServicing {
     func execute(_ type: AuthHapticFeedbackType)
 }
 
+#if os(iOS)
+@MainActor
 public final class HapticsManager: HapticsServicing {
-    private let impactFeedBack = UIImpactFeedbackGenerator(style: .light)
-    private let notificationFeedBack = UINotificationFeedbackGenerator()
+    private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+    private let notificationFeedback = UINotificationFeedbackGenerator()
     private let selectionFeedback = UISelectionFeedbackGenerator()
     private let settings: SettingsServicing
 
     public init(settings: SettingsServicing) {
         self.settings = settings
     }
-}
 
-public extension HapticsManager {
-    func execute(_ type: AuthHapticFeedbackType) {
+    public func execute(_ type: AuthHapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
+
         switch type {
         case let .impact(intensity):
-            impact(intensity: intensity)
+            impactFeedback.prepare()
+            impactFeedback.impactOccurred(intensity: intensity)
         case let .notify(type):
-            notify(type: type)
+            notificationFeedback.prepare()
+            notificationFeedback.notificationOccurred(type)
         case .selection:
-            selectionChanged()
+            selectionFeedback.prepare()
+            selectionFeedback.selectionChanged()
         }
     }
 }
 
-private extension HapticsManager {
-    func impact(intensity: CGFloat) {
-        impactFeedBack.prepare()
-        impactFeedBack.impactOccurred(intensity: intensity)
+#elseif os(macOS)
+@MainActor
+public final class HapticsManager: HapticsServicing {
+    private let settings: SettingsServicing
+    private let feedbackPerformer = NSHapticFeedbackManager.defaultPerformer
+
+    public init(settings: SettingsServicing) {
+        self.settings = settings
     }
 
-    func notify(type: UINotificationFeedbackGenerator.FeedbackType) {
-        notificationFeedBack.prepare()
-        notificationFeedBack.notificationOccurred(type)
-    }
+    public func execute(_ type: AuthHapticFeedbackType) {
+        guard settings.hapticFeedbackEnabled else { return }
 
-    func selectionChanged() {
-        selectionFeedback.prepare()
-        selectionFeedback.selectionChanged()
+        switch type {
+        case .impact:
+            feedbackPerformer.perform(.levelChange, performanceTime: .now)
+
+        case let .notify(type):
+            let pattern: NSHapticFeedbackManager.FeedbackPattern = switch type {
+            case .success:
+                .levelChange
+            case .warning:
+                .alignment
+            case .error:
+                .generic
+            }
+            feedbackPerformer.perform(pattern, performanceTime: .now)
+
+        case .selection:
+            feedbackPerformer.perform(.alignment, performanceTime: .now)
+        }
     }
 }
 #endif
