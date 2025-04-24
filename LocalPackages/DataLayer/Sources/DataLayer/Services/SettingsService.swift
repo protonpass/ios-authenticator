@@ -31,6 +31,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var entryCellConfiguration: EntryCellConfiguration { get }
     var onboarded: Bool { get }
     var showPassBanner: Bool { get }
+    var hapticFeedbackEnabled: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -40,6 +41,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setCodeAnimation(_ value: Bool)
     func setOnboarded(_ value: Bool)
     func togglePassBanner(_ value: Bool)
+    func toggleHapticFeedback(_ value: Bool)
 }
 
 @MainActor
@@ -54,6 +56,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var entryCellConfiguration: EntryCellConfiguration
     public private(set) var onboarded: Bool
     public private(set) var showPassBanner: Bool
+    public private(set) var hapticFeedbackEnabled: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -70,6 +73,7 @@ public final class SettingsService: SettingsServicing {
                                        animateCodeChange: animateCodeChange)
         onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
         showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
+        hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
     }
 }
 
@@ -138,6 +142,12 @@ public extension SettingsService {
         guard value != showPassBanner else { return }
         store.set(value, forKey: AppConstants.Settings.showPassBanner)
         showPassBanner = value
+    }
+
+    func toggleHapticFeedback(_ value: Bool) {
+        guard value != hapticFeedbackEnabled else { return }
+        store.set(value, forKey: AppConstants.Settings.hapticFeedbackEnabled)
+        hapticFeedbackEnabled = value
     }
 }
 

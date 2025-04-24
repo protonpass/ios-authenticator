@@ -53,6 +53,7 @@ public enum AppConstants {
         public static let onboarded = "Onboarded"
         public static let showPassBanner = "ShowPassBanner"
         public static let authenticationState = "AuthenticationState"
+        public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
     }
 
     @MainActor

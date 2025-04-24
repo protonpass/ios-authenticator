@@ -27,7 +27,10 @@ private struct TextFieldConfig {
     let placeholder: LocalizedStringKey
     let binding: Binding<String>
     let focusField: FocusableField
-    var capitalized: TextInputAutocapitalization = .sentences
+
+    #if os(iOS)
+    var capitalised: TextInputAutocapitalization = .sentences
+    #endif
 }
 
 private enum FocusableField: Int, Hashable, CaseIterable {
@@ -54,11 +57,7 @@ struct CreateEditEntryView: View {
                                               binding: $viewModel.name,
                                               focusField: .name))
 
-                    textField(TextFieldConfig(title: "Secret (Required)",
-                                              placeholder: "Secret",
-                                              binding: $viewModel.secret,
-                                              focusField: .secret,
-                                              capitalized: .characters),
+                    textField(secretFieldConfig,
                               shouldShow: viewModel.showSecret)
                         .overlay(alignment: .trailing) {
                             Button {
@@ -176,10 +175,11 @@ struct CreateEditEntryView: View {
             .font(.system(.body, design: .rounded))
             .foregroundStyle(.textWeak)
             .autocorrectionDisabled(true)
-            .textInputAutocapitalization(config.capitalized)
-            .frame(minHeight: 25)
+            #if os(iOS)
+                .textInputAutocapitalization(config.capitalised)
+            #endif
+                .frame(minHeight: 25)
         }
-
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background((isDarkMode ? Color.black : .white).opacity(0.5))
@@ -192,6 +192,21 @@ struct CreateEditEntryView: View {
 
     private var isDarkMode: Bool {
         colorScheme == .dark
+    }
+
+    private var secretFieldConfig: TextFieldConfig {
+        #if os(iOS)
+        TextFieldConfig(title: "Secret (Required)",
+                        placeholder: "Secret",
+                        binding: $viewModel.secret,
+                        focusField: .secret,
+                        capitalised: .characters)
+        #else
+        TextFieldConfig(title: "Secret (Required)",
+                        placeholder: "Secret",
+                        binding: $viewModel.secret,
+                        focusField: .secret)
+        #endif
     }
 }
 

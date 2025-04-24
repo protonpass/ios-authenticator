@@ -91,6 +91,10 @@ final class SettingsViewModel {
         settingsService.entryCellConfiguration.animateCodeChange
     }
 
+    var hapticFeedbackEnabled: Bool {
+        settingsService.hapticFeedbackEnabled
+    }
+
     var isQaBuild: Bool {
         bundle.isQaBuild
     }
@@ -167,6 +171,10 @@ extension SettingsViewModel {
 
     func toggleCodeAnimation() {
         settingsService.setCodeAnimation(!animateCodeChange)
+    }
+
+    func toggleHapticFeedback() {
+        settingsService.toggleHapticFeedback(!hapticFeedbackEnabled)
     }
 
     func updateTheme(_ newValue: Theme) {

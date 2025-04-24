@@ -55,6 +55,7 @@ public final class SetUpFirstRun: SetUpFirstRunUseCase {
         defer { settingsService.setFirstRun(false) }
         do {
             try authenticationService.setAuthenticationState(.inactive)
+            settingsService.toggleHapticFeedback(true)
             log(.info, "Finished setting up for first run")
         } catch {
             log(.error, "Failed to set up for first run \(error.localizedDescription)")

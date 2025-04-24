@@ -223,6 +223,12 @@ private extension SettingsView {
             SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
+            #if os(iOS)
+            SettingDivider()
+            SettingRow(title: .localized("Haptic feedback", .module),
+                       trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
+                                             onToggle: viewModel.toggleHapticFeedback))
+            #endif
         }
     }
 
