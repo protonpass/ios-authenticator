@@ -81,7 +81,10 @@ struct CreateEditEntryView: View {
                 if showAdvanceOptions {
                     advancedOptions
                 } else {
-                    Button { showAdvanceOptions.toggle() } label: {
+                    Button {
+                        showAdvanceOptions.toggle()
+                        focusedField = nil
+                    } label: {
                         HStack(alignment: .center, spacing: 8) {
                             Text("Advanced options", bundle: .module)
                                 .foregroundStyle(.textNorm)
@@ -101,6 +104,7 @@ struct CreateEditEntryView: View {
                         .padding(.horizontal, 16)
                     }
                     .adaptiveButtonStyle()
+                    .impactHaptic()
                 }
             }
             .padding(.bottom, 10)
@@ -117,32 +121,7 @@ struct CreateEditEntryView: View {
                         focusFirstField()
                     }
                 }
-                .toolbar {
-                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Close", bundle: .module)
-                                .foregroundStyle(Color.purpleInteraction)
-                                .padding(10)
-                        }
-                        .adaptiveButtonStyle()
-                    }
-
-                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
-                        Button {
-                            viewModel.save()
-                        } label: {
-                            Text("Save", bundle: .module)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(Color.purpleInteraction)
-                                .padding(10)
-                        }
-                        .adaptiveButtonStyle()
-                        .disabled(!viewModel.canSave)
-                        .opacity(viewModel.canSave ? 1 : 0.4)
-                    }
-                }
+                .toolbar { toolbarContent }
                 .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
@@ -260,8 +239,10 @@ private extension CreateEditEntryView {
     var segmentedControlSection: some View {
         if viewModel.type == .totp {
             segmentedControlField(title: "ALGORITHM", data: TotpAlgorithm.allCases, binding: $viewModel.algo)
+                .impactHaptic()
         }
         segmentedControlField(title: "TYPE", data: TotpType.allCases, binding: $viewModel.type)
+            .impactHaptic()
     }
 
     func segmentedControlField<T: CustomSegmentedControlData>(title: LocalizedStringKey,
@@ -327,6 +308,34 @@ private extension CreateEditEntryView {
             focusedField = nil
         case .none:
             break
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: toolbarItemLeadingPlacement) {
+            Button {
+                dismiss()
+            } label: {
+                Text("Close", bundle: .module)
+                    .foregroundStyle(Color.purpleInteraction)
+                    .padding(10)
+            }
+            .adaptiveButtonStyle()
+        }
+
+        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+            Button {
+                viewModel.save()
+            } label: {
+                Text("Save", bundle: .module)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.purpleInteraction)
+                    .padding(10)
+            }
+            .adaptiveButtonStyle()
+            .disabled(!viewModel.canSave)
+            .opacity(viewModel.canSave ? 1 : 0.4)
         }
     }
 }

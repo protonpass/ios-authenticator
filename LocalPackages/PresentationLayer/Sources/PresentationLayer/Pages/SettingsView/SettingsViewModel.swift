@@ -69,6 +69,10 @@ final class SettingsViewModel {
     private(set) var logManager
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private(set) var hapticsManager
+
+    @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
     var theme: Theme {
@@ -163,14 +167,17 @@ extension SettingsViewModel {
 
     func toggleHideCode() {
         settingsService.setHideEntryCode(!shouldHideCode)
+        hapticsManager.execute(.impact(intensity: 1))
     }
 
     func updateDigitStyle(_ newValue: DigitStyle) {
         settingsService.setDigitStyle(newValue)
+        hapticsManager.execute(.impact(intensity: 1))
     }
 
     func toggleCodeAnimation() {
         settingsService.setCodeAnimation(!animateCodeChange)
+        hapticsManager.execute(.impact(intensity: 1))
     }
 
     func toggleHapticFeedback() {
@@ -185,6 +192,7 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
+        hapticsManager.execute(.impact(intensity: 1))
     }
 
     func generateExportFileName() -> String {

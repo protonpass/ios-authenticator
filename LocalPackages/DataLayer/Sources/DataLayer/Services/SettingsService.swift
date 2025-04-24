@@ -61,6 +61,7 @@ public final class SettingsService: SettingsServicing {
     public init(store: UserDefaults) {
         self.store = store
         store.register(defaults: [AppConstants.Settings.isFirstRun: true])
+        store.register(defaults: [AppConstants.Settings.hapticFeedbackEnabled: true])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
         theme = store.value(for: AppConstants.Settings.theme)

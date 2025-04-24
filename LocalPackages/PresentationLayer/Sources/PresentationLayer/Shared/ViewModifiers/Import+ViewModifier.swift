@@ -158,6 +158,10 @@ final class ImportViewModel {
     private var alertService
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private var hapticsManager
+
+    @ObservationIgnored
     private var currentSelected: ImportOption?
     @ObservationIgnored
     private var provenance: TwofaImportSource?
@@ -285,6 +289,7 @@ final class ImportViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
+        hapticsManager.execute(.notify(type: .success))
     }
 }
 

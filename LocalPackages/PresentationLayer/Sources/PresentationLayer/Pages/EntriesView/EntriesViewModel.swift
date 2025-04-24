@@ -79,6 +79,10 @@ final class EntriesViewModel: ObservableObject {
     private var alertService
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private var hapticsManager
+
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
 
     @ObservationIgnored
@@ -133,6 +137,7 @@ extension EntriesViewModel {
         copyTextToClipboard(code)
         toastService
             .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
+        hapticsManager.execute(.impact(intensity: 1))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

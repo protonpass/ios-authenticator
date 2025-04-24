@@ -97,6 +97,7 @@ struct EntryCell: View {
             .padding(.horizontal, 16)
             .background(.white.opacity(0.1))
         }
+        .onTapGesture(perform: onCopyToken)
         .background(LinearGradient(stops:
             [
                 Gradient.Stop(color: .white, location: 0.00),
@@ -109,7 +110,6 @@ struct EntryCell: View {
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .stroke(.white.opacity(0.16), lineWidth: 1))
-        .onTapGesture(perform: onCopyToken)
     }
 
     private var isLightMode: Bool {

@@ -23,15 +23,19 @@ import CoreHaptics
 import Foundation
 import UIKit
 
+public enum AuthHapticFeedbackType {
+    case impact(intensity: CGFloat)
+    case notify(type: UINotificationFeedbackGenerator.FeedbackType)
+    case selection
+}
+
 @MainActor
 public protocol HapticsServicing {
-    func impact(intensity: CGFloat)
-    func notify(type: UINotificationFeedbackGenerator.FeedbackType)
-    func selectionChanged()
+    func execute(_ type: AuthHapticFeedbackType)
 }
 
 public final class HapticsManager: HapticsServicing {
-    private let impactFeedBack = UIImpactFeedbackGenerator()
+    private let impactFeedBack = UIImpactFeedbackGenerator(style: .light)
     private let notificationFeedBack = UINotificationFeedbackGenerator()
     private let selectionFeedback = UISelectionFeedbackGenerator()
     private let settings: SettingsServicing
@@ -42,20 +46,31 @@ public final class HapticsManager: HapticsServicing {
 }
 
 public extension HapticsManager {
-    func impact(intensity: CGFloat) {
+    func execute(_ type: AuthHapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
+        switch type {
+        case let .impact(intensity):
+            impact(intensity: intensity)
+        case let .notify(type):
+            notify(type: type)
+        case .selection:
+            selectionChanged()
+        }
+    }
+}
+
+private extension HapticsManager {
+    func impact(intensity: CGFloat) {
         impactFeedBack.prepare()
         impactFeedBack.impactOccurred(intensity: intensity)
     }
 
     func notify(type: UINotificationFeedbackGenerator.FeedbackType) {
-        guard settings.hapticFeedbackEnabled else { return }
         notificationFeedBack.prepare()
         notificationFeedBack.notificationOccurred(type)
     }
 
     func selectionChanged() {
-        guard settings.hapticFeedbackEnabled else { return }
         selectionFeedback.prepare()
         selectionFeedback.selectionChanged()
     }
