@@ -28,7 +28,7 @@ let package = Package(
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
         .package(url: "https://github.com/lukacs-m/SimplyPersist", .upToNextMajor(from: "0.1.2")),
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
-        .package(url: "https://github.com/ProtonMail/protoncore_ios", .upToNextMajor(from: "31.0.1")),
+        .package(url: "https://github.com/ProtonMail/protoncore_ios", .upToNextMajor(from: "31.1.5")),
         .package(name: "Macro", path: "../Macro"),
     ],
     targets: [
@@ -42,7 +42,7 @@ let package = Package(
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
                 .product(name: "SimplyPersist", package: "SimplyPersist"),
                 .product(name: "Macro", package: "Macro"),
-                .product(name: "SimpleToast", package: "SimpleToast")
+                .product(name: "SimpleToast", package: "SimpleToast"),
                 .product(name: "ProtonCoreKeyManager", package: "protoncore_ios"),
             ],
             resources: [.process("Resources")]),
