@@ -32,6 +32,7 @@ let package = Package(
         .package(name: "DomainLayer", path: "../DomainLayer"),
         .package(name: "Macro", path: "../Macro"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
+        .package(url: "https://github.com/ProtonMail/protoncore_ios", .upToNextMajor(from: "31.1.5"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -47,7 +48,9 @@ let package = Package(
                 .product(name: "Macro", package: "Macro"),
                 .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "SimpleToast", package: "SimpleToast"),
-                .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
+                .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI"),
+                .product(name: "ProtonCoreLogin", package: "protoncore_ios"),
+                .product(name: "ProtonCoreLoginUI", package: "protoncore_ios"),
             ],
             resources: [.process("Resources")]),
         .testTarget(

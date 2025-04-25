@@ -36,6 +36,8 @@ final class SettingsViewModel {
     private(set) var versionString: String?
     private(set) var biometricLock = false
 
+    var showLoginPage = false
+
     var exportedDocument: TextDocument?
 
     @ObservationIgnored
@@ -146,7 +148,12 @@ extension SettingsViewModel {
     // TODO: use this function
     // periphery:ignore
     func toggleSync() {
-        syncEnabled.toggle()
+        if !syncEnabled {
+            showLoginPage
+        } else {
+            // TODO: alert  logout
+        }
+//        syncEnabled.toggle()
     }
 
     func toggleBioLock() {

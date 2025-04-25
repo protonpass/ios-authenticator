@@ -26,6 +26,7 @@ import SwiftUI
 enum SettingsSheetStates {
     case logs
     case qa
+    case login
 
     @MainActor @ViewBuilder
     var destination: some View {
@@ -34,6 +35,8 @@ enum SettingsSheetStates {
             LogsView()
         case .qa:
             QAMenuView()
+        case .login:
+            UserLoginView()
         }
     }
 }
@@ -73,40 +76,44 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            .listStyle(.grouped)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close", bundle: .module)
-                            .foregroundStyle(.purpleInteraction)
-                    }
-                    .adaptiveButtonStyle()
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .routingProvided
-            .navigationTitle(Text("Settings", bundle: .module))
-            .task {
-                await viewModel.setUp()
-            }
             #if os(iOS)
-            .listSectionSpacing(DesignConstant.padding * 2)
-            .navigationBarTitleDisplayMode(.inline)
+                .listStyle(.grouped)
+            #elseif os(macOS)
+                .listStyle(.plain)
             #endif
-            .toastDisplay()
-            .fullScreenMainBackground()
-            .sheetAlertService()
-            .importingService($showImportOptions, onMainDisplay: false)
-            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                          document: viewModel.exportedDocument,
-                          contentType: .text,
-                          defaultFilename: viewModel.generateExportFileName(),
-                          onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $settingSheet.mappedToBool()) {
-                settingSheet?.destination
-            }
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Close", bundle: .module)
+                                .foregroundStyle(.purpleInteraction)
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .routingProvided
+                .navigationTitle(Text("Settings", bundle: .module))
+                .task {
+                    await viewModel.setUp()
+                }
+            #if os(iOS)
+                .listSectionSpacing(DesignConstant.padding * 2)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
+                .toastDisplay()
+                .fullScreenMainBackground()
+                .sheetAlertService()
+                .importingService($showImportOptions, onMainDisplay: false)
+                .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                              document: viewModel.exportedDocument,
+                              contentType: .text,
+                              defaultFilename: viewModel.generateExportFileName(),
+                              onCompletion: viewModel.handleExportResult)
+                .sheet(isPresented: $settingSheet.mappedToBool()) {
+                    settingSheet?.destination
+                }
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
@@ -140,13 +147,15 @@ private extension SettingsView {
 
             SettingDivider()
 
-            /*
-             SettingRow(title: .localized("Sync between devices"),
-                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                              onToggle: viewModel.toggleSync))
+            SettingRow(title: .localized("Sync between devices", .module),
+                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                             onToggle: {
+                                                 if viewModel.syncEnabled {} else {
+                                                     settingSheet = .login
+                                                 }
+                                             }))
 
-             SettingDivider()
-              */
+            SettingDivider()
 
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
