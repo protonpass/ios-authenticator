@@ -73,7 +73,7 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            .listStyle(.plain)
+            .listStyle(.grouped)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
@@ -311,14 +311,15 @@ private extension SettingsView {
             .padding(.horizontal, 0)
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .cornerRadius(24)
-            .overlay(RoundedRectangle(cornerRadius: 24)
+            .cornerRadius(18)
+            .overlay(RoundedRectangle(cornerRadius: 18)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
         } header: {
             Text(title, bundle: .module)
-                .font(.callout)
+                .font(Font.custom("SF Pro", size: 13, relativeTo: .body))
                 .padding(.horizontal, DesignConstant.padding)
+                .padding(.bottom, DesignConstant.padding)
                 .foregroundStyle(.textWeak)
         }
         .plainListRow()
