@@ -22,6 +22,8 @@
 
 #if os(iOS)
 import Combine
+
+// periphery:ignore
 import DataLayer
 import DocScanner
 import Factory

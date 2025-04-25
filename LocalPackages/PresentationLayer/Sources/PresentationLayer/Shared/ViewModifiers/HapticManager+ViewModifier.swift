@@ -47,6 +47,7 @@ extension View {
     }
     #endif
 
+    // periphery:ignore
     @ViewBuilder
     func selectionHaptic() -> some View {
         #if os(iOS)

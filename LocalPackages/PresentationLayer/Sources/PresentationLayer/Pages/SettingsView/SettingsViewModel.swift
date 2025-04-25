@@ -95,6 +95,7 @@ final class SettingsViewModel {
         settingsService.entryCellConfiguration.animateCodeChange
     }
 
+    // periphery:ignore
     var hapticFeedbackEnabled: Bool {
         settingsService.hapticFeedbackEnabled
     }
@@ -184,6 +185,7 @@ extension SettingsViewModel {
         hapticsManager.execute(.impact(intensity: 1))
     }
 
+    // periphery:ignore
     func toggleHapticFeedback() {
         settingsService.toggleHapticFeedback(!hapticFeedbackEnabled)
     }
