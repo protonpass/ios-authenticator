@@ -55,9 +55,9 @@ final class EntriesViewModel: ObservableObject {
         settingsService.focusSearchOnLaunch
     }
 
-    @ObservationIgnored var search = "" {
+    @ObservationIgnored var query = "" {
         didSet {
-            searchTextStream.send(search)
+            searchTextStream.send(query)
         }
     }
 
@@ -82,9 +82,11 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private var hapticsManager
+    #endif
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
@@ -141,7 +143,9 @@ extension EntriesViewModel {
         copyTextToClipboard(code)
         toastService
             .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
-        hapticsManager(.impact(intensity: 1))
+        #if os(iOS)
+        hapticsManager(.defaultImpact)
+        #endif
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

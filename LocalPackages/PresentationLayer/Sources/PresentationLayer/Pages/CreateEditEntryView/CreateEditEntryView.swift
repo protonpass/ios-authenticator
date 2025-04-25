@@ -104,7 +104,9 @@ struct CreateEditEntryView: View {
                         .padding(.horizontal, 16)
                     }
                     .adaptiveButtonStyle()
-                    .impactHaptic()
+                    #if os(iOS)
+                        .impactHaptic()
+                    #endif
                 }
             }
             .padding(.bottom, 10)
@@ -239,10 +241,14 @@ private extension CreateEditEntryView {
     var segmentedControlSection: some View {
         if viewModel.type == .totp {
             segmentedControlField(title: "ALGORITHM", data: TotpAlgorithm.allCases, binding: $viewModel.algo)
+            #if os(iOS)
                 .impactHaptic()
+            #endif
         }
         segmentedControlField(title: "TYPE", data: TotpType.allCases, binding: $viewModel.type)
+        #if os(iOS)
             .impactHaptic()
+        #endif
     }
 
     func segmentedControlField<T: CustomSegmentedControlData>(title: LocalizedStringKey,

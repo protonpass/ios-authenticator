@@ -96,6 +96,7 @@ public struct EntriesView: View {
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
                 .fullScreenMainBackground()
+                .animation(.default, value: viewModel.entries)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
@@ -179,7 +180,6 @@ private extension EntriesView {
                         }
                 }
             }
-            .animation(.default, value: viewModel.entries)
             .padding()
         }
     }
@@ -221,7 +221,7 @@ private extension EntriesView {
                   code: entry.code,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
-                  searchTerm: viewModel.search,
+                  searchTerm: viewModel.query,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
@@ -255,7 +255,9 @@ private extension EntriesView {
                 .padding(10)
                 .frame(width: 44, height: 44, alignment: .center)
                 .coloredBackgroundButton(.circle)
+            #if os(iOS)
                 .impactHaptic()
+            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
@@ -278,7 +280,7 @@ private extension EntriesView {
                 .foregroundStyle(.textWeak)
 
             // The actual text field.
-            TextField(text: $viewModel.search,
+            TextField(text: $viewModel.query,
                       label: {
                           Text("Search", bundle: .module)
                       })
@@ -289,7 +291,9 @@ private extension EntriesView {
                       .onSubmit {
                           searchFieldFocus = false
                       }
+            #if os(iOS)
                       .impactHaptic()
+            #endif
         }
 
         .padding(.horizontal, 16)
@@ -384,15 +388,17 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
-                    .impactHaptic()
+                    #if os(iOS)
+                        .impactHaptic()
+                    #endif
                 }
                 .foregroundStyle(.textNorm)
             }
             // Empty search overlay
-            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.search.isEmpty {
+            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()
-                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.search)\"",
+                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
                          bundle: .module)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
@@ -462,7 +468,9 @@ private extension EntriesView {
                     .frame(width: 36, height: 36)
             }
             .adaptiveButtonStyle()
-            .impactHaptic()
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
     }
 

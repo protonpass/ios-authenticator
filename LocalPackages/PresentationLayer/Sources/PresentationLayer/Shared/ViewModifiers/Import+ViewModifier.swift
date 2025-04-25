@@ -157,9 +157,11 @@ final class ImportViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private var hapticsManager
+    #endif
 
     @ObservationIgnored
     private var currentSelected: ImportOption?
@@ -289,7 +291,9 @@ final class ImportViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
+        #if os(iOS)
         hapticsManager(.notify(.success))
+        #endif
     }
 }
 

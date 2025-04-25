@@ -18,32 +18,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-
 #if os(iOS)
+// periphery:ignore
+import CommonUtilities
 import CoreHaptics
+import Foundation
 import UIKit
-#elseif os(macOS)
-import AppKit
-#endif
 
 public enum HapticFeedbackType {
     case impact(intensity: CGFloat)
-    #if os(iOS)
     case notify(UINotificationFeedbackGenerator.FeedbackType)
-    #elseif os(macOS)
-    case notify(MacOSNotificationType)
-    #endif
     case selection
-}
 
-#if os(macOS)
-public enum MacOSNotificationType: Sendable {
-    case success
-    case warning
-    case error
+    public static var defaultImpact: Self {
+        impact(intensity: 1)
+    }
 }
-#endif
 
 @MainActor
 public protocol HapticsServicing {
@@ -56,7 +46,6 @@ public extension HapticsServicing {
     }
 }
 
-#if os(iOS)
 @MainActor
 public final class HapticsManager: HapticsServicing {
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
@@ -69,7 +58,7 @@ public final class HapticsManager: HapticsServicing {
     }
 
     public func perform(_ type: HapticFeedbackType) {
-        guard settings.hapticFeedbackEnabled else { return }
+        guard settings.hapticFeedbackEnabled, AppConstants.isPhone else { return }
 
         switch type {
         case let .impact(intensity):
@@ -81,40 +70,6 @@ public final class HapticsManager: HapticsServicing {
         case .selection:
             selectionFeedback.prepare()
             selectionFeedback.selectionChanged()
-        }
-    }
-}
-
-#elseif os(macOS)
-@MainActor
-public final class HapticsManager: HapticsServicing {
-    private let settings: any SettingsServicing
-    private let feedbackPerformer = NSHapticFeedbackManager.defaultPerformer
-
-    public init(settings: any SettingsServicing) {
-        self.settings = settings
-    }
-
-    public func perform(_ type: HapticFeedbackType) {
-        guard settings.hapticFeedbackEnabled else { return }
-
-        switch type {
-        case .impact:
-            feedbackPerformer.perform(.levelChange, performanceTime: .now)
-
-        case let .notify(type):
-            let pattern: NSHapticFeedbackManager.FeedbackPattern = switch type {
-            case .success:
-                .levelChange
-            case .warning:
-                .alignment
-            case .error:
-                .generic
-            }
-            feedbackPerformer.perform(pattern, performanceTime: .now)
-
-        case .selection:
-            feedbackPerformer.perform(.alignment, performanceTime: .now)
         }
     }
 }

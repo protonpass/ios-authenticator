@@ -68,9 +68,11 @@ final class SettingsViewModel {
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
 
+    #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private(set) var hapticsManager
+    #endif
 
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
@@ -172,17 +174,17 @@ extension SettingsViewModel {
 
     func toggleHideCode() {
         settingsService.setHideEntryCode(!shouldHideCode)
-        hapticsManager(.impact(intensity: 1))
+        haptic()
     }
 
     func updateDigitStyle(_ newValue: DigitStyle) {
         settingsService.setDigitStyle(newValue)
-        hapticsManager(.impact(intensity: 1))
+        haptic()
     }
 
     func toggleCodeAnimation() {
         settingsService.setCodeAnimation(!animateCodeChange)
-        hapticsManager(.impact(intensity: 1))
+        haptic()
     }
 
     // periphery:ignore
@@ -198,12 +200,12 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
-        hapticsManager(.impact(intensity: 1))
+        haptic()
     }
 
     func toggleFocusSearchOnLaunch() {
         settingsService.toggleFocusSearchOnLaunch(!focusSearchOnLaunch)
-        hapticsManager(.impact(intensity: 1))
+        haptic()
     }
 
     func generateExportFileName() -> String {
@@ -238,5 +240,11 @@ private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
         alertService.showError(error, mainDisplay: false, action: nil)
+    }
+
+    func haptic() {
+        #if os(iOS)
+        hapticsManager(.defaultImpact)
+        #endif
     }
 }
