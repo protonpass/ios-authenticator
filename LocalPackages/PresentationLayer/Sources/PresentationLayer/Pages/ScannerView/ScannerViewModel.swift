@@ -22,6 +22,8 @@
 
 #if os(iOS)
 import Combine
+
+// periphery:ignore
 import DataLayer
 import DocScanner
 import Factory
@@ -50,6 +52,12 @@ final class ScannerViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.parseImageQRCodeContent)
     private(set) var parseImageQRCodeContent
+
+    #if os(iOS)
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private var hapticsManager
+    #endif
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
@@ -133,6 +141,10 @@ private extension ScannerViewModel {
             }
             clean()
         }
+
+        #if os(iOS)
+        hapticsManager(.notify(.error))
+        #endif
     }
 
     func parseImage(_ imageSelection: PhotosPickerItem) {
@@ -156,6 +168,9 @@ private extension ScannerViewModel {
             if Task.isCancelled { return }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
+            #if os(iOS)
+            hapticsManager(.notify(.success))
+            #endif
         } catch AuthError.generic(.duplicatedEntry) {
             if Task.isCancelled { return }
             handleError(#localized("This item already exists", bundle: .module))

@@ -28,6 +28,7 @@ import SwiftUI
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
@@ -54,6 +55,11 @@ public struct EntriesView: View {
                     searchFieldFocus = false
                 }
                 .toastDisplay()
+                .safeAreaInset(edge: .top) {
+                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
+                        Color.clear.frame(height: 10)
+                    }
+                }
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
@@ -61,6 +67,18 @@ public struct EntriesView: View {
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
+                }
+                .onAppear {
+                    withAnimation {
+                        searchFieldFocus = viewModel.focusSearchOnLaunch
+                    }
+                }
+                .onChange(of: scenePhase) { _, newValue in
+                    if newValue == .active {
+                        withAnimation {
+                            searchFieldFocus = viewModel.focusSearchOnLaunch
+                        }
+                    }
                 }
                 .sheetDestinations($router.presentedSheet)
             #if os(iOS)
@@ -78,6 +96,7 @@ public struct EntriesView: View {
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
                 .fullScreenMainBackground()
+                .animation(.default, value: viewModel.entries)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
@@ -102,24 +121,22 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry)
-                    .swipeActions {
+                    .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
                         } label: {
                             Label("Edit", systemImage: "pencil")
-                                .foregroundStyle(.info, .textNorm)
                         }
-                        .tint(.clear)
-
+                        .tint(Color.editSwipe)
+                    }
+                    .swipeActions(edge: .trailing) {
                         Button {
                             viewModel.delete(entry)
                         } label: {
                             Label("Delete", systemImage: "trash.fill")
-                                .foregroundStyle(.danger, .textNorm)
                         }
-                        .tint(.clear)
+                        .tint(Color.deleteSwipe)
                     }
-                    .padding(.top, entry == viewModel.entries.first ? 10 : 0)
             }
             .onMove { source, destination in
                 viewModel.moveItem(fromOffsets: source, toOffset: destination)
@@ -163,7 +180,6 @@ private extension EntriesView {
                         }
                 }
             }
-            .animation(.default, value: viewModel.entries)
             .padding()
         }
     }
@@ -205,6 +221,7 @@ private extension EntriesView {
                   code: entry.code,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
+                  searchTerm: viewModel.query,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
@@ -238,6 +255,9 @@ private extension EntriesView {
                 .padding(10)
                 .frame(width: 44, height: 44, alignment: .center)
                 .coloredBackgroundButton(.circle)
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
@@ -260,7 +280,7 @@ private extension EntriesView {
                 .foregroundStyle(.textWeak)
 
             // The actual text field.
-            TextField(text: $viewModel.search,
+            TextField(text: $viewModel.query,
                       label: {
                           Text("Search", bundle: .module)
                       })
@@ -271,6 +291,9 @@ private extension EntriesView {
                       .onSubmit {
                           searchFieldFocus = false
                       }
+            #if os(iOS)
+                      .impactHaptic()
+            #endif
         }
 
         .padding(.horizontal, 16)
@@ -365,14 +388,17 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
+                    #if os(iOS)
+                        .impactHaptic()
+                    #endif
                 }
                 .foregroundStyle(.textNorm)
             }
             // Empty search overlay
-            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.search.isEmpty {
+            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()
-                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.search)\"",
+                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
                          bundle: .module)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
@@ -442,6 +468,9 @@ private extension EntriesView {
                     .frame(width: 36, height: 36)
             }
             .adaptiveButtonStyle()
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
     }
 

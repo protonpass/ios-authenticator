@@ -68,6 +68,12 @@ final class SettingsViewModel {
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
 
+    #if os(iOS)
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private(set) var hapticsManager
+    #endif
+
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
@@ -89,6 +95,15 @@ final class SettingsViewModel {
 
     var animateCodeChange: Bool {
         settingsService.entryCellConfiguration.animateCodeChange
+    }
+
+    // periphery:ignore
+    var hapticFeedbackEnabled: Bool {
+        settingsService.hapticFeedbackEnabled
+    }
+
+    var focusSearchOnLaunch: Bool {
+        settingsService.focusSearchOnLaunch
     }
 
     var isQaBuild: Bool {
@@ -159,14 +174,22 @@ extension SettingsViewModel {
 
     func toggleHideCode() {
         settingsService.setHideEntryCode(!shouldHideCode)
+        haptic()
     }
 
     func updateDigitStyle(_ newValue: DigitStyle) {
         settingsService.setDigitStyle(newValue)
+        haptic()
     }
 
     func toggleCodeAnimation() {
         settingsService.setCodeAnimation(!animateCodeChange)
+        haptic()
+    }
+
+    // periphery:ignore
+    func toggleHapticFeedback() {
+        settingsService.toggleHapticFeedback(!hapticFeedbackEnabled)
     }
 
     func updateTheme(_ newValue: Theme) {
@@ -177,6 +200,12 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
+        haptic()
+    }
+
+    func toggleFocusSearchOnLaunch() {
+        settingsService.toggleFocusSearchOnLaunch(!focusSearchOnLaunch)
+        haptic()
     }
 
     func generateExportFileName() -> String {
@@ -211,5 +240,11 @@ private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
         alertService.showError(error, mainDisplay: false, action: nil)
+    }
+
+    func haptic() {
+        #if os(iOS)
+        hapticsManager(.defaultImpact)
+        #endif
     }
 }

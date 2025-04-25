@@ -361,6 +361,16 @@
         }
       }
     },
+    "Focus search on launch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus search on launch"
+          }
+        }
+      }
+    },
     "Free" : {
       "localizations" : {
         "en" : {
@@ -398,6 +408,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Give your precious photos and files the safe home they deserve."
+          }
+        }
+      }
+    },
+    "Haptic feedback" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptic feedback"
           }
         }
       }
