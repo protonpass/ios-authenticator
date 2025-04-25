@@ -89,25 +89,15 @@ public final class SettingsService: SettingsServicing {
 
 public extension SettingsService {
     func setFirstRun(_ value: Bool) {
-        guard isFirstRun != value else { return }
-        store.set(value, forKey: AppConstants.Settings.isFirstRun)
-        isFirstRun = value
+        update(currentValue: &isFirstRun, newValue: value, key: AppConstants.Settings.isFirstRun)
     }
 
     func setTheme(_ value: Theme) {
-        guard theme != value else {
-            return
-        }
-        store.set(value.rawValue, forKey: AppConstants.Settings.theme)
-        theme = value
+        update(currentValue: &theme, newValue: value, key: AppConstants.Settings.theme)
     }
 
     func setSearchBarMode(_ value: SearchBarDisplayMode) {
-        guard searchBarDisplayMode != value else {
-            return
-        }
-        store.set(value.rawValue, forKey: AppConstants.Settings.searchBarMode)
-        searchBarDisplayMode = value
+        update(currentValue: &searchBarDisplayMode, newValue: value, key: AppConstants.Settings.searchBarMode)
     }
 
     func setHideEntryCode(_ value: Bool) {
@@ -141,27 +131,39 @@ public extension SettingsService {
     }
 
     func setOnboarded(_ value: Bool) {
-        guard value != onboarded else { return }
-        store.set(value, forKey: AppConstants.Settings.onboarded)
-        onboarded = value
+        update(currentValue: &onboarded, newValue: value, key: AppConstants.Settings.onboarded)
     }
 
     func togglePassBanner(_ value: Bool) {
-        guard value != showPassBanner else { return }
-        store.set(value, forKey: AppConstants.Settings.showPassBanner)
-        showPassBanner = value
+        update(currentValue: &showPassBanner, newValue: value, key: AppConstants.Settings.showPassBanner)
     }
 
     func toggleHapticFeedback(_ value: Bool) {
-        guard value != hapticFeedbackEnabled else { return }
-        store.set(value, forKey: AppConstants.Settings.hapticFeedbackEnabled)
-        hapticFeedbackEnabled = value
+        update(currentValue: &hapticFeedbackEnabled,
+               newValue: value,
+               key: AppConstants.Settings.hapticFeedbackEnabled)
     }
 
     func toggleFocusSearchOnLaunch(_ value: Bool) {
-        guard value != focusSearchOnLaunch else { return }
-        store.set(value, forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
-        focusSearchOnLaunch = value
+        update(currentValue: &focusSearchOnLaunch,
+               newValue: value,
+               key: AppConstants.Settings.focusSearchOnLaunchEnabled)
+    }
+}
+
+private extension SettingsService {
+    func update(currentValue: inout Bool, newValue: Bool, key: String) {
+        guard newValue != currentValue else { return }
+        store.set(newValue, forKey: key)
+        currentValue = newValue
+    }
+
+    func update<T: IntegerDefaulting>(currentValue: inout T,
+                                      newValue: T,
+                                      key: String) {
+        guard newValue.rawValue != currentValue.rawValue else { return }
+        store.set(newValue.rawValue, forKey: key)
+        currentValue = newValue
     }
 }
 

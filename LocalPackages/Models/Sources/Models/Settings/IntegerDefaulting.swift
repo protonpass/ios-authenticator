@@ -19,6 +19,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 public protocol IntegerDefaulting: Sendable {
+    var rawValue: Int { get }
+
     init?(rawValue: Int)
 
     static var `default`: Self { get }

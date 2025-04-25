@@ -224,10 +224,12 @@ private extension SettingsView {
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
             #if os(iOS)
-            SettingDivider()
-            SettingRow(title: .localized("Haptic feedback", .module),
-                       trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
-                                             onToggle: viewModel.toggleHapticFeedback))
+            if AppConstants.isPhone {
+                SettingDivider()
+                SettingRow(title: .localized("Haptic feedback", .module),
+                           trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
+                                                 onToggle: viewModel.toggleHapticFeedback))
+            }
             #endif
             SettingDivider()
             SettingRow(title: .localized("Focus search on launch", .module),
