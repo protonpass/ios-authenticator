@@ -42,6 +42,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setCodeAnimation(_ value: Bool)
     func setOnboarded(_ value: Bool)
     func togglePassBanner(_ value: Bool)
+    // periphery:ignore
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
 }

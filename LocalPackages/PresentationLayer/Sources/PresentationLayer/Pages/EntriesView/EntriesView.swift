@@ -55,6 +55,11 @@ public struct EntriesView: View {
                     searchFieldFocus = false
                 }
                 .toastDisplay()
+                .safeAreaInset(edge: .top) {
+                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
+                        Color.clear.frame(height: 10)
+                    }
+                }
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
@@ -115,24 +120,22 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry)
-                    .swipeActions {
+                    .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
                         } label: {
                             Label("Edit", systemImage: "pencil")
-                                .foregroundStyle(.info, .textNorm)
                         }
-                        .tint(.clear)
-
+                        .tint(Color.editSwipe)
+                    }
+                    .swipeActions(edge: .trailing) {
                         Button {
                             viewModel.delete(entry)
                         } label: {
                             Label("Delete", systemImage: "trash.fill")
-                                .foregroundStyle(.danger, .textNorm)
                         }
-                        .tint(.clear)
+                        .tint(Color.deleteSwipe)
                     }
-                    .padding(.top, entry == viewModel.entries.first ? 10 : 0)
             }
             .onMove { source, destination in
                 viewModel.moveItem(fromOffsets: source, toOffset: destination)
