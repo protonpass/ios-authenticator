@@ -37,8 +37,7 @@ private struct HighlightedText: View {
     let highlighted: String
 
     var body: some View {
-        // ignore:missing_bundle
-        Text(attributedString)
+        Text(attributedString) // ignore:missing_bundle
     }
 
     private var attributedString: AttributedString {
