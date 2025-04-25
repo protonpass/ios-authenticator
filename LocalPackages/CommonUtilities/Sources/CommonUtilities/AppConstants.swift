@@ -44,12 +44,17 @@ public enum AppConstants {
     }
 
     public enum Settings {
+        public static let isFirstRun = "IsFirstRun"
         public static let searchBarMode = "SearchBarMode"
         public static let theme = "Theme"
         public static let displayCode = "DisplayCode"
-        public static let numberBackground = "NumberBackground"
+        public static let digitStyle = "DigitStyle"
+        public static let animateCode = "AnimateCode"
         public static let onboarded = "Onboarded"
-        public static let authenticationState = "authenticationState"
+        public static let showPassBanner = "ShowPassBanner"
+        public static let authenticationState = "AuthenticationState"
+        public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
+        public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
     }
 
     @MainActor
@@ -61,6 +66,7 @@ public enum AppConstants {
         #endif
     }
 
+    // periphery:ignore
     @MainActor
     public static var isIpad: Bool {
         #if canImport(UIKit)
@@ -77,5 +83,9 @@ public enum AppConstants {
     public enum EntryOptions {
         public static let supportedDigits: [Int] = [6, 8]
         public static let supportedPeriod: [Int] = [30, 60]
+    }
+
+    public enum CommonUrls {
+        public static let feedbackUrl = "https://proton.me/support/contact"
     }
 }

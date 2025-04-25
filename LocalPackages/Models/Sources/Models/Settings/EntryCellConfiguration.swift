@@ -22,14 +22,16 @@ import Foundation
 
 public struct EntryCellConfiguration {
     public let hideEntryCode: Bool
-    public let displayNumberBackground: Bool
+    public let digitStyle: DigitStyle
+    public let animateCodeChange: Bool
 
-    public init(hideEntryCode: Bool, displayNumberBackground: Bool) {
+    public init(hideEntryCode: Bool, digitStyle: DigitStyle, animateCodeChange: Bool) {
         self.hideEntryCode = hideEntryCode
-        self.displayNumberBackground = displayNumberBackground
+        self.digitStyle = digitStyle
+        self.animateCodeChange = animateCodeChange
     }
 
     public static var `default`: EntryCellConfiguration {
-        EntryCellConfiguration(hideEntryCode: true, displayNumberBackground: false)
+        EntryCellConfiguration(hideEntryCode: true, digitStyle: .plain, animateCodeChange: true)
     }
 }

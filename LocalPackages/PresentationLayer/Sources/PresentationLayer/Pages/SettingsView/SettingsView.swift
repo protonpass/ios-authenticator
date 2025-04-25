@@ -19,77 +19,107 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Models
 import SwiftUI
 
-struct SettingsView: View {
+enum SettingsSheetStates {
+    case logs
+    case qa
+
+    @MainActor @ViewBuilder
+    var destination: some View {
+        switch self {
+        case .logs:
+            LogsView()
+        case .qa:
+            QAMenuView()
+        }
+    }
+}
+
+public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-    @State private var showQaMenu = false
-    @State private var showEditTheme = false
+    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         NavigationStack(path: $router.path) {
             List {
                 if viewModel.showPassBanner {
-                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {})
-                        .padding(.horizontal, 16)
-                        .buttonStyle(.plain)
-                        .plainListRow()
+                    PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {
+                        open(urlString: ProtonProduct.pass.finalUrl)
+                    })
+                    .padding(.horizontal, 16)
+                    .buttonStyle(.plain)
+                    .plainListRow()
                 }
                 securitySection
                 appearanceSection
                 dataSection
                 supportSection
-                discoverySection
+                if !viewModel.products.isEmpty {
+                    discoverySection
+                }
                 versionLabel
                     .padding(.top, 32)
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .routingProvided
-            .navigationTitle("Settings")
-            .task {
-                await viewModel.setUp()
-            }
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .mainBackground()
-            .sheetUIAlertService()
-            .importingService($showImportOptions, onMainDisplay: false)
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
                     Button {
                         dismiss()
                     } label: {
-                        Text("Close")
-                            .foregroundStyle(.textWeak)
+                        Text("Close", bundle: .module)
+                            .foregroundStyle(.purpleInteraction)
                     }
+                    .adaptiveButtonStyle()
                 }
             }
-            .sheet(isPresented: $showQaMenu) {
-                QAMenuView()
+            .scrollContentBackground(.hidden)
+            .routingProvided
+            .navigationTitle(Text("Settings", bundle: .module))
+            .task {
+                await viewModel.setUp()
             }
-            .sheet(isPresented: $showEditTheme) {
-                EditThemeView(currentTheme: viewModel.theme,
-                              onUpdate: viewModel.updateTheme)
+            #if os(iOS)
+            .listSectionSpacing(DesignConstant.padding * 2)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toastDisplay()
+            .fullScreenMainBackground()
+            .sheetAlertService()
+            .importingService($showImportOptions, onMainDisplay: false)
+            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                          document: viewModel.exportedDocument,
+                          contentType: .text,
+                          defaultFilename: viewModel.generateExportFileName(),
+                          onCompletion: viewModel.handleExportResult)
+            .sheet(isPresented: $settingSheet.mappedToBool()) {
+                settingSheet?.destination
             }
         }
+        .animation(.default, value: viewModel.theme)
+        .preferredColorScheme(viewModel.theme.preferredColorScheme)
+        #if os(macOS)
+            .frame(minWidth: 800, minHeight: 600)
+        #endif
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
         #if os(iOS)
         return .topBarLeading
         #else
-        return .navigation
+        return .automatic
         #endif
     }
 
@@ -103,54 +133,52 @@ struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("Backup"),
+            SettingRow(title: .localized("Backup", .module),
                        subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackUp))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Sync between devices"),
-                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                             onToggle: viewModel.toggleSync))
+            /*
+             SettingRow(title: .localized("Sync between devices"),
+                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                              onToggle: viewModel.toggleSync))
 
-            SettingDivider()
+             SettingDivider()
+              */
 
-            SettingRow(title: .localized("Biometric lock"),
+            SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Tap to reveal codes"),
-                       trailingMode: .toggle(isOn: viewModel.tapToRevealCodeEnabled,
-                                             onToggle: viewModel.toggleTapToRevealCode))
+            SettingRow(title: .localized("Hide codes", .module),
+                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
+                                             onToggle: viewModel.toggleHideCode))
         }
     }
 
     var appearanceSection: some View {
         section("APPEARANCE") {
-            if useMenuForTheme {
-                Menu(content: {
-                    ForEach(Theme.allCases, id: \.self) { theme in
-                        Button(action: {
-                            viewModel.updateTheme(theme)
-                        }, label: {
-                            if theme == viewModel.theme {
-                                Label(theme.title, systemImage: "checkmark")
-                            } else {
-                                Text(theme.title)
-                            }
-                        })
-                    }
-                }, label: {
-                    themeRow()
-                })
-            } else {
-                themeRow {
-                    showEditTheme.toggle()
+            Menu(content: {
+                ForEach(Theme.allCases, id: \.self) { theme in
+                    Button(action: {
+                        viewModel.updateTheme(theme)
+                    }, label: {
+                        if theme == viewModel.theme {
+                            Label(theme.title, systemImage: "checkmark")
+                        } else {
+                            Text(theme.title, bundle: .module)
+                        }
+                    })
                 }
-            }
+            }, label: {
+                SettingRow(title: .localized("Theme", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title, .module)))
+            })
+            .adaptiveMenuStyle()
 
             SettingDivider()
 
@@ -162,76 +190,87 @@ private extension SettingsView {
                         if theme == viewModel.searchBarDisplay {
                             Label(theme.title, systemImage: "checkmark")
                         } else {
-                            Text(theme.title)
+                            Text(theme.title, bundle: .module)
                         }
                     })
                 }
             }, label: {
-                SettingRow(title: .localized("Search bar position"),
-                           trailingMode: .detailChevron(.localized(viewModel.searchBarDisplay.title),
-                                                        onTap: {}))
+                SettingRow(title: .localized("Search bar position", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
+                                                                         .module)))
             })
+            .adaptiveMenuStyle()
 
             SettingDivider()
-
-            SettingRow(title: .localized("Hide cell entry code"),
-                       trailingMode: .toggle(isOn: viewModel.shouldHideCode,
-                                             onToggle: viewModel.toggleHideCode))
+            Menu(content: {
+                ForEach(DigitStyle.allCases, id: \.self) { style in
+                    Button(action: {
+                        viewModel.updateDigitStyle(style)
+                    }, label: {
+                        if style == viewModel.digitStyle {
+                            Label(style.title, systemImage: "checkmark")
+                        } else {
+                            Text(style.title, bundle: .module)
+                        }
+                    })
+                }
+            }, label: {
+                SettingRow(title: .localized("Digit style", .module),
+                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)))
+            })
+            .adaptiveMenuStyle()
             SettingDivider()
-            SettingRow(title: .localized("Show number background"),
-                       trailingMode: .toggle(isOn: viewModel.showNumberBackground,
-                                             onToggle: viewModel.toggleDisplayNumberBackground))
+            SettingRow(title: .localized("Animate code change", .module),
+                       trailingMode: .toggle(isOn: viewModel.animateCodeChange,
+                                             onToggle: viewModel.toggleCodeAnimation))
+            #if os(iOS)
+            if AppConstants.isPhone {
+                SettingDivider()
+                SettingRow(title: .localized("Haptic feedback", .module),
+                           trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
+                                                 onToggle: viewModel.toggleHapticFeedback))
+            }
+            #endif
             SettingDivider()
-            SettingRow(title: .localized("List style"),
-                       trailingMode: .detailChevron(.verbatim("Regular"), onTap: {}))
+            SettingRow(title: .localized("Focus search on launch", .module),
+                       trailingMode: .toggle(isOn: viewModel.focusSearchOnLaunch,
+                                             onToggle: viewModel.toggleFocusSearchOnLaunch))
         }
-    }
-
-    func themeRow(_ onTap: (() -> Void)? = nil) -> some View {
-        SettingRow(title: .localized("Theme"),
-                   trailingMode: .detailChevron(.localized(viewModel.theme.title),
-                                                onTap: { onTap?() }))
-    }
-
-    var useMenuForTheme: Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .pad
-        #else
-        true
-        #endif
     }
 
     var dataSection: some View {
         section("MANAGE YOUR DATA") {
-            SettingRow(title: .localized("Import"), trailingMode: .chevron(onTap: {
-                showImportOptions.toggle()
-            }))
+            SettingRow(title: .localized("Import", .module), onTap: { showImportOptions.toggle() })
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export"), trailingMode: .chevron(onTap: {
-                router.navigate(to: .exportEntries)
-            }))
+            SettingRow(title: .localized("Export", .module), onTap: viewModel.exportData)
         }
     }
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator"),
-                       trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("How to use Proton Authenticator", .module))
 
             SettingDivider()
 
-            SettingRow(title: .localized("Feedback"), trailingMode: .chevron(onTap: {}))
+            SettingRow(title: .localized("Feedback", .module)) {
+                open(urlString: AppConstants.CommonUrls.feedbackUrl)
+            }
+
+            SettingDivider()
+
+            SettingRow(title: .localized("Logs", .module), onTap: { settingSheet = .logs })
         }
     }
 
     var discoverySection: some View {
         section("DISCOVER PROTON") {
-            ForEach(ProtonProduct.allCases, id: \.self) { product in
+            ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
-                           trailingMode: .chevron(onTap: { open(urlString: product.finalUrl) }))
+                           subtitle: product.description,
+                           onTap: { open(urlString: product.finalUrl) })
 
                 if product != ProtonProduct.allCases.last {
                     SettingDivider()
@@ -243,14 +282,14 @@ private extension SettingsView {
     @ViewBuilder
     var versionLabel: some View {
         if let version = viewModel.versionString {
-            Text(version)
+            Text(verbatim: version)
                 .font(.callout)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
                 .if(viewModel.isQaBuild) { view in
                     view.onTapGesture(count: 3) {
-                        showQaMenu.toggle()
+                        settingSheet = .qa
                     }
                 }
         }
@@ -270,22 +309,20 @@ private extension SettingsView {
                 content()
             }
             .padding(.horizontal, 0)
-            .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .black.opacity(0.08))
+            .background(isDarkMode ? .white.opacity(0.08) : .white)
             .cornerRadius(24)
             .overlay(RoundedRectangle(cornerRadius: 24)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-            .padding(.top, 8)
         } header: {
-            Text(title)
+            Text(title, bundle: .module)
                 .font(.callout)
-                .padding(.leading)
+                .padding(.horizontal, DesignConstant.padding)
                 .foregroundStyle(.textWeak)
         }
         .plainListRow()
-        .padding(.horizontal, 16)
+        .padding(.horizontal, DesignConstant.padding)
     }
 
     func open(urlString: String) {
@@ -322,7 +359,21 @@ private extension ProtonProduct {
         case .mail: .logoMail
         case .drive: .logoDrive
         case .calendar: .logoCalendar
-        case .wallet: .logoWallet
+        }
+    }
+
+    var description: LocalizedStringKey {
+        switch self {
+        case .pass:
+            "Store strong, unique passwords to avoid identity theft and breaches."
+        case .vpn:
+            "Browse without being tracked and access blocked content."
+        case .mail:
+            "Protect your inbox from spam, tracking, and targeted ads."
+        case .drive:
+            "Organize your schedule and keep your plans to yourself."
+        case .calendar:
+            "Give your precious photos and files the safe home they deserve."
         }
     }
 
@@ -332,5 +383,18 @@ private extension ProtonProduct {
         #else
         homepageUrl
         #endif
+    }
+}
+
+private extension Theme {
+    var title: LocalizedStringKey {
+        switch self {
+        case .dark:
+            "Dark"
+        case .light:
+            "Light"
+        case .system:
+            "Match system"
+        }
     }
 }

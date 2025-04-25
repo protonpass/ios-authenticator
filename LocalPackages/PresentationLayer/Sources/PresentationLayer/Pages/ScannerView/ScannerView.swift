@@ -30,18 +30,19 @@ struct ScannerView: View {
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State var regionOfInterest: CGRect?
+    @Environment(Router.self) private var router
 
     var body: some View {
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
-                    regionOfInterest: $regionOfInterest) { results in
-            viewModel.processPayload(results: results)
+                    regionOfInterest: $regionOfInterest) { [weak viewModel] results in
+            viewModel?.processPayload(results: results)
         }
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
-        .sheetUIAlertService()
+        .sheetAlertService()
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
                       matching: .images,
@@ -52,6 +53,11 @@ struct ScannerView: View {
 
     private var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
+                               manualEntry: {
+                                   viewModel.clean()
+                                   dismiss()
+                                   router.presentedSheet = .createEditEntry(nil)
+                               },
                                photoLibraryEntry: {
                                    showPhotosPicker.toggle()
                                })

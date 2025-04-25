@@ -33,10 +33,19 @@ public enum AuthenticationState: Sendable, Equatable, Hashable, Codable {
 @MainActor
 public protocol AuthenticationServicing: Sendable, Observable {
     var currentState: AuthenticationState { get }
-    var biometricEnabled: Bool { get }
 
     func setAuthenticationState(_ newState: AuthenticationState) throws
     func checkBiometrics() async throws
+}
+
+public extension AuthenticationServicing {
+    var biometricEnabled: Bool {
+        if case .active = currentState {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 @MainActor
@@ -44,33 +53,29 @@ public protocol AuthenticationServicing: Sendable, Observable {
 public final class AuthenticationService: AuthenticationServicing {
     @ObservationIgnored
     private let keychain: any KeychainServicing
+    private let logger: any LoggerProtocol
 
     public private(set) var currentState: AuthenticationState = .inactive
 
-    public var biometricEnabled: Bool {
-        if case .active = currentState {
-            true
-        } else {
-            false
-        }
-    }
-
-    public init(keychain: any KeychainServicing) {
+    public init(keychain: any KeychainServicing,
+                logger: any LoggerProtocol) {
         self.keychain = keychain
+        self.logger = logger
         do {
             if let keychainValue: AuthenticationState = try keychain
                 .get(key: AppConstants.Settings.authenticationState) {
                 currentState = keychainValue
             }
+        } catch KeychainError.invalidData, KeychainError.itemNotFound {
+            self.logger.log(.info, category: .data, "AuthenticationState not init. Use default value.")
         } catch {
-            // swiftlint:disable:next todo
-            // TODO: log error
-            print("error")
+            self.logger.log(.error, category: .data, "error type: \(error), \(error.localizedDescription)")
         }
     }
 
     public func setAuthenticationState(_ newState: AuthenticationState) throws {
         guard currentState != newState else { return }
+        logger.log(.info, category: .data, "Set new authentication state: \(newState)")
 
         try keychain.set(newState, for: AppConstants.Settings.authenticationState)
         currentState = newState
@@ -81,7 +86,7 @@ public final class AuthenticationService: AuthenticationServicing {
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = #localized("Please authenticate")
+            let reason = #localized("Please authenticate", bundle: .module)
             do {
                 let bioCheckValue = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
                                                                      localizedReason: reason)
@@ -93,6 +98,7 @@ public final class AuthenticationService: AuthenticationServicing {
             guard let error else {
                 return
             }
+            logger.log(.error, category: .data, error.localizedDescription)
             throw error
         }
     }

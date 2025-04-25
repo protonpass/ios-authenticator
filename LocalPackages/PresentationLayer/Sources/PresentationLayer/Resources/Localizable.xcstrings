@@ -51,6 +51,16 @@
         }
       }
     },
+    "Animate code change" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animate code change"
+          }
+        }
+      }
+    },
     "APPEARANCE" : {
       "localizations" : {
         "en" : {
@@ -61,22 +71,12 @@
         }
       }
     },
-    "appeareance" : {
+    "Are you sure you want to delete this entry? This action is irreversible." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "appeareance"
-          }
-        }
-      }
-    },
-    "Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authenticator"
+            "value" : "Are you sure you want to delete this entry? This action is irreversible."
           }
         }
       }
@@ -101,12 +101,52 @@
         }
       }
     },
+    "Bottom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottom"
+          }
+        }
+      }
+    },
+    "Boxed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxed"
+          }
+        }
+      }
+    },
     "Bring your security with you.\nTransfer your data to stay protected." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bring your security with you.\nTransfer your data to stay protected."
+          }
+        }
+      }
+    },
+    "Browse without being tracked and access blocked content." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse without being tracked and access blocked content."
+          }
+        }
+      }
+    },
+    "Camera usage restricted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera usage restricted"
           }
         }
       }
@@ -141,12 +181,32 @@
         }
       }
     },
-    "Create" : {
+    "Copied to clipboard" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create"
+            "value" : "Copied to clipboard"
+          }
+        }
+      }
+    },
+    "Could not process the image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not process the image"
+          }
+        }
+      }
+    },
+    "Couldn't find any entries corresponding to your search criteria \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't find any entries corresponding to your search criteria \"%@\""
           }
         }
       }
@@ -177,6 +237,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Delete entry" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete entry"
+          }
+        }
+      }
+    },
+    "Digit style" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digit style"
           }
         }
       }
@@ -271,26 +351,6 @@
         }
       }
     },
-    "Export data to Backup File" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data to Backup File"
-          }
-        }
-      }
-    },
-    "Export to backup file" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export to backup file"
-          }
-        }
-      }
-    },
     "Feedback" : {
       "localizations" : {
         "en" : {
@@ -301,22 +361,33 @@
         }
       }
     },
-    "Free password manager with identity protection." : {
+    "Focus search on launch" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free password manager with identity protection."
+            "value" : "Focus search on launch"
           }
         }
       }
     },
-    "Get Proton Pass" : {
+    "Free" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Proton Pass"
+            "value" : "Free"
+          }
+        }
+      }
+    },
+    "GET" : {
+      "comment" : "Title of the button to download Proton Pass",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GET"
           }
         }
       }
@@ -331,12 +402,32 @@
         }
       }
     },
-    "Hide cell entry code" : {
+    "Give your precious photos and files the safe home they deserve." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide cell entry code"
+            "value" : "Give your precious photos and files the safe home they deserve."
+          }
+        }
+      }
+    },
+    "Haptic feedback" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptic feedback"
+          }
+        }
+      }
+    },
+    "Hide codes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide codes"
           }
         }
       }
@@ -411,12 +502,12 @@
         }
       }
     },
-    "List style" : {
+    "Logs" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "List style"
+            "value" : "Logs"
           }
         }
       }
@@ -471,6 +562,26 @@
         }
       }
     },
+    "Open Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "Organize your schedule and keep your plans to yourself." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organize your schedule and keep your plans to yourself."
+          }
+        }
+      }
+    },
     "Password" : {
       "localizations" : {
         "en" : {
@@ -481,12 +592,32 @@
         }
       }
     },
+    "Plain" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain"
+          }
+        }
+      }
+    },
     "Please authenticate" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please authenticate"
+          }
+        }
+      }
+    },
+    "Please enable camera access from Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enable camera access from Settings"
           }
         }
       }
@@ -517,6 +648,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protect your data"
+          }
+        }
+      }
+    },
+    "Protect your inbox from spam, tracking, and targeted ads." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your inbox from spam, tracking, and targeted ads."
           }
         }
       }
@@ -631,13 +772,13 @@
         }
       }
     },
-    "Select your prodiver" : {
+    "Select your provider" : {
       "comment" : "Title of the alert to ask for which provider to import from",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select your prodiver"
+            "value" : "Select your provider"
           }
         }
       }
@@ -652,12 +793,12 @@
         }
       }
     },
-    "Show number background" : {
+    "Share" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show number background"
+            "value" : "Share"
           }
         }
       }
@@ -668,6 +809,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skip"
+          }
+        }
+      }
+    },
+    "Store strong, unique passwords to avoid identity theft and breaches." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Store strong, unique passwords to avoid identity theft and breaches."
+          }
+        }
+      }
+    },
+    "Successfully exported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully exported"
           }
         }
       }
@@ -704,32 +865,22 @@
         }
       }
     },
-    "Sync between devices" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync between devices"
-          }
-        }
-      }
-    },
-    "Tap to reveal codes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap to reveal codes"
-          }
-        }
-      }
-    },
     "Theme" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Theme"
+          }
+        }
+      }
+    },
+    "This item already exists" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This item already exists"
           }
         }
       }
@@ -764,6 +915,26 @@
         }
       }
     },
+    "Top" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top"
+          }
+        }
+      }
+    },
+    "Try searching using different spelling or keywords" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try searching using different spelling or keywords"
+          }
+        }
+      }
+    },
     "TYPE" : {
       "localizations" : {
         "en" : {
@@ -774,32 +945,12 @@
         }
       }
     },
-    "Unknown" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unknown"
-          }
-        }
-      }
-    },
     "Update entry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Update entry"
-          }
-        }
-      }
-    },
-    "Use this feature to import your data on an another device using Proton Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use this feature to import your data on an another device using Proton Authenticator"
           }
         }
       }
@@ -820,6 +971,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "Yes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes"
           }
         }
       }

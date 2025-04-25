@@ -27,6 +27,8 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
     public let entry: Entry
     public let code: Code
     public let order: Int
+    public let issuerInfo: AuthIssuerInfo?
+    public let syncState: EntrySyncState
 
     public var id: String {
         entry.id
@@ -34,14 +36,18 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
 
     public init(entry: Entry,
                 code: Code,
-                order: Int) {
+                order: Int,
+                syncState: EntrySyncState,
+                issuerInfo: AuthIssuerInfo?) {
         self.entry = entry
         self.code = code
         self.order = order
+        self.issuerInfo = issuerInfo
+        self.syncState = syncState
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry, code: code, order: order)
+        EntryUiModel(entry: newEntry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
     }
 
     public static var transferRepresentation: some TransferRepresentation {
@@ -55,10 +61,10 @@ public extension UTType {
 
 public extension EntryUiModel {
     func updateCode(_ code: Code) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order)
+        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
     }
 
     func updateOrder(_ order: Int) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order)
+        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
     }
 }

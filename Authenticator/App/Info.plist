@@ -19,6 +19,14 @@
 	</array>
 	<key>IS_QA_BUILD =
 	<string>$(IS_QA_BUILD =
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>protonpass</string>
+		<string>protonvpn</string>
+		<string>ch.protonmail.protonmail.mailto</string>
+		<string>ch.protonmail.drive</string>
+		<string>protoncalendar</string>
+	</array>
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -37,16 +45,19 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>EntryUiModel</string>
-			<key>UTTypeIcons</key>
-			<dict/>
 			<key>UTTypeIdentifier</key>
 			<string>me.proton.authenticator</string>
 			<key>UTTypeTagSpecification</key>
-			<dict/>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>entryUIModelType</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>

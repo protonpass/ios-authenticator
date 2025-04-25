@@ -106,8 +106,8 @@ final class OnboardingViewModel {
             defer { enablingBiometric = false }
             enablingBiometric = true
             do {
-                if try await authenticateBiometrically(policy: laEnablingPolicy,
-                                                       reason: #localized("Please authenticate")) {
+                let reason = #localized("Please authenticate", bundle: .module)
+                if try await authenticateBiometrically(policy: laEnablingPolicy, reason: reason) {
                     try authenticationService.setAuthenticationState(.active(authenticated: true))
                     biometricEnabled = true
                 }

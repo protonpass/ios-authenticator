@@ -19,14 +19,12 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
-import CommonUtilities
 import DataLayer
 import Factory
 import LocalAuthentication
 import SimplyPersist
 import SwiftData
 
-// swiftlint:disable line_length
 final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
     static let shared = ToolsContainer()
     let manager = ContainerManager()
@@ -40,10 +38,17 @@ extension ToolsContainer {
     var persistenceService: Factory<any PersistenceServicing> {
         self {
             do {
-                let schema = Schema([EncryptedEntryEntity.self])
-                return try PersistenceService(with: ModelConfiguration(schema: schema,
-                                                                       isStoredInMemoryOnly: false,
-                                                                       cloudKitDatabase: .private("iCloud.me.proton.authenticator")))
+                let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
+                                                     isStoredInMemoryOnly: false,
+                                                     cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
+                let logConfig = ModelConfiguration("logs",
+                                                   schema: Schema([LogEntryEntity.self]),
+                                                   isStoredInMemoryOnly: false,
+                                                   cloudKitDatabase: .none)
+                return try PersistenceService(for: EncryptedEntryEntity.self,
+                                              LogEntryEntity.self,
+                                              configurations: entryConfig,
+                                              logConfig)
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
@@ -68,9 +73,9 @@ extension ToolsContainer {
         }
     }
 
-    var logService: Factory<any LoggerProtocol> {
+    var logManager: Factory<any LoggerProtocol> {
         self {
-            LogService()
+            LogManager(persistentStorage: self.persistenceService())
         }
     }
 
@@ -82,6 +87,14 @@ extension ToolsContainer {
     var laEnablingPolicy: Factory<LAPolicy> {
         self { .deviceOwnerAuthentication }
     }
-}
 
-// swiftlint:enable line_length
+    var totpIssuerMapper: Factory<any TOTPIssuerMapperServicing> {
+        self { TOTPIssuerMapper() }
+    }
+
+    #if os(iOS)
+    var hapticsManager: Factory<any HapticsServicing> {
+        self { @MainActor in HapticsManager(settings: ServiceContainer.shared.settingsService()) }
+    }
+    #endif
+}

@@ -20,8 +20,9 @@
 
 import Foundation
 
-public protocol IdentifiableOrderedEntry {
+public protocol IdentifiableOrderedEntry: Sendable {
     var id: String { get }
     var order: Int { get }
     var entry: Entry { get }
+    var syncState: EntrySyncState { get }
 }

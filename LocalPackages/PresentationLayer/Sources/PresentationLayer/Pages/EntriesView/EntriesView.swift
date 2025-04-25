@@ -21,16 +21,20 @@
 
 import CommonUtilities
 import Models
+
+import SimpleToast
 import SwiftUI
 
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
-    @State private var viewModel = EntriesViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
-    @State private var showCreationOptions = false
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
+
+    @FocusState private var searchFieldFocus: Bool
 
     // periphery:ignore
     private var isPhone: Bool {
@@ -46,34 +50,55 @@ public struct EntriesView: View {
     public var body: some View {
         NavigationStack {
             mainContainer
+                .scrollDismissesKeyboard(.immediately)
+                .onTapGesture {
+                    searchFieldFocus = false
+                }
+                .toastDisplay()
+                .safeAreaInset(edge: .top) {
+                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
+                        Color.clear.frame(height: 10)
+                    }
+                }
                 .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
                     if viewModel.dataState.data?.isEmpty == false {
                         actionBar
                     }
                 }
-                .refreshable {
-                    viewModel.reloadData()
+                .refreshable { [weak viewModel] in
+                    viewModel?.reloadData()
                 }
-                .withSheetDestinations(sheetDestinations: $router.presentedSheet,
-                                       colorScheme: viewModel.settingsService.theme.preferredColorScheme)
+                .onAppear {
+                    withAnimation {
+                        searchFieldFocus = viewModel.focusSearchOnLaunch
+                    }
+                }
+                .onChange(of: scenePhase) { _, newValue in
+                    if newValue == .active {
+                        withAnimation {
+                            searchFieldFocus = viewModel.focusSearchOnLaunch
+                        }
+                    }
+                }
+                .sheetDestinations($router.presentedSheet)
+            #if os(iOS)
+                .fullScreenDestination($router.presentedFullscreenSheet)
+            #endif
                 .environment(router)
                 .toolbar { toolbarContent }
                 .overlay {
                     overlay
                 }
-                .adaptiveConfirmationDialog("Create",
-                                            isPresented: $showCreationOptions,
-                                            actions: {
-                                                #if os(iOS)
-                                                scanQrCodeButton
-                                                #endif
-                                                manuallyAddEntryButton
-                                            })
+                .onChange(of: router.presentedFullscreenSheet) { _, newValue in
+                    viewModel.toggleCodeRefresh(newValue != nil)
+                }
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
                 .fullScreenMainBackground()
+                .animation(.default, value: viewModel.entries)
         }
+        .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
     }
 }
@@ -96,24 +121,22 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry)
-                    .swipeActions {
+                    .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
                         } label: {
                             Label("Edit", systemImage: "pencil")
-                                .foregroundStyle(.info, .textNorm)
                         }
-                        .tint(.clear)
-
+                        .tint(Color.editSwipe)
+                    }
+                    .swipeActions(edge: .trailing) {
                         Button {
                             viewModel.delete(entry)
                         } label: {
                             Label("Delete", systemImage: "trash.fill")
-                                .foregroundStyle(.danger, .textNorm)
                         }
-                        .tint(.clear)
+                        .tint(Color.deleteSwipe)
                     }
-                    .padding(.top, entry == viewModel.entries.first ? 10 : 0)
             }
             .onMove { source, destination in
                 viewModel.moveItem(fromOffsets: source, toOffset: destination)
@@ -157,7 +180,6 @@ private extension EntriesView {
                         }
                 }
             }
-            .animation(.default, value: viewModel.entries)
             .padding()
         }
     }
@@ -197,11 +219,29 @@ private extension EntriesView {
     func cell(for entry: EntryUiModel) -> some View {
         EntryCell(entry: entry.entry,
                   code: entry.code,
-                  configuration: viewModel.settingsService.entryUIConfiguration,
+                  configuration: viewModel.settingsService.entryCellConfiguration,
+                  issuerInfos: entry.issuerInfo,
+                  searchTerm: viewModel.query,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+        #if os(macOS)
+            .contextMenu {
+                Button {
+                    router.presentedSheet = .createEditEntry(entry)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                .keyboardShortcut("E", modifiers: [.command, .shift])
+
+                Button {
+                    viewModel.delete(entry)
+                } label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+            }
+        #endif
     }
 }
 
@@ -215,6 +255,9 @@ private extension EntriesView {
                 .padding(10)
                 .frame(width: 44, height: 44, alignment: .center)
                 .coloredBackgroundButton(.circle)
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
@@ -237,12 +280,20 @@ private extension EntriesView {
                 .foregroundStyle(.textWeak)
 
             // The actual text field.
-            TextField(text: $viewModel.search,
+            TextField(text: $viewModel.query,
                       label: {
-                          Text("Search")
+                          Text("Search", bundle: .module)
                       })
+                      .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
+                      .focused($searchFieldFocus)
+                      .onSubmit {
+                          searchFieldFocus = false
+                      }
+            #if os(iOS)
+                      .impactHaptic()
+            #endif
         }
 
         .padding(.horizontal, 16)
@@ -255,26 +306,18 @@ private extension EntriesView {
     @ViewBuilder
     var addButton: some View {
         #if os(iOS)
-        if isPhone {
-            Button(action: {
-                showCreationOptions.toggle()
-            }, label: {
-                plusIcon
-            })
-        } else {
-            Menu(content: {
-                scanQrCodeButton
-                manuallyAddEntryButton
-            }, label: {
-                plusIcon
-            })
-        }
+        Button(action: {
+            router.presentedFullscreenSheet = .qrCodeScanner
+        }, label: {
+            plusIcon
+        })
         #else
         Button(action: {
             router.presentedSheet = .createEditEntry(nil)
         }, label: {
             plusIcon
         })
+        .adaptiveButtonStyle()
         #endif
     }
 
@@ -288,20 +331,12 @@ private extension EntriesView {
     #if os(iOS)
     var scanQrCodeButton: some View {
         Button(action: {
-            router.presentedSheet = .qrCodeScanner
+            router.presentedFullscreenSheet = .qrCodeScanner
         }, label: {
             Label("Scan", systemImage: "qrcode.viewfinder")
         })
     }
     #endif
-
-    var manuallyAddEntryButton: some View {
-        Button(action: {
-            router.presentedSheet = .createEditEntry(nil)
-        }, label: {
-            Label("Enter manually", systemImage: "character.cursor.ibeam")
-        })
-    }
 }
 
 // MARK: - Overlay screen
@@ -322,35 +357,66 @@ private extension EntriesView {
                         .padding(.bottom, 16)
                 } description: {
                     VStack(spacing: 16) {
-                        Text("No codes")
-                            .font(.headline)
+                        Text("No codes", bundle: .module)
+                            .font(.title3)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
-                        Text("Protect your accounts with an extra layer of security.")
+                        Text("Protect your accounts with an extra layer of security.", bundle: .module)
+                            .font(.headline)
+                            .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
-                            .padding(.horizontal, 48)
+                            .padding(.horizontal, 16)
                     }
                 } actions: {
                     Button {
                         #if os(iOS)
-                        showCreationOptions.toggle()
+                        router.presentedFullscreenSheet = .qrCodeScanner
                         #else
                         router.presentedSheet = .createEditEntry(nil)
                         #endif
                     } label: {
-                        Text("Create new code")
+                        Text("Create new code", bundle: .module)
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
                     }
+                    .adaptiveButtonStyle()
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
+                    #if os(iOS)
+                        .impactHaptic()
+                    #endif
                 }
                 .foregroundStyle(.textNorm)
+            }
+            // Empty search overlay
+            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.query.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
+                         bundle: .module)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .frame(maxWidth: .infinity, alignment: .center)
+
+                    Text("Try searching using different spelling or keywords", bundle: .module)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
+
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+                .padding(.horizontal)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
@@ -366,32 +432,33 @@ private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
-            Text("Authenticator")
+            Text(verbatim: "Authenticator")
                 .foregroundStyle(.textNorm)
                 .font(.title)
                 .fontWeight(.bold)
         }
-        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+        #if os(iOS)
+        ToolbarItem(placement: .topBarTrailing) {
             trailingContent
         }
+        #endif
     }
 
+    // periphery:ignore
     @ViewBuilder
     var trailingContent: some View {
         HStack {
-            #if os(iOS)
             if AppConstants.isIpad {
                 Button {
                     withAnimation {
                         isEditing.toggle()
                     }
                 } label: {
-                    Text(isEditing ? "Done" : "Edit")
+                    Text(isEditing ? "Done" : "Edit", bundle: .module)
                         .fontWeight(.medium)
                         .foregroundStyle(isEditing ? .textNorm : .textWeak)
                 }
             }
-            #endif
             Button {
                 router.presentedSheet = .settings
             } label: {
@@ -400,15 +467,11 @@ private extension EntriesView {
                     .scaledToFit()
                     .frame(width: 36, height: 36)
             }
+            .adaptiveButtonStyle()
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
-    }
-
-    var toolbarItemTrailingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarTrailing
-        #else
-        return .automatic
-        #endif
     }
 
     var toolbarItemLeadingPlacement: ToolbarItemPlacement {

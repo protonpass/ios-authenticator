@@ -26,13 +26,13 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(Entry)
+    case decrypted(Entry, EntrySyncState)
     case nonDecryptable
 
-    public var entry: Entry? {
+    public var entryAndSyncState: (Entry, EntrySyncState)? {
         switch self {
-        case let .decrypted(entry):
-            entry
+        case let .decrypted(entry, state):
+            (entry, state)
         default:
             nil
         }
@@ -42,30 +42,29 @@ public enum EntryState: Sendable {
 public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
 
-    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
-    func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState]
     func encrypt(entry: Entry) throws -> Data
+    // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
+    // periphery:ignore
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
+    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 }
 
 // swiftlint:disable:next todo
 // TODO: take into account user settings for backup sync of keychain
 
-// swiftlint:disable line_length
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
     private let keyStore: KeychainServicing
-    private let logger: LoggerProtocol?
-    private let deviceIdentifier: String
+    private let logger: LoggerProtocol
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
                 keyStore: KeychainServicing,
                 deviceIdentifier: String = DeviceIdentifier.current,
-                logger: LoggerProtocol? = nil) {
+                logger: LoggerProtocol) {
         self.keyStore = keyStore
         self.logger = logger
-        self.deviceIdentifier = deviceIdentifier
         keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
     }
@@ -75,7 +74,7 @@ public final class EncryptionService: EncryptionServicing {
             if let key: Data = try? keyStore.get(key: keyId, shouldSync: true) {
                 return key
             }
-            logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Generating a new local encryption key")
+            log(.info, "Generating a new local encryption key")
             let newKey = authenticatorCrypto.generateKey()
             try keyStore.set(newKey, for: keyId, shouldSync: true)
             return newKey
@@ -83,40 +82,38 @@ public final class EncryptionService: EncryptionServicing {
     }
 
     private func getEncryptionKey(for keyId: String) throws -> Data {
-        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Fetching encryption key for \(keyId)")
-        let key: Data = try keyStore.get(key: keyId, shouldSync: true) // keyStore.retrieve(keyId: keyId)
-        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Retrieved key: \(String(describing: key))")
+        log(.info, "Fetching encryption key for \(keyId)")
+        let key: Data = try keyStore.get(key: keyId, shouldSync: true)
+        log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
 
     public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
-        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entry with id \(entry.id)")
+        log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            logger?.dataLogger
-                .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
+            log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
-        let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        return .decrypted(entry.toEntry)
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
+        return .decrypted(rustEntry.toEntry, entry.syncState)
     }
 
-    public func decryptMany(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
-        logger?.dataLogger.notice("\(type(of: self)) - \(#function) - Decrypting entries")
+    public func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+        log(.info, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-                logger?.dataLogger
-                    .warning("\(type(of: self)) - \(#function) - Could not retrieve encryption key for \(entry.keyId)")
+                log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
                 return .nonDecryptable
             }
-            let entry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-            return .decrypted(entry.toEntry)
+            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
+                                                                 key: encryptionKey)
+            return .decrypted(rustEntry.toEntry, entry.syncState)
         }
     }
 
     public func encrypt(entry: Entry) throws -> Data {
         let localKey = try localEncryptionKey
-        logger?.dataLogger
-            .notice("\(type(of: self)) - \(#function) - Encrypting entry \(entry.name) with local encryption key \(localKey)")
+        log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: localKey)
@@ -124,13 +121,15 @@ public final class EncryptionService: EncryptionServicing {
 
     public func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
-
-        logger?.dataLogger
-            .notice("\(type(of: self)) - \(#function) - Encrypting \(entries.count) entries with local encryption key \(localKey)")
+        log(.info, "Encrypting \(entries.count) entries with local encryption key ")
 
         return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
     }
 }
 
-// swiftlint:enable line_length
+private extension EncryptionService {
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .data, message)
+    }
+}

@@ -25,11 +25,13 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
+        .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
+        .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", .upToNextMajor(from: "3.0.0")),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
         .package(name: "DomainLayer", path: "../DomainLayer"),
         .package(name: "Macro", path: "../Macro"),
-        .package(name: "CommonUtilities", path: "../CommonUtilities")
+        .package(name: "CommonUtilities", path: "../CommonUtilities"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -43,7 +45,9 @@ let package = Package(
                 .product(name: "DataLayer", package: "DataLayer"),
                 .product(name: "DomainLayer", package: "DomainLayer"),
                 .product(name: "Macro", package: "Macro"),
-                .product(name: "CommonUtilities", package: "CommonUtilities")
+                .product(name: "CommonUtilities", package: "CommonUtilities"),
+                .product(name: "SimpleToast", package: "SimpleToast"),
+                .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
             ],
             resources: [.process("Resources")]),
         .testTarget(

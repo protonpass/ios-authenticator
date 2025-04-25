@@ -29,6 +29,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
 
     func getEntry(from uri: String) async throws -> Entry
+    // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws
     func insertAndRefreshEntry(from params: EntryParameters) async throws
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
@@ -73,15 +74,24 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var totpGenerator: any TotpGeneratorProtocol
     @ObservationIgnored
     private var entryUpdateTask: Task<Void, Never>?
+    @ObservationIgnored
+    private let totpIssuerMapper: any TOTPIssuerMapperServicing
+
+    @ObservationIgnored
+    private let logger: LoggerProtocol
 
     // MARK: - Init
 
     public init(repository: any EntryRepositoryProtocol,
                 importService: any ImportingServicing,
-                totpGenerator: any TotpGeneratorProtocol) {
+                totpGenerator: any TotpGeneratorProtocol,
+                totpIssuerMapper: any TOTPIssuerMapperServicing,
+                logger: any LoggerProtocol) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
+        self.totpIssuerMapper = totpIssuerMapper
+        self.logger = logger
         setUp()
     }
 
@@ -95,6 +105,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 guard let self,
                       let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
                       event.endDate != nil, event.type == .import else { return }
+                log(.debug, "Received notification of updates from iCloud Database")
                 loadEntries()
             }
             .store(in: &cancellables)
@@ -104,7 +115,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
             .compactMap(\.self)
             .sink { [weak self] codes in
                 guard let self else { return }
-                dataState = .loaded(codes)
+                updateCodes(newCodes: codes)
             }
             .store(in: &cancellables)
     }
@@ -116,20 +127,27 @@ public extension EntryDataService {
     }
 
     func insertAndRefresh(entry: Entry) async throws {
+        log(.debug, "Inserting and refreshing entry with ID: \(entry.id)")
         try await save(entry)
     }
 
+    // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws {
+        log(.info, "Inserting entry from URI: \(uri)")
         let entry = try await repository.entry(for: uri)
         try await save(entry)
+        log(.debug, "Inserted entry from URI: \(uri)")
     }
 
     func insertAndRefreshEntry(from params: EntryParameters) async throws {
+        log(.debug, "Inserting and refreshing entry from parameters: \(params)")
         let entry = try createEntry(with: params)
         try await save(entry)
     }
 
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws {
+        log(.debug, "Updating and refreshing entry with ID: \(entryId) and params: \(params)")
+
         var entry = try createEntry(with: params)
         entry.id = entryId
         try await repository.update(entry)
@@ -142,17 +160,21 @@ public extension EntryDataService {
     }
 
     func delete(_ entry: EntryUiModel) async throws {
+        log(.debug, "Deleting entry with ID: \(entry.id)")
         guard var data = dataState.data else {
             return
         }
+        log(.info, "Deleting entry with ID: \(entry.id)")
         try await repository.remove(entry.entry.id)
         data = data.filter { $0.entry.id != entry.entry.id }
         data = updateOrder(data: data)
         try await repository.updateOrder(data)
         updateData(data)
+        log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
+        log(.debug, "Reordering item from position \(currentPosition) to \(newPosition)")
         guard let entry = dataState.data?[currentPosition] else {
             return
         }
@@ -167,6 +189,7 @@ public extension EntryDataService {
     }
 
     func loadEntries() {
+        log(.debug, "Loading entries")
         task?.cancel()
         task = Task { [weak self] in
             guard let self else { return }
@@ -175,15 +198,18 @@ public extension EntryDataService {
                 let entriesStates = try await repository.getAllEntries()
                 if Task.isCancelled { return }
                 let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+                log(.debug, "Loaded \(entries.count) entries.")
                 updateData(entries)
             } catch {
                 if let data = dataState.data, !data.isEmpty { return }
+                log(.error, "Failed to load entries: \(error)")
                 dataState = .failed(error)
             }
         }
     }
 
     func updateData(_ entries: [EntryUiModel]) {
+        log(.debug, "Updating data with \(entries.count) entries")
         dataState = .loaded(entries)
         totpUpdate(entries.map(\.entry))
     }
@@ -193,10 +219,12 @@ public extension EntryDataService {
 
 public extension EntryDataService {
     func getTotpParams(entry: Entry) throws -> TotpParams {
-        try repository.getTotpParams(entry: entry)
+        log(.debug, "Getting TOTP parameters for entry with ID: \(entry.id)")
+        return try repository.getTotpParams(entry: entry)
     }
 
     func exportEntries() throws -> String {
+        log(.debug, "Exporting entries")
         guard let data = dataState.data else {
             throw AuthError.generic(.exportEmptyData)
         }
@@ -205,6 +233,7 @@ public extension EntryDataService {
     }
 
     nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
+        await log(.debug, "Importing entries from source: \(source)")
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
@@ -214,7 +243,14 @@ public extension EntryDataService {
         var index = data.count
         var uiEntries: [EntryUiModel] = []
         for code in codes {
-            uiEntries.append(EntryUiModel(entry: code.entry, code: code, order: index))
+            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+            // swiftlint:disable:next todo
+            // TODO: change state to sync if connection to BE
+            uiEntries.append(EntryUiModel(entry: code.entry,
+                                          code: code,
+                                          order: index,
+                                          syncState: .unsynced,
+                                          issuerInfo: issuerInfo))
             index += 1
         }
         try await repository.save(uiEntries)
@@ -227,6 +263,7 @@ public extension EntryDataService {
     }
 
     func stopTotpGenerator() {
+        log(.debug, "Stopping TOTP generator")
         entryUpdateTask?.cancel()
         entryUpdateTask = nil
         Task {
@@ -236,14 +273,14 @@ public extension EntryDataService {
 
     func startTotpGenerator() {
         entryUpdateTask?.cancel()
+        log(.info, "Starting TOTP generator")
         entryUpdateTask = Task { [weak self] in
             guard let self, let data = dataState.data?.map(\.entry) else { return }
             do {
                 try await totpGenerator.totpUpdate(data)
+                log(.debug, "TOTP generator started for \(data.count) entries")
             } catch {
-                // swiftlint:disable:next todo
-                // TODO: log error
-                print(error)
+                log(.error, "Failed to start TOTP generator: \(error)")
             }
         }
     }
@@ -252,14 +289,13 @@ public extension EntryDataService {
 private extension EntryDataService {
     func totpUpdate(_ entries: [Entry]) {
         entryUpdateTask?.cancel()
+        log(.debug, "Updating TOTP for \(entries.count) entries")
         entryUpdateTask = Task { [weak self] in
             guard let self else { return }
             do {
                 try await totpGenerator.totpUpdate(entries)
             } catch {
-                // swiftlint:disable:next todo
-                // TODO: log error
-                print(error)
+                log(.error, "Failed TOTP update: \(error)")
             }
         }
     }
@@ -268,34 +304,48 @@ private extension EntryDataService {
         var data: [EntryUiModel] = dataState.data ?? []
 
         guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
+            log(.warning, "Attempted to save duplicate entry")
             throw AuthError.generic(.duplicatedEntry)
         }
 
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
+            log(.error, "Missing generated codes: expected 1, got \(codes.count)")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
                                                            entryCount: 1))
         }
         let order = data.count
-        let entryUI = EntryUiModel(entry: code.entry, code: code, order: order)
+        let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+        // swiftlint:disable:next todo
+        // TODO: change state to sync if connection to BE
+        let entryUI = EntryUiModel(entry: code.entry,
+                                   code: code,
+                                   order: order,
+                                   syncState: .unsynced,
+                                   issuerInfo: issuerInfo)
         try await repository.save(entryUI)
 
         data.append(entryUI)
         updateData(data)
+        log(.debug, "Saved entry \(entryUI.id)")
     }
 
     func createEntry(with params: EntryParameters) throws -> Entry {
         switch params {
         case let .steam(params):
-            try repository.createSteamEntry(params: params)
+            log(.debug, "Creating Steam entry")
+            return try repository.createSteamEntry(params: params)
         case let .totp(params):
-            try repository.createTotpEntry(params: params)
+            log(.debug, "Creating TOTP entry")
+            return try repository.createTotpEntry(params: params)
         }
     }
 
-    func generateUIEntries(from entries: [Entry]) async throws -> [EntryUiModel] {
-        let codes = try repository.generateCodes(entries: entries)
+    func generateUIEntries(from entries: [(Entry, EntrySyncState)]) async throws -> [EntryUiModel] {
+        log(.debug, "Generating UI entries from \(entries.count) entries")
+        let codes = try repository.generateCodes(entries: entries.map(\.0))
         guard codes.count == entries.count else {
+            log(.warning, "Mismatch between codes and entries: \(codes.count) codes, \(entries.count) entries")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
                                                            entryCount: entries.count))
         }
@@ -303,16 +353,24 @@ private extension EntryDataService {
         var results = [EntryUiModel]()
         for (index, code) in codes.enumerated() {
             guard let entry = entries[safeIndex: index] else {
+                log(.error, "Missing entry for generated code at index \(index)")
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
-            results.append(.init(entry: entry, code: code, order: index))
+            let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
+            results.append(.init(entry: entry.0,
+                                 code: code,
+                                 order: index,
+                                 syncState: entry.1,
+                                 issuerInfo: issuerInfo))
         }
 
         return results
     }
 
     func updateOrder(data: [EntryUiModel]?) -> [EntryUiModel] {
+        log(.debug, "Updating entry order")
         guard var data else {
+            log(.warning, "No data available to update order")
             return []
         }
 
@@ -321,10 +379,24 @@ private extension EntryDataService {
         }
         return data
     }
+
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .data, message)
+    }
+
+    func updateCodes(newCodes: [Code]) {
+        guard let entries = dataState.data else { return }
+        let entryUiModels = newCodes.compactMap { newCode -> EntryUiModel? in
+            guard let entry = entries.first(where: { $0.id == newCode.entry.id }) else { return nil }
+            return entry.updateCode(newCode)
+        }
+
+        dataState = .loaded(entryUiModels)
+    }
 }
 
 public extension [EntryState] {
-    var decodedEntries: [Entry] {
-        compactMap(\.entry)
+    var decodedEntries: [(Entry, EntrySyncState)] {
+        compactMap(\.entryAndSyncState)
     }
 }

@@ -31,6 +31,12 @@ final class QAMenuViewModel {
         }
     }
 
+    var displayPassBanner: Bool {
+        didSet {
+            appSettings.togglePassBanner(displayPassBanner)
+        }
+    }
+
     @ObservationIgnored
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
@@ -42,5 +48,6 @@ final class QAMenuViewModel {
 
     init() {
         onboarded = appSettings.onboarded
+        displayPassBanner = appSettings.showPassBanner
     }
 }

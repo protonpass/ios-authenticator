@@ -51,7 +51,8 @@ struct ImportingServiceModifier: ViewModifier {
                                            onSelect: handle)
             .sheet(isPresented: $viewModel.showPasswordSheet) {
                 VStack {
-                    Text("Your import file is password protected. Please enter the password to proceed.")
+                    Text("Your import file is password protected. Please enter the password to proceed.",
+                         bundle: .module)
                     TextField("Password", text: $viewModel.password)
 
                     CapsuleButton(title: "Import",
@@ -103,9 +104,10 @@ struct ImportingServiceModifier: ViewModifier {
 }
 
 private extension View {
+    // periphery:ignore
     func importOptionsDialog(isPresented: Binding<Bool>,
                              onSelect: @escaping (ImportOption) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
+        confirmationDialog("Select your provider",
                            isPresented: isPresented,
                            titleVisibility: .visible) {
             ForEach(ImportOption.allCases, id: \.self) { option in
@@ -118,12 +120,12 @@ private extension View {
 
     func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
                                        onSelect: @escaping (GoogleImportType) -> Void) -> some View {
-        confirmationDialog("Select your prodiver",
+        confirmationDialog("Select your provider",
                            isPresented: isPresented,
                            titleVisibility: .hidden) {
             ForEach(GoogleImportType.allCases, id: \.self) { option in
                 Button(action: { onSelect(option) }, label: {
-                    Text(option.title)
+                    Text(option.title, bundle: .module)
                 })
             }
         }
@@ -154,6 +156,12 @@ final class ImportViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
+
+    #if os(iOS)
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.hapticsManager)
+    private var hapticsManager
+    #endif
 
     @ObservationIgnored
     private var currentSelected: ImportOption?
@@ -198,20 +206,24 @@ final class ImportViewModel {
                   let type = url.mimeType,
                   let currentSelected,
                   currentSelected.autorizedFileExtensions.contains(type) else { return }
-            Task {
-                do {
-                    let fileContent = try String(contentsOf: url, encoding: .utf8)
-                    provenance = currentSelected.importDestination(content: fileContent,
-                                                                   type: type,
-                                                                   password: password.nilIfEmpty)
-                    guard let provenance else { return }
-                    let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
-                    showCompletion(numberOfImportedEntries)
-                } catch ImportException.MissingPassword {
-                    showPasswordSheet.toggle()
-                } catch {
-                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            Task { [weak self] in
+                guard let self else { return }
+                if url.startAccessingSecurityScopedResource() {
+                    do {
+                        let fileContent = try String(contentsOf: url, encoding: .utf8)
+                        provenance = currentSelected.importDestination(content: fileContent,
+                                                                       type: type,
+                                                                       password: password.nilIfEmpty)
+                        guard let provenance else { return }
+                        let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
+                        showCompletion(numberOfImportedEntries)
+                    } catch ImportException.MissingPassword {
+                        showPasswordSheet.toggle()
+                    } catch {
+                        alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                    }
                 }
+                url.stopAccessingSecurityScopedResource()
             }
         case let .failure(error):
             alertService.showError(error, mainDisplay: mainDisplay, action: nil)
@@ -223,7 +235,8 @@ final class ImportViewModel {
             return
         }
         let updatedProvenance = provenance.updatePassword(password)
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
@@ -251,7 +264,8 @@ final class ImportViewModel {
 
     #if os(iOS)
     func processPayload(results: Result<ScanResult?, Error>) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 switch results {
                 case let .success(result):
@@ -270,17 +284,16 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
-        let action = ActionConfig.ok
-        let alert: AlertDisplay = if mainDisplay {
-            .main(.init(title: "Codes imported",
-                        message: .localized("Successfully imported \(numberOfEntries) items"),
-                        actions: [action]))
-        } else {
-            .sheet(.init(title: "Codes imported",
-                         message: .localized("Successfully imported \(numberOfEntries) items"),
-                         actions: [action]))
-        }
+        let config = AlertConfiguration(title: "Codes imported",
+                                        titleBundle: .module,
+                                        message: .localized("Successfully imported \(numberOfEntries) items",
+                                                            .module),
+                                        actions: [.ok])
+        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
+        #if os(iOS)
+        hapticsManager(.notify(.success))
+        #endif
     }
 }
 

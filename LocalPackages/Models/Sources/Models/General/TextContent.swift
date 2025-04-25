@@ -24,5 +24,5 @@ extension LocalizedStringKey: @unchecked @retroactive Sendable {}
 
 public enum TextContent: Sendable {
     case verbatim(String)
-    case localized(LocalizedStringKey)
+    case localized(LocalizedStringKey, Bundle)
 }

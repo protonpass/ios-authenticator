@@ -18,17 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import SwiftUI
-
-public enum SearchBarDisplayMode: Int, Sendable, CaseIterable {
+public enum SearchBarDisplayMode: Int, Sendable, CaseIterable, IntegerDefaulting {
     case bottom, top
 
-    public var title: LocalizedStringKey {
-        switch self {
-        case .bottom:
-            "Bottom"
-        case .top:
-            "Top"
-        }
-    }
+    public static var `default`: Self { .bottom }
 }

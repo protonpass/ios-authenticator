@@ -24,47 +24,53 @@ import Factory
 import Models
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+import SDWebImageSwiftUI
+
+private struct HighlightedText: View {
+    let text: String
+    let highlighted: String
+
+    var body: some View {
+        Text(attributedString) // ignore:missing_bundle
+    }
+
+    private var attributedString: AttributedString {
+        var attributedString = AttributedString(text)
+
+        if let range = attributedString.range(of: highlighted, options: .caseInsensitive) {
+            attributedString[range].foregroundColor = Color.accentColor
+        }
+        return attributedString
+    }
+}
+
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
+    let issuerInfos: AuthIssuerInfo?
+    let searchTerm: String
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(LinearGradient(gradient:
-                            Gradient(colors: [
-                                Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                                Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                                Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                                Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing))
-                }
-                .padding(.horizontal, 5)
-                .padding(.vertical, 6)
-                .frame(width: 32, height: 32, alignment: .center)
-                .background(.black.opacity(0.16))
-                .cornerRadius(8)
-                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8)
-                    .inset(by: -0.5)
-                    .stroke(.black.opacity(0.23), lineWidth: 1))
+                icon
 
                 VStack(alignment: .leading) {
-                    Text(verbatim: entry.name)
+                    HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(Font.custom("SF Pro Text", size: 18)
                             .weight(.medium))
                         .foregroundStyle(.textNorm)
-                    Text(verbatim: entry.issuer)
+                    HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                 }
@@ -87,24 +93,30 @@ struct EntryCell: View {
                         x: 0,
                         y: -0.5)
 
-            HStack {
+            HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 numberView
+                    .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
+                    .privacySensitive()
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                VStack(alignment: .trailing) {
-                    Text("Next")
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("Next", bundle: .module)
+                        .font(.custom("SF Pro Text", size: 14))
                         .foregroundStyle(.textWeak)
-                    Text(verbatim: nextCode.separatedByGroup(3, delimiter: " "))
+                    Text(verbatim: nextCode)
+                        .font(.custom("SF Mono", size: 15).weight(.semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .fontWeight(.semibold)
+                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .privacySensitive()
                 }
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .background(.white.opacity(0.1))
         }
+        .onTapGesture(perform: onCopyToken)
         .background(LinearGradient(stops:
             [
                 Gradient.Stop(color: .white, location: 0.00),
@@ -113,12 +125,10 @@ struct EntryCell: View {
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
-        .background(isLightMode ? .clear : .white.opacity(0.1))
         .cornerRadius(18)
         .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
         .overlay(RoundedRectangle(cornerRadius: 18)
             .stroke(.white.opacity(0.16), lineWidth: 1))
-        .onTapGesture(perform: onCopyToken)
     }
 
     private var isLightMode: Bool {
@@ -126,47 +136,94 @@ struct EntryCell: View {
     }
 
     var nextCode: String {
-        configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        let text = configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
+        return text.count > 6 ? text : text.separatedByGroup(3, delimiter: " ")
+    }
+
+    var mainCode: String {
+        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
+        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
     }
 
     @ViewBuilder
     private var numberView: some View {
-        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
-        if configuration.displayNumberBackground {
-            ForEach(Array(code.enumerated()), id: \.offset) { _, char in
-                HStack(alignment: .center, spacing: 10) {
-                    Text(verbatim: "\(char)")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.textNorm)
+        if configuration.digitStyle == .boxed {
+            HStack(alignment: .center, spacing: 6) {
+                ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
+                    if char.isWhitespace {
+                        Text(verbatim: " ")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                    } else {
+                        Text(verbatim: "\(char)")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.textNorm)
+                            .contentTransition(.numericText())
+                            .frame(minWidth: mainCode.count == 7 ? 28 : 22, minHeight: 36)
+                            .background(.black.opacity(0.16))
+                            .cornerRadius(8)
+                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .inset(by: -0.5)
+                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                    }
                 }
-                .padding(.horizontal, 5)
-                .frame(minWidth: 28)
-                .padding(.vertical, 4)
-                .background(.black.opacity(0.16))
-                .cornerRadius(8)
-                .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8)
-                    .inset(by: -0.5)
-                    .stroke(.black.opacity(0.23), lineWidth: 1))
             }
         } else {
-            Text(verbatim: "\(code.separatedByGroup(3, delimiter: " "))")
+            Text(verbatim: mainCode)
                 .font(.title)
                 .fontWeight(.semibold)
                 .foregroundStyle(.textNorm)
                 .monospaced()
+                .contentTransition(.numericText())
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
     }
-}
 
-private extension EntryCell {
-    var borderColor: Color {
-        Color.passPurple.opacity(0.5)
+    @ViewBuilder
+    var icon: some View {
+        if let iconUrl = issuerInfos?.iconUrl, let url = URL(string: iconUrl) {
+            WebImage(url: url) { image in
+                image.resizable()
+            } placeholder: {
+                letterDisplay
+            }
+            .indicator(.activity)
+            .transition(.fade(duration: 0.5))
+            .scaledToFit()
+            .padding(4)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            letterDisplay
+        }
     }
 
-    var backgroundColor: Color {
-        borderColor.opacity(0.5)
+    var letterDisplay: some View {
+        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
+            .font(.title)
+            .fontWeight(.medium)
+            .foregroundStyle(LinearGradient(gradient:
+                Gradient(colors: [
+                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
+                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
+                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
+                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing))
+            .padding(.horizontal, 5)
+            .padding(.vertical, 6)
+            .frame(width: 36, height: 36, alignment: .center)
+            .background(.black.opacity(0.16))
+            .cornerRadius(8)
+            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .inset(by: -0.5)
+                .stroke(.black.opacity(0.23), lineWidth: 1))
     }
 }
 
@@ -196,7 +253,6 @@ private struct TOTPCountdownView: View {
             Circle()
                 .stroke(lineWidth: 4)
                 .foregroundStyle(color.opacity(0.3))
-                .frame(width: size, height: size)
 
             // Progress circle
             Circle()
@@ -204,14 +260,15 @@ private struct TOTPCountdownView: View {
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(color)
                 .rotationEffect(.degrees(-90))
-                .frame(width: size, height: size)
 
             // Countdown text
             Text(verbatim: "\(Int(timeRemaining))")
-                .font(.caption)
+                .font(.custom("SF Compact Text", size: 12).weight(.semibold))
                 .foregroundStyle(.textNorm)
                 .monospacedDigit()
+                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
+        .frame(width: size, height: size)
         .onAppear {
             calculateTime()
             startTimer()

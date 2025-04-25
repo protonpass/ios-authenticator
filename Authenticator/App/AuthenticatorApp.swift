@@ -19,12 +19,16 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
+import DomainLayer
 import Factory
 import Foundation
 import Models
 import PresentationLayer
 import SwiftData
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @main
 struct AuthenticatorApp: App {
@@ -33,44 +37,60 @@ struct AuthenticatorApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if viewModel.onboarded {
-                    if showEntriesView {
-                        EntriesView()
-                            .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                            .onOpenURL { url in
-                                viewModel.handleDeepLink(url)
-                            }
-                            .onChange(of: scenePhase) { _, newPhase in
-                                if newPhase == .background {
-                                    viewModel.resetBiometricCheck()
-                                }
-                            }
-                    } else {
-                        BioLockView()
-                            .onChange(of: scenePhase) { _, newPhase in
-                                if newPhase == .active {
-                                    viewModel.checkBiometrics()
-                                }
-                            }
-                    }
-                } else {
-                    OnboardingView()
-                }
-            }.mainUIAlertService()
+            mainContainer
+        }
+        .onChange(of: viewModel.theme) { _, _ in
+            viewModel.updateWindowUserInterfaceStyle()
         }
         #if os(macOS)
         .windowResizability(.contentMinSize)
+        .windowToolbarStyle(.expanded)
+        .windowStyle(.titleBar)
+        .defaultSize(width: 800, height: 600)
+        #endif
+
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
         #endif
     }
+}
 
-    var showEntriesView: Bool {
-        switch viewModel.authenticationState {
-        case .inactive:
-            true
-        case let .active(authenticated: isChecked):
-            isChecked
+private extension AuthenticatorApp {
+    var mainContainer: some View {
+        Group {
+            if viewModel.onboarded {
+                if viewModel.showEntries {
+                    EntriesView()
+                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                        .onOpenURL { url in
+                            viewModel.handleDeepLink(url)
+                        }
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .background {
+                                viewModel.resetBiometricCheck()
+                            }
+                        }
+                } else {
+                    BioLockView()
+                        .onChange(of: scenePhase) { _, newPhase in
+                            if newPhase == .active {
+                                viewModel.checkBiometrics()
+                            }
+                        }
+                }
+            } else {
+                OnboardingView()
+            }
         }
+        .animation(.default, value: viewModel.onboarded)
+        .animation(.default, value: viewModel.showEntries)
+        .onAppear {
+            viewModel.updateWindowUserInterfaceStyle()
+            viewModel.setWindowTintColor()
+        }
+        .mainAlertService()
     }
 }
 
@@ -80,8 +100,17 @@ private final class AuthenticatorAppViewModel {
         appSettings.onboarded
     }
 
-    var authenticationState: AuthenticationState {
-        authenticationService.currentState
+    var showEntries: Bool {
+        switch authenticationService.currentState {
+        case .inactive:
+            true
+        case let .active(authenticated: isChecked):
+            isChecked
+        }
+    }
+
+    var theme: Theme {
+        appSettings.theme
     }
 
     @ObservationIgnored
@@ -90,7 +119,7 @@ private final class AuthenticatorAppViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
-    var alertService
+    private var alertService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
@@ -99,20 +128,28 @@ private final class AuthenticatorAppViewModel {
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.updateAppAndRustVersion)
     private var updateAppAndRustVersion
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.setUpFirstRun)
+    private var setUpFirstRun
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.authenticationService)
-    private(set) var authenticationService
+    private var authenticationService
 
-    var theme: Theme {
-        appSettings.theme
-    }
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.setUpSentry)
+    private var sentry
 
     init() {
+        sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
+        setUpFirstRun()
     }
 
     func handleDeepLink(_ url: URL) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await deepLinkService.handleDeeplink(url)
             } catch {
@@ -131,7 +168,8 @@ private final class AuthenticatorAppViewModel {
     }
 
     func checkBiometrics() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await authenticationService.checkBiometrics()
             } catch {
@@ -139,4 +177,36 @@ private final class AuthenticatorAppViewModel {
             }
         }
     }
+
+    func setWindowTintColor() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts buttons' tint color always being blue
+        let window = getFirstWindow()
+        window?.tintColor = AuthenticatorColor.UIColor.purpleInteraction
+        #endif
+    }
+
+    func updateWindowUserInterfaceStyle() {
+        #if canImport(UIKit)
+        // Workaround confirmation dialogs and alerts don't respect theme settings (always dark)
+        let window = getFirstWindow()
+        window?.overrideUserInterfaceStyle = switch appSettings.theme {
+        case .dark: .dark
+        case .light: .light
+        case .system: .unspecified
+        }
+        #endif
+    }
+}
+
+private extension AuthenticatorAppViewModel {
+    #if canImport(UIKit)
+    func getFirstWindow() -> UIWindow? {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            return window
+        }
+        return nil
+    }
+    #endif
 }

@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import DataLayer
 import Models
 import SwiftUI
 
@@ -28,10 +27,13 @@ private struct TextFieldConfig {
     let placeholder: LocalizedStringKey
     let binding: Binding<String>
     let focusField: FocusableField
-    var isSecure = false
+
+    #if os(iOS)
+    var capitalization: TextInputAutocapitalization = .sentences
+    #endif
 }
 
-private enum FocusableField: Hashable, CaseIterable {
+private enum FocusableField: Int, Hashable, CaseIterable {
     case name, secret, issuer
 }
 
@@ -54,11 +56,18 @@ struct CreateEditEntryView: View {
                                               placeholder: "Title",
                                               binding: $viewModel.name,
                                               focusField: .name))
-                    textField(TextFieldConfig(title: "Secret (Required)",
-                                              placeholder: "Secret",
-                                              binding: $viewModel.secret,
-                                              focusField: .secret,
-                                              isSecure: true))
+
+                    textField(secretFieldConfig,
+                              shouldShow: viewModel.showSecret)
+                        .overlay(alignment: .trailing) {
+                            Button {
+                                viewModel.showSecret.toggle()
+                            } label: {
+                                Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
+                            }
+                            .adaptiveButtonStyle()
+                            .padding(.horizontal, 25)
+                        }
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
@@ -67,13 +76,17 @@ struct CreateEditEntryView: View {
                                                   focusField: .issuer))
                     }
                 }
+                .onSubmit(focusNextField)
 
                 if showAdvanceOptions {
                     advancedOptions
                 } else {
-                    Button { showAdvanceOptions.toggle() } label: {
+                    Button {
+                        showAdvanceOptions.toggle()
+                        focusedField = nil
+                    } label: {
                         HStack(alignment: .center, spacing: 8) {
-                            Text("Advanced options")
+                            Text("Advanced options", bundle: .module)
                                 .foregroundStyle(.textNorm)
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                             Spacer()
@@ -90,6 +103,10 @@ struct CreateEditEntryView: View {
                         .cornerRadius(16)
                         .padding(.horizontal, 16)
                     }
+                    .adaptiveButtonStyle()
+                    #if os(iOS)
+                        .impactHaptic()
+                    #endif
                 }
             }
             .padding(.bottom, 10)
@@ -106,59 +123,43 @@ struct CreateEditEntryView: View {
                         focusFirstField()
                     }
                 }
-                .onSubmit(focusNextField)
-                .toolbar {
-                    ToolbarItem(placement: toolbarItemLeadingPlacement) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Close")
-                                .foregroundStyle(Color.purpleInteraction)
-                                .padding(10)
-                        }
-                    }
-
-                    ToolbarItem(placement: toolbarItemTrailingPlacement) {
-                        Button {
-                            viewModel.save()
-                        } label: {
-                            Text("Save")
-                                .fontWeight(.semibold)
-                                .foregroundStyle(Color.purpleInteraction)
-                                .padding(10)
-                        }
-                        .disabled(!viewModel.canSave)
-                        .opacity(viewModel.canSave ? 1 : 0.4)
-                    }
-                }
-                .sheetUIAlertService()
+                .toolbar { toolbarContent }
+                .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
                         dismiss()
                     }
                 }
         }
+        #if os(macOS)
+        .frame(minWidth: 800, minHeight: 600)
+        #endif
     }
 
-    private func textField(_ config: TextFieldConfig) -> some View {
+    private func textField(_ config: TextFieldConfig, shouldShow: Bool = true) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(config.title)
+            Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            if config.isSecure {
-                SecureField(config.placeholder, text: config.binding)
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .autocorrectionDisabled(true)
-                    .focused($focusedField, equals: .secret)
-            } else {
-                TextField(config.placeholder, text: config.binding)
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.textWeak)
-                    .focused($focusedField, equals: config.focusField)
-                    .autocorrectionDisabled(true)
+            Group {
+                if shouldShow {
+                    TextField(config.placeholder, text: config.binding)
+                        .adaptiveTextFieldStyle()
+                } else {
+                    SecureField(config.placeholder, text: config.binding)
+                        .adaptiveSecureFieldStyle()
+                }
             }
+            .onSubmit(focusNextField)
+            .focused($focusedField, equals: config.focusField)
+            .font(.system(.body, design: .rounded))
+            .foregroundStyle(.textWeak)
+            .autocorrectionDisabled(true)
+            #if os(iOS)
+                .textInputAutocapitalization(config.capitalization)
+            #endif
+                .frame(minHeight: 25)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -172,6 +173,21 @@ struct CreateEditEntryView: View {
 
     private var isDarkMode: Bool {
         colorScheme == .dark
+    }
+
+    private var secretFieldConfig: TextFieldConfig {
+        #if os(iOS)
+        TextFieldConfig(title: "Secret (Required)",
+                        placeholder: "Secret",
+                        binding: $viewModel.secret,
+                        focusField: .secret,
+                        capitalization: .characters)
+        #else
+        TextFieldConfig(title: "Secret (Required)",
+                        placeholder: "Secret",
+                        binding: $viewModel.secret,
+                        focusField: .secret)
+        #endif
     }
 }
 
@@ -200,7 +216,7 @@ private extension CreateEditEntryView {
 
     func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
-            Text(title)
+            Text(title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
@@ -211,6 +227,7 @@ private extension CreateEditEntryView {
                 }
             }
             .accentColor(.textNorm)
+            .pickerStyle(pickerStyle)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
@@ -224,8 +241,14 @@ private extension CreateEditEntryView {
     var segmentedControlSection: some View {
         if viewModel.type == .totp {
             segmentedControlField(title: "ALGORITHM", data: TotpAlgorithm.allCases, binding: $viewModel.algo)
+            #if os(iOS)
+                .impactHaptic()
+            #endif
         }
         segmentedControlField(title: "TYPE", data: TotpType.allCases, binding: $viewModel.type)
+        #if os(iOS)
+            .impactHaptic()
+        #endif
     }
 
     func segmentedControlField<T: CustomSegmentedControlData>(title: LocalizedStringKey,
@@ -235,7 +258,7 @@ private extension CreateEditEntryView {
             CustomSegmentedControl(data: data, selection: binding)
         } header: {
             HStack {
-                Text(title)
+                Text(title, bundle: .module)
                     .foregroundStyle(.textNorm)
                     .opacity(0.7)
                     .padding(.leading, 16)
@@ -265,6 +288,14 @@ private extension CreateEditEntryView {
         #endif
     }
 
+    var pickerStyle: some PickerStyle {
+        #if os(iOS)
+        return .automatic
+        #else
+        return .segmented
+        #endif
+    }
+
     func focusFirstField() {
         focusedField = FocusableField.allCases.first
     }
@@ -283,6 +314,34 @@ private extension CreateEditEntryView {
             focusedField = nil
         case .none:
             break
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: toolbarItemLeadingPlacement) {
+            Button {
+                dismiss()
+            } label: {
+                Text("Close", bundle: .module)
+                    .foregroundStyle(Color.purpleInteraction)
+                    .padding(10)
+            }
+            .adaptiveButtonStyle()
+        }
+
+        ToolbarItem(placement: toolbarItemTrailingPlacement) {
+            Button {
+                viewModel.save()
+            } label: {
+                Text("Save", bundle: .module)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.purpleInteraction)
+                    .padding(10)
+            }
+            .adaptiveButtonStyle()
+            .disabled(!viewModel.canSave)
+            .opacity(viewModel.canSave ? 1 : 0.4)
         }
     }
 }

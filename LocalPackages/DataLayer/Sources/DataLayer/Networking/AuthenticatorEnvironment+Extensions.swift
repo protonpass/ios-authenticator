@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+// periphery:ignore:all
 import Foundation
 import Models
 
@@ -37,7 +38,7 @@ public extension AuthenticatorEnvironment {
         var defaultHost = constantDict.value(for: .defaultHost)
         var apiHost = constantDict.value(for: .apiHost)
         let defaultPath = constantDict.value(for: .defaultPath)
-        let sentryDns = constantDict.value(for: .sentryDsn)
+        let sentryDsn = constantDict.value(for: .sentryDsn)
 
         if case let .scientist(name) = self {
             let replace: (String) -> String = { value in
@@ -56,7 +57,7 @@ public extension AuthenticatorEnvironment {
                      defaultHost: defaultHost,
                      apiHost: apiHost,
                      defaultPath: defaultPath,
-                     sentryDns: sentryDns)
+                     sentryDsn: sentryDsn)
     }
 }
 

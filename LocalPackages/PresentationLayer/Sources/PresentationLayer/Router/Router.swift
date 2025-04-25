@@ -25,7 +25,6 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case appearance
-    case exportEntries
 }
 
 public enum SheetDestination: Hashable, Identifiable {
@@ -33,6 +32,11 @@ public enum SheetDestination: Hashable, Identifiable {
 
     case createEditEntry(EntryUiModel?)
     case settings
+}
+
+public enum FullScreenDestination: Hashable, Identifiable {
+    public var id: Int { hashValue }
+
     #if os(iOS)
     case qrCodeScanner
     #endif
@@ -44,6 +48,7 @@ final class Router {
     var path = NavigationPath()
 
     var presentedSheet: SheetDestination?
+    var presentedFullscreenSheet: FullScreenDestination?
 
     func navigate(to: RouterDestination) {
         path.append(to)
@@ -64,9 +69,7 @@ struct RouterEmbeded: ViewModifier {
             .navigationDestination(for: RouterDestination.self) { destination in
                 switch destination {
                 case .appearance:
-                    Text("appeareance")
-                case .exportEntries:
-                    ExportView()
+                    Text(verbatim: "appeareance")
                 }
             }
     }
@@ -77,20 +80,27 @@ public extension View {
         modifier(RouterEmbeded())
     }
 
-    func withSheetDestinations(sheetDestinations: Binding<SheetDestination?>,
-                               colorScheme: ColorScheme? = nil) -> some View {
-        sheet(item: sheetDestinations) { destination in
+    func sheetDestinations(_ item: Binding<SheetDestination?>) -> some View {
+        sheet(item: item) { destination in
             switch destination {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
+                    .resizableSheet()
             case .settings:
                 SettingsView()
-                    .preferredColorScheme(colorScheme)
-            #if os(iOS)
-            case .qrCodeScanner:
-                ScannerView()
-            #endif
+                    .resizableSheet()
             }
         }
     }
+
+    #if os(iOS)
+    func fullScreenDestination(_ item: Binding<FullScreenDestination?>) -> some View {
+        fullScreenCover(item: item) { destination in
+            switch destination {
+            case .qrCodeScanner:
+                ScannerView()
+            }
+        }
+    }
+    #endif
 }

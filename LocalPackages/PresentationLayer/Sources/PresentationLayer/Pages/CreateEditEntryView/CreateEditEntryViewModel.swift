@@ -34,6 +34,7 @@ final class CreateEditEntryViewModel {
     var algo: TotpAlgorithm = .sha1
     var type: TotpType = .totp
     var note = ""
+    var showSecret: Bool = false
 
     var shouldDismiss = false
 
@@ -41,7 +42,9 @@ final class CreateEditEntryViewModel {
     var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
 
     var canSave: Bool {
-        secret.count >= 4 && !name.isEmpty && (type == .totp ? !issuer.isEmpty : true)
+        secret.trimmingCharacters(in: .whitespacesAndNewlines).count >= 4
+            && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && (type == .totp ? !issuer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty : true)
     }
 
     @ObservationIgnored
@@ -84,7 +87,9 @@ final class CreateEditEntryViewModel {
         } else {
             .steam(SteamParams(name: name, secret: secret, note: note.nilIfEmpty))
         }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+
             do {
                 if let entry {
                     try await entryDataService.updateAndRefreshEntry(for: entry.id, with: params)
@@ -114,7 +119,7 @@ private extension CreateEditEntryViewModel {
                 secret = params.secret
                 issuer = params.issuer
                 if let newPeriod = params.period {
-                    period = period
+                    period = newPeriod
                     supportedPeriod.appendIfNotExists(newPeriod)
                     supportedPeriod.sort()
                 }
