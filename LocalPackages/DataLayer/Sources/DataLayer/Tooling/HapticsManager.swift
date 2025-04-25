@@ -27,7 +27,7 @@ import UIKit
 import AppKit
 #endif
 
-public enum AuthHapticFeedbackType {
+public enum HapticFeedbackType {
     case impact(intensity: CGFloat)
     #if os(iOS)
     case notify(type: UINotificationFeedbackGenerator.FeedbackType)
@@ -47,7 +47,7 @@ public enum MacOSNotificationType: Sendable {
 
 @MainActor
 public protocol HapticsServicing {
-    func execute(_ type: AuthHapticFeedbackType)
+    func execute(_ type: HapticFeedbackType)
 }
 
 #if os(iOS)
@@ -62,7 +62,7 @@ public final class HapticsManager: HapticsServicing {
         self.settings = settings
     }
 
-    public func execute(_ type: AuthHapticFeedbackType) {
+    public func execute(_ type: HapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
 
         switch type {
@@ -89,7 +89,7 @@ public final class HapticsManager: HapticsServicing {
         self.settings = settings
     }
 
-    public func execute(_ type: AuthHapticFeedbackType) {
+    public func execute(_ type: HapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
 
         switch type {

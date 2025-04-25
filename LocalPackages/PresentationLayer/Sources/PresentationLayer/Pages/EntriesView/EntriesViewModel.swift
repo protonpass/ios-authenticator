@@ -51,8 +51,8 @@ final class EntriesViewModel: ObservableObject {
 
     var pauseCountDown = false
 
-    var activeSearch: Bool {
-        settingsService.activeSearch
+    var focusSearchOnLaunch: Bool {
+        settingsService.focusSearchOnLaunch
     }
 
     @ObservationIgnored var search = "" {

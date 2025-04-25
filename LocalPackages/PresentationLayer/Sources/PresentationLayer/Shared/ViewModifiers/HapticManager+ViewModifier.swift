@@ -26,7 +26,7 @@ import SwiftUI
 
 struct HapticButtonModifier: ViewModifier {
     @State private var haptics: HapticsServicing = resolve(\ToolsContainer.hapticsManager)
-    let type: AuthHapticFeedbackType
+    let type: HapticFeedbackType
 
     func body(content: Content) -> some View {
         content.simultaneousGesture(TapGesture().onEnded {

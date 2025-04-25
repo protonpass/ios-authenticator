@@ -54,7 +54,7 @@ public enum AppConstants {
         public static let showPassBanner = "ShowPassBanner"
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
-        public static let activeSearch = "ActiveSearch"
+        public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
     }
 
     @MainActor

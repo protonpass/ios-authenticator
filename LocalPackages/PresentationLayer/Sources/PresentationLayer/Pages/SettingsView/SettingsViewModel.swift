@@ -99,8 +99,8 @@ final class SettingsViewModel {
         settingsService.hapticFeedbackEnabled
     }
 
-    var activeSearch: Bool {
-        settingsService.activeSearch
+    var focusSearchOnLaunch: Bool {
+        settingsService.focusSearchOnLaunch
     }
 
     var isQaBuild: Bool {
@@ -199,8 +199,8 @@ extension SettingsViewModel {
         hapticsManager.execute(.impact(intensity: 1))
     }
 
-    func toggleActiveSearch() {
-        settingsService.toggleActiveSearch(!activeSearch)
+    func toggleFocusSearchOnLaunch() {
+        settingsService.toggleFocusSearchOnLaunch(!focusSearchOnLaunch)
         hapticsManager.execute(.impact(intensity: 1))
     }
 

@@ -65,13 +65,13 @@ public struct EntriesView: View {
                 }
                 .onAppear {
                     withAnimation {
-                        searchFieldFocus = viewModel.activeSearch
+                        searchFieldFocus = viewModel.focusSearchOnLaunch
                     }
                 }
                 .onChange(of: scenePhase) { _, newValue in
                     if newValue == .active {
                         withAnimation {
-                            searchFieldFocus = viewModel.activeSearch
+                            searchFieldFocus = viewModel.focusSearchOnLaunch
                         }
                     }
                 }
