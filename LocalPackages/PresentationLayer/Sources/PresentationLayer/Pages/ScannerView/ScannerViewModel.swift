@@ -139,7 +139,7 @@ private extension ScannerViewModel {
             }
             clean()
         }
-        hapticsManager.execute(.notify(type: .error))
+        hapticsManager(.notify(.error))
     }
 
     func parseImage(_ imageSelection: PhotosPickerItem) {
@@ -163,7 +163,7 @@ private extension ScannerViewModel {
             if Task.isCancelled { return }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
-            hapticsManager.execute(.notify(type: .success))
+            hapticsManager(.notify(.success))
         } catch AuthError.generic(.duplicatedEntry) {
             if Task.isCancelled { return }
             handleError(#localized("This item already exists", bundle: .module))

@@ -25,12 +25,12 @@ import Factory
 import SwiftUI
 
 struct HapticButtonModifier: ViewModifier {
-    @State private var haptics: HapticsServicing = resolve(\ToolsContainer.hapticsManager)
+    @State private var haptics = resolve(\ToolsContainer.hapticsManager)
     let type: HapticFeedbackType
 
     func body(content: Content) -> some View {
         content.simultaneousGesture(TapGesture().onEnded {
-            haptics.execute(type)
+            haptics(type)
         })
     }
 }
@@ -43,7 +43,7 @@ extension View {
 
     #if os(iOS)
     func notificationHaptic(type: UINotificationFeedbackGenerator.FeedbackType = .success) -> some View {
-        modifier(HapticButtonModifier(type: .notify(type: type)))
+        modifier(HapticButtonModifier(type: .notify(type)))
     }
     #endif
 

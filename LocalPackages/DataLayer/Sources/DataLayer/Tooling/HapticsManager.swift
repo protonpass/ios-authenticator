@@ -30,9 +30,9 @@ import AppKit
 public enum HapticFeedbackType {
     case impact(intensity: CGFloat)
     #if os(iOS)
-    case notify(type: UINotificationFeedbackGenerator.FeedbackType)
+    case notify(UINotificationFeedbackGenerator.FeedbackType)
     #elseif os(macOS)
-    case notify(type: MacOSNotificationType)
+    case notify(MacOSNotificationType)
     #endif
     case selection
 }
@@ -47,7 +47,13 @@ public enum MacOSNotificationType: Sendable {
 
 @MainActor
 public protocol HapticsServicing {
-    func execute(_ type: HapticFeedbackType)
+    func perform(_ type: HapticFeedbackType)
+}
+
+public extension HapticsServicing {
+    func callAsFunction(_ type: HapticFeedbackType) {
+        perform(type)
+    }
 }
 
 #if os(iOS)
@@ -56,13 +62,13 @@ public final class HapticsManager: HapticsServicing {
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
     private let notificationFeedback = UINotificationFeedbackGenerator()
     private let selectionFeedback = UISelectionFeedbackGenerator()
-    private let settings: SettingsServicing
+    private let settings: any SettingsServicing
 
-    public init(settings: SettingsServicing) {
+    public init(settings: any SettingsServicing) {
         self.settings = settings
     }
 
-    public func execute(_ type: HapticFeedbackType) {
+    public func perform(_ type: HapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
 
         switch type {
@@ -82,14 +88,14 @@ public final class HapticsManager: HapticsServicing {
 #elseif os(macOS)
 @MainActor
 public final class HapticsManager: HapticsServicing {
-    private let settings: SettingsServicing
+    private let settings: any SettingsServicing
     private let feedbackPerformer = NSHapticFeedbackManager.defaultPerformer
 
-    public init(settings: SettingsServicing) {
+    public init(settings: any SettingsServicing) {
         self.settings = settings
     }
 
-    public func execute(_ type: HapticFeedbackType) {
+    public func perform(_ type: HapticFeedbackType) {
         guard settings.hapticFeedbackEnabled else { return }
 
         switch type {

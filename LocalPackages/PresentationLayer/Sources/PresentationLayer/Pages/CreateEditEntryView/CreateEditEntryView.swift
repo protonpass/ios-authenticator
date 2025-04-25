@@ -29,7 +29,7 @@ private struct TextFieldConfig {
     let focusField: FocusableField
 
     #if os(iOS)
-    var capitalised: TextInputAutocapitalization = .sentences
+    var capitalization: TextInputAutocapitalization = .sentences
     #endif
 }
 
@@ -155,7 +155,7 @@ struct CreateEditEntryView: View {
             .foregroundStyle(.textWeak)
             .autocorrectionDisabled(true)
             #if os(iOS)
-                .textInputAutocapitalization(config.capitalised)
+                .textInputAutocapitalization(config.capitalization)
             #endif
                 .frame(minHeight: 25)
         }
@@ -179,7 +179,7 @@ struct CreateEditEntryView: View {
                         placeholder: "Secret",
                         binding: $viewModel.secret,
                         focusField: .secret,
-                        capitalised: .characters)
+                        capitalization: .characters)
         #else
         TextFieldConfig(title: "Secret (Required)",
                         placeholder: "Secret",

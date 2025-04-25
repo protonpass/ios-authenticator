@@ -141,7 +141,7 @@ extension EntriesViewModel {
         copyTextToClipboard(code)
         toastService
             .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {

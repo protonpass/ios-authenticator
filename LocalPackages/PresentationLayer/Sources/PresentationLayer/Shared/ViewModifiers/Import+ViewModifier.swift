@@ -289,7 +289,7 @@ final class ImportViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
-        hapticsManager.execute(.notify(type: .success))
+        hapticsManager(.notify(.success))
     }
 }
 

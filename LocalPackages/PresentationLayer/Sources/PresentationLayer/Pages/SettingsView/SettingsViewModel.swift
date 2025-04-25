@@ -172,17 +172,17 @@ extension SettingsViewModel {
 
     func toggleHideCode() {
         settingsService.setHideEntryCode(!shouldHideCode)
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     func updateDigitStyle(_ newValue: DigitStyle) {
         settingsService.setDigitStyle(newValue)
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     func toggleCodeAnimation() {
         settingsService.setCodeAnimation(!animateCodeChange)
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     // periphery:ignore
@@ -198,12 +198,12 @@ extension SettingsViewModel {
     func updateSearchBarDisplay(_ newValue: SearchBarDisplayMode) {
         guard newValue != settingsService.searchBarDisplayMode else { return }
         settingsService.setSearchBarMode(newValue)
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     func toggleFocusSearchOnLaunch() {
         settingsService.toggleFocusSearchOnLaunch(!focusSearchOnLaunch)
-        hapticsManager.execute(.impact(intensity: 1))
+        hapticsManager(.impact(intensity: 1))
     }
 
     func generateExportFileName() -> String {
