@@ -86,6 +86,7 @@ public extension View {
             .listRowInsets(EdgeInsets())
     }
 
+    // periphery:ignore
     func disableAnimations() -> some View {
         transaction { $0.animation = nil }
     }

@@ -77,7 +77,6 @@ struct EntryCell: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TOTPCountdownView(period: entry.period, pauseCountDown: $pauseCountDown)
-                    .disableAnimations()
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -252,6 +251,7 @@ private struct TOTPCountdownView: View {
             // Background circle
             Circle()
                 .stroke(lineWidth: 4)
+                .animation(.default, value: progress)
                 .foregroundStyle(color.opacity(0.3))
 
             // Progress circle
@@ -260,6 +260,10 @@ private struct TOTPCountdownView: View {
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(color)
                 .rotationEffect(.degrees(-90))
+                .animation(.default, value: progress)
+                .transaction { transaction in
+                    transaction.disablesAnimations = timeRemaining == Double(period) - 1
+                }
 
             // Countdown text
             Text(verbatim: "\(Int(timeRemaining))")
@@ -307,10 +311,10 @@ private struct TOTPCountdownView: View {
     }
 
     private var color: Color {
-        switch progress {
-        case 0.0...0.05:
+        switch timeRemaining {
+        case 0...5:
             .timer1
-        case 0.05...0.25:
+        case 5...10:
             .timer2
         default:
             .timer3
