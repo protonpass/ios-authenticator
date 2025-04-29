@@ -211,6 +211,9 @@
         }
       }
     },
+    "Create a free account" : {
+
+    },
     "Create new code" : {
       "localizations" : {
         "en" : {
@@ -250,6 +253,9 @@
           }
         }
       }
+    },
+    "Device sync" : {
+
     },
     "Digit style" : {
       "localizations" : {
@@ -662,6 +668,9 @@
         }
       }
     },
+    "Proton account is required to enable end-to-end encrypted sync between devices." : {
+
+    },
     "Proton Authenticator will periodically save all the data to iCloud." : {
       "localizations" : {
         "en" : {
@@ -803,6 +812,9 @@
         }
       }
     },
+    "Sign in" : {
+
+    },
     "Skip" : {
       "localizations" : {
         "en" : {
@@ -864,6 +876,9 @@
           }
         }
       }
+    },
+    "Sync between devices" : {
+
     },
     "Theme" : {
       "localizations" : {

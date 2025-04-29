@@ -25,82 +25,80 @@ import SwiftUI
 struct UserLoginView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var viewModel = UserLoginViewModel()
+//    @StateObject private var viewModel = UserLoginViewModel()
+
+    private let onAction: (Bool) -> Void
+
+    public init(onAction: @escaping (_ signUp: Bool) -> Void) {
+        self.onAction = onAction
+    }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Spacer()
-                Image(.loginIcon)
+//        NavigationStack {
+        VStack(spacing: 20) {
+            Spacer()
+            Image(.loginIcon)
+                .resizable()
+                .scaledToFit()
+//                    .padding(.horizontal, 104)
+            Spacer()
+
+            VStack(spacing: 8) {
+                Text("Device sync")
+                    .font(Font.custom("SF Pro", size: 28, relativeTo: .body)
+                        .weight(.bold))
+                    .kerning(0.392)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, alignment: .top)
+                Text("Proton account is required to enable end-to-end encrypted sync between devices.")
+                    .font(Font.custom("SF Pro", size: 20, relativeTo: .body))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.textWeak)
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .opacity(0.9)
+            }
+
+            Spacer()
+
+            VStack(spacing: DesignConstant.padding) {
+                CapsuleButton(title: "Create a free account",
+                              textColor: .white,
+                              style: .borderedFilled) {
+                    onAction(true)
+                }
+                #if os(iOS)
+                .impactHaptic()
+                #endif
+
+                CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {
+                    onAction(false)
+                })
+                #if os(iOS)
+                .impactHaptic()
+                #endif
+
+                Image(.protonPrivacy)
                     .resizable()
                     .scaledToFit()
-//                    .padding(.horizontal, 104)
-                Spacer()
-
-                VStack(spacing: 8) {
-                    Text("Device sync")
-                        .font(Font.custom("SF Pro", size: 28, relativeTo: .body)
-                            .weight(.bold))
-                        .kerning(0.392)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.textNorm)
-                        .frame(maxWidth: .infinity, alignment: .top)
-                    Text("Proton account is required to enable end-to-end encrypted sync between devices.")
-                        .font(Font.custom("SF Pro", size: 20, relativeTo: .body))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, alignment: .top)
-                        .opacity(0.9)
-                }
-
-                Spacer()
-
-                VStack(spacing: DesignConstant.padding) {
-                    CapsuleButton(title: "Create a free account",
-                                  textColor: .white,
-                                  style: .borderedFilled) {
-                        viewModel.beginAddAccountFlow(isSigningUp: true, rootViewController: self)
-//                        switch viewModel.currentStep {
-//                        case .intro:
-//                            goNext()
-//                        case .import:
-//                            showImportOptions.toggle()
-//                        case .biometric:
-//                            viewModel.enableBiometric()
-//                        }
-                    }
-                    #if os(iOS)
-                    .impactHaptic()
-                    #endif
-
-                    CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {
-                        viewModel.beginAddAccountFlow(isSigningUp: false, rootViewController: self)
-                    })
-                    #if os(iOS)
-                    .impactHaptic()
-                    #endif
-
-                    Image(.protonPrivacy)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 20)
-                        .padding(.top, 16)
-                }
+                    .frame(height: 20)
+                    .padding(.top, 16)
+            }
 //                .padding(.horizontal, 40)
 //                .padding(.bottom)
 
-                Spacer()
+            Spacer()
 
-                //            List {
-                //                ForEach(viewModel.logs) { log in
-                //                    Text(verbatim: log.description)
-                //                        .listRowBackground(Color.clear)
-                //                }
-                //            }
-                //            .listStyle(.plain)
-            }
-            .padding(.horizontal, 40)
-            .toolbar {
+            //            List {
+            //                ForEach(viewModel.logs) { log in
+            //                    Text(verbatim: log.description)
+            //                        .listRowBackground(Color.clear)
+            //                }
+            //            }
+            //            .listStyle(.plain)
+        }
+        .padding(.horizontal, 40)
+        .toolbar {
 //                ToolbarItem(placement: toolbarItemPlacement) {
 //                    Button {
 //                        dismiss()
@@ -111,32 +109,35 @@ struct UserLoginView: View {
 //                    .adaptiveButtonStyle()
 //                }
 //
-                ToolbarItem(placement: toolbarTrailingItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .scaledToFit()
+            ToolbarItem(placement: toolbarTrailingItemPlacement) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
 //                            .padding(DesignConstant.padding)
-                            .frame(width: 24)
-                            .foregroundStyle(.textNorm.opacity(0.7))
-                    }
-                    .adaptiveButtonStyle()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm.opacity(0.7))
                 }
+                .adaptiveButtonStyle()
             }
+        }
 //            .scrollContentBackground(.hidden)
 //            #if os(iOS)
 //                .listSectionSpacing(DesignConstant.padding * 2)
 //                .navigationBarTitleDisplayMode(.inline)
 //            #endif
-            .toastDisplay()
-            .fullScreenMainBackground()
-            .sheetAlertService()
-        }
-        #if os(macOS)
-        .frame(minWidth: 800, minHeight: 600)
-        #endif
+        .toastDisplay()
+        .fullScreenMainBackground()
+        .sheetAlertService()
+//        }
+//        #if os(macOS)
+//        .frame(minWidth: 800, minHeight: 600)
+//        #endif
+//        .onAppear {
+//            viewModel.createRootViewController(view: self)
+//        }
     }
 
     private var toolbarTrailingItemPlacement: ToolbarItemPlacement {
@@ -149,5 +150,5 @@ struct UserLoginView: View {
 }
 
 #Preview {
-    UserLoginView()
+    UserLoginView(onAction: { _ in })
 }

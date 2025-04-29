@@ -22,6 +22,7 @@ import CommonUtilities
 import Foundation
 import Models
 import ProtonCoreChallenge
+import ProtonCoreCryptoGoImplementation
 @preconcurrency import ProtonCoreCryptoGoInterface
 import ProtonCoreDataModel
 import ProtonCoreDoh
@@ -44,8 +45,31 @@ public final class AuthDoH: DoH, ServerConfig {
     public let defaultPath: String
     public let proxyToken: String?
 
-    public init(environment: AuthenticatorEnvironment = .black,
-                userDefaults: UserDefaults) {
+    public init(bundle: Bundle = .main,
+                userDefaults: UserDefaults = kSharedUserDefaults) {
+        var environment: AuthenticatorEnvironment = .black
+        if bundle.isQaBuild {
+            switch userDefaults.string(forKey: "pref_environment") {
+            case "black":
+                environment = .black
+            case "prod":
+                environment = .prod
+            case "scientist":
+                let name = userDefaults.string(forKey: "pref_scientist_env_name")
+                environment = .scientist(name ?? "")
+
+            default:
+                // Fallback to "Automatic" mode
+                #if DEBUG
+                environment = .black
+                #else
+                environment = .prod
+                #endif
+            }
+        } else {
+            // Always point to prod when not in QA build
+            environment = .prod
+        }
         signupDomain = environment.parameters.signupDomain
         captchaHost = environment.parameters.captchaHost
         humanVerificationV3Host = environment.parameters.humanVerificationV3Host
@@ -119,14 +143,19 @@ public struct APIManagerConfiguration: Sendable {
     let appVersion: String
     let doh: any DoHInterface
 
-    public init(appVersion: String, doh: any DoHInterface) {
+    public init(appVersion: String, doh: any DoHInterface = AuthDoH()) {
         self.appVersion = appVersion
         self.doh = doh
     }
 }
 
 public protocol APIManagerProtocol: Sendable {
-    var apiService: APIService! { get }
+    var apiService: APIService { get }
+}
+
+final class ForceUpgradeControllerImpl: ForceUpgradeController {
+    func performForceUpgrade(message: String, config: ForceUpgradeConfig,
+                             responseDelegate: ForceUpgradeResponseDelegate?) {}
 }
 
 public final class APIManager: @unchecked Sendable, APIManagerProtocol {
@@ -135,12 +164,23 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
     private let forceUpgradeHelper: ForceUpgradeHelper
     private let keyStore: any KeychainServicing
     public let key = "credentials"
+    #if os(iOS)
     private let challengeProvider = ChallengeParametersProvider.forAPIService(clientApp: .other(named:
         "authenticator"),
     challenge: .init())
 
+    #elseif os(macOS)
+    private let challengeProvider = ChallengeParametersProvider(prefix: "authenticator",
+                                                                provideParametersForLoginAndSignup: { [] },
+                                                                provideParametersForSessionFetching: { [] })
+//        .forAPIService(clientApp: .other(named:
+//        "authenticator"),
+//    challenge: .init())
+
+    #endif
+
     private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
-    public private(set) var apiService: ProtonCoreServices.APIService!
+    public private(set) var apiService: APIService
 
     // swiftlint:disable:next identifier_name
     public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
@@ -153,27 +193,64 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
         self.logger = logger
         self.keyStore = keyStore
         Self.setUpCertificatePinning()
+        injectDefaultCryptoImplementation()
 
         if let appStoreUrl = URL(string: AppConstants.appStoreUrl) {
+            #if os(iOS)
             forceUpgradeHelper = .init(config: .mobile(appStoreUrl))
+
+            #elseif os(macOS)
+            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appStoreUrl),
+                                                    controller: ForceUpgradeControllerImpl())
+
+            #endif
         } else {
             // Should never happen
             let message = "Can not parse App Store URL"
             assertionFailure(message)
             logger.log(.error, category: .network, "Can not parse App Store URL")
+            #if os(iOS)
             forceUpgradeHelper = .init(config: .desktop)
+            #elseif os(macOS)
+            forceUpgradeHelper = ForceUpgradeHelper(config: .desktop, controller: ForceUpgradeControllerImpl())
+
+            #endif
         }
-        let credentials: Credentials? = try? keyStore.get(key: key, ofType: .generic, shouldSync: false)
+        let newApiService: PMAPIService
 
-        if let credentials {
-            createApiService(credential: credentials.credential)
-
+        do {
+            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
             cachedCredentials.modify {
                 $0 = credentials
             }
-        } else {
-            createApiService(credential: nil)
+
+            newApiService = PMAPIService.createAPIService(doh: configuration.doh,
+                                                          sessionUID: credentials.credential.UID,
+                                                          challengeParametersProvider: challengeProvider)
+
+        } catch {
+            logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
+            newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
+                                                                        challengeParametersProvider: challengeProvider)
         }
+
+        #if os(iOS)
+
+        let humanHelper =
+            HumanCheckHelper(apiService: newApiService,
+                             inAppTheme: { .default },
+                             clientApp: .other(named: "authenticator"))
+        #elseif os(macOS)
+        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        #endif
+        newApiService.humanDelegate = humanHelper
+
+        newApiService.forceUpgradeDelegate = forceUpgradeHelper
+        apiService = newApiService
+        apiService.authDelegate = self
+        apiService.serviceDelegate = self
+        (apiService as? PMAPIService)?.loggingDelegate = self
+        updateTools()
     }
 }
 
@@ -200,9 +277,15 @@ private extension APIManager {
         newApiService.authDelegate = self
         newApiService.serviceDelegate = self
 
-        let humanHelper = HumanCheckHelper(apiService: newApiService,
-                                           inAppTheme: { .default },
-                                           clientApp: .pass)
+        #if os(iOS)
+
+        let humanHelper =
+            HumanCheckHelper(apiService: newApiService,
+                             inAppTheme: { .default },
+                             clientApp: .other(named: "authenticator"))
+        #elseif os(macOS)
+        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        #endif
         newApiService.humanDelegate = humanHelper
 
         newApiService.loggingDelegate = self
@@ -226,11 +309,12 @@ private extension APIManager {
     }
 
     func saveCachedCredentialsToKeychain() {
+        print("saving tokens")
         do {
 //             let symmetricKey = try symmetricKeyProvider.getSymmetricKey()
-            let data = try JSONEncoder().encode(cachedCredentials.value)
+//            let data = try JSONEncoder().encode(cachedCredentials.value)
 //             let encryptedContent = try symmetricKey.encrypt(data)
-            try keyStore.set(data, for: key, shouldSync: false)
+            try keyStore.set(cachedCredentials.value, for: key, shouldSync: false)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")
         }
@@ -266,28 +350,9 @@ extension APIManager: AuthDelegate {
         return credentials.credential
     }
 
-    //    public func onUpdate(credential: Credential, sessionUID: String) {
-    //        logger.info("Update Session credentials with session id \(sessionUID)")
-    //        assertDidSetUp()
-    //
-    //        serialAccessQueue.sync {
-    //            for passModule in PassModule.allCases {
-    //                let key = CredentialsKey(sessionId: sessionUID, module: passModule)
-    //                let newCredentials = getCredentials(credential: credential,
-    //                                                    module: passModule)
-    //                let newAuthCredential = newCredentials.authCredential
-    //                    .updatedKeepingKeyAndPasswordDataIntact(credential: credential)
-    //                cachedCredentials[key] = Credentials(credential: credential,
-    //                                                     authCredential: newAuthCredential,
-    //                                                     module: passModule)
-    //            }
-    //            saveCachedCredentialsToKeychain()
-    //            sendCredentialUpdateInfo(sessionId: sessionUID)
-    //        }
-    //    }
-
     public func onUpdate(credential: ProtonCoreNetworking.Credential, sessionUID: String) {
         log(.info, "Update Session credentials with session id \(sessionUID)")
+
         guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
             return
         }
@@ -301,34 +366,6 @@ extension APIManager: AuthDelegate {
         updateSession(sessionId: sessionUID)
     }
 
-    //
-    //    public func onSessionObtaining(credential: Credential) {
-    //        logger.info("Obtained Session credentials with session id \(credential.UID)")
-    //        assertDidSetUp()
-    //
-    //        serialAccessQueue.sync {
-    //            // The forking of sessions should be done at this point in the future and any looping on Pass
-    //            /module
-    //            // should be removed
-    //
-    //            // Remove all existing credentials related to the same userID
-    //            // This is to handle logging into the same account multiple times
-    //            for (key, value) in cachedCredentials
-    //                where value.credential.userID == credential.userID {
-    //                cachedCredentials.removeValue(forKey: key)
-    //            }
-    //
-    //            for passModule in PassModule.allCases {
-    //                let key = CredentialsKey(sessionId: credential.UID, module: passModule)
-    //                let newCredentials = getCredentials(credential: credential,
-    //                                                    module: passModule)
-    //                cachedCredentials[key] = newCredentials
-    //            }
-    //            saveCachedCredentialsToKeychain()
-    //            sendCredentialUpdateInfo(sessionId: credential.UID)
-    //        }
-    //    }
-    //
     public func onSessionObtaining(credential: ProtonCoreNetworking.Credential) {
         log(.info, "Obtained Session credentials with session id \(credential.UID)")
         let credentials = getCredentials(credential: credential)
@@ -339,33 +376,9 @@ extension APIManager: AuthDelegate {
         updateSession(sessionId: credential.UID)
     }
 
-    //    public func onAdditionalCredentialsInfoObtained(sessionUID: String,
-    //                                                    password: String?,
-    //                                                    salt: String?,
-    //                                                    privateKey: String?) {
-    //        logger.info("Additional credentials for session id \(sessionUID)")
-    //        assertDidSetUp()
-    //
-    //        serialAccessQueue.sync {
-    //            for passModule in PassModule.allCases {
-    //                let key = CredentialsKey(sessionId: sessionUID, module: passModule)
-    //                guard let element = cachedCredentials[key] else {
-    //                    return
-    //                }
-    //
-    //                if let password {
-    //                    element.authCredential.update(password: password)
-    //                }
-    //                let saltToUpdate = salt ?? element.authCredential.passwordKeySalt
-    //                let privateKeyToUpdate = privateKey ?? element.authCredential.privateKey
-    //                element.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
-    //                cachedCredentials[key] = element
-    //            }
-    //            saveCachedCredentialsToKeychain()
-    //            sendCredentialUpdateInfo(sessionId: sessionUID)
-    //        }
-    //    }
-    public func onAdditionalCredentialsInfoObtained(sessionUID: String, password: String?, salt: String?,
+    public func onAdditionalCredentialsInfoObtained(sessionUID: String,
+                                                    password: String?,
+                                                    salt: String?,
                                                     privateKey: String?) {
         log(.info, "Additional credentials for session id \(sessionUID)")
         guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
@@ -392,111 +405,35 @@ extension APIManager: AuthDelegate {
         updateSession(sessionId: sessionUID)
     }
 
-    //    public func onAuthenticatedSessionInvalidated(sessionUID: String) {
-    //        logger.info("Authenticated session invalidated for session id \(sessionUID)")
-    //        assertDidSetUp()
-    //
-    //        serialAccessQueue.sync {
-    //            let key = CredentialsKey(sessionId: sessionUID, module: module)
-    //            let currentSession = cachedCredentials[key]
-    //            removeCredentials(for: sessionUID)
-    //            saveCachedCredentialsToKeychain()
-    //            sendSessionInvalidationInfo(sessionId: sessionUID, isAuthenticatedSession: true)
-    //            _sessionWasInvalidated.send((sessionId: sessionUID, userId: currentSession?.credential.userID))
-    //        }
-    //    }
-    //
-    //    public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
-    //        logger.info("unauthenticated session invalidated for session id \(sessionUID)")
-    //        assertDidSetUp()
-    //
-    //        serialAccessQueue.sync {
-    //            let key = CredentialsKey(sessionId: sessionUID, module: module)
-    //            let currentSession = cachedCredentials[key]
-    //            removeCredentials(for: sessionUID)
-    //            saveCachedCredentialsToKeychain()
-    //            sendSessionInvalidationInfo(sessionId: sessionUID, isAuthenticatedSession: false)
-    //            _sessionWasInvalidated.send((sessionId: sessionUID, userId: currentSession?.credential.userID))
-    //        }
-    //    }
     public func onAuthenticatedSessionInvalidated(sessionUID: String) {
         log(.info, "Authenticated session invalidated for session id \(sessionUID)")
-        cachedCredentials.modify {
-            $0 = nil
-        }
-        createApiService(credential: nil)
-        authSessionInvalidatedDelegateForLoginAndSignup?
-            .sessionWasInvalidated(for: sessionUID,
-                                   isAuthenticatedSession: true)
+        cleanSession(sessionUID: sessionUID)
+//        cachedCredentials.modify {
+//            $0 = nil
+//        }
+//        saveCachedCredentialsToKeychain()
+//        createApiService(credential: cachedCredentials.value)
+//        authSessionInvalidatedDelegateForLoginAndSignup?
+//            .sessionWasInvalidated(for: sessionUID,
+//                                   isAuthenticatedSession: true)
     }
 
     public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
         log(.info, "Unauthenticated session invalidated for session id \(sessionUID)")
+        cleanSession(sessionUID: sessionUID)
+    }
+
+    func cleanSession(sessionUID: String) {
         cachedCredentials.modify {
             $0 = nil
         }
+        saveCachedCredentialsToKeychain()
         createApiService(credential: nil)
         authSessionInvalidatedDelegateForLoginAndSignup?
             .sessionWasInvalidated(for: sessionUID,
                                    isAuthenticatedSession: false)
     }
 }
-
-// extension APIManager: AuthHelperDelegate {
-//    public func sessionWasInvalidated(for sessionUID: String, isAuthenticatedSession: Bool) {
-////        allCurrentApiServices.removeAll { $0.apiService.sessionUID == sessionUID }
-////        if allCurrentApiServices.isEmpty {
-////            getUnauthApiService()
-////        }
-//        createApiService(credential: nil)
-//        if isAuthenticatedSession {
-//            logger.log(.info, category: .network, "Authenticated session is invalidated. Logging out.")
-//        } else {
-//            logger.log(.info, category: .network, "Unauthenticated session is invalidated. Credentials are
-//            erased, fetching new ones")
-//        }
-//    }
-//
-//    public func credentialsWereUpdated(authCredential: AuthCredential,
-//                                       credential: Credential,
-//                                       for sessionUID: String) {
-//        if allCurrentApiServices.contains(where: { $0.apiService.sessionUID == sessionUID }) {
-//            // Credentials already exist
-//            // => update the related ApiService
-//            allCurrentApiServices = allCurrentApiServices.map { element in
-//                guard element.apiService.sessionUID == sessionUID else {
-//                    return element
-//                }
-//
-//                return element.copy(isAuthenticated: !authCredential.isForUnauthenticatedSession)
-//            }
-//        } else if allCurrentApiServices.contains(where: \.apiService.sessionUID.isEmpty) {
-//            allCurrentApiServices = allCurrentApiServices.map { element in
-//                guard element.apiService.sessionUID.isEmpty else {
-//                    return element
-//                }
-//                element.apiService.setSessionUID(uid: sessionUID)
-//                return element
-//            }
-//        } else {
-//            // Credentials not yet exist
-//            // => make a new ApiService
-//            allCurrentApiServices.append(makeAPIManagerElements(credential: credential))
-//        }
-//
-//        if apiService.sessionUID.isEmpty {
-//            apiService.setSessionUID(uid: sessionUID)
-//        }
-//
-//        updateTools()
-//
-//      log(.info, "Session credentials are updated")
-//    }
-//
-//    func updateTools() {
-//        ObservabilityEnv.current.setupWorld(requestPerformer: apiService)
-//    }
-// }
 
 // MARK: - APIServiceDelegate
 
@@ -545,360 +482,3 @@ extension APIManager: APIServiceLoggingDelegate {
             "Access token refresh did fail for \(sessionType) session \(sessionID) with error: \(error.localizedDescription)")
     }
 }
-
-//
-//
-// public protocol AuthManagerProtocol: Sendable, AuthDelegate {
-//    var sessionWasInvalidated: AnyPublisher<(sessionId: String, userId: String?), Never> { get }
-//
-//    func setUp()
-//    func setUpDelegate(_ delegate: any AuthHelperDelegate)
-//    func getCredential(userId: String) -> AuthCredential?
-//    // periphery:ignore
-//    func clearSessions(sessionId: String)
-//    // periphery:ignore
-//    func clearSessions(userId: String)
-//    func getAllCurrentCredentials() -> [Credential]
-//    func removeCredentials(userId: String)
-//    func removeAllCredentials()
-// }
-//
-// public extension AuthManagerProtocol {
-//    func isAuthenticated(userId: String) -> Bool {
-//        guard let credential = getCredential(userId: userId) else {
-//            return false
-//        }
-//        return !credential.isForUnauthenticatedSession
-//    }
-// }
-//
-// public final class AuthManager: @unchecked Sendable, AuthManagerProtocol {
-//    public private(set) weak var delegate: (any AuthHelperDelegate)?
-//    // swiftlint:disable:next identifier_name
-//    public weak var authSessionInvalidatedDelegateForLoginAndSignup: (any AuthSessionInvalidatedDelegate)?
-//    public static let storageKey = "AuthManagerStorageKey"
-//    private let serialAccessQueue = DispatchQueue(label: "me.proton.pass.authmanager")
-//
-//    private typealias CachedCredentials = [CredentialsKey: Credentials]
-//
-//    private var cachedCredentials: CachedCredentials = [:]
-//    private let keychain: any KeychainProtocol
-//    private let symmetricKeyProvider: any NonAsyncSymmetricKeyProvider
-//    private let module: PassModule
-//    private let _sessionWasInvalidated: PassthroughSubject<(sessionId: String, userId: String?), Never> = .init()
-//    private let logger: Logger
-//    private var didSetUp = false
-//
-//    // This exposes a read only publisher to the rest of the application as AnyPublisher has no send function
-//    public var sessionWasInvalidated: AnyPublisher<(sessionId: String, userId: String?), Never> {
-//        _sessionWasInvalidated.eraseToAnyPublisher()
-//    }
-//
-//    public init(keychain: any KeychainProtocol,
-//                symmetricKeyProvider: any NonAsyncSymmetricKeyProvider,
-//                module: PassModule,
-//                logManager: any LogManagerProtocol) {
-//        self.keychain = keychain
-//        self.symmetricKeyProvider = symmetricKeyProvider
-//        self.module = module
-//        logger = .init(manager: logManager)
-//    }
-//
-//    public func setUp() {
-//        cachedCredentials = getCachedCredentials()
-//        didSetUp = true
-//    }
-//
-//    public func setUpDelegate(_ delegate: any AuthHelperDelegate) {
-//        assertDidSetUp()
-//        serialAccessQueue.sync {
-//            self.delegate = delegate
-//        }
-//    }
-//
-//    public func getCredential(userId: String) -> AuthCredential? {
-//        logger.info("getting authCredential for userId id \(userId)")
-//        assertDidSetUp()
-//
-//        return serialAccessQueue.sync {
-//            cachedCredentials
-//                .first(where: { $0.key.module == module && $0.value.authCredential.userID == userId })?
-//                .value.authCredential
-//        }
-//    }
-//
-//    public func removeCredentials(userId: String) {
-//        logger.info("Removing credential for userId id \(userId)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            cachedCredentials = cachedCredentials.filter { _, value in
-//                value.credential.userID != userId
-//            }
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-//    public func removeAllCredentials() {
-//        assertDidSetUp()
-//        serialAccessQueue.sync {
-//            cachedCredentials = [:]
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-
-//    public func onAdditionalCredentialsInfoObtained(sessionUID: String,
-//                                                    password: String?,
-//                                                    salt: String?,
-//                                                    privateKey: String?) {
-//        logger.info("Additional credentials for session id \(sessionUID)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            for passModule in PassModule.allCases {
-//                let key = CredentialsKey(sessionId: sessionUID, module: passModule)
-//                guard let element = cachedCredentials[key] else {
-//                    return
-//                }
-//
-//                if let password {
-//                    element.authCredential.update(password: password)
-//                }
-//                let saltToUpdate = salt ?? element.authCredential.passwordKeySalt
-//                let privateKeyToUpdate = privateKey ?? element.authCredential.privateKey
-//                element.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
-//                cachedCredentials[key] = element
-//            }
-//            saveCachedCredentialsToKeychain()
-//            sendCredentialUpdateInfo(sessionId: sessionUID)
-//        }
-//    }
-//
-//    public func onAuthenticatedSessionInvalidated(sessionUID: String) {
-//        logger.info("Authenticated session invalidated for session id \(sessionUID)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            let key = CredentialsKey(sessionId: sessionUID, module: module)
-//            let currentSession = cachedCredentials[key]
-//            removeCredentials(for: sessionUID)
-//            saveCachedCredentialsToKeychain()
-//            sendSessionInvalidationInfo(sessionId: sessionUID, isAuthenticatedSession: true)
-//            _sessionWasInvalidated.send((sessionId: sessionUID, userId: currentSession?.credential.userID))
-//        }
-//    }
-//
-//    public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
-//        logger.info("unauthenticated session invalidated for session id \(sessionUID)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            let key = CredentialsKey(sessionId: sessionUID, module: module)
-//            let currentSession = cachedCredentials[key]
-//            removeCredentials(for: sessionUID)
-//            saveCachedCredentialsToKeychain()
-//            sendSessionInvalidationInfo(sessionId: sessionUID, isAuthenticatedSession: false)
-//            _sessionWasInvalidated.send((sessionId: sessionUID, userId: currentSession?.credential.userID))
-//        }
-//    }
-//
-//    public func clearSessions(sessionId: String) {
-//        logger.info("Clear sessions for session id \(sessionId)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            removeCredentials(for: sessionId)
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-//    public func clearSessions(userId: String) {
-//        logger.info("Clear sessions for user id \(userId)")
-//        assertDidSetUp()
-//
-//        serialAccessQueue.sync {
-//            cachedCredentials = cachedCredentials.filter { $0.value.credential.userID != userId }
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-//    public func getAllCurrentCredentials() -> [Credential] {
-//        assertDidSetUp()
-//        return cachedCredentials.compactMap { key, element -> Credential? in
-//            guard key.module == module else {
-//                return nil
-//            }
-//            return element.credential
-//        }
-//    }
-// }
-//
-// public extension AuthManager {
-//    /// Introduced on July 2024 for multi accounts support. Can be removed later on.
-//    func migrate(_ credential: AuthCredential) {
-//        assertDidSetUp()
-//        serialAccessQueue.sync {
-//            for module in PassModule.allCases {
-//                let key = CredentialsKey(sessionId: credential.sessionID, module: module)
-//                cachedCredentials[key] = .init(credential: .init(credential),
-//                                               authCredential: credential,
-//                                               module: module)
-//            }
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-//    /// Introduced on February 2025 for CSV import support. Can be removed later on.
-//    func initializeCredentialsForActionExtension() {
-//        assertDidSetUp()
-//        serialAccessQueue.sync {
-//            if let appCredential = cachedCredentials.first(where: { $0.key.module == .hostApp }) {
-//                let key = CredentialsKey(sessionId: appCredential.value.authCredential.sessionID,
-//                                         module: .actionExtension)
-//                cachedCredentials[key] = appCredential.value
-//            }
-//            saveCachedCredentialsToKeychain()
-//        }
-//    }
-//
-//    @_spi(QA)
-//    func getAllCredentialsOfAllModules() -> [Credentials] {
-//        assertDidSetUp()
-//        return Array(cachedCredentials.values)
-//    }
-// }
-//
-//// MARK: - Utils
-//
-// private extension AuthManager {
-//    func assertDidSetUp() {
-//        assert(didSetUp, "AuthManager not set up. Call setUp() function as soon as possible.")
-//        if !didSetUp {
-//            logger.error("AuthManager not set up")
-//        }
-//    }
-//
-
-//
-//    func sendCredentialUpdateInfo(sessionId: String) {
-//        let key = CredentialsKey(sessionId: sessionId, module: module)
-//        guard let credentials = cachedCredentials[key] else {
-//            return
-//        }
-//
-//        delegate?.credentialsWereUpdated(authCredential: credentials.authCredential,
-//                                         credential: credentials.credential,
-//                                         for: sessionId)
-//    }
-//
-//    func sendSessionInvalidationInfo(sessionId: String, isAuthenticatedSession: Bool) {
-//        delegate?.sessionWasInvalidated(for: sessionId,
-//                                        isAuthenticatedSession: isAuthenticatedSession)
-//        authSessionInvalidatedDelegateForLoginAndSignup?
-//            .sessionWasInvalidated(for: sessionId,
-//                                   isAuthenticatedSession: isAuthenticatedSession)
-//    }
-// }
-//
-//// MARK: - Storage
-//
-// private extension AuthManager {
-//    func saveCachedCredentialsToKeychain() {
-//        do {
-//            let symmetricKey = try symmetricKeyProvider.getSymmetricKey()
-//            let data = try JSONEncoder().encode(cachedCredentials)
-//            let encryptedContent = try symmetricKey.encrypt(data)
-//            try keychain.setOrError(encryptedContent, forKey: Self.storageKey)
-//        } catch {
-//            logger.error("Failed to saved user sessions in keychain: \(error)")
-//        }
-//    }
-//
-//    func getCachedCredentials() -> [CredentialsKey: Credentials] {
-//        guard let encryptedContent = try? keychain.dataOrError(forKey: Self.storageKey),
-//              let symmetricKey = try? symmetricKeyProvider.getSymmetricKey() else {
-//            return [:]
-//        }
-//
-//        do {
-//            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
-//            return try JSONDecoder().decode(CachedCredentials.self, from: decryptedContent)
-//        } catch {
-//            logger.error("Failed to decrypted user sessions from keychain: \(error)")
-//            try? keychain.removeOrError(forKey: Self.storageKey)
-//            return [:]
-//        }
-//    }
-//
-//    func removeCredentials(for sessionUID: String) {
-//        for module in PassModule.allCases {
-//            let key = CredentialsKey(sessionId: sessionUID, module: module)
-//            cachedCredentials[key] = nil
-//        }
-//    }
-// }
-//
-//// MARK: - Keychain codable wrappers for credential elements & extensions
-//
-// public struct Credentials: Hashable, Sendable, Codable {
-//    public let credential: Credential
-//    public let authCredential: AuthCredential
-//    public let module: PassModule
-// }
-//
-// private struct CredentialsKey: Hashable, Codable {
-//    let sessionId: String
-//    let module: PassModule
-// }
-//
-// extension Credential: Codable, @retroactive Hashable {
-//    private enum CodingKeys: String, CodingKey {
-//        case UID
-//        case accessToken
-//        case refreshToken
-//        case userName
-//        case userID
-//        case scopes
-//        case mailboxPassword
-//    }
-//
-//    public func hash(into hasher: inout Hasher) {
-//        hasher.combine(UID)
-//        hasher.combine(accessToken)
-//        hasher.combine(refreshToken)
-//        hasher.combine(userName)
-//        hasher.combine(userID)
-//        hasher.combine(scopes)
-//        hasher.combine(mailboxPassword)
-//    }
-//
-//    public init(from decoder: any Decoder) throws {
-//        self.init(UID: "",
-//                  accessToken: "",
-//                  refreshToken: "",
-//                  userName: "",
-//                  userID: "",
-//                  scopes: [],
-//                  mailboxPassword: "")
-//        let values = try decoder.container(keyedBy: CodingKeys.self)
-//        UID = try values.decode(String.self, forKey: .UID)
-//        accessToken = try values.decode(String.self, forKey: .accessToken)
-//        refreshToken = try values.decode(String.self, forKey: .refreshToken)
-//        userName = try values.decode(String.self, forKey: .userName)
-//        userID = try values.decode(String.self, forKey: .userID)
-//        scopes = try values.decode([String].self, forKey: .scopes)
-//        mailboxPassword = try values.decode(String.self, forKey: .mailboxPassword)
-//    }
-//
-//    public func encode(to encoder: any Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(UID, forKey: .UID)
-//        try container.encode(accessToken, forKey: .accessToken)
-//        try container.encode(refreshToken, forKey: .refreshToken)
-//        try container.encode(userName, forKey: .userName)
-//        try container.encode(userID, forKey: .userID)
-//        try container.encode(scopes, forKey: .scopes)
-//        try container.encode(mailboxPassword, forKey: .mailboxPassword)
-//    }
-// }

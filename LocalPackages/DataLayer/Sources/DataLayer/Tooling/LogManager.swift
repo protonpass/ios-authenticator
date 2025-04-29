@@ -157,9 +157,8 @@ public final actor LogManager: LoggerProtocol {
         self.persistentStorage = persistentStorage
         self.configuration = configuration
 
-        loggers = LogCategory.allCases.reduce(into: [LogCategory: Logger]()) { dict, category in
-            var dict = dict
-            dict[category] = Logger(subsystem: subsystem, category: category.rawValue)
+        loggers = LogCategory.allCases.reduce(into: [LogCategory: Logger]()) { result, category in
+            result[category] = Logger(subsystem: subsystem, category: category.rawValue)
         }
         startSaveTimer()
     }

@@ -26,8 +26,10 @@ import SwiftUI
 enum SettingsSheetStates {
     case logs
     case qa
-    case login
+    #if os(iOS)
 
+    case login
+    #endif
     @MainActor @ViewBuilder
     var destination: some View {
         switch self {
@@ -35,11 +37,28 @@ enum SettingsSheetStates {
             LogsView()
         case .qa:
             QAMenuView()
+        #if os(iOS)
         case .login:
-            UserLoginView()
+            UserLoginController()
+        #endif
         }
     }
 }
+
+#if os(iOS)
+struct UserLoginController: UIViewControllerRepresentable {
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        let controller = ToolsContainer.shared.authLoginCoordinator().rootViewController
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+#endif
 
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -146,17 +165,19 @@ private extension SettingsView {
                                              onToggle: viewModel.toggleBackUp))
 
             SettingDivider()
-
+            #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
                                              onToggle: {
-                                                 if viewModel.syncEnabled {} else {
-                                                     settingSheet = .login
-                                                 }
+                                                 settingSheet = .login
+//                                                 router.navigate(to: .login)
+//                                                 if viewModel.syncEnabled {} else {
+//                                                     settingSheet = .login
+//                                                 }
                                              }))
 
             SettingDivider()
-
+            #endif
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
@@ -296,11 +317,11 @@ private extension SettingsView {
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
-                .if(viewModel.isQaBuild) { view in
-                    view.onTapGesture(count: 3) {
-                        settingSheet = .qa
-                    }
-                }
+//                .if(viewModel.isQaBuild) { view in
+//                    view.onTapGesture(count: 3) {
+//                        settingSheet = .qa
+//                    }
+//                }
         }
     }
 

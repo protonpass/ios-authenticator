@@ -99,15 +99,15 @@ extension ToolsContainer {
     #endif
 
     var appVersion: Factory<String> {
-        self { "ios-authenticator@\(Bundle.main.fullAppVersionName)" }
-//            .onArg(PassModule.autoFillExtension) {
-//                "ios-pass-autofill@\(Bundle.main.fullAppVersionName)"
-//            }
-//            .onArg(PassModule.shareExtension) {
-//                "ios-pass-share@\(Bundle.main.fullAppVersionName)"
-//            }
-//            .onArg(PassModule.actionExtension) {
-//                "ios-pass-action@\(Bundle.main.fullAppVersionName)"
-//            }
+        // TODO: add correct app version for
+        self { "ios-pass@\(Bundle.main.fullAppVersionName)" }
     }
+
+    #if os(iOS)
+    var authLoginCoordinator: Factory<AuthLoginCoordinator> {
+        self {
+            @MainActor in AuthLoginCoordinator()
+        }.cached
+    }
+    #endif
 }

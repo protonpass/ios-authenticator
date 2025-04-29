@@ -43,7 +43,16 @@ let package = Package(
                 .product(name: "SimplyPersist", package: "SimplyPersist"),
                 .product(name: "Macro", package: "Macro"),
                 .product(name: "SimpleToast", package: "SimpleToast"),
+                // Core products
                 .product(name: "ProtonCoreKeyManager", package: "protoncore_ios"),
+                .product(name: "ProtonCoreDoh", package: "protoncore_ios"),
+                .product(name: "ProtonCoreFoundations", package: "protoncore_ios"),
+                .product(name: "ProtonCoreDataModel", package: "protoncore_ios"),
+                .product(name: "ProtonCoreNetworking", package: "protoncore_ios"),
+                .product(name: "ProtonCoreChallenge", package: "protoncore_ios"),
+                .product(name: "ProtonCoreForceUpgrade", package: "protoncore_ios"),
+                .product(name: "ProtonCoreCryptoGoImplementation", package: "protoncore_ios"),
+                .product(name: "ProtonCoreHumanVerification", package: "protoncore_ios"),
             ],
             resources: [.process("Resources")]),
         .testTarget(
