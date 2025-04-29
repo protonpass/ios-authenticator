@@ -19,9 +19,11 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import AVFoundation
 import CommonUtilities
+import DataLayer
+import Factory
 import Models
-
 import SimpleToast
 import SwiftUI
 
@@ -35,6 +37,8 @@ public struct EntriesView: View {
     @State private var isEditing = false
 
     @FocusState private var searchFieldFocus: Bool
+
+    private let alertService = resolve(\ServiceContainer.alertService)
 
     // periphery:ignore
     private var isPhone: Bool {
@@ -255,9 +259,7 @@ private extension EntriesView {
                 .padding(10)
                 .frame(width: 44, height: 44, alignment: .center)
                 .coloredBackgroundButton(.circle)
-            #if os(iOS)
                 .impactHaptic()
-            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
@@ -291,9 +293,7 @@ private extension EntriesView {
                       .onSubmit {
                           searchFieldFocus = false
                       }
-            #if os(iOS)
                       .impactHaptic()
-            #endif
         }
 
         .padding(.horizontal, 16)
@@ -303,21 +303,18 @@ private extension EntriesView {
         .clipShape(.capsule)
     }
 
-    @ViewBuilder
     var addButton: some View {
-        #if os(iOS)
-        Button(action: {
-            router.presentedFullscreenSheet = .qrCodeScanner
-        }, label: {
+        Button(action: handleAddNewCode) {
             plusIcon
-        })
-        #else
-        Button(action: {
-            router.presentedSheet = .createEditEntry(nil)
-        }, label: {
-            plusIcon
-        })
+        }
         .adaptiveButtonStyle()
+    }
+
+    func handleAddNewCode() {
+        #if os(iOS)
+        showScannerIfCameraAvailable()
+        #else
+        router.presentedSheet = .createEditEntry(nil)
         #endif
     }
 
@@ -327,16 +324,6 @@ private extension EntriesView {
             .frame(width: 20, height: 20)
             .foregroundStyle(.white)
     }
-
-    #if os(iOS)
-    var scanQrCodeButton: some View {
-        Button(action: {
-            router.presentedFullscreenSheet = .qrCodeScanner
-        }, label: {
-            Label("Scan", systemImage: "qrcode.viewfinder")
-        })
-    }
-    #endif
 }
 
 // MARK: - Overlay screen
@@ -373,13 +360,7 @@ private extension EntriesView {
                             .padding(.horizontal, 16)
                     }
                 } actions: {
-                    Button {
-                        #if os(iOS)
-                        router.presentedFullscreenSheet = .qrCodeScanner
-                        #else
-                        router.presentedSheet = .createEditEntry(nil)
-                        #endif
-                    } label: {
+                    Button(action: handleAddNewCode) {
                         Text("Create new code", bundle: .module)
                             .foregroundStyle(.white)
                             .fontWeight(.semibold)
@@ -388,9 +369,7 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
-                    #if os(iOS)
-                        .impactHaptic()
-                    #endif
+                    .impactHaptic()
                 }
                 .foregroundStyle(.textNorm)
             }
@@ -448,7 +427,7 @@ private extension EntriesView {
     @ViewBuilder
     var trailingContent: some View {
         HStack {
-            if AppConstants.isIpad {
+            if AppConstants.isIpad, !viewModel.entries.isEmpty {
                 Button {
                     withAnimation {
                         isEditing.toggle()
@@ -468,9 +447,7 @@ private extension EntriesView {
                     .frame(width: 36, height: 36)
             }
             .adaptiveButtonStyle()
-            #if os(iOS)
-                .impactHaptic()
-            #endif
+            .impactHaptic()
         }
     }
 
@@ -480,6 +457,22 @@ private extension EntriesView {
         #else
         return .automatic
         #endif
+    }
+}
+
+private extension EntriesView {
+    func showScannerIfCameraAvailable() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized, .notDetermined:
+            router.presentedFullscreenSheet = .qrCodeScanner
+        case .denied, .restricted:
+            let config = AlertConfiguration.noCameraAccess {
+                router.presentedSheet = .createEditEntry(nil)
+            }
+            alertService.showAlert(.main(config))
+        @unknown default:
+            router.presentedFullscreenSheet = .qrCodeScanner
+        }
     }
 }
 

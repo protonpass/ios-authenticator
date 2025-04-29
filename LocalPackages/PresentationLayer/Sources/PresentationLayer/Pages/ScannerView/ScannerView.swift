@@ -29,7 +29,7 @@ struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
-    @State var regionOfInterest: CGRect?
+    @State private var regionOfInterest: CGRect?
     @Environment(Router.self) private var router
 
     var body: some View {
@@ -42,6 +42,9 @@ struct ScannerView: View {
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
+        .onChange(of: viewModel.shouldEnterManually) {
+            enterManually()
+        }
         .sheetAlertService()
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $viewModel.imageSelection,
@@ -50,17 +53,21 @@ struct ScannerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(regionOfInterestOverlay)
     }
+}
 
-    private var regionOfInterestOverlay: some View {
+private extension ScannerView {
+    var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
-                               manualEntry: {
-                                   viewModel.clean()
-                                   dismiss()
-                                   router.presentedSheet = .createEditEntry(nil)
-                               },
+                               manualEntry: enterManually,
                                photoLibraryEntry: {
                                    showPhotosPicker.toggle()
                                })
+    }
+
+    func enterManually() {
+        viewModel.clean()
+        dismiss()
+        router.presentedSheet = .createEditEntry(nil)
     }
 }
 

@@ -128,15 +128,11 @@ private extension OnboardingView {
                     viewModel.enableBiometric()
                 }
             }
-            #if os(iOS)
             .impactHaptic()
-            #endif
 
             if supportSkipping {
                 CapsuleButton(title: "Skip", textColor: .textNorm, style: .bordered, action: goNext)
-                #if os(iOS)
                     .impactHaptic()
-                #endif
             } else {
                 Image("protonSlogan", bundle: .module)
                     .resizable()
