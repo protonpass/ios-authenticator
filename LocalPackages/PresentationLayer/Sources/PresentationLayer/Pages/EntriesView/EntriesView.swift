@@ -37,7 +37,8 @@ public struct EntriesView: View {
     @State private var isEditing = false
 
     @FocusState private var searchFieldFocus: Bool
-
+    
+    // periphery:ignore
     private let alertService = resolve(\ServiceContainer.alertService)
 
     // periphery:ignore

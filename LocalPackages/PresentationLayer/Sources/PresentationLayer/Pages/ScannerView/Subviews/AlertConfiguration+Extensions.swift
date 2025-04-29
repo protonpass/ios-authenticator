@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 #if os(iOS)
+//periphery:ignore
 import DataLayer
 import UIKit
 
