@@ -67,8 +67,7 @@ struct EntryCell: View {
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.name, highlighted: searchTerm)
-                        .font(Font.custom("SF Pro Text", size: 18)
-                            .weight(.medium))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .lineLimit(1)
