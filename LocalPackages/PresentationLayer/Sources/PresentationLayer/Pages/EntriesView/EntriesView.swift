@@ -38,6 +38,7 @@ public struct EntriesView: View {
 
     @FocusState private var searchFieldFocus: Bool
 
+    // periphery:ignore
     private let alertService = resolve(\ServiceContainer.alertService)
 
     // periphery:ignore
@@ -461,6 +462,7 @@ private extension EntriesView {
 }
 
 private extension EntriesView {
+    #if os(iOS)
     func showScannerIfCameraAvailable() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized, .notDetermined:
@@ -474,6 +476,7 @@ private extension EntriesView {
             router.presentedFullscreenSheet = .qrCodeScanner
         }
     }
+    #endif
 }
 
 #Preview {
