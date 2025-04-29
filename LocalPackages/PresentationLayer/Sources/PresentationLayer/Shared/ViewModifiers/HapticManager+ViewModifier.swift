@@ -35,19 +35,31 @@ private struct HapticModifier: ViewModifier {
         })
     }
 }
+#endif
 
 extension View {
     func impactHaptic(impactIntensity: CGFloat = 1) -> some View {
+        #if os(iOS)
         modifier(HapticModifier(type: .impact(intensity: impactIntensity)))
+        #else
+        self
+        #endif
     }
 
     func notificationHaptic(type: UINotificationFeedbackGenerator.FeedbackType = .success) -> some View {
+        #if os(iOS)
         modifier(HapticModifier(type: .notify(type)))
+        #else
+        self
+        #endif
     }
 
     // periphery:ignore
     func selectionHaptic() -> some View {
+        #if os(iOS)
         modifier(HapticModifier(type: .selection))
+        #else
+        self
+        #endif
     }
 }
-#endif

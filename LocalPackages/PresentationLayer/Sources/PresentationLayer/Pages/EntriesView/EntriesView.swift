@@ -259,9 +259,7 @@ private extension EntriesView {
                 .padding(10)
                 .frame(width: 44, height: 44, alignment: .center)
                 .coloredBackgroundButton(.circle)
-            #if os(iOS)
                 .impactHaptic()
-            #endif
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)
@@ -295,9 +293,7 @@ private extension EntriesView {
                       .onSubmit {
                           searchFieldFocus = false
                       }
-            #if os(iOS)
                       .impactHaptic()
-            #endif
         }
 
         .padding(.horizontal, 16)
@@ -373,9 +369,7 @@ private extension EntriesView {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 14)
                     .coloredBackgroundButton(.capsule)
-                    #if os(iOS)
-                        .impactHaptic()
-                    #endif
+                    .impactHaptic()
                 }
                 .foregroundStyle(.textNorm)
             }
@@ -453,9 +447,7 @@ private extension EntriesView {
                     .frame(width: 36, height: 36)
             }
             .adaptiveButtonStyle()
-            #if os(iOS)
-                .impactHaptic()
-            #endif
+            .impactHaptic()
         }
     }
 

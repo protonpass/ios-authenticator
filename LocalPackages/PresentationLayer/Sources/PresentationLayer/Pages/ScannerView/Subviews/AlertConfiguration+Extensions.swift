@@ -36,8 +36,7 @@ extension AlertConfiguration {
                                                action: onEnterManually)
         return .init(title: "Camera usage restricted",
                      titleBundle: .module,
-                     message: .localized("Please enable camera access from Settings",
-                                         .module),
+                     message: .localized("Please enable camera access from Settings", .module),
                      actions: [openSettingsAction, enterManuallyAction, ActionConfig.cancel])
     }
 }
