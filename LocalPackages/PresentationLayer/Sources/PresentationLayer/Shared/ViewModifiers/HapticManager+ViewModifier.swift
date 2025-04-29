@@ -17,13 +17,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+import SwiftUI
 
 #if os(iOS)
 // periphery:ignore
 import DataLayer
 import Factory
 import Foundation
-import SwiftUI
 
 private struct HapticModifier: ViewModifier {
     private let haptics = resolve(\ToolsContainer.hapticsManager)
@@ -41,23 +41,6 @@ extension View {
     func impactHaptic(impactIntensity: CGFloat = 1) -> some View {
         #if os(iOS)
         modifier(HapticModifier(type: .impact(intensity: impactIntensity)))
-        #else
-        self
-        #endif
-    }
-
-    func notificationHaptic(type: UINotificationFeedbackGenerator.FeedbackType = .success) -> some View {
-        #if os(iOS)
-        modifier(HapticModifier(type: .notify(type)))
-        #else
-        self
-        #endif
-    }
-
-    // periphery:ignore
-    func selectionHaptic() -> some View {
-        #if os(iOS)
-        modifier(HapticModifier(type: .selection))
         #else
         self
         #endif
