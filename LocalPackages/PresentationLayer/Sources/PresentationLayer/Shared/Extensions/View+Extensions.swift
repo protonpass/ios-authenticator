@@ -103,6 +103,10 @@ public extension View {
             self
         }
     }
+
+    func shadow() -> some View {
+        shadow(color: .inputBackground, radius: 2, x: 0, y: 2)
+    }
 }
 
 // MARK: - Non exposed extension

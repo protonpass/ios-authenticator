@@ -39,7 +39,6 @@ private enum FocusableField: Int, Hashable, CaseIterable {
 
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
@@ -51,7 +50,7 @@ struct CreateEditEntryView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 8) {
+                LazyVStack(spacing: 8) {
                     textField(TextFieldConfig(title: "Title (Required)",
                                               placeholder: "Title",
                                               binding: $viewModel.name,
@@ -75,53 +74,35 @@ struct CreateEditEntryView: View {
                                                   binding: $viewModel.issuer,
                                                   focusField: .issuer))
                     }
+
+                    if showAdvanceOptions {
+                        if viewModel.type == .totp {
+                            pickerSection
+                        }
+                        segmentedControlSection
+                    } else {
+                        advancedOptionsButton
+                    }
                 }
                 .onSubmit(focusNextField)
-
-                if showAdvanceOptions {
-                    advancedOptions
-                } else {
-                    Button {
-                        showAdvanceOptions.toggle()
-                        focusedField = nil
-                    } label: {
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("Advanced options", bundle: .module)
-                                .foregroundStyle(.textNorm)
-                                .frame(maxWidth: .infinity, alignment: .topLeading)
-                            Spacer()
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 18, height: 18)
-                                .foregroundStyle(.textNorm)
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .background((isDarkMode ? Color.white : .black).opacity(0.12))
-                        .cornerRadius(16)
-                        .padding(.horizontal, 16)
-                    }
-                    .adaptiveButtonStyle()
-                    .impactHaptic()
-                }
             }
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
             #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
             #endif
-                .navigationTitle(viewModel.isEditing ? "Update entry" : "New entry")
+                .toolbar { toolbarContent }
+                .navigationTitle(Text(viewModel.isEditing ? "Update Entry" : "New Entry",
+                                      bundle: .module))
                 .animation(.default, value: viewModel.canSave)
                 .animation(.default, value: viewModel.type)
+                .animation(.default, value: showAdvanceOptions)
                 .mainBackground()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         focusFirstField()
                     }
                 }
-                .toolbar { toolbarContent }
                 .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
@@ -161,16 +142,12 @@ struct CreateEditEntryView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background((isDarkMode ? Color.black : .white).opacity(0.5))
+        .background(.inputBackground)
         .cornerRadius(16)
         .overlay(RoundedRectangle(cornerRadius: 16)
             .inset(by: 0.5)
-            .stroke(.white.opacity(0.12), lineWidth: 1))
+            .stroke(.inputBorder, lineWidth: 1))
         .padding(.horizontal, 16)
-    }
-
-    private var isDarkMode: Bool {
-        colorScheme == .dark
     }
 
     private var secretFieldConfig: TextFieldConfig {
@@ -192,12 +169,32 @@ struct CreateEditEntryView: View {
 // MARK: - Advance options
 
 private extension CreateEditEntryView {
-    @ViewBuilder
-    var advancedOptions: some View {
-        if viewModel.type == .totp {
-            pickerSection
+    var advancedOptionsButton: some View {
+        Button {
+            showAdvanceOptions.toggle()
+            focusedField = nil
+        } label: {
+            HStack(alignment: .center, spacing: 8) {
+                Text("Advanced options", bundle: .module)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                Spacer()
+                Image(systemName: "plus")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(.textNorm)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(.dropdownBackground)
+            .cornerRadius(16)
+            .padding(.horizontal, 16)
         }
-        segmentedControlSection
+        .adaptiveButtonStyle()
+        .shadow()
+        .impactHaptic()
     }
 
     var pickerSection: some View {
@@ -230,9 +227,9 @@ private extension CreateEditEntryView {
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background((isDarkMode ? Color.white : .black).opacity(0.12))
+        .background(.dropdownBackground)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.11), radius: 2, x: 0, y: 2)
+        .shadow()
     }
 
     @ViewBuilder
@@ -318,7 +315,7 @@ private extension CreateEditEntryView {
                 dismiss()
             } label: {
                 Text("Close", bundle: .module)
-                    .foregroundStyle(Color.purpleInteraction)
+                    .foregroundStyle(.accent)
                     .padding(10)
             }
             .adaptiveButtonStyle()
@@ -330,7 +327,7 @@ private extension CreateEditEntryView {
             } label: {
                 Text("Save", bundle: .module)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.purpleInteraction)
+                    .foregroundStyle(.accent)
                     .padding(10)
             }
             .adaptiveButtonStyle()

@@ -31,11 +31,10 @@ struct CustomSegmentedControl<T: CustomSegmentedControlData>: View {
             ForEach(data) { option in
                 Text(verbatim: "\(option.rawValue)".uppercased())
                     .fontWeight(.semibold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.textNorm)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .background(option == selection ? .white.opacity(0.12) : .clear)
                     .cornerRadius(52)
                     .onTapGesture {
                         withAnimation(.interactiveSpring()) {
@@ -45,8 +44,31 @@ struct CustomSegmentedControl<T: CustomSegmentedControlData>: View {
             }
         }
         .padding(6)
+        .background(movingCapsule)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(.black.opacity(0.5))
-        .cornerRadius(100)
+        .background(.inputBackground)
+        .clipShape(.capsule)
+        .animation(.default, value: selection)
+    }
+}
+
+private extension CustomSegmentedControl {
+    var movingCapsule: some View {
+        HStack(spacing: 0) {
+            if let index = data.firstIndex(of: selection) {
+                ForEach(0..<index, id: \.self) { _ in
+                    Color.clear
+                }
+
+                Color.dropdownBackground
+                    .clipShape(.capsule)
+                    .padding(6)
+
+                ForEach(index..<data.count - 1, id: \.self) { _ in
+                    Color.clear
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 }

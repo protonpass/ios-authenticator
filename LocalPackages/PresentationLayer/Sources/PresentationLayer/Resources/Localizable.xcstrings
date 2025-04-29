@@ -532,12 +532,12 @@
         }
       }
     },
-    "New entry" : {
+    "New Entry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New entry"
+            "value" : "New Entry"
           }
         }
       }
@@ -935,12 +935,12 @@
         }
       }
     },
-    "Update entry" : {
+    "Update Entry" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Update entry"
+            "value" : "Update Entry"
           }
         }
       }
