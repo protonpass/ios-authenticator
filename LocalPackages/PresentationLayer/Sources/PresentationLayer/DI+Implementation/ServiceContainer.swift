@@ -91,4 +91,13 @@ public extension ServiceContainer {
     var toastService: Factory<any ToastServiceProtocol> {
         self { @MainActor in ToastService() }
     }
+
+    var apiManager: Factory<any APIManagerProtocol> {
+        self {
+            APIManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
+                                                              doh: AuthDoH(userDefaults: kSharedUserDefaults)),
+                       keyStore: self.keychainService(),
+                       logger: self.logger)
+        }
+    }
 }

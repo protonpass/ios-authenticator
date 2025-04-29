@@ -56,13 +56,13 @@ public protocol EncryptionServicing: Sendable {
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
-    private let keyStore: KeychainServicing
-    private let logger: LoggerProtocol
+    private let keyStore: any KeychainServicing
+    private let logger: any LoggerProtocol
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
-                keyStore: KeychainServicing,
+                keyStore: any KeychainServicing,
                 deviceIdentifier: String = DeviceIdentifier.current,
-                logger: LoggerProtocol) {
+                logger: any LoggerProtocol) {
         self.keyStore = keyStore
         self.logger = logger
         keyId = "encryptionKey-\(deviceIdentifier)"

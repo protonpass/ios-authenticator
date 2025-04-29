@@ -59,6 +59,7 @@ struct UserLoginView: View {
                     CapsuleButton(title: "Create a free account",
                                   textColor: .white,
                                   style: .borderedFilled) {
+                        viewModel.beginAddAccountFlow(isSigningUp: true, rootViewController: self)
 //                        switch viewModel.currentStep {
 //                        case .intro:
 //                            goNext()
@@ -72,9 +73,11 @@ struct UserLoginView: View {
                     .impactHaptic()
                     #endif
 
-                    CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {})
+                    CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {
+                        viewModel.beginAddAccountFlow(isSigningUp: false, rootViewController: self)
+                    })
                     #if os(iOS)
-                        .impactHaptic()
+                    .impactHaptic()
                     #endif
 
                     Image(.protonPrivacy)
@@ -143,8 +146,6 @@ struct UserLoginView: View {
         return .automatic
         #endif
     }
-    
- 
 }
 
 #Preview {

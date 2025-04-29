@@ -20,7 +20,9 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Factory
 import Foundation
+import Models
 import ProtonCoreLogin
 import ProtonCoreLoginUI
 import SwiftUI
@@ -31,43 +33,48 @@ final class UserLoginViewModel {
     @ObservationIgnored
     private weak var logInAndSignUp: LoginAndSignup?
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @Injected(\ServiceContainer.apiManager) private var apiManager
+
     init() {
         logInAndSignUp = makeLoginAndSignUp()
         setUp()
     }
-    
+
     func beginAddAccountFlow(isSigningUp: Bool, rootViewController: some View) {
         let options = LoginCustomizationOptions(inAppTheme: { [weak self] in
             guard let self else { return .default }
-//            return getSharedPreferences().theme.inAppTheme
+            return .default
         })
         if isSigningUp {
             logInAndSignUp?.presentSignupFlow(over: UIHostingController(rootView: rootViewController),
-                                             customization: options) { [weak self] result in
+                                              customization: options) { [weak self] result in
                 guard let self else { return }
                 handle(result)
             }
         } else {
             logInAndSignUp?.presentLoginFlow(over: UIHostingController(rootView: rootViewController),
-                                            customization: options) { [weak self] result in
+                                             customization: options) { [weak self] result in
                 guard let self else { return }
                 handle(result)
             }
         }
     }
-
 }
 
 private extension UserLoginViewModel {
     func setUp() {}
-    
+
     func makeLoginAndSignUp() -> LoginAndSignup {
         let signUpParameters = SignupParameters(separateDomainsButton: true,
                                                 passwordRestrictions: .default,
                                                 summaryScreenVariant: .noSummaryScreen)
         return .init(appName: "Proton Authenticator",
                      clientApp: .other(named: "Proton Authenticator"),
-                     apiService: apiService,
+                     apiService: apiManager.apiService,
                      minimumAccountType: .external,
                      paymentsAvailability: .notAvailable,
                      signupAvailability: .available(parameters: signUpParameters))
@@ -78,6 +85,7 @@ private extension UserLoginViewModel {
         case .dismissed:
             return
         case let .loggedIn(logInData), let .signedUp(logInData):
+            print("woot logged in: \(logInData)")
             logInAndSignUp = makeLoginAndSignUp()
 //            handle(logInData: logInData)
         }
