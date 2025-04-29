@@ -38,6 +38,7 @@ import VisionKit
 final class ScannerViewModel {
     var scanning = true
     private(set) var shouldDismiss = false
+    private(set) var shouldEnterManually = false
 
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
@@ -95,17 +96,10 @@ final class ScannerViewModel {
                 if let error = error as? DataScannerViewController.ScanningUnavailable,
                    error == .cameraRestricted {
                     if Task.isCancelled { return }
-                    let action = ActionConfig(title: "Open Settings", titleBundle: .module) {
-                        if let url = URL(string: UIApplication.openSettingsURLString),
-                           UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(url)
-                        }
+                    let config = AlertConfiguration.noCameraAccess { [weak self] in
+                        guard let self else { return }
+                        shouldEnterManually = true
                     }
-                    let config = AlertConfiguration(title: "Camera usage restricted",
-                                                    titleBundle: .module,
-                                                    message: .localized("Please enable camera access from Settings",
-                                                                        .module),
-                                                    actions: [action, ActionConfig.cancel])
                     alertService.showAlert(.sheet(config))
                 } else {
                     if Task.isCancelled { return }

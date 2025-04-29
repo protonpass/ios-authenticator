@@ -78,7 +78,7 @@ public struct RestrictedScanningArea: View {
                     .frame(width: configuration.sizeOfArea.width, height: configuration.sizeOfArea.height)
                     .blendMode(.destinationOut)
                     .overlay(CornerBorder(cornerRadius: 5, cornerLength: 80)
-                        .stroke(configuration.borderColor, lineWidth: 4))
+                        .stroke(configuration.borderColor, lineWidth: 8))
                     .background(GeometryReader { geometry -> Color in
                         DispatchQueue.main.async {
                             regionOfInterest = geometry.frame(in: .global)
@@ -94,7 +94,7 @@ public struct RestrictedScanningArea: View {
 
                 Spacer()
                 HStack {
-                    Button { dismiss() } label: {
+                    Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
                             .resizable()
                             .frame(width: 28, height: 28)
@@ -102,9 +102,7 @@ public struct RestrictedScanningArea: View {
                     }
 
                     Spacer()
-                    Button {
-                        manualEntry()
-                    } label: {
+                    Button(action: manualEntry) {
                         Text("Enter manually", bundle: .module)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 36)
@@ -114,7 +112,7 @@ public struct RestrictedScanningArea: View {
                     }
                     Spacer()
 
-                    Button { photoLibraryEntry() } label: {
+                    Button(action: photoLibraryEntry) {
                         Image(systemName: "rectangle.stack")
                             .resizable()
                             .frame(width: 28, height: 28)
