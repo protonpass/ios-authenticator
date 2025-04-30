@@ -28,7 +28,7 @@ public enum AuthenticatorColor {}
 #if canImport(UIKit)
 public extension AuthenticatorColor {
     enum UIColor {
-        public static let purpleInteraction = UIKit.UIColor.purpleInteraction
+        public static let accent = UIKit.UIColor.accent
     }
 }
 #endif

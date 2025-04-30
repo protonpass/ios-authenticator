@@ -34,8 +34,6 @@ final class CreateEditEntryViewModel {
     var algo: TotpAlgorithm = .sha1
     var type: TotpType = .totp
     var note = ""
-    var showSecret: Bool = false
-
     var shouldDismiss = false
 
     var supportedDigits: [Int] = AppConstants.EntryOptions.supportedDigits
@@ -67,7 +65,14 @@ final class CreateEditEntryViewModel {
         setUp(entry: entry)
     }
 
+    func trimInputs() {
+        name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        secret = secret.trimmingCharacters(in: .whitespacesAndNewlines)
+        issuer = issuer.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func save() {
+        trimInputs()
         guard !secret.isEmpty, !name.isEmpty else {
             return
         }
