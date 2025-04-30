@@ -163,7 +163,9 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
     private let configuration: APIManagerConfiguration
     private let forceUpgradeHelper: ForceUpgradeHelper
     private let keyStore: any KeychainServicing
-    public let key = "credentials"
+    private let keysProvider: any KeysProvider
+    private let key = "credentials"
+
     #if os(iOS)
     private let challengeProvider = ChallengeParametersProvider.forAPIService(clientApp: .other(named:
         "authenticator"),
@@ -173,10 +175,6 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
     private let challengeProvider = ChallengeParametersProvider(prefix: "authenticator",
                                                                 provideParametersForLoginAndSignup: { [] },
                                                                 provideParametersForSessionFetching: { [] })
-//        .forAPIService(clientApp: .other(named:
-//        "authenticator"),
-//    challenge: .init())
-
     #endif
 
     private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
@@ -188,9 +186,11 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
 
     public init(configuration: APIManagerConfiguration,
                 keyStore: any KeychainServicing,
+                keysProvider: any KeysProvider,
                 logger: any LoggerProtocol) {
         self.configuration = configuration
         self.logger = logger
+        self.keysProvider = keysProvider
         self.keyStore = keyStore
         Self.setUpCertificatePinning()
         injectDefaultCryptoImplementation()
@@ -219,7 +219,12 @@ public final class APIManager: @unchecked Sendable, APIManagerProtocol {
         let newApiService: PMAPIService
 
         do {
-            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
+//            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
+            let encryptedContent: Data = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
+            let symmetricKey = try keysProvider.getSymmetricKey()
+            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
+            let credentials = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
+
             cachedCredentials.modify {
                 $0 = credentials
             }
@@ -309,16 +314,39 @@ private extension APIManager {
     }
 
     func saveCachedCredentialsToKeychain() {
-        print("saving tokens")
         do {
-//             let symmetricKey = try symmetricKeyProvider.getSymmetricKey()
-//            let data = try JSONEncoder().encode(cachedCredentials.value)
-//             let encryptedContent = try symmetricKey.encrypt(data)
-            try keyStore.set(cachedCredentials.value, for: key, shouldSync: false)
+            let symmetricKey = try keysProvider.getSymmetricKey()
+            let data = try JSONEncoder().encode(cachedCredentials.value)
+            let encryptedContent = try symmetricKey.encrypt(data)
+            try keyStore.set(encryptedContent, for: key, shouldSync: false)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")
         }
     }
+
+    func removeCachedCredentials() {
+        do {
+            try keyStore.delete(key)
+        } catch {
+            log(.error, "Failed to saved user sessions in keychain: \(error)")
+        }
+    }
+
+//    func getCachedCredentials() -> [CredentialsKey: Credentials] {
+//        guard let encryptedContent = try? keychain.dataOrError(forKey: Self.storageKey),
+//              let symmetricKey = try? symmetricKeyProvider.getSymmetricKey() else {
+//            return [:]
+//        }
+//
+//        do {
+//            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
+//            return try JSONDecoder().decode(CachedCredentials.self, from: decryptedContent)
+//        } catch {
+//            logger.error("Failed to decrypted user sessions from keychain: \(error)")
+//            try? keychain.removeOrError(forKey: Self.storageKey)
+//            return [:]
+//        }
+//    }
 
     func updateSession(sessionId: String) {
         if apiService.sessionUID.isEmpty {
@@ -408,14 +436,6 @@ extension APIManager: AuthDelegate {
     public func onAuthenticatedSessionInvalidated(sessionUID: String) {
         log(.info, "Authenticated session invalidated for session id \(sessionUID)")
         cleanSession(sessionUID: sessionUID)
-//        cachedCredentials.modify {
-//            $0 = nil
-//        }
-//        saveCachedCredentialsToKeychain()
-//        createApiService(credential: cachedCredentials.value)
-//        authSessionInvalidatedDelegateForLoginAndSignup?
-//            .sessionWasInvalidated(for: sessionUID,
-//                                   isAuthenticatedSession: true)
     }
 
     public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
@@ -427,7 +447,8 @@ extension APIManager: AuthDelegate {
         cachedCredentials.modify {
             $0 = nil
         }
-        saveCachedCredentialsToKeychain()
+        removeCachedCredentials()
+//        saveCachedCredentialsToKeychain()
         createApiService(credential: nil)
         authSessionInvalidatedDelegateForLoginAndSignup?
             .sessionWasInvalidated(for: sessionUID,

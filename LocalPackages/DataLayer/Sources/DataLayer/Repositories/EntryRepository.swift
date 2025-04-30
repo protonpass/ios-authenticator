@@ -71,6 +71,7 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let persistentStorage: any PersistenceServicing
     private let encryptionService: any EncryptionServicing
 
+    // TODO: Implement the new logging tool
     public init(persistentStorage: any PersistenceServicing,
                 encryptionService: any EncryptionServicing,
                 rustClient: any AuthenticatorMobileClientProtocol = AuthenticatorMobileClient()) {

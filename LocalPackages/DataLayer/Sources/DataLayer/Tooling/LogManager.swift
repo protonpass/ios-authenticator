@@ -253,7 +253,7 @@ private extension LogManager {
 
         let logger = loggers[logEntry.category]
         logger?.log(level: logEntry.level.osLogType,
-                    "[\(logEntry.category.rawValue)][\(logEntry.level.rawValue)] \(logEntry.message) (\(logEntry.file):\(logEntry.line) \(logEntry.function))")
+                    "[\(logEntry.category.rawValue)][\(logEntry.level.rawValue)] \(logEntry.message) (\(logEntry.file):\(logEntry.line)")
     }
 
     // MARK: - Cleanup Old Logs

@@ -97,7 +97,14 @@ public extension ServiceContainer {
             APIManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
                                                               doh: AuthDoH(userDefaults: kSharedUserDefaults)),
                        keyStore: self.keychainService(),
+                       keysProvider: self.keyManager(),
                        logger: self.logger)
+        }
+    }
+
+    var keyManager: Factory<any KeysProvider> {
+        self {
+            KeyManager(keychain: self.keychainService())
         }
     }
 }
