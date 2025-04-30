@@ -200,16 +200,21 @@ private extension CreateEditEntryView {
     var pickerSection: some View {
         VStack {
             pickerFields(title: "Digits",
+                         description: { .verbatim("\($0)") },
                          data: viewModel.supportedDigits,
                          binding: $viewModel.digits)
             pickerFields(title: "Time interval",
+                         description: { .localized("\($0) seconds", .module) },
                          data: viewModel.supportedPeriod,
                          binding: $viewModel.period)
         }
         .padding(16)
     }
 
-    func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
+    func pickerFields(title: LocalizedStringKey,
+                      description: @escaping (Int) -> TextContent,
+                      data: [Int],
+                      binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
             Text(title, bundle: .module)
                 .foregroundStyle(.textNorm)
@@ -217,7 +222,7 @@ private extension CreateEditEntryView {
             Spacer()
             Picker(title, selection: binding) {
                 ForEach(data, id: \.self) { element in
-                    Text(verbatim: "\(element)")
+                    Text(description(element)) // ignore:missing_bundle
                         .tag(element)
                 }
             }
