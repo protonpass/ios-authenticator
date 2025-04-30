@@ -25,12 +25,18 @@ import SwiftUI
 private struct TextFieldConfig {
     let title: LocalizedStringKey
     let placeholder: LocalizedStringKey
+    var isSecret = false
     let binding: Binding<String>
-    let focusField: FocusableField
+    let field: FocusableField
 
     #if os(iOS)
     var capitalization: TextInputAutocapitalization = .sentences
     #endif
+
+    func finalBinding(_ focusedField: FocusableField?) -> Binding<String> {
+        focusedField == field || !isSecret ?
+            binding : .constant(String(repeating: "•", count: binding.wrappedValue.count))
+    }
 }
 
 private enum FocusableField: Int, Hashable, CaseIterable {
@@ -39,7 +45,6 @@ private enum FocusableField: Int, Hashable, CaseIterable {
 
 struct CreateEditEntryView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
@@ -55,78 +60,53 @@ struct CreateEditEntryView: View {
                     textField(TextFieldConfig(title: "Title (Required)",
                                               placeholder: "Title",
                                               binding: $viewModel.name,
-                                              focusField: .name))
+                                              field: .name))
 
-                    textField(secretFieldConfig,
-                              shouldShow: viewModel.showSecret)
-                        .overlay(alignment: .trailing) {
-                            Button {
-                                viewModel.showSecret.toggle()
-                            } label: {
-                                Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
-                            }
-                            .adaptiveButtonStyle()
-                            .padding(.horizontal, 25)
-                        }
+                    textField(secretFieldConfig)
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
                                                   placeholder: "Issuer",
                                                   binding: $viewModel.issuer,
-                                                  focusField: .issuer))
+                                                  field: .issuer))
+                    }
+
+                    if showAdvanceOptions {
+                        if viewModel.type == .totp {
+                            pickerSection
+                        }
+                        segmentedControlSection
+                    } else {
+                        advancedOptionsButton
                     }
                 }
                 .onSubmit(focusNextField)
-
-                if showAdvanceOptions {
-                    advancedOptions
-                } else {
-                    Button {
-                        showAdvanceOptions.toggle()
-                        focusedField = nil
-                    } label: {
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("Advanced options", bundle: .module)
-                                .foregroundStyle(.textNorm)
-                                .frame(maxWidth: .infinity, alignment: .topLeading)
-                            Spacer()
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 18, height: 18)
-                                .foregroundStyle(.textNorm)
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .background((isDarkMode ? Color.white : .black).opacity(0.12))
-                        .cornerRadius(16)
-                        .padding(.horizontal, 16)
-                    }
-                    .adaptiveButtonStyle()
-                    .impactHaptic()
-                }
             }
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
             #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
             #endif
-                .navigationTitle(viewModel.isEditing ? "Update entry" : "New entry")
+                .toolbar { toolbarContent }
+                .navigationTitle(Text(viewModel.isEditing ? "Update Entry" : "New Entry",
+                                      bundle: .module))
                 .animation(.default, value: viewModel.canSave)
                 .animation(.default, value: viewModel.type)
+                .animation(.default, value: showAdvanceOptions)
                 .mainBackground()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         focusFirstField()
                     }
                 }
-                .toolbar { toolbarContent }
                 .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
                         dismiss()
                     }
+                }
+                .onChange(of: focusedField) { _, _ in
+                    viewModel.trimInputs()
                 }
         }
         #if os(macOS)
@@ -134,57 +114,49 @@ struct CreateEditEntryView: View {
         #endif
     }
 
-    private func textField(_ config: TextFieldConfig, shouldShow: Bool = true) -> some View {
+    private func textField(_ config: TextFieldConfig) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            Group {
-                if shouldShow {
-                    TextField(config.placeholder, text: config.binding)
-                        .adaptiveTextFieldStyle()
-                } else {
-                    SecureField(config.placeholder, text: config.binding)
-                        .adaptiveSecureFieldStyle()
-                }
-            }
-            .onSubmit(focusNextField)
-            .focused($focusedField, equals: config.focusField)
-            .font(.system(.body, design: .rounded))
-            .foregroundStyle(.textWeak)
-            .autocorrectionDisabled(true)
+
+            TextField(config.placeholder, text: config.finalBinding(focusedField))
+                .adaptiveTextFieldStyle()
+                .onSubmit(focusNextField)
+                .focused($focusedField, equals: config.field)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.textWeak)
+                .autocorrectionDisabled(true)
+                .frame(minHeight: 25)
             #if os(iOS)
                 .textInputAutocapitalization(config.capitalization)
             #endif
-                .frame(minHeight: 25)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background((isDarkMode ? Color.black : .white).opacity(0.5))
+        .background(.inputBackground)
         .cornerRadius(16)
         .overlay(RoundedRectangle(cornerRadius: 16)
             .inset(by: 0.5)
-            .stroke(.white.opacity(0.12), lineWidth: 1))
+            .stroke(.inputBorder, lineWidth: 1))
         .padding(.horizontal, 16)
-    }
-
-    private var isDarkMode: Bool {
-        colorScheme == .dark
     }
 
     private var secretFieldConfig: TextFieldConfig {
         #if os(iOS)
         TextFieldConfig(title: "Secret (Required)",
                         placeholder: "Secret",
+                        isSecret: true,
                         binding: $viewModel.secret,
-                        focusField: .secret,
+                        field: .secret,
                         capitalization: .characters)
         #else
         TextFieldConfig(title: "Secret (Required)",
                         placeholder: "Secret",
+                        isSecret: true,
                         binding: $viewModel.secret,
-                        focusField: .secret)
+                        field: .secret)
         #endif
     }
 }
@@ -192,27 +164,52 @@ struct CreateEditEntryView: View {
 // MARK: - Advance options
 
 private extension CreateEditEntryView {
-    @ViewBuilder
-    var advancedOptions: some View {
-        if viewModel.type == .totp {
-            pickerSection
+    var advancedOptionsButton: some View {
+        Button {
+            showAdvanceOptions.toggle()
+            focusedField = nil
+        } label: {
+            HStack(alignment: .center, spacing: 8) {
+                Text("Advanced options", bundle: .module)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                Spacer()
+                Image(systemName: "plus")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(.textNorm)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(.dropdownBackground)
+            .cornerRadius(16)
+            .padding(.horizontal, 16)
         }
-        segmentedControlSection
+        .adaptiveButtonStyle()
+        .impactHaptic()
+        .optionShadow()
     }
 
     var pickerSection: some View {
         VStack {
             pickerFields(title: "Digits",
+                         description: { .verbatim("\($0)") },
                          data: viewModel.supportedDigits,
                          binding: $viewModel.digits)
             pickerFields(title: "Time interval",
+                         description: { .localized("\($0) seconds", .module) },
                          data: viewModel.supportedPeriod,
                          binding: $viewModel.period)
         }
         .padding(16)
     }
 
-    func pickerFields(title: LocalizedStringKey, data: [Int], binding: Binding<Int>) -> some View {
+    func pickerFields(title: LocalizedStringKey,
+                      description: @escaping (Int) -> TextContent,
+                      data: [Int],
+                      binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
             Text(title, bundle: .module)
                 .foregroundStyle(.textNorm)
@@ -220,7 +217,7 @@ private extension CreateEditEntryView {
             Spacer()
             Picker(title, selection: binding) {
                 ForEach(data, id: \.self) { element in
-                    Text(verbatim: "\(element)")
+                    Text(description(element)) // ignore:missing_bundle
                         .tag(element)
                 }
             }
@@ -230,9 +227,9 @@ private extension CreateEditEntryView {
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .center)
-        .background((isDarkMode ? Color.white : .black).opacity(0.12))
+        .background(.dropdownBackground)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.11), radius: 2, x: 0, y: 2)
+        .optionShadow()
     }
 
     @ViewBuilder
@@ -318,7 +315,7 @@ private extension CreateEditEntryView {
                 dismiss()
             } label: {
                 Text("Close", bundle: .module)
-                    .foregroundStyle(Color.purpleInteraction)
+                    .foregroundStyle(.accent)
                     .padding(10)
             }
             .adaptiveButtonStyle()
@@ -330,7 +327,7 @@ private extension CreateEditEntryView {
             } label: {
                 Text("Save", bundle: .module)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.purpleInteraction)
+                    .foregroundStyle(.accent)
                     .padding(10)
             }
             .adaptiveButtonStyle()

@@ -464,7 +464,8 @@ private extension EntriesView {
 private extension EntriesView {
     #if os(iOS)
     func showScannerIfCameraAvailable() {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
         case .authorized, .notDetermined:
             router.presentedFullscreenSheet = .qrCodeScanner
         case .denied, .restricted:
