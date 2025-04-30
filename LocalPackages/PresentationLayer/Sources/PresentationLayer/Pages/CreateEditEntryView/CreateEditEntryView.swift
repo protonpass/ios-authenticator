@@ -25,12 +25,18 @@ import SwiftUI
 private struct TextFieldConfig {
     let title: LocalizedStringKey
     let placeholder: LocalizedStringKey
+    var isSecret = false
     let binding: Binding<String>
-    let focusField: FocusableField
+    let field: FocusableField
 
     #if os(iOS)
     var capitalization: TextInputAutocapitalization = .sentences
     #endif
+
+    func finalBinding(_ focusedField: FocusableField?) -> Binding<String> {
+        focusedField == field || !isSecret ?
+            binding : .constant(String(repeating: "•", count: binding.wrappedValue.count))
+    }
 }
 
 private enum FocusableField: Int, Hashable, CaseIterable {
@@ -54,25 +60,15 @@ struct CreateEditEntryView: View {
                     textField(TextFieldConfig(title: "Title (Required)",
                                               placeholder: "Title",
                                               binding: $viewModel.name,
-                                              focusField: .name))
+                                              field: .name))
 
-                    textField(secretFieldConfig,
-                              shouldShow: viewModel.showSecret)
-                        .overlay(alignment: .trailing) {
-                            Button {
-                                viewModel.showSecret.toggle()
-                            } label: {
-                                Image(systemName: viewModel.showSecret ? "eye.slash" : "eye")
-                            }
-                            .adaptiveButtonStyle()
-                            .padding(.horizontal, 25)
-                        }
+                    textField(secretFieldConfig)
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer (Required)",
                                                   placeholder: "Issuer",
                                                   binding: $viewModel.issuer,
-                                                  focusField: .issuer))
+                                                  field: .issuer))
                     }
 
                     if showAdvanceOptions {
@@ -109,36 +105,33 @@ struct CreateEditEntryView: View {
                         dismiss()
                     }
                 }
+                .onChange(of: focusedField) { _, _ in
+                    viewModel.trimInputs()
+                }
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)
         #endif
     }
 
-    private func textField(_ config: TextFieldConfig, shouldShow: Bool = true) -> some View {
+    private func textField(_ config: TextFieldConfig) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
                 .font(.caption)
                 .foregroundStyle(.white)
-            Group {
-                if shouldShow {
-                    TextField(config.placeholder, text: config.binding)
-                        .adaptiveTextFieldStyle()
-                } else {
-                    SecureField(config.placeholder, text: config.binding)
-                        .adaptiveSecureFieldStyle()
-                }
-            }
-            .onSubmit(focusNextField)
-            .focused($focusedField, equals: config.focusField)
-            .font(.system(.body, design: .rounded))
-            .foregroundStyle(.textWeak)
-            .autocorrectionDisabled(true)
+
+            TextField(config.placeholder, text: config.finalBinding(focusedField))
+                .adaptiveTextFieldStyle()
+                .onSubmit(focusNextField)
+                .focused($focusedField, equals: config.field)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.textWeak)
+                .autocorrectionDisabled(true)
+                .frame(minHeight: 25)
             #if os(iOS)
                 .textInputAutocapitalization(config.capitalization)
             #endif
-                .frame(minHeight: 25)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -154,14 +147,16 @@ struct CreateEditEntryView: View {
         #if os(iOS)
         TextFieldConfig(title: "Secret (Required)",
                         placeholder: "Secret",
+                        isSecret: true,
                         binding: $viewModel.secret,
-                        focusField: .secret,
+                        field: .secret,
                         capitalization: .characters)
         #else
         TextFieldConfig(title: "Secret (Required)",
                         placeholder: "Secret",
+                        isSecret: true,
                         binding: $viewModel.secret,
-                        focusField: .secret)
+                        field: .secret)
         #endif
     }
 }
