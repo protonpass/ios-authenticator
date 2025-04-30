@@ -692,16 +692,6 @@
         }
       }
     },
-    "Scan" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan"
-          }
-        }
-      }
-    },
     "Scan a QR code" : {
       "localizations" : {
         "en" : {
