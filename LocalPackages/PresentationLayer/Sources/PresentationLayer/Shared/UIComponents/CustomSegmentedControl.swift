@@ -37,9 +37,7 @@ struct CustomSegmentedControl<T: CustomSegmentedControlData>: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .cornerRadius(52)
                     .onTapGesture {
-                        withAnimation(.interactiveSpring()) {
-                            selection = option
-                        }
+                        selection = option
                     }
             }
         }
@@ -62,6 +60,7 @@ private extension CustomSegmentedControl {
 
                 Color.dropdownBackground
                     .clipShape(.capsule)
+                    .optionShadow()
                     .padding(6)
 
                 ForEach(index..<data.count - 1, id: \.self) { _ in

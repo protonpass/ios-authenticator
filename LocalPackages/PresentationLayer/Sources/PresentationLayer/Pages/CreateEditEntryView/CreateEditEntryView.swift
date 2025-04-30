@@ -50,7 +50,7 @@ struct CreateEditEntryView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 8) {
+                VStack(spacing: 8) {
                     textField(TextFieldConfig(title: "Title (Required)",
                                               placeholder: "Title",
                                               binding: $viewModel.name,
@@ -193,8 +193,8 @@ private extension CreateEditEntryView {
             .padding(.horizontal, 16)
         }
         .adaptiveButtonStyle()
-        .shadow()
         .impactHaptic()
+        .optionShadow()
     }
 
     var pickerSection: some View {
@@ -229,7 +229,7 @@ private extension CreateEditEntryView {
         .frame(maxWidth: .infinity, alignment: .center)
         .background(.dropdownBackground)
         .cornerRadius(16)
-        .shadow()
+        .optionShadow()
     }
 
     @ViewBuilder
