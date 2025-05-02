@@ -125,8 +125,8 @@ struct EntryCell: View {
                     Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
                     Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1),
                 ],
-                startPoint: UnitPoint(x: 0, y: 0),
-                endPoint: UnitPoint(x: 0, y: 1)
+                startPoint: UnitPoint(x: 0.5, y: 0),
+                endPoint: UnitPoint(x: 0.5, y: 1)
             )
         )
         .mainBackground()
@@ -137,8 +137,8 @@ struct EntryCell: View {
                                     Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42), location: 0.00),
                                     Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3, blue: 0.29), location: 1.00),
                                   ],
-                                   startPoint: UnitPoint(x: 0, y: 0),
-                                   endPoint: UnitPoint(x: 0, y: 1)),
+                                   startPoint: UnitPoint(x: 0.5, y: 0),
+                                   endPoint: UnitPoint(x: 0.5, y: 1)),
                     lineWidth: 0.5))
         .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16), radius: 4, x: 0, y: isLightMode ? 3 : 2)
     }
