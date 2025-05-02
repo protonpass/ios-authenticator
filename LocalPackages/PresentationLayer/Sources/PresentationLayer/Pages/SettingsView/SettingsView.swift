@@ -67,7 +67,7 @@ public struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-    @State private var settingSheet: SettingsSheetStates?
+//    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
 
     public init() {}
@@ -130,8 +130,8 @@ public struct SettingsView: View {
                               contentType: .text,
                               defaultFilename: viewModel.generateExportFileName(),
                               onCompletion: viewModel.handleExportResult)
-                .sheet(isPresented: $settingSheet.mappedToBool()) {
-                    settingSheet?.destination
+                .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                    viewModel.settingSheet?.destination
                 }
         }
         .animation(.default, value: viewModel.theme)
@@ -169,11 +169,7 @@ private extension SettingsView {
             SettingRow(title: .localized("Sync between devices", .module),
                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
                                              onToggle: {
-                                                 settingSheet = .login
-//                                                 router.navigate(to: .login)
-//                                                 if viewModel.syncEnabled {} else {
-//                                                     settingSheet = .login
-//                                                 }
+                                                 viewModel.toggleSync()
                                              }))
 
             SettingDivider()
@@ -187,6 +183,9 @@ private extension SettingsView {
             SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
+        }
+        .onChange(of: viewModel.syncEnabled) {
+            viewModel.settingSheet = nil
         }
     }
 
@@ -290,7 +289,7 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Logs", .module), onTap: { settingSheet = .logs })
+            SettingRow(title: .localized("Logs", .module), onTap: { viewModel.settingSheet = .logs })
         }
     }
 

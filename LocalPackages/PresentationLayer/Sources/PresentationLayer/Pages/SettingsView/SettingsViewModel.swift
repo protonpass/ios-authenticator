@@ -20,6 +20,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Combine
+import DataLayer
 import Factory
 import Foundation
 import Macro
@@ -31,12 +33,12 @@ import UIKit
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var backUpEnabled = true
-//    private(set) var syncEnabled = false
+    private(set) var syncEnabled = true
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
 
-    var showLoginPage = false
+    var settingSheet: SettingsSheetStates?
 
     var exportedDocument: TextDocument?
 
@@ -82,6 +84,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
+    @ObservationIgnored
+    private var cancellables: Set<AnyCancellable> = []
+
     var theme: Theme {
         settingsService.theme
     }
@@ -115,10 +120,6 @@ final class SettingsViewModel {
         bundle.isQaBuild
     }
 
-    var syncEnabled: Bool {
-        userSessionManager.isAuthenticated.value
-    }
-
     var showPassBanner: Bool {
         !products.contains(.pass) && settingsService.showPassBanner
     }
@@ -135,6 +136,14 @@ final class SettingsViewModel {
             return true
         }
         biometricLock = authenticationService.biometricEnabled
+
+        userSessionManager.isAuthenticated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] authenticated in
+                guard let self else { return }
+                syncEnabled = authenticated
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -151,16 +160,22 @@ extension SettingsViewModel {
         backUpEnabled.toggle()
     }
 
-    // swiftlint:disable:next todo
-    // TODO: use this function
-    // periphery:ignore
     func toggleSync() {
         if !syncEnabled {
-            showLoginPage
+            settingSheet = .login
         } else {
-            // TODO: alert  logout
+            let config = AlertConfiguration.logout {
+                Task { [weak self] in
+                    guard let self else { return }
+                    do {
+                        try await userSessionManager.logout()
+                    } catch {
+                        handle(error)
+                    }
+                }
+            }
+            alertService.showAlert(.sheet(config))
         }
-//        syncEnabled.toggle()
     }
 
     func toggleBioLock() {

@@ -205,8 +205,6 @@ private extension UserSessionManager {
                                                         challengeParametersProvider: challengeProvider)
         }
 
-        isAuthenticated.send(credential == nil ? false : true)
-
         newApiService.authDelegate = self
         newApiService.serviceDelegate = self
 
@@ -551,8 +549,8 @@ public final class AuthDoH: DoH, ServerConfig {
 // MARK: - Keychain codable wrappers for credential elements & extensions
 
 struct Credentials: Hashable, Sendable, Codable {
-    public let credential: Credential
-    public let authCredential: AuthCredential
+    let credential: Credential
+    let authCredential: AuthCredential
 }
 
 extension Credential: Codable, @retroactive Hashable {

@@ -43,7 +43,7 @@ struct LogsView: View {
                         dismiss()
                     } label: {
                         Text("Close", bundle: .module)
-                            .foregroundStyle(.purpleInteraction)
+                            .foregroundStyle(.accent)
                     }
                     .adaptiveButtonStyle()
                 }

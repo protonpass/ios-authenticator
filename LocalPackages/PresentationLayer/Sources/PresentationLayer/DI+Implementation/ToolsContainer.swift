@@ -41,12 +41,16 @@ extension ToolsContainer {
                 let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
                                                      cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let logConfig = ModelConfiguration("logs",
-                                                   schema: Schema([LogEntryEntity.self]),
+                let logConfig = ModelConfiguration("localData",
+                                                   schema: Schema([
+                                                       LogEntryEntity.self,
+                                                       EncryptedUserDataEntity.self
+                                                   ]),
                                                    isStoredInMemoryOnly: false,
                                                    cloudKitDatabase: .none)
                 return try PersistenceService(for: EncryptedEntryEntity.self,
                                               LogEntryEntity.self,
+                                              EncryptedUserDataEntity.self,
                                               configurations: entryConfig,
                                               logConfig)
             } catch {

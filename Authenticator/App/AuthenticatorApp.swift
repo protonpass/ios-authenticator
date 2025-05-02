@@ -182,7 +182,7 @@ private final class AuthenticatorAppViewModel {
         #if canImport(UIKit)
         // Workaround confirmation dialogs and alerts buttons' tint color always being blue
         let window = getFirstWindow()
-        window?.tintColor = AuthenticatorColor.UIColor.purpleInteraction
+        window?.tintColor = AuthenticatorColor.UIColor.accent
         #endif
     }
 
