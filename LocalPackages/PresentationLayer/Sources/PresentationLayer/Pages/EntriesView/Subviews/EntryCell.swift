@@ -117,7 +117,8 @@ struct EntryCell: View {
             .padding(.bottom, 12)
             .padding(.horizontal, 16)
         }
-        .background(LinearGradient(stops: [
+        .background(LinearGradient(stops:
+            [
                 Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
                 Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
                 Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
@@ -133,14 +134,17 @@ struct EntryCell: View {
                 [
                     Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
                                   location: 0.00),
-                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3,
+                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
+                                                                                        green: 0.3,
                                                                                         blue: 0.29),
                                   location: 1.00)
                 ],
                 startPoint: UnitPoint(x: 0.5, y: 0),
                 endPoint: UnitPoint(x: 0.5, y: 1)),
             lineWidth: 0.5))
-        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16), radius: 4, x: 0,
+        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16),
+                radius: 4,
+                x: 0,
                 y: isLightMode ? 3 : 2)
     }
 
@@ -177,9 +181,10 @@ struct EntryCell: View {
                             .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
                             .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(.shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),
-                                                     radius: isLightMode ? 1 : 4, x: 0,
+                                                     radius: isLightMode ? 1 : 4,
+                                                     x: 0,
                                                      y: isLightMode ? 1 : 2)))
-                                .foregroundColor(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
+                                .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
                                     Color(red: 0.19,
                                           green: 0.18,
                                           blue: 0.18)))
