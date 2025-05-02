@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "locktree.svg",
-      "idiom" : "universal"
+      "filename" : "locktree.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "locktree@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "locktree@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

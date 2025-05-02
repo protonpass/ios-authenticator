@@ -62,17 +62,19 @@ struct EntryCell: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 icon
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.name, highlighted: searchTerm)
-                        .font(Font.custom("SF Pro Text", size: 18)
-                            .weight(.medium))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
+                        .textShadow()
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
+                        .font(.system(size: 14, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
+                        .textShadow()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -80,13 +82,12 @@ struct EntryCell: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
-            .background(.white.opacity(0.1))
 
             Rectangle()
                 .foregroundStyle(.clear)
                 .frame(maxWidth: .infinity, maxHeight: 0.5)
                 .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
-                    .opacity(0.5))
+                    .opacity(0.4))
                 .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) : .black.opacity(0.9),
                         radius: 0,
                         x: 0,
@@ -99,35 +100,52 @@ struct EntryCell: View {
 
                 Spacer(minLength: 0)
 
-                VStack(alignment: .trailing, spacing: 3) {
+                VStack(alignment: .trailing, spacing: 0) {
                     Text("Next", bundle: .module)
-                        .font(.custom("SF Pro Text", size: 14))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(.textWeak)
+                        .textShadow()
                     Text(verbatim: nextCode)
-                        .font(.custom("SF Mono", size: 15).weight(.semibold))
+                        .font(.system(size: 15, weight: .semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .textShadow()
                         .privacySensitive()
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.top, 8)
+            .padding(.bottom, 12)
             .padding(.horizontal, 16)
-            .background(.white.opacity(0.1))
         }
-        .onTapGesture(perform: onCopyToken)
         .background(LinearGradient(stops:
             [
-                Gradient.Stop(color: .white, location: 0.00),
-                Gradient.Stop(color: .white.opacity(isLightMode ? 0.5 : 0),
-                              location: isLightMode ? 1.00 : 0.0)
+                Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
+                Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
+                Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
-        .cornerRadius(18)
-        .shadow(color: .black.opacity(0.16), radius: 4, x: 0, y: 2)
-        .overlay(RoundedRectangle(cornerRadius: 18)
-            .stroke(.white.opacity(0.16), lineWidth: 1))
+        .mainBackground()
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .onTapGesture(perform: onCopyToken)
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .stroke(LinearGradient(stops:
+                [
+                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
+                                  location: 0.00),
+                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
+                                                                                        green: 0.3,
+                                                                                        blue: 0.29),
+                                  location: 1.00)
+                ],
+                startPoint: UnitPoint(x: 0.5, y: 0),
+                endPoint: UnitPoint(x: 0.5, y: 1)),
+            lineWidth: 0.5))
+        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16),
+                radius: 4,
+                x: 0,
+                y: isLightMode ? 3 : 2)
     }
 
     private var isLightMode: Bool {
@@ -141,7 +159,7 @@ struct EntryCell: View {
 
     var mainCode: String {
         let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
-        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
+        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
     }
 
     @ViewBuilder
@@ -151,33 +169,41 @@ struct EntryCell: View {
                 ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
                     if char.isWhitespace {
                         Text(verbatim: " ")
-                            .font(.title)
-                            .fontWeight(.semibold)
+                            .font(.system(size: 28, weight: .semibold))
+                            .monospaced()
                             .foregroundStyle(.textNorm)
                     } else {
                         Text(verbatim: "\(char)")
-                            .font(.title)
-                            .fontWeight(.semibold)
+                            .font(.system(size: 28, weight: .semibold))
+                            .monospaced()
                             .foregroundStyle(.textNorm)
                             .contentTransition(.numericText())
-                            .frame(minWidth: mainCode.count == 7 ? 28 : 22, minHeight: 36)
-                            .background(.black.opacity(0.16))
-                            .cornerRadius(8)
-                            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .inset(by: -0.5)
-                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                            .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(.shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),
+                                                     radius: isLightMode ? 1 : 4,
+                                                     x: 0,
+                                                     y: isLightMode ? 1 : 2)))
+                                .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
+                                    Color(red: 0.19,
+                                          green: 0.18,
+                                          blue: 0.18)))
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .inset(by: -0.25)
+                                .stroke(.black.opacity(isLightMode ? 0.23 : 0.5), lineWidth: 0.5))
                     }
                 }
             }
         } else {
             Text(verbatim: mainCode)
-                .font(.title)
-                .fontWeight(.semibold)
-                .foregroundStyle(.textNorm)
+                .font(.system(size: 30, weight: .semibold))
+                .kerning(3)
                 .monospaced()
+                .foregroundStyle(.textNorm)
                 .contentTransition(.numericText())
-                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                .textShadow()
         }
     }
 
@@ -193,9 +219,13 @@ struct EntryCell: View {
             .transition(.fade(duration: 0.5))
             .scaledToFit()
             .padding(4)
-            .frame(width: 36, height: 36, alignment: .center)
+            .frame(width: 34, height: 34, alignment: .center)
             .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
+                        lineWidth: 0.5))
         } else {
             letterDisplay
         }
@@ -203,8 +233,7 @@ struct EntryCell: View {
 
     var letterDisplay: some View {
         Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
-            .font(.title)
-            .fontWeight(.medium)
+            .font(.system(size: 23, weight: .medium))
             .foregroundStyle(LinearGradient(gradient:
                 Gradient(colors: [
                     Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
@@ -214,15 +243,15 @@ struct EntryCell: View {
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing))
-            .padding(.horizontal, 5)
-            .padding(.vertical, 6)
-            .frame(width: 36, height: 36, alignment: .center)
-            .background(.black.opacity(0.16))
-            .cornerRadius(8)
-            .shadow(color: .white.opacity(0.1), radius: 1, x: 0, y: 1)
-            .overlay(RoundedRectangle(cornerRadius: 8)
-                .inset(by: -0.5)
-                .stroke(.black.opacity(0.23), lineWidth: 1))
+            .padding(.horizontal, 3)
+            .padding(.vertical, 4)
+            .frame(width: 34, height: 34, alignment: .center)
+            .background(isLightMode ? Color(red: 0.95, green: 0.93, blue: 0.97).opacity(0.8) : .black.opacity(0.3))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
+                        lineWidth: 0.5))
     }
 }
 
@@ -253,12 +282,14 @@ private struct TOTPCountdownView: View {
                 .stroke(lineWidth: 4)
                 .animation(.default, value: progress)
                 .foregroundStyle(color.opacity(0.3))
+                .padding(2)
 
             // Progress circle
             Circle()
                 .trim(from: 1 - progress, to: 1)
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(color)
+                .padding(2)
                 .rotationEffect(.degrees(-90))
                 .animation(.default, value: progress)
                 .transaction { transaction in
@@ -267,10 +298,8 @@ private struct TOTPCountdownView: View {
 
             // Countdown text
             Text(verbatim: "\(Int(timeRemaining))")
-                .font(.custom("SF Compact Text", size: 12).weight(.semibold))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.textNorm)
-                .monospacedDigit()
-                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
         .frame(width: size, height: size)
         .onAppear {

@@ -49,11 +49,10 @@ private extension OnboardingView {
                 Spacer()
                 switch viewModel.currentStep {
                 case .intro:
-                    Image(.introBackground)
-                        .overlay(Image("introPreview", bundle: .module)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 256))
+                    Image(.introPreview)
+                        .resizable()
+                        .scaledToFill()
+                        .padding(.top, 120)
                     Spacer()
                         .frame(height: 30)
 
