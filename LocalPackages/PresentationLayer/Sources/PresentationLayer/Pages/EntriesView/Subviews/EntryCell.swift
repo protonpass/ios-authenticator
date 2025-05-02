@@ -69,12 +69,12 @@ struct EntryCell: View {
                     HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
-                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .font(.system(size: 14, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
-                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -104,12 +104,12 @@ struct EntryCell: View {
                     Text("Next", bundle: .module)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(.textWeak)
-                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
                     Text(verbatim: nextCode)
                         .font(.system(size: 15, weight: .semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
                         .privacySensitive()
                 }
             }
@@ -197,7 +197,7 @@ struct EntryCell: View {
                 .monospaced()
                 .foregroundStyle(.textNorm)
                 .contentTransition(.numericText())
-                .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
         }
     }
 
