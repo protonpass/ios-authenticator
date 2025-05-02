@@ -117,7 +117,6 @@ struct EntryCell: View {
             .padding(.bottom, 12)
             .padding(.horizontal, 16)
         }
-        .onTapGesture(perform: onCopyToken)
         .background(
             LinearGradient(
                 stops: [
@@ -131,6 +130,8 @@ struct EntryCell: View {
         )
         .mainBackground()
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .onTapGesture(perform: onCopyToken)
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
             .stroke(LinearGradient(stops:
                                   [
