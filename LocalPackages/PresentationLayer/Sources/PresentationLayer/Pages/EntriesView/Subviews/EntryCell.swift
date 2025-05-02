@@ -69,12 +69,12 @@ struct EntryCell: View {
                     HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
-                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
+                        .textShadow()
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .font(.system(size: 14, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
-                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
+                        .textShadow()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -104,12 +104,12 @@ struct EntryCell: View {
                     Text("Next", bundle: .module)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(.textWeak)
-                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
+                        .textShadow()
                     Text(verbatim: nextCode)
                         .font(.system(size: 15, weight: .semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
+                        .textShadow()
                         .privacySensitive()
                 }
             }
@@ -117,31 +117,31 @@ struct EntryCell: View {
             .padding(.bottom, 12)
             .padding(.horizontal, 16)
         }
-        .background(
-            LinearGradient(
-                stops: [
-                    Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
-                    Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
-                    Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1),
-                ],
-                startPoint: UnitPoint(x: 0.5, y: 0),
-                endPoint: UnitPoint(x: 0.5, y: 1)
-            )
-        )
+        .background(LinearGradient(stops: [
+                Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
+                Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
+                Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
+            ],
+            startPoint: UnitPoint(x: 0.5, y: 0),
+            endPoint: UnitPoint(x: 0.5, y: 1)))
         .mainBackground()
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .onTapGesture(perform: onCopyToken)
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
             .stroke(LinearGradient(stops:
-                                  [
-                                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42), location: 0.00),
-                                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3, blue: 0.29), location: 1.00),
-                                  ],
-                                   startPoint: UnitPoint(x: 0.5, y: 0),
-                                   endPoint: UnitPoint(x: 0.5, y: 1)),
-                    lineWidth: 0.5))
-        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16), radius: 4, x: 0, y: isLightMode ? 3 : 2)
+                [
+                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
+                                  location: 0.00),
+                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3,
+                                                                                        blue: 0.29),
+                                  location: 1.00)
+                ],
+                startPoint: UnitPoint(x: 0.5, y: 0),
+                endPoint: UnitPoint(x: 0.5, y: 1)),
+            lineWidth: 0.5))
+        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16), radius: 4, x: 0,
+                y: isLightMode ? 3 : 2)
     }
 
     private var isLightMode: Bool {
@@ -175,13 +175,14 @@ struct EntryCell: View {
                             .foregroundStyle(.textNorm)
                             .contentTransition(.numericText())
                             .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(
-                                    .shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),radius: isLightMode ? 1 : 4, x: 0, y: isLightMode ? 1 : 2))
-                                )
-                                .foregroundColor(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) : Color(red: 0.19, green: 0.18, blue: 0.18))
-                            )
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(.shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),
+                                                     radius: isLightMode ? 1 : 4, x: 0,
+                                                     y: isLightMode ? 1 : 2)))
+                                .foregroundColor(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
+                                    Color(red: 0.19,
+                                          green: 0.18,
+                                          blue: 0.18)))
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
                             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -197,7 +198,7 @@ struct EntryCell: View {
                 .monospaced()
                 .foregroundStyle(.textNorm)
                 .contentTransition(.numericText())
-                .shadow(color: .textShadow, radius: 1, x: 0, y: 2)
+                .textShadow()
         }
     }
 
@@ -218,7 +219,8 @@ struct EntryCell: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0), lineWidth: 0.5))
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
+                        lineWidth: 0.5))
         } else {
             letterDisplay
         }
@@ -243,7 +245,8 @@ struct EntryCell: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0), lineWidth: 0.5))
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
+                        lineWidth: 0.5))
     }
 }
 
