@@ -69,12 +69,12 @@ struct EntryCell: View {
                     HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
-                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .font(.system(size: 14, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
-                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -104,12 +104,12 @@ struct EntryCell: View {
                     Text("Next", bundle: .module)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(.textWeak)
-                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
                     Text(verbatim: nextCode)
                         .font(.system(size: 15, weight: .semibold))
                         .monospaced()
                         .foregroundStyle(.textNorm)
-                        .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                        .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
                         .privacySensitive()
                 }
             }
@@ -121,26 +121,26 @@ struct EntryCell: View {
         .background(
             LinearGradient(
                 stops: [
-                    Gradient.Stop(color: .white.opacity(0.11), location: 0.00),
-                    Gradient.Stop(color: .white.opacity(0.1), location: 0.10),
-                    Gradient.Stop(color: .white.opacity(0.1), location: 1),
+                    Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
+                    Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
+                    Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1),
                 ],
                 startPoint: UnitPoint(x: 0, y: 0),
                 endPoint: UnitPoint(x: 0, y: 1)
             )
         )
         .mainBackground()
-        .cornerRadius(18)
-        .overlay(RoundedRectangle(cornerRadius: 18)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
             .stroke(LinearGradient(stops:
                                   [
-                                    Gradient.Stop(color: Color(red: 0.44, green: 0.44, blue: 0.42), location: 0.00),
-                                    Gradient.Stop(color: Color(red: 0.31, green: 0.3, blue: 0.29), location: 1.00),
+                                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42), location: 0.00),
+                                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3, blue: 0.29), location: 1.00),
                                   ],
                                    startPoint: UnitPoint(x: 0, y: 0),
                                    endPoint: UnitPoint(x: 0, y: 1)),
                     lineWidth: 0.5))
-        .shadow(color: .black.opacity(0.16), radius: 8, x: 0, y: 2)
+        .shadow(color: isLightMode ? .black.opacity(0.12) : .black.opacity(0.16), radius: 4, x: 0, y: isLightMode ? 3 : 2)
     }
 
     private var isLightMode: Bool {
@@ -173,13 +173,19 @@ struct EntryCell: View {
                             .monospaced()
                             .foregroundStyle(.textNorm)
                             .contentTransition(.numericText())
-                            .frame(minWidth: mainCode.count == 7 ? 28 : 22, minHeight: 36)
-                            .background(.black.opacity(0.16))
-                            .cornerRadius(8)
-                            .shadow(color: .white.opacity(0.5), radius: 1, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8)
-                                .inset(by: -0.5)
-                                .stroke(.black.opacity(0.23), lineWidth: 1))
+                            .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(
+                                    .shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),radius: isLightMode ? 1 : 4, x: 0, y: isLightMode ? 1 : 2))
+                                )
+                                .foregroundColor(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) : Color(red: 0.19, green: 0.18, blue: 0.18))
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .inset(by: -0.25)
+                                .stroke(.black.opacity(isLightMode ? 0.23 : 0.5), lineWidth: 0.5))
                     }
                 }
             }
@@ -190,7 +196,7 @@ struct EntryCell: View {
                 .monospaced()
                 .foregroundStyle(.textNorm)
                 .contentTransition(.numericText())
-                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
+                .shadow(color: isLightMode ? .white : .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
     }
 
@@ -208,7 +214,10 @@ struct EntryCell: View {
             .padding(4)
             .frame(width: 34, height: 34, alignment: .center)
             .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0), lineWidth: 0.5))
         } else {
             letterDisplay
         }
@@ -229,10 +238,11 @@ struct EntryCell: View {
             .padding(.horizontal, 3)
             .padding(.vertical, 4)
             .frame(width: 34, height: 34, alignment: .center)
-            .background(.black.opacity(0.3))
-            .cornerRadius(8)
-            .overlay(RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(.black.opacity(0.23), lineWidth: 1))
+            .background(isLightMode ? Color(red: 0.95, green: 0.93, blue: 0.97).opacity(0.8) : .black.opacity(0.3))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0), lineWidth: 0.5))
     }
 }
 
@@ -281,7 +291,6 @@ private struct TOTPCountdownView: View {
             Text(verbatim: "\(Int(timeRemaining))")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.textNorm)
-                .shadow(color: .black.opacity(0.25), radius: 1, x: 0, y: 2)
         }
         .frame(width: size, height: size)
         .onAppear {
