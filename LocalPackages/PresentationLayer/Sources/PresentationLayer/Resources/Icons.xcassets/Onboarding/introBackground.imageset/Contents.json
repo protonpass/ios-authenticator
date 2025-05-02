@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "introBackground.svg",
-      "idiom" : "universal"
+      "filename" : "introBackground.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "introBackground@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "introBackground@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
