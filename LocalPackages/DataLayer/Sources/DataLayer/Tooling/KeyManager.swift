@@ -47,7 +47,7 @@ public final class CoreKeychain: Keychain, @unchecked Sendable {
 }
 
 extension CoreKeychain: SettingsProvider {
-    private static let LockTimeKey = "PPKeychain.LockTimeKey"
+    private static let LockTimeKey = "AuthAccount.LockTimeKey"
 
     public var lockTime: AutolockTimeout {
         get {

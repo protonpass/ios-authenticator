@@ -92,13 +92,21 @@ public extension ServiceContainer {
         self { @MainActor in ToastService() }
     }
 
-    var apiManager: Factory<any APIManagerProtocol> {
+    var userSessionManager: Factory<any UserSessionTooling> {
         self {
-            APIManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
-                                                              doh: AuthDoH(userDefaults: kSharedUserDefaults)),
-                       keyStore: self.keychainService(),
-                       keysProvider: self.keyManager(),
-                       logger: self.logger)
+            UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
+                                   .appVersion(),
+                doh: AuthDoH(userDefaults: kSharedUserDefaults)),
+            keyStore: self.keychainService(),
+            keysProvider: self.keyManager(),
+            persistentStorage: ToolsContainer.shared.persistenceService(),
+            logger: self.logger)
+//
+//            APIManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
+//                                                              doh: AuthDoH(userDefaults: kSharedUserDefaults)),
+//                       keyStore: self.keychainService(),
+//                       keysProvider: self.keyManager(),
+//                       logger: self.logger)
         }
     }
 

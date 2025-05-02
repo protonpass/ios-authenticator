@@ -25,22 +25,18 @@ import SwiftUI
 struct UserLoginView: View {
     @Environment(\.dismiss) private var dismiss
 
-//    @StateObject private var viewModel = UserLoginViewModel()
-
     private let onAction: (Bool) -> Void
 
-    public init(onAction: @escaping (_ signUp: Bool) -> Void) {
+    init(onAction: @escaping (_ signUp: Bool) -> Void) {
         self.onAction = onAction
     }
 
     var body: some View {
-//        NavigationStack {
         VStack(spacing: 20) {
             Spacer()
             Image(.loginIcon)
                 .resizable()
                 .scaledToFit()
-//                    .padding(.horizontal, 104)
             Spacer()
 
             VStack(spacing: 8) {
@@ -84,31 +80,11 @@ struct UserLoginView: View {
                     .frame(height: 20)
                     .padding(.top, 16)
             }
-//                .padding(.horizontal, 40)
-//                .padding(.bottom)
 
             Spacer()
-
-            //            List {
-            //                ForEach(viewModel.logs) { log in
-            //                    Text(verbatim: log.description)
-            //                        .listRowBackground(Color.clear)
-            //                }
-            //            }
-            //            .listStyle(.plain)
         }
         .padding(.horizontal, 40)
         .toolbar {
-//                ToolbarItem(placement: toolbarItemPlacement) {
-//                    Button {
-//                        dismiss()
-//                    } label: {
-//                        Text("Close", bundle: .module)
-//                            .foregroundStyle(.purpleInteraction)
-//                    }
-//                    .adaptiveButtonStyle()
-//                }
-//
             ToolbarItem(placement: toolbarTrailingItemPlacement) {
                 Button {
                     dismiss()
@@ -116,28 +92,15 @@ struct UserLoginView: View {
                     Image(systemName: "xmark.circle.fill")
                         .resizable()
                         .scaledToFit()
-//                            .padding(DesignConstant.padding)
                         .frame(width: 24)
                         .foregroundStyle(.textNorm.opacity(0.7))
                 }
                 .adaptiveButtonStyle()
             }
         }
-//            .scrollContentBackground(.hidden)
-//            #if os(iOS)
-//                .listSectionSpacing(DesignConstant.padding * 2)
-//                .navigationBarTitleDisplayMode(.inline)
-//            #endif
         .toastDisplay()
         .fullScreenMainBackground()
         .sheetAlertService()
-//        }
-//        #if os(macOS)
-//        .frame(minWidth: 800, minHeight: 600)
-//        #endif
-//        .onAppear {
-//            viewModel.createRootViewController(view: self)
-//        }
     }
 
     private var toolbarTrailingItemPlacement: ToolbarItemPlacement {

@@ -106,7 +106,7 @@ extension ToolsContainer {
     #if os(iOS)
     var authLoginCoordinator: Factory<AuthLoginCoordinator> {
         self {
-            @MainActor in AuthLoginCoordinator()
+            @MainActor in AuthLoginCoordinator(logger: self.logManager())
         }.cached
     }
     #endif

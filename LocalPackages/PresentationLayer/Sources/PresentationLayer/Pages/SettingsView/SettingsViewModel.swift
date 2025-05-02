@@ -31,7 +31,7 @@ import UIKit
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var backUpEnabled = true
-    private(set) var syncEnabled = false
+//    private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
@@ -69,6 +69,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
     #if os(iOS)
     @ObservationIgnored
@@ -110,6 +113,10 @@ final class SettingsViewModel {
 
     var isQaBuild: Bool {
         bundle.isQaBuild
+    }
+
+    var syncEnabled: Bool {
+        userSessionManager.isAuthenticated.value
     }
 
     var showPassBanner: Bool {

@@ -27,9 +27,9 @@ enum SettingsSheetStates {
     case logs
     case qa
     #if os(iOS)
-
     case login
     #endif
+
     @MainActor @ViewBuilder
     var destination: some View {
         switch self {

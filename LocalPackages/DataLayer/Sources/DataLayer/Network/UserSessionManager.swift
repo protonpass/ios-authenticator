@@ -1,5 +1,5 @@
 //
-// APIManager.swift
+// UserSessionManager.swift
 // Proton Authenticator - Created on 28/04/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Combine
 import CommonUtilities
 import Foundation
 import Models
@@ -30,9 +31,475 @@ import ProtonCoreDoh
 @preconcurrency import ProtonCoreForceUpgrade
 @preconcurrency import ProtonCoreFoundations
 import ProtonCoreHumanVerification
+import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 @preconcurrency import ProtonCoreObservability
 @preconcurrency import ProtonCoreServices
+import SimplyPersist
+
+public struct APIManagerConfiguration: Sendable {
+    let appVersion: String
+    let doh: any DoHInterface
+
+    public init(appVersion: String, doh: any DoHInterface = AuthDoH()) {
+        self.appVersion = appVersion
+        self.doh = doh
+    }
+}
+
+public protocol APIManagerProtocol: Sendable {
+    var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
+
+    var apiService: APIService { get }
+
+    func logout() async throws
+}
+
+public protocol UserInfoProviding: Sendable {
+    func getUserData() async throws -> UserData?
+    func save(_ userData: UserData) async throws
+}
+
+final class ForceUpgradeControllerImpl: ForceUpgradeController {
+    func performForceUpgrade(message: String,
+                             config: ForceUpgradeConfig,
+                             responseDelegate: ForceUpgradeResponseDelegate?) {}
+}
+
+public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
+
+public final class UserSessionManager: @unchecked Sendable, APIManagerProtocol, UserInfoProviding {
+    private let logger: any LoggerProtocol
+    private let configuration: APIManagerConfiguration
+    private let forceUpgradeHelper: ForceUpgradeHelper
+    private let keyStore: any KeychainServicing
+    private let keysProvider: any KeysProvider
+    private let persistentStorage: any PersistenceServicing
+    private let credentialsKey = "credentials"
+
+    #if os(iOS)
+    private let challengeProvider = ChallengeParametersProvider.forAPIService(clientApp: .other(named:
+        "authenticator"),
+    challenge: .init())
+
+    #elseif os(macOS)
+    private let challengeProvider = ChallengeParametersProvider(prefix: "authenticator",
+                                                                provideParametersForLoginAndSignup: { [] },
+                                                                provideParametersForSessionFetching: { [] })
+    #endif
+
+    private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
+
+    public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    public private(set) var apiService: APIService
+
+    // swiftlint:disable:next identifier_name
+    public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
+        .AuthSessionInvalidatedDelegate)?
+
+    public init(configuration: APIManagerConfiguration,
+                keyStore: any KeychainServicing,
+                keysProvider: any KeysProvider,
+                persistentStorage: any PersistenceServicing,
+                logger: any LoggerProtocol) {
+        self.configuration = configuration
+        self.logger = logger
+        self.persistentStorage = persistentStorage
+        self.keysProvider = keysProvider
+        self.keyStore = keyStore
+        Self.setUpCertificatePinning()
+        injectDefaultCryptoImplementation()
+
+        if let appStoreUrl = URL(string: AppConstants.appStoreUrl) {
+            #if os(iOS)
+            forceUpgradeHelper = .init(config: .mobile(appStoreUrl))
+
+            #elseif os(macOS)
+            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appStoreUrl),
+                                                    controller: ForceUpgradeControllerImpl())
+
+            #endif
+        } else {
+            // Should never happen
+            let message = "Can not parse App Store URL"
+            assertionFailure(message)
+            logger.log(.error, category: .network, "Can not parse App Store URL")
+            #if os(iOS)
+            forceUpgradeHelper = .init(config: .desktop)
+            #elseif os(macOS)
+            forceUpgradeHelper = ForceUpgradeHelper(config: .desktop, controller: ForceUpgradeControllerImpl())
+
+            #endif
+        }
+        let newApiService: PMAPIService
+
+        do {
+//            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
+            let encryptedContent: Data = try keyStore.get(key: credentialsKey, ofType: .generic, shouldSync: false)
+            let symmetricKey = try keysProvider.getSymmetricKey()
+            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
+            let credentials = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
+
+            cachedCredentials.modify {
+                $0 = credentials
+            }
+
+            newApiService = PMAPIService.createAPIService(doh: configuration.doh,
+                                                          sessionUID: credentials.credential.UID,
+                                                          challengeParametersProvider: challengeProvider)
+            isAuthenticated.send(true)
+        } catch {
+            logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
+            newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
+                                                                        challengeParametersProvider: challengeProvider)
+        }
+
+        #if os(iOS)
+
+        let humanHelper =
+            HumanCheckHelper(apiService: newApiService,
+                             inAppTheme: { .default },
+                             clientApp: .other(named: "authenticator"))
+        #elseif os(macOS)
+        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        #endif
+        newApiService.humanDelegate = humanHelper
+
+        newApiService.forceUpgradeDelegate = forceUpgradeHelper
+        apiService = newApiService
+        apiService.authDelegate = self
+        apiService.serviceDelegate = self
+        (apiService as? PMAPIService)?.loggingDelegate = self
+        updateTools()
+    }
+
+    public func logout() async throws {
+        log(.info, "Logging out")
+        cachedCredentials.modify {
+            $0 = nil
+        }
+        removeCachedCredentials()
+        createApiService(credential: nil)
+        try await removeAllUsers()
+        isAuthenticated.send(false)
+    }
+}
+
+// MARK: - Utils
+
+private extension UserSessionManager {
+    static func setUpCertificatePinning() {
+        TrustKitWrapper.setUp()
+        let trustKit = TrustKitWrapper.current
+        PMAPIService.trustKit = trustKit
+        PMAPIService.noTrustKit = trustKit == nil
+    }
+
+    func createApiService(credential: Credential?) {
+        let newApiService = if let credential {
+            PMAPIService.createAPIService(doh: configuration.doh,
+                                          sessionUID: credential.UID,
+                                          challengeParametersProvider: challengeProvider)
+        } else {
+            PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
+                                                        challengeParametersProvider: challengeProvider)
+        }
+
+        isAuthenticated.send(credential == nil ? false : true)
+
+        newApiService.authDelegate = self
+        newApiService.serviceDelegate = self
+
+        #if os(iOS)
+
+        let humanHelper =
+            HumanCheckHelper(apiService: newApiService,
+                             inAppTheme: { .default },
+                             clientApp: .other(named: "authenticator"))
+        #elseif os(macOS)
+        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        #endif
+        newApiService.humanDelegate = humanHelper
+
+        newApiService.loggingDelegate = self
+        newApiService.forceUpgradeDelegate = forceUpgradeHelper
+        apiService = newApiService
+        updateTools()
+    }
+
+    func log(_ level: LogLevel, _ message: String) {
+        logger.log(level, category: .network, message)
+    }
+
+    func updateTools() {
+        ObservabilityEnv.current.setupWorld(requestPerformer: apiService)
+    }
+
+    func getCredentials(credential: Credential,
+                        authCredential: AuthCredential? = nil) -> Credentials {
+        Credentials(credential: credential,
+                    authCredential: authCredential ?? AuthCredential(credential))
+    }
+
+//    func saveCachedCredentialsToKeychain() {
+//        do {
+//            let symmetricKey = try keysProvider.getSymmetricKey()
+//            let data = try JSONEncoder().encode(cachedCredentials.value)
+//            let encryptedContent = try symmetricKey.encrypt(data)
+//            try keyStore.set(encryptedContent, for: key, shouldSync: false)
+//        } catch {
+//            log(.error, "Failed to saved user sessions in keychain: \(error)")
+//        }
+//    }
+
+    func saveDataToKeychain(data: some Encodable, for key: String) {
+        do {
+            let symmetricKey = try keysProvider.getSymmetricKey()
+            let data = try JSONEncoder().encode(data)
+            let encryptedContent = try symmetricKey.encrypt(data)
+            try keyStore.set(encryptedContent, for: key, shouldSync: false)
+        } catch {
+            log(.error, "Failed to saved user sessions in keychain: \(error)")
+        }
+    }
+
+    func removeCachedCredentials() {
+        do {
+            try keyStore.delete(credentialsKey)
+        } catch {
+            log(.error, "Failed to saved user sessions in keychain: \(error)")
+        }
+    }
+
+    func updateSession(sessionId: String) {
+        if apiService.sessionUID.isEmpty {
+            apiService.setSessionUID(uid: sessionId)
+        }
+
+        updateTools()
+
+        log(.info, "Session credentials are updated")
+    }
+}
+
+// MARK: - User information
+
+//
+// extension UserSessionManager: UserInfoProviding{
+//    func setUpUserInfo() {
+//
+//    }
+// }
+
+// MARK: - AuthDelegate
+
+extension UserSessionManager: AuthDelegate {
+    public func authCredential(sessionUID: String) -> ProtonCoreNetworking.AuthCredential? {
+        log(.info, "Getting authCredential for session id \(sessionUID)")
+        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
+            return nil
+        }
+        return credentials.authCredential
+    }
+
+    public func credential(sessionUID: String) -> ProtonCoreNetworking.Credential? {
+        log(.info, "Getting credential for session id \(sessionUID)")
+        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
+            return nil
+        }
+        return credentials.credential
+    }
+
+    public func onUpdate(credential: ProtonCoreNetworking.Credential, sessionUID: String) {
+        log(.info, "Update Session credentials with session id \(sessionUID)")
+
+        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
+            return
+        }
+        let newCredentials = getCredentials(credential: credential)
+        let newAuthCredential = newCredentials.authCredential
+            .updatedKeepingKeyAndPasswordDataIntact(credential: credential)
+        cachedCredentials.modify {
+            $0 = Credentials(credential: credential, authCredential: newAuthCredential)
+        }
+//        saveCachedCredentialsToKeychain()
+        saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
+        updateSession(sessionId: sessionUID)
+        isAuthenticated.send(true)
+    }
+
+    public func onSessionObtaining(credential: ProtonCoreNetworking.Credential) {
+        log(.info, "Obtained Session credentials with session id \(credential.UID)")
+        let credentials = getCredentials(credential: credential)
+        cachedCredentials.modify {
+            $0 = credentials
+        }
+        saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
+
+        updateSession(sessionId: credential.UID)
+        isAuthenticated.send(true)
+    }
+
+    public func onAdditionalCredentialsInfoObtained(sessionUID: String,
+                                                    password: String?,
+                                                    salt: String?,
+                                                    privateKey: String?) {
+        log(.info, "Additional credentials for session id \(sessionUID)")
+        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
+            return
+        }
+        if let password {
+            credentials.authCredential.update(password: password)
+        }
+        let saltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
+        let privateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
+        credentials.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
+        cachedCredentials.modify { credentials in
+            guard let credentials, credentials.authCredential.sessionID == sessionUID else {
+                return
+            }
+            if let password {
+                credentials.authCredential.update(password: password)
+            }
+            let saltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
+            let privateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
+            credentials.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
+        }
+        saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
+
+        updateSession(sessionId: sessionUID)
+    }
+
+    public func onAuthenticatedSessionInvalidated(sessionUID: String) {
+        log(.info, "Authenticated session invalidated for session id \(sessionUID)")
+        cleanSession(sessionUID: sessionUID)
+    }
+
+    public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
+        log(.info, "Unauthenticated session invalidated for session id \(sessionUID)")
+        cleanSession(sessionUID: sessionUID)
+    }
+
+    func cleanSession(sessionUID: String?) {
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            do {
+                try await logout()
+                if let sessionUID {
+                    authSessionInvalidatedDelegateForLoginAndSignup?
+                        .sessionWasInvalidated(for: sessionUID,
+                                               isAuthenticatedSession: false)
+                }
+            } catch {
+                log(.error, error.localizedDescription)
+            }
+        }
+    }
+}
+
+// MARK: - APIServiceDelegate
+
+extension UserSessionManager: APIServiceDelegate {
+    public var appVersion: String { configuration.appVersion }
+    public var userAgent: String? { UserAgent.default.ua }
+    public var locale: String { Locale.autoupdatingCurrent.identifier }
+    public var additionalHeaders: [String: String]? { nil }
+
+    public func onDohTroubleshot() {}
+
+    public func onUpdate(serverTime: Int64) {
+        CryptoGo.CryptoUpdateTime(serverTime)
+    }
+
+    public func isReachable() -> Bool {
+        // swiftlint:disable:next todo
+        // TODO: Handle this
+        true
+    }
+}
+
+// MARK: - APIServiceLoggingDelegate
+
+extension UserSessionManager: APIServiceLoggingDelegate {
+    public func accessTokenRefreshDidStart(for sessionID: String,
+                                           sessionType: APISessionTypeForLogging) {
+        log(.info, "Access token refresh did start for \(sessionType) session \(sessionID)")
+    }
+
+    public func accessTokenRefreshDidSucceed(for sessionID: String,
+                                             sessionType: APISessionTypeForLogging,
+                                             reason: APIServiceAccessTokenRefreshSuccessReasonForLogging) {
+        log(.info, """
+        Access token refresh did succeed for \(sessionType) session \(sessionID)
+        with reason \(reason)
+        """)
+    }
+
+    public func accessTokenRefreshDidFail(for sessionID: String,
+                                          sessionType: APISessionTypeForLogging,
+                                          error: APIServiceAccessTokenRefreshErrorForLogging) {
+        // swiftlint:disable line_length
+        log(.error,
+            "Access token refresh did fail for \(sessionType) session \(sessionID) with error: \(error.localizedDescription)")
+        // swiftlint:enable line_length
+    }
+}
+
+// MARK: - User data
+
+public extension UserSessionManager {
+    func getUserData() async throws -> UserData? {
+        let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
+        guard let encryptedUserData = encryptedUsersData.first else { return nil }
+        return try decrypt(encryptedData: encryptedUserData.encryptedData)
+    }
+
+    func save(_ userData: UserData) async throws {
+        let encryptedUserData = try encrypt(userData: userData)
+        try await persistentStorage.save(data: encryptedUserData)
+    }
+
+    func remove(_ userData: UserData) async throws {
+        try await remove(userData.user.ID)
+    }
+
+    func remove(_ userDataId: String) async throws {
+        let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userDataId }
+        try await persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
+    }
+
+    func removeAllUsers() async throws {
+        try await persistentStorage.deleteAll(dataTypes: [EncryptedUserDataEntity.self])
+    }
+
+    func update(_ userData: UserData) async throws {
+        guard let entity = try await persistentStorage
+            .fetchOne(predicate: #Predicate<EncryptedUserDataEntity> { $0.id == userData.user.ID }) else {
+            return
+        }
+        let encryptedData = try encrypt(userData: userData)
+        entity.updateEncryptedData(encryptedData.encryptedData)
+        try await persistentStorage.save(data: entity)
+    }
+
+    private func encrypt(userData: UserData) throws -> EncryptedUserDataEntity {
+        let symmetricKey = try keysProvider.getSymmetricKey()
+        let data = try JSONEncoder().encode(userData)
+        let encryptedData = try symmetricKey.encrypt(data)
+        return EncryptedUserDataEntity(id: userData.user.ID, encryptedData: encryptedData)
+    }
+
+    private func decrypt(encryptedData: Data) throws -> UserData? {
+        let symmetricKey = try keysProvider.getSymmetricKey()
+        let data = try symmetricKey.decrypt(encryptedData)
+        let userData = try JSONDecoder().decode(UserData.self, from: data)
+        return userData
+    }
+}
+
+// MARK: - Tools and extension for user session management
 
 public final class AuthDoH: DoH, ServerConfig {
     public let signupDomain: String
@@ -83,7 +550,7 @@ public final class AuthDoH: DoH, ServerConfig {
 
 // MARK: - Keychain codable wrappers for credential elements & extensions
 
-public struct Credentials: Hashable, Sendable, Codable {
+struct Credentials: Hashable, Sendable, Codable {
     public let credential: Credential
     public let authCredential: AuthCredential
 }
@@ -139,367 +606,35 @@ extension Credential: Codable, @retroactive Hashable {
     }
 }
 
-public struct APIManagerConfiguration: Sendable {
-    let appVersion: String
-    let doh: any DoHInterface
-
-    public init(appVersion: String, doh: any DoHInterface = AuthDoH()) {
-        self.appVersion = appVersion
-        self.doh = doh
-    }
-}
-
-public protocol APIManagerProtocol: Sendable {
-    var apiService: APIService { get }
-}
-
-final class ForceUpgradeControllerImpl: ForceUpgradeController {
-    func performForceUpgrade(message: String, config: ForceUpgradeConfig,
-                             responseDelegate: ForceUpgradeResponseDelegate?) {}
-}
-
-public final class APIManager: @unchecked Sendable, APIManagerProtocol {
-    private let logger: any LoggerProtocol
-    private let configuration: APIManagerConfiguration
-    private let forceUpgradeHelper: ForceUpgradeHelper
-    private let keyStore: any KeychainServicing
-    private let keysProvider: any KeysProvider
-    private let key = "credentials"
-
-    #if os(iOS)
-    private let challengeProvider = ChallengeParametersProvider.forAPIService(clientApp: .other(named:
-        "authenticator"),
-    challenge: .init())
-
-    #elseif os(macOS)
-    private let challengeProvider = ChallengeParametersProvider(prefix: "authenticator",
-                                                                provideParametersForLoginAndSignup: { [] },
-                                                                provideParametersForSessionFetching: { [] })
-    #endif
-
-    private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
-    public private(set) var apiService: APIService
-
-    // swiftlint:disable:next identifier_name
-    public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
-        .AuthSessionInvalidatedDelegate)?
-
-    public init(configuration: APIManagerConfiguration,
-                keyStore: any KeychainServicing,
-                keysProvider: any KeysProvider,
-                logger: any LoggerProtocol) {
-        self.configuration = configuration
-        self.logger = logger
-        self.keysProvider = keysProvider
-        self.keyStore = keyStore
-        Self.setUpCertificatePinning()
-        injectDefaultCryptoImplementation()
-
-        if let appStoreUrl = URL(string: AppConstants.appStoreUrl) {
-            #if os(iOS)
-            forceUpgradeHelper = .init(config: .mobile(appStoreUrl))
-
-            #elseif os(macOS)
-            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appStoreUrl),
-                                                    controller: ForceUpgradeControllerImpl())
-
-            #endif
-        } else {
-            // Should never happen
-            let message = "Can not parse App Store URL"
-            assertionFailure(message)
-            logger.log(.error, category: .network, "Can not parse App Store URL")
-            #if os(iOS)
-            forceUpgradeHelper = .init(config: .desktop)
-            #elseif os(macOS)
-            forceUpgradeHelper = ForceUpgradeHelper(config: .desktop, controller: ForceUpgradeControllerImpl())
-
-            #endif
-        }
-        let newApiService: PMAPIService
-
-        do {
-//            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
-            let encryptedContent: Data = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
-            let symmetricKey = try keysProvider.getSymmetricKey()
-            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
-            let credentials = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
-
-            cachedCredentials.modify {
-                $0 = credentials
-            }
-
-            newApiService = PMAPIService.createAPIService(doh: configuration.doh,
-                                                          sessionUID: credentials.credential.UID,
-                                                          challengeParametersProvider: challengeProvider)
-
-        } catch {
-            logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
-            newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
-                                                                        challengeParametersProvider: challengeProvider)
-        }
-
-        #if os(iOS)
-
-        let humanHelper =
-            HumanCheckHelper(apiService: newApiService,
-                             inAppTheme: { .default },
-                             clientApp: .other(named: "authenticator"))
-        #elseif os(macOS)
-        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
-        #endif
-        newApiService.humanDelegate = humanHelper
-
-        newApiService.forceUpgradeDelegate = forceUpgradeHelper
-        apiService = newApiService
-        apiService.authDelegate = self
-        apiService.serviceDelegate = self
-        (apiService as? PMAPIService)?.loggingDelegate = self
-        updateTools()
-    }
-}
-
-// MARK: - Utils
-
-private extension APIManager {
-    static func setUpCertificatePinning() {
-        TrustKitWrapper.setUp()
-        let trustKit = TrustKitWrapper.current
-        PMAPIService.trustKit = trustKit
-        PMAPIService.noTrustKit = trustKit == nil
+// swiftlint:disable:next todo
+// TODO: to be removed once proton core wis updated with the codable conformance
+extension UserData: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case credential
+        case user
+        case salts
+        case passphrases
+        case addresses
+        case scopes
     }
 
-    func createApiService(credential: Credential?) {
-        let newApiService = if let credential {
-            PMAPIService.createAPIService(doh: configuration.doh,
-                                          sessionUID: credential.UID,
-                                          challengeParametersProvider: challengeProvider)
-        } else {
-            PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
-                                                        challengeParametersProvider: challengeProvider)
-        }
-
-        newApiService.authDelegate = self
-        newApiService.serviceDelegate = self
-
-        #if os(iOS)
-
-        let humanHelper =
-            HumanCheckHelper(apiService: newApiService,
-                             inAppTheme: { .default },
-                             clientApp: .other(named: "authenticator"))
-        #elseif os(macOS)
-        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
-        #endif
-        newApiService.humanDelegate = humanHelper
-
-        newApiService.loggingDelegate = self
-        newApiService.forceUpgradeDelegate = forceUpgradeHelper
-        apiService = newApiService
-        updateTools()
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(credential: container.decode(AuthCredential.self, forKey: .credential),
+                      user: container.decode(User.self, forKey: .user),
+                      salts: container.decode([KeySalt].self, forKey: .salts),
+                      passphrases: container.decode([String: String].self, forKey: .passphrases),
+                      addresses: container.decode([Address].self, forKey: .addresses),
+                      scopes: container.decode([String].self, forKey: .scopes))
     }
 
-    func log(_ level: LogLevel, _ message: String) {
-        logger.log(level, category: .network, message)
-    }
-
-    func updateTools() {
-        ObservabilityEnv.current.setupWorld(requestPerformer: apiService)
-    }
-
-    func getCredentials(credential: Credential,
-                        authCredential: AuthCredential? = nil) -> Credentials {
-        Credentials(credential: credential,
-                    authCredential: authCredential ?? AuthCredential(credential))
-    }
-
-    func saveCachedCredentialsToKeychain() {
-        do {
-            let symmetricKey = try keysProvider.getSymmetricKey()
-            let data = try JSONEncoder().encode(cachedCredentials.value)
-            let encryptedContent = try symmetricKey.encrypt(data)
-            try keyStore.set(encryptedContent, for: key, shouldSync: false)
-        } catch {
-            log(.error, "Failed to saved user sessions in keychain: \(error)")
-        }
-    }
-
-    func removeCachedCredentials() {
-        do {
-            try keyStore.delete(key)
-        } catch {
-            log(.error, "Failed to saved user sessions in keychain: \(error)")
-        }
-    }
-
-//    func getCachedCredentials() -> [CredentialsKey: Credentials] {
-//        guard let encryptedContent = try? keychain.dataOrError(forKey: Self.storageKey),
-//              let symmetricKey = try? symmetricKeyProvider.getSymmetricKey() else {
-//            return [:]
-//        }
-//
-//        do {
-//            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
-//            return try JSONDecoder().decode(CachedCredentials.self, from: decryptedContent)
-//        } catch {
-//            logger.error("Failed to decrypted user sessions from keychain: \(error)")
-//            try? keychain.removeOrError(forKey: Self.storageKey)
-//            return [:]
-//        }
-//    }
-
-    func updateSession(sessionId: String) {
-        if apiService.sessionUID.isEmpty {
-            apiService.setSessionUID(uid: sessionId)
-        }
-
-        updateTools()
-
-        log(.info, "Session credentials are updated")
-    }
-}
-
-// MARK: - AuthDelegate
-
-extension APIManager: AuthDelegate {
-    public func authCredential(sessionUID: String) -> ProtonCoreNetworking.AuthCredential? {
-        log(.info, "Getting authCredential for session id \(sessionUID)")
-        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
-            return nil
-        }
-        return credentials.authCredential
-    }
-
-    public func credential(sessionUID: String) -> ProtonCoreNetworking.Credential? {
-        log(.info, "Getting credential for session id \(sessionUID)")
-        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
-            return nil
-        }
-        return credentials.credential
-    }
-
-    public func onUpdate(credential: ProtonCoreNetworking.Credential, sessionUID: String) {
-        log(.info, "Update Session credentials with session id \(sessionUID)")
-
-        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
-            return
-        }
-        let newCredentials = getCredentials(credential: credential)
-        let newAuthCredential = newCredentials.authCredential
-            .updatedKeepingKeyAndPasswordDataIntact(credential: credential)
-        cachedCredentials.modify {
-            $0 = Credentials(credential: credential, authCredential: newAuthCredential)
-        }
-        saveCachedCredentialsToKeychain()
-        updateSession(sessionId: sessionUID)
-    }
-
-    public func onSessionObtaining(credential: ProtonCoreNetworking.Credential) {
-        log(.info, "Obtained Session credentials with session id \(credential.UID)")
-        let credentials = getCredentials(credential: credential)
-        cachedCredentials.modify {
-            $0 = credentials
-        }
-        saveCachedCredentialsToKeychain()
-        updateSession(sessionId: credential.UID)
-    }
-
-    public func onAdditionalCredentialsInfoObtained(sessionUID: String,
-                                                    password: String?,
-                                                    salt: String?,
-                                                    privateKey: String?) {
-        log(.info, "Additional credentials for session id \(sessionUID)")
-        guard let credentials = cachedCredentials.value, credentials.authCredential.sessionID == sessionUID else {
-            return
-        }
-        if let password {
-            credentials.authCredential.update(password: password)
-        }
-        let saltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
-        let privateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
-        credentials.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
-        cachedCredentials.modify { credentials in
-            guard let credentials, credentials.authCredential.sessionID == sessionUID else {
-                return
-            }
-            if let password {
-                credentials.authCredential.update(password: password)
-            }
-            let saltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
-            let privateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
-            credentials.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
-        }
-        saveCachedCredentialsToKeychain()
-        updateSession(sessionId: sessionUID)
-    }
-
-    public func onAuthenticatedSessionInvalidated(sessionUID: String) {
-        log(.info, "Authenticated session invalidated for session id \(sessionUID)")
-        cleanSession(sessionUID: sessionUID)
-    }
-
-    public func onUnauthenticatedSessionInvalidated(sessionUID: String) {
-        log(.info, "Unauthenticated session invalidated for session id \(sessionUID)")
-        cleanSession(sessionUID: sessionUID)
-    }
-
-    func cleanSession(sessionUID: String) {
-        cachedCredentials.modify {
-            $0 = nil
-        }
-        removeCachedCredentials()
-//        saveCachedCredentialsToKeychain()
-        createApiService(credential: nil)
-        authSessionInvalidatedDelegateForLoginAndSignup?
-            .sessionWasInvalidated(for: sessionUID,
-                                   isAuthenticatedSession: false)
-    }
-}
-
-// MARK: - APIServiceDelegate
-
-extension APIManager: APIServiceDelegate {
-    public var appVersion: String { configuration.appVersion }
-    public var userAgent: String? { UserAgent.default.ua }
-    public var locale: String { Locale.autoupdatingCurrent.identifier }
-    public var additionalHeaders: [String: String]? { nil }
-
-    public func onDohTroubleshot() {}
-
-    public func onUpdate(serverTime: Int64) {
-        CryptoGo.CryptoUpdateTime(serverTime)
-    }
-
-    public func isReachable() -> Bool {
-        // swiftlint:disable:next todo
-        // TODO: Handle this
-        true
-    }
-}
-
-//
-
-// MARK: - APIServiceLoggingDelegate
-
-extension APIManager: APIServiceLoggingDelegate {
-    public func accessTokenRefreshDidStart(for sessionID: String,
-                                           sessionType: APISessionTypeForLogging) {
-        log(.info, "Access token refresh did start for \(sessionType) session \(sessionID)")
-    }
-
-    public func accessTokenRefreshDidSucceed(for sessionID: String,
-                                             sessionType: APISessionTypeForLogging,
-                                             reason: APIServiceAccessTokenRefreshSuccessReasonForLogging) {
-        log(.info, """
-        Access token refresh did succeed for \(sessionType) session \(sessionID)
-        with reason \(reason)
-        """)
-    }
-
-    public func accessTokenRefreshDidFail(for sessionID: String,
-                                          sessionType: APISessionTypeForLogging,
-                                          error: APIServiceAccessTokenRefreshErrorForLogging) {
-        log(.error,
-            "Access token refresh did fail for \(sessionType) session \(sessionID) with error: \(error.localizedDescription)")
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(credential, forKey: .credential)
+        try container.encode(user, forKey: .user)
+        try container.encode(salts, forKey: .salts)
+        try container.encode(passphrases, forKey: .passphrases)
+        try container.encode(addresses, forKey: .addresses)
+        try container.encode(scopes, forKey: .scopes)
     }
 }

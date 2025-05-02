@@ -1,5 +1,5 @@
 //
-// Models+Extensions.swift
+// EncryptedUserDataEntity.swift
 // Proton Authenticator - Created on 02/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -19,3 +19,22 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import SwiftData
+
+@Model
+public final class EncryptedUserDataEntity: Equatable, Hashable, @unchecked Sendable {
+    public private(set) var id: String = UUID().uuidString
+    public private(set) var modifiedTime: TimeInterval = Date.now.timeIntervalSince1970
+    public private(set) var encryptedData = Data()
+
+    init(id: String, encryptedData: Data, modifiedTime: TimeInterval = Date.now.timeIntervalSince1970) {
+        self.id = id
+        self.modifiedTime = modifiedTime
+        self.encryptedData = encryptedData
+    }
+
+    func updateEncryptedData(_ encryptedData: Data) {
+        self.encryptedData = encryptedData
+        modifiedTime = Date.now.timeIntervalSince1970
+    }
+}

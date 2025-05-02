@@ -22,6 +22,25 @@ import Models
 import SimplyPersist
 import SwiftData
 
+// public protocol UserManagerProtocol: Sendable, UserManagerProvider {
+//    var currentActiveUser: CurrentValueSubject<UserData?, Never> { get }
+//    var allUserAccounts: CurrentValueSubject<[UserData], Never> { get }
+//
+//    func setUp() async throws
+//    func getActiveUserData() async throws -> UserData?
+//    func upsertAndMarkAsActive(userData: UserData) async throws
+//
+//    /// When `onMemory` is `true`, we don't save the active user ID to the database
+//    /// This is to let extensions dynamically switch between accounts when creating items
+//    /// as we don't want extensions to affect the current active user.
+//    func switchActiveUser(with userId: String, onMemory: Bool) async throws
+//
+//    func getAllUsers() async throws -> [UserData]
+//    func remove(userId: String) async throws
+//    func cleanAllUsers() async throws
+//    nonisolated func setUserData(_ userData: UserData)
+// }
+
 public protocol UserManagerProtocol {}
 
 public actor UserManager: UserManagerProtocol {
