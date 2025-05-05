@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+// periphery:ignore:all
+
 import Combine
 import CommonUtilities
 import Foundation
@@ -55,6 +57,7 @@ public protocol APIManagerProtocol: Sendable {
 }
 
 public protocol UserInfoProviding: Sendable {
+    // periphery:ignore
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
 }
