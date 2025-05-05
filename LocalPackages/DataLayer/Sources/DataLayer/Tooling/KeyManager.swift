@@ -40,8 +40,8 @@ extension Keymaker: @unchecked @retroactive Sendable, MainKeyProvider {
     }
 }
 
-public final class CoreKeychain: Keychain, @unchecked Sendable {
-    public init() {
+final class CoreKeychain: Keychain, @unchecked Sendable {
+    init() {
         super.init(service: "me.proton.authenticator", accessGroup: AppConstants.keychainGroup)
     }
 }

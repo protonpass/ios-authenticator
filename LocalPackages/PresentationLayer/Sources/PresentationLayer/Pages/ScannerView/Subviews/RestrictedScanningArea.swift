@@ -22,7 +22,7 @@
 
 import SwiftUI
 
-public struct RestrictedScanningAreaConfig {
+struct RestrictedScanningAreaConfig {
     let overlayColor: Color
     let sizeOfArea: CGSize
     let border: Bool
@@ -30,12 +30,12 @@ public struct RestrictedScanningAreaConfig {
     let borderColor: Color
     let borderColorWidth: CGFloat
 
-    public init(overlayColor: Color = .black.opacity(0.4),
-                sizeOfArea: CGSize = CGSize(width: 330, height: 330),
-                border: Bool = true,
-                borderCornerRadius: CGFloat = 5,
-                borderColor: Color = .white,
-                borderColorWidth: CGFloat = 2) {
+    init(overlayColor: Color = .black.opacity(0.4),
+         sizeOfArea: CGSize = CGSize(width: 330, height: 330),
+         border: Bool = true,
+         borderCornerRadius: CGFloat = 5,
+         borderColor: Color = .white,
+         borderColorWidth: CGFloat = 2) {
         self.overlayColor = overlayColor
         self.sizeOfArea = sizeOfArea
         self.border = border
@@ -44,12 +44,12 @@ public struct RestrictedScanningAreaConfig {
         self.borderColorWidth = borderColorWidth
     }
 
-    public static var `default`: RestrictedScanningAreaConfig {
+    static var `default`: RestrictedScanningAreaConfig {
         RestrictedScanningAreaConfig()
     }
 }
 
-public struct RestrictedScanningArea: View {
+struct RestrictedScanningArea: View {
     @Environment(\.dismiss) private var dismiss
 
     @Binding private var regionOfInterest: CGRect?
@@ -57,17 +57,17 @@ public struct RestrictedScanningArea: View {
     private let manualEntry: () -> Void
     private let photoLibraryEntry: () -> Void
 
-    public init(configuration: RestrictedScanningAreaConfig = .default,
-                regionOfInterest: Binding<CGRect?> = Binding.constant(nil),
-                manualEntry: @escaping () -> Void = {},
-                photoLibraryEntry: @escaping () -> Void = {}) {
+    init(configuration: RestrictedScanningAreaConfig = .default,
+         regionOfInterest: Binding<CGRect?> = Binding.constant(nil),
+         manualEntry: @escaping () -> Void = {},
+         photoLibraryEntry: @escaping () -> Void = {}) {
         self.configuration = configuration
         self.manualEntry = manualEntry
         self.photoLibraryEntry = photoLibraryEntry
         _regionOfInterest = regionOfInterest
     }
 
-    public var body: some View {
+    var body: some View {
         ZStack {
             Rectangle()
                 .foregroundStyle(configuration.overlayColor)

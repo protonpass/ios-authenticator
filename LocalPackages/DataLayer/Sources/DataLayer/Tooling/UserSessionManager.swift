@@ -436,10 +436,12 @@ public extension UserSessionManager {
         try await persistentStorage.save(data: encryptedUserData)
     }
 
+    // periphery:ignore
     func remove(_ userData: UserData) async throws {
         try await remove(userData.user.ID)
     }
 
+    // periphery:ignore
     func remove(_ userDataId: String) async throws {
         let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userDataId }
         try await persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
@@ -449,6 +451,7 @@ public extension UserSessionManager {
         try await persistentStorage.deleteAll(dataTypes: [EncryptedUserDataEntity.self])
     }
 
+    // periphery:ignore
     func update(_ userData: UserData) async throws {
         guard let entity = try await persistentStorage
             .fetchOne(predicate: #Predicate<EncryptedUserDataEntity> { $0.id == userData.user.ID }) else {

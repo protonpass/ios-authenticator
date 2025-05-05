@@ -20,6 +20,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+#if os(iOS)
 import DataLayer
 import Factory
 import Foundation
@@ -29,7 +30,6 @@ import ProtonCoreLogin
 import ProtonCoreLoginUI
 import SwiftUI
 
-#if os(iOS)
 struct UserLoginController: UIViewControllerRepresentable {
     let coordinator: CoordinatorProtocol
 
