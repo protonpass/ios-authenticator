@@ -40,14 +40,15 @@ struct UserLoginView: View {
             Spacer()
 
             VStack(spacing: 8) {
-                Text("Device sync")
+                Text("Device sync", bundle: .module)
                     .font(Font.custom("SF Pro", size: 28, relativeTo: .body)
                         .weight(.bold))
                     .kerning(0.392)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.textNorm)
                     .frame(maxWidth: .infinity, alignment: .top)
-                Text("Proton account is required to enable end-to-end encrypted sync between devices.")
+                Text("Proton account is required to enable end-to-end encrypted sync between devices.",
+                     bundle: .module)
                     .font(Font.custom("SF Pro", size: 20, relativeTo: .body))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.textWeak)
