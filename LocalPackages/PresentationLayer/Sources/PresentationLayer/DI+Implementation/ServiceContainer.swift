@@ -101,12 +101,6 @@ public extension ServiceContainer {
             keysProvider: self.keyManager(),
             persistentStorage: ToolsContainer.shared.persistenceService(),
             logger: self.logger)
-//
-//            APIManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
-//                                                              doh: AuthDoH(userDefaults: kSharedUserDefaults)),
-//                       keyStore: self.keychainService(),
-//                       keysProvider: self.keyManager(),
-//                       logger: self.logger)
         }
     }
 

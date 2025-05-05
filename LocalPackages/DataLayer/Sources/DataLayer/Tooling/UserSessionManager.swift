@@ -49,7 +49,6 @@ public struct APIManagerConfiguration: Sendable {
 
 public protocol APIManagerProtocol: Sendable {
     var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
-
     var apiService: APIService { get }
 
     func logout() async throws
@@ -134,7 +133,6 @@ public final class UserSessionManager: @unchecked Sendable, APIManagerProtocol, 
         let newApiService: PMAPIService
 
         do {
-//            let credentials: Credentials = try keyStore.get(key: key, ofType: .generic, shouldSync: false)
             let encryptedContent: Data = try keyStore.get(key: credentialsKey, ofType: .generic, shouldSync: false)
             let symmetricKey = try keysProvider.getSymmetricKey()
             let decryptedContent = try symmetricKey.decrypt(encryptedContent)
@@ -239,17 +237,6 @@ private extension UserSessionManager {
                     authCredential: authCredential ?? AuthCredential(credential))
     }
 
-//    func saveCachedCredentialsToKeychain() {
-//        do {
-//            let symmetricKey = try keysProvider.getSymmetricKey()
-//            let data = try JSONEncoder().encode(cachedCredentials.value)
-//            let encryptedContent = try symmetricKey.encrypt(data)
-//            try keyStore.set(encryptedContent, for: key, shouldSync: false)
-//        } catch {
-//            log(.error, "Failed to saved user sessions in keychain: \(error)")
-//        }
-//    }
-
     func saveDataToKeychain(data: some Encodable, for key: String) {
         do {
             let symmetricKey = try keysProvider.getSymmetricKey()
@@ -311,7 +298,6 @@ extension UserSessionManager: AuthDelegate {
         cachedCredentials.modify {
             $0 = Credentials(credential: credential, authCredential: newAuthCredential)
         }
-//        saveCachedCredentialsToKeychain()
         saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
         updateSession(sessionId: sessionUID)
         isAuthenticated.send(!credential.isForUnauthenticatedSession)
