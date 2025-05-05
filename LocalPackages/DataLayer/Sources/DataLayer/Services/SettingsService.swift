@@ -33,6 +33,8 @@ public protocol SettingsServicing: Sendable, Observable {
     var showPassBanner: Bool { get }
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
+    var displayICloudBackUp: Bool { get }
+    var displayBESync: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -45,6 +47,8 @@ public protocol SettingsServicing: Sendable, Observable {
     // periphery:ignore
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
+    func toggleICloudBackUpDisplay(_ value: Bool)
+    func toggleBESyncDisplay(_ value: Bool)
 }
 
 @MainActor
@@ -61,6 +65,8 @@ public final class SettingsService: SettingsServicing {
     public private(set) var showPassBanner: Bool
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
+    public private(set) var displayICloudBackUp: Bool
+    public private(set) var displayBESync: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -82,6 +88,8 @@ public final class SettingsService: SettingsServicing {
         showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
         hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
+        displayICloudBackUp = store.bool(forKey: AppConstants.Settings.displayICloudBackUp)
+        displayBESync = store.bool(forKey: AppConstants.Settings.displayBESync)
     }
 }
 
@@ -148,6 +156,18 @@ public extension SettingsService {
         update(currentValue: &focusSearchOnLaunch,
                newValue: value,
                key: AppConstants.Settings.focusSearchOnLaunchEnabled)
+    }
+
+    func toggleICloudBackUpDisplay(_ value: Bool) {
+        update(currentValue: &displayICloudBackUp,
+               newValue: value,
+               key: AppConstants.Settings.hapticFeedbackEnabled)
+    }
+
+    func toggleBESyncDisplay(_ value: Bool) {
+        update(currentValue: &displayBESync,
+               newValue: value,
+               key: AppConstants.Settings.hapticFeedbackEnabled)
     }
 }
 

@@ -127,6 +127,14 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
+    var displayICloudBackUp: Bool {
+        settingsService.displayICloudBackUp
+    }
+
+    var displayBESync: Bool {
+        settingsService.displayBESync
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in

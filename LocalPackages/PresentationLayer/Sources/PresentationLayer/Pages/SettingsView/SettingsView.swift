@@ -143,20 +143,24 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("Backup", .module),
-                       subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
-                       trailingMode: .toggle(isOn: viewModel.backUpEnabled,
-                                             onToggle: viewModel.toggleBackUp))
+            if viewModel.displayICloudBackUp {
+                SettingRow(title: .localized("Backup", .module),
+                           subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
+                           trailingMode: .toggle(isOn: viewModel.backUpEnabled,
+                                                 onToggle: viewModel.toggleBackUp))
 
-            SettingDivider()
+                SettingDivider()
+            }
             #if os(iOS)
-            SettingRow(title: .localized("Sync between devices", .module),
-                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                             onToggle: {
-                                                 viewModel.toggleSync()
-                                             }))
+            if viewModel.displayBESync {
+                SettingRow(title: .localized("Sync between devices", .module),
+                           trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                                 onToggle: {
+                                                     viewModel.toggleSync()
+                                                 }))
 
-            SettingDivider()
+                SettingDivider()
+            }
             #endif
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
@@ -300,11 +304,11 @@ private extension SettingsView {
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
-//                .if(viewModel.isQaBuild) { view in
-//                    view.onTapGesture(count: 3) {
-//                        settingSheet = .qa
-//                    }
-//                }
+                .onTapGesture(count: 3) {
+                    if viewModel.isQaBuild {
+                        viewModel.settingSheet = .qa
+                    }
+                }
         }
     }
 

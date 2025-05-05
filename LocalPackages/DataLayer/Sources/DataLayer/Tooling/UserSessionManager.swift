@@ -280,7 +280,6 @@ private extension UserSessionManager {
     }
 }
 
-
 // MARK: - AuthDelegate
 
 extension UserSessionManager: AuthDelegate {
