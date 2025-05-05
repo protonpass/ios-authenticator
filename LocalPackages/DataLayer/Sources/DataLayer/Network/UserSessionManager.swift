@@ -147,7 +147,7 @@ public final class UserSessionManager: @unchecked Sendable, APIManagerProtocol, 
             newApiService = PMAPIService.createAPIService(doh: configuration.doh,
                                                           sessionUID: credentials.credential.UID,
                                                           challengeParametersProvider: challengeProvider)
-            isAuthenticated.send(true)
+            isAuthenticated.send(!credentials.credential.isForUnauthenticatedSession)
         } catch {
             logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
             newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
@@ -280,14 +280,6 @@ private extension UserSessionManager {
     }
 }
 
-// MARK: - User information
-
-//
-// extension UserSessionManager: UserInfoProviding{
-//    func setUpUserInfo() {
-//
-//    }
-// }
 
 // MARK: - AuthDelegate
 
@@ -323,7 +315,7 @@ extension UserSessionManager: AuthDelegate {
 //        saveCachedCredentialsToKeychain()
         saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
         updateSession(sessionId: sessionUID)
-        isAuthenticated.send(true)
+        isAuthenticated.send(!credential.isForUnauthenticatedSession)
     }
 
     public func onSessionObtaining(credential: ProtonCoreNetworking.Credential) {
@@ -335,7 +327,7 @@ extension UserSessionManager: AuthDelegate {
         saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
 
         updateSession(sessionId: credential.UID)
-        isAuthenticated.send(true)
+        isAuthenticated.send(!credential.isForUnauthenticatedSession)
     }
 
     public func onAdditionalCredentialsInfoObtained(sessionUID: String,

@@ -30,8 +30,28 @@ import ProtonCoreLoginUI
 import SwiftUI
 
 #if os(iOS)
+struct UserLoginController: UIViewControllerRepresentable {
+    let coordinator: CoordinatorProtocol
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        let controller = coordinator.rootViewController
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
 @MainActor
-final class AuthLoginCoordinator {
+protocol CoordinatorProtocol {
+    var rootViewController: UIViewController { get }
+}
+
+@MainActor
+final class AuthLoginCoordinator: CoordinatorProtocol {
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
     private lazy var welcomeViewController = makeWelcomeViewController()
@@ -99,7 +119,6 @@ final class AuthLoginCoordinator {
                 guard let self else { return }
                 do {
                     try await userSessionManager.save(logInData)
-                    print("woot logged in")
                 } catch {
                     logger.log(.error, category: .data, error.localizedDescription)
                 }

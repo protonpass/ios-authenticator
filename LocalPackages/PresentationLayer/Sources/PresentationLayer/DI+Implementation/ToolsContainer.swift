@@ -111,7 +111,8 @@ extension ToolsContainer {
     var authLoginCoordinator: Factory<AuthLoginCoordinator> {
         self {
             @MainActor in AuthLoginCoordinator(logger: self.logManager())
-        }.cached
+        }
+        .unique
     }
     #endif
 }

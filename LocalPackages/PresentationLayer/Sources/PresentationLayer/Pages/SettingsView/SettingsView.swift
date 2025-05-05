@@ -27,7 +27,7 @@ enum SettingsSheetStates {
     case logs
     case qa
     #if os(iOS)
-    case login
+    case login(CoordinatorProtocol)
     #endif
 
     @MainActor @ViewBuilder
@@ -38,27 +38,12 @@ enum SettingsSheetStates {
         case .qa:
             QAMenuView()
         #if os(iOS)
-        case .login:
-            UserLoginController()
+        case let .login(coordinator):
+            UserLoginController(coordinator: coordinator)
         #endif
         }
     }
 }
-
-#if os(iOS)
-struct UserLoginController: UIViewControllerRepresentable {
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    func makeUIViewController(context: Context) -> UIViewController {
-        let controller = ToolsContainer.shared.authLoginCoordinator().rootViewController
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
-}
-#endif
 
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -67,7 +52,6 @@ public struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-//    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
 
     public init() {}

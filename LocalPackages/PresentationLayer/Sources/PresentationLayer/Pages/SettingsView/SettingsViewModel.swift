@@ -79,6 +79,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private(set) var hapticsManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.authLoginCoordinator) private(set) var authLoginCoordinator
     #endif
 
     @ObservationIgnored
@@ -139,8 +142,9 @@ final class SettingsViewModel {
 
         userSessionManager.isAuthenticated
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] authenticated in
-                guard let self else { return }
+                guard let self, authenticated != syncEnabled else { return }
                 syncEnabled = authenticated
             }
             .store(in: &cancellables)
@@ -160,9 +164,10 @@ extension SettingsViewModel {
         backUpEnabled.toggle()
     }
 
+    #if os(iOS)
     func toggleSync() {
         if !syncEnabled {
-            settingSheet = .login
+            settingSheet = .login(authLoginCoordinator)
         } else {
             let config = AlertConfiguration.logout {
                 Task { [weak self] in
@@ -177,7 +182,7 @@ extension SettingsViewModel {
             alertService.showAlert(.sheet(config))
         }
     }
-
+    #endif
     func toggleBioLock() {
         guard toggleBioLockTask == nil else {
             return
