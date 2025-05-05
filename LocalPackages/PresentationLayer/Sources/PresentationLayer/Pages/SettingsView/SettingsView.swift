@@ -304,25 +304,26 @@ private extension SettingsView {
 
 private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
-        Section {
+        VStack(spacing: DesignConstant.padding / 2) {
+            Text(title, bundle: .module)
+                .font(.callout)
+                .foregroundStyle(.textWeak)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, DesignConstant.padding * 2)
+
             VStack(alignment: .leading, spacing: 0) {
                 content()
             }
-            .padding(.horizontal, 0)
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .cornerRadius(24)
-            .overlay(RoundedRectangle(cornerRadius: 24)
+            .cornerRadius(18)
+            .overlay(RoundedRectangle(cornerRadius: 18)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-        } header: {
-            Text(title, bundle: .module)
-                .font(.callout)
-                .padding(.horizontal, DesignConstant.padding)
-                .foregroundStyle(.textWeak)
+            .padding(.horizontal, DesignConstant.padding)
         }
         .plainListRow()
-        .padding(.horizontal, DesignConstant.padding)
+        .padding(.top, DesignConstant.padding * 2)
     }
 
     func open(urlString: String) {
