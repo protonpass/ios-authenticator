@@ -103,8 +103,9 @@ extension ToolsContainer {
     #endif
 
     var appVersion: Factory<String> {
+        // swiftlint:disable:next todo
         // TODO: add correct app version for
-        self { "ios-pass@\(Bundle.main.fullAppVersionName)" }
+        self { "ios-authenticator@\(Bundle.main.fullAppVersionName)" }
     }
 
     #if os(iOS)
