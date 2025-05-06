@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 public enum SearchBarDisplayMode: Int, Sendable, CaseIterable, IntegerDefaulting {
-    case bottom, top
+    case top, bottom
 
     public static var `default`: Self { .bottom }
 }
