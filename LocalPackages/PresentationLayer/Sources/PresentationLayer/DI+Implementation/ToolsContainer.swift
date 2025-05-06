@@ -107,7 +107,7 @@ extension ToolsContainer {
     }
 
     #if os(iOS)
-    var authLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
+    var mobileLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
         self {
             @MainActor in MobileLoginCoordinator(logger: self.logManager())
         }

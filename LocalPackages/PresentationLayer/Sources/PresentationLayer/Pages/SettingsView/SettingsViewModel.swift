@@ -81,7 +81,7 @@ final class SettingsViewModel {
     private(set) var hapticsManager
 
     @ObservationIgnored
-    @LazyInjected(\ToolsContainer.authLoginCoordinator) private(set) var authLoginCoordinator
+    @LazyInjected(\ToolsContainer.mobileLoginCoordinator) private(set) var mobileLoginCoordinator
     #endif
 
     @ObservationIgnored
@@ -175,7 +175,7 @@ extension SettingsViewModel {
     #if os(iOS)
     func toggleSync() {
         if !syncEnabled {
-            settingSheet = .login(authLoginCoordinator)
+            settingSheet = .login(mobileLoginCoordinator)
         } else {
             let config = AlertConfiguration.logout {
                 Task { [weak self] in
