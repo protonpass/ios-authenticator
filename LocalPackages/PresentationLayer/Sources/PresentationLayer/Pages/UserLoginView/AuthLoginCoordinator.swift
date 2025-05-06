@@ -30,8 +30,8 @@ import ProtonCoreLogin
 import ProtonCoreLoginUI
 import SwiftUI
 
-struct UserLoginController: UIViewControllerRepresentable {
-    let coordinator: CoordinatorProtocol
+struct UserMobileLoginController: UIViewControllerRepresentable {
+    let coordinator: any MobileCoordinatorProtocol
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -46,12 +46,12 @@ struct UserLoginController: UIViewControllerRepresentable {
 }
 
 @MainActor
-protocol CoordinatorProtocol {
+protocol MobileCoordinatorProtocol {
     var rootViewController: UIViewController { get }
 }
 
 @MainActor
-final class AuthLoginCoordinator: CoordinatorProtocol {
+final class MobileLoginCoordinator: MobileCoordinatorProtocol {
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
     private lazy var welcomeViewController = makeWelcomeViewController()

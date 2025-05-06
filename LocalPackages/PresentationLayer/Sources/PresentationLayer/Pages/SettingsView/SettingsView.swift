@@ -23,11 +23,11 @@ import CommonUtilities
 import Models
 import SwiftUI
 
-enum SettingsSheetStates {
+enum SettingsSheet {
     case logs
     case qa
     #if os(iOS)
-    case login(CoordinatorProtocol)
+    case login(MobileCoordinatorProtocol)
     #endif
 
     @MainActor @ViewBuilder
@@ -39,7 +39,7 @@ enum SettingsSheetStates {
             QAMenuView()
         #if os(iOS)
         case let .login(coordinator):
-            UserLoginController(coordinator: coordinator)
+            UserMobileLoginController(coordinator: coordinator)
         #endif
         }
     }
@@ -79,44 +79,40 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            #if os(iOS)
-                .listStyle(.grouped)
-            #elseif os(macOS)
-                .listStyle(.plain)
-            #endif
-                .toolbar {
-                    ToolbarItem(placement: toolbarItemPlacement) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Text("Close", bundle: .module)
-                                .foregroundStyle(.purpleInteraction)
-                        }
-                        .adaptiveButtonStyle()
+            .listStyle(.plain)
+            .toolbar {
+                ToolbarItem(placement: toolbarItemPlacement) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Close", bundle: .module)
+                            .foregroundStyle(.purpleInteraction)
                     }
+                    .adaptiveButtonStyle()
                 }
-                .scrollContentBackground(.hidden)
-                .routingProvided
-                .navigationTitle(Text("Settings", bundle: .module))
-                .task {
-                    await viewModel.setUp()
-                }
+            }
+            .scrollContentBackground(.hidden)
+            .routingProvided
+            .navigationTitle(Text("Settings", bundle: .module))
+            .task {
+                await viewModel.setUp()
+            }
             #if os(iOS)
-                .listSectionSpacing(DesignConstant.padding * 2)
-                .navigationBarTitleDisplayMode(.inline)
+            .listSectionSpacing(DesignConstant.padding * 2)
+            .navigationBarTitleDisplayMode(.inline)
             #endif
-                .toastDisplay()
-                .fullScreenMainBackground()
-                .sheetAlertService()
-                .importingService($showImportOptions, onMainDisplay: false)
-                .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                              document: viewModel.exportedDocument,
-                              contentType: .text,
-                              defaultFilename: viewModel.generateExportFileName(),
-                              onCompletion: viewModel.handleExportResult)
-                .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
-                    viewModel.settingSheet?.destination
-                }
+            .toastDisplay()
+            .fullScreenMainBackground()
+            .sheetAlertService()
+            .importingService($showImportOptions, onMainDisplay: false)
+            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+                          document: viewModel.exportedDocument,
+                          contentType: .text,
+                          defaultFilename: viewModel.generateExportFileName(),
+                          onCompletion: viewModel.handleExportResult)
+            .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                viewModel.settingSheet?.destination
+            }
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
@@ -321,12 +317,12 @@ private extension SettingsView {
 
 private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding / 2) {
+        VStack(spacing: DesignConstant.padding) {
             Text(title, bundle: .module)
                 .font(.callout)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, DesignConstant.padding * 2)
+                .padding(.horizontal, DesignConstant.padding)
 
             VStack(alignment: .leading, spacing: 0) {
                 content()
@@ -337,9 +333,9 @@ private extension SettingsView {
             .overlay(RoundedRectangle(cornerRadius: 18)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-            .padding(.horizontal, DesignConstant.padding)
         }
         .plainListRow()
+        .padding(.horizontal, DesignConstant.padding)
         .padding(.top, DesignConstant.padding * 2)
     }
 

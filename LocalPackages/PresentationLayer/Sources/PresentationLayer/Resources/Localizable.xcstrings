@@ -81,22 +81,22 @@
         }
       }
     },
-    "Are you sure ?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Are you sure ?"
-          }
-        }
-      }
-    },
     "Are you sure you want to delete this entry? This action is irreversible." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Are you sure you want to delete this entry? This action is irreversible."
+          }
+        }
+      }
+    },
+    "Are you sure?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure?"
           }
         }
       }

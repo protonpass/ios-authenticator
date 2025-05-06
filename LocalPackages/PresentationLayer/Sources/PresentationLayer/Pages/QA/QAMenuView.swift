@@ -98,7 +98,7 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.displayICloudBackUp,
                    label: { Text(verbatim: "Display iCloud backup") })
 
-            Toggle(isOn: $viewModel.displayBESync, label: { Text(verbatim: "Display Pass BE sync") })
+            Toggle(isOn: $viewModel.displayBESync, label: { Text(verbatim: "Display BE sync") })
         }, header: {
             Text(verbatim: "Syncs")
         })

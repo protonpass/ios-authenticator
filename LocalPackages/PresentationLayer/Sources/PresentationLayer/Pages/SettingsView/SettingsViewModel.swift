@@ -33,12 +33,12 @@ import UIKit
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var backUpEnabled = true
-    private(set) var syncEnabled = true
+    private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
 
-    var settingSheet: SettingsSheetStates?
+    var settingSheet: SettingsSheet?
 
     var exportedDocument: TextDocument?
 

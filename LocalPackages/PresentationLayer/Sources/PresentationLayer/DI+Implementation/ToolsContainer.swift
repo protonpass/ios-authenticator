@@ -103,17 +103,15 @@ extension ToolsContainer {
     #endif
 
     var appVersion: Factory<String> {
-        // swiftlint:disable:next todo
-        // TODO: add correct app version for
         self { "ios-authenticator@\(Bundle.main.fullAppVersionName)" }
     }
 
     #if os(iOS)
-    var authLoginCoordinator: Factory<AuthLoginCoordinator> {
+    var authLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
         self {
-            @MainActor in AuthLoginCoordinator(logger: self.logManager())
+            @MainActor in MobileLoginCoordinator(logger: self.logManager())
         }
-        .unique
+        .shared
     }
     #endif
 }

@@ -45,7 +45,7 @@ extension AlertConfiguration {
         let logoutAction = ActionConfig(title: "Stop syncing",
                                         titleBundle: .module,
                                         action: onLogout)
-        return .init(title: "Are you sure ?",
+        return .init(title: "Are you sure?",
                      titleBundle: .module,
                      // swiftlint:disable:next line_length
                      message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.",
