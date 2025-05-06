@@ -52,7 +52,7 @@ public struct APIManagerConfiguration: Sendable {
 public protocol APIManagerProtocol: Sendable {
     var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
     var apiService: APIService { get }
-
+    
     func logout() async throws
 }
 
@@ -61,6 +61,18 @@ public protocol UserInfoProviding: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
 }
+
+//public protocol APIClient: Sendable {
+//   
+//
+////    func exec<E: Endpoint>(endpoint: E) async throws -> E.Response
+//}
+
+//extension APIClient {
+//    func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
+//        try await apiService.exec(endpoint: endpoint)
+//    }
+//}
 
 final class ForceUpgradeControllerImpl: ForceUpgradeController {
     func performForceUpgrade(message: String,
