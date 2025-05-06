@@ -41,7 +41,7 @@ extension ToolsContainer {
                 let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
                                                      cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let logConfig = ModelConfiguration("localData",
+                let localDataConfig = ModelConfiguration("localData",
                                                    schema: Schema([
                                                        LogEntryEntity.self,
                                                        EncryptedUserDataEntity.self
@@ -52,7 +52,7 @@ extension ToolsContainer {
                                               LogEntryEntity.self,
                                               EncryptedUserDataEntity.self,
                                               configurations: entryConfig,
-                                              logConfig)
+                                              localDataConfig)
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
