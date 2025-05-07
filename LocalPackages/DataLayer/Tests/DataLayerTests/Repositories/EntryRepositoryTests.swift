@@ -25,7 +25,6 @@ import Models
 import SwiftData
 import DataLayer
 
-
 struct OrderedEntry: IdentifiableOrderedEntry {
     let entry: Entry
     let order: Int
@@ -40,71 +39,6 @@ struct OrderedEntry: IdentifiableOrderedEntry {
     var id: String { entry.id }
  }
 
-final class MockKeychainService: @unchecked Sendable, KeychainServicing {
-
-    private var storage: [String: Any] = [:]
-    private var globalSyncState: Bool = false
-    
-    // For tracking calls for verification in tests
-    private(set) var callLog: [String: [Any]] = [:]
-    
-    init() {}
-    
-    // MARK: - KeychainServicing Implementation
-    
-    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws -> T {
-        guard let value = storage[key] as? T else {
-            throw MockKeychainError.itemNotFound
-        }
-        return value
-    }
-    
-    func set<T: Encodable & Sendable>(_ item: T, for key: String, config: KeychainQueryConfig, shouldSync: Bool?) throws {
-        storage[key] = item
-    }
-    
-    func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
-        guard storage.removeValue(forKey: key) != nil else {
-            throw MockKeychainError.itemNotFound
-        }
-    }
-    
-    func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
-        storage.removeAll()
-    }
-    
-    func clear(key: String, shouldSync: Bool?) throws {
-        try delete(key, ofType: .generic, shouldSync: shouldSync)
-    }
-    
-    func setGlobalSyncState(_ syncState: Bool) {
-        globalSyncState = syncState
-    }
-    
-    func reset() {
-        storage.removeAll()
-        callLog.removeAll()
-        globalSyncState = false
-    }
-}
-
-final class LoggerMock: LoggerProtocol {
-    nonisolated func log(_ level: LogLevel,
-                         category: LogCategory,
-                         _ message: String,
-                         file: String,
-                         function: String,
-                         line: Int) {
-    }
-
-    func logsContent(category: LogCategory?) async throws -> String {
-        return ""
-    }
-    
-    func fetchLogs(category: LogCategory?) async throws -> [LogEntry] {
-        []
-    }
-}
 
 enum MockKeychainError: Error {
     case itemNotFound
@@ -117,8 +51,9 @@ struct EntryRepositoryTests {
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
-        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keyStore: MockKeychainService(),
-                                                                                                          logger: LoggerMock()))
+        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keychain: MockKeychainService(),
+                                                                                                          keysProvider: MockKeyProvider(),
+                                                                                                          logger: MockLogger()))
     }
     
     @Test("Test generating entry for uri")

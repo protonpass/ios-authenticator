@@ -74,9 +74,9 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let logger: any LoggerProtocol
     private let configuration: APIManagerConfiguration
     private let forceUpgradeHelper: ForceUpgradeHelper
-    private let keyStore: any KeychainServicing
-    private let keysProvider: any KeysProvider
-    private let persistentStorage: any PersistenceServicing
+    private let keychain: any KeychainServicing
+    private let encryptionService: any EncryptionServicing
+    private let userDataProvider: any UserDataProvider
     private let credentialsKey = "credentials"
 
     #if os(iOS)
@@ -91,6 +91,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     #endif
 
     private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
+    private let cachedUserData: LegacyMutex<UserData?> = .init(nil)
 
     public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
     public private(set) var apiService: APIService
@@ -100,15 +101,15 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         .AuthSessionInvalidatedDelegate)?
 
     public init(configuration: APIManagerConfiguration,
-                keyStore: any KeychainServicing,
-                keysProvider: any KeysProvider,
-                persistentStorage: any PersistenceServicing,
+                keychain: any KeychainServicing,
+                encryptionService: any EncryptionServicing,
+                userDataProvider: any UserDataProvider,
                 logger: any LoggerProtocol) {
         self.configuration = configuration
         self.logger = logger
-        self.persistentStorage = persistentStorage
-        self.keysProvider = keysProvider
-        self.keyStore = keyStore
+        self.userDataProvider = userDataProvider
+        self.encryptionService = encryptionService
+        self.keychain = keychain
         Self.setUpCertificatePinning()
         injectDefaultCryptoImplementation()
 
@@ -136,10 +137,12 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         let newApiService: PMAPIService
 
         do {
-            let encryptedContent: Data = try keyStore.get(key: credentialsKey, ofType: .generic, shouldSync: false)
-            let symmetricKey = try keysProvider.getSymmetricKey()
-            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
-            let credentials = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
+            let encryptedContent: Data = try keychain.get(key: credentialsKey, ofType: .generic, shouldSync: false)
+//            let symmetricKey = try keysProvider.getSymmetricKey()
+//            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
+//            let credentials:Credentials  = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
+            let credentials: Credentials = try encryptionService
+                .symmetricKeyDecrypt(encryptedData: encryptedContent)
 
             cachedCredentials.modify {
                 $0 = credentials
@@ -181,7 +184,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         }
         removeCachedCredentials()
         createApiService(credential: nil)
-        try await removeAllUsers()
+        try await userDataProvider.removeAllUsers()
         isAuthenticated.send(false)
     }
 }
@@ -226,8 +229,8 @@ private extension UserSessionManager {
         updateTools()
     }
 
-    func log(_ level: LogLevel, _ message: String) {
-        logger.log(level, category: .network, message)
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .network, message, function: function, line: line)
     }
 
     func updateTools() {
@@ -240,12 +243,13 @@ private extension UserSessionManager {
                     authCredential: authCredential ?? AuthCredential(credential))
     }
 
-    func saveDataToKeychain(data: some Encodable, for key: String) {
+    func saveDataToKeychain(data: some Codable, for key: String) {
         do {
-            let symmetricKey = try keysProvider.getSymmetricKey()
-            let data = try JSONEncoder().encode(data)
-            let encryptedContent = try symmetricKey.encrypt(data)
-            try keyStore.set(encryptedContent, for: key, shouldSync: false)
+            let encryptedContent = try encryptionService.symmetricKeyEncrypt(object: data)
+//            let symmetricKey = try keysProvider.getSymmetricKey()
+//            let data = try JSONEncoder().encode(data)
+//            let encryptedContent = try symmetricKey.encrypt(data)
+            try keychain.set(encryptedContent, for: key, shouldSync: false)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")
         }
@@ -253,7 +257,7 @@ private extension UserSessionManager {
 
     func removeCachedCredentials() {
         do {
-            try keyStore.delete(credentialsKey)
+            try keychain.delete(credentialsKey)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")
         }
@@ -429,54 +433,17 @@ extension UserSessionManager: APIServiceLoggingDelegate {
 
 public extension UserSessionManager {
     func getUserData() async throws -> UserData? {
-        let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
-        guard let encryptedUserData = encryptedUsersData.first else { return nil }
-        return try decrypt(encryptedData: encryptedUserData.encryptedData)
+        if let userData = cachedUserData.value {
+            return userData
+        }
+        let userData = try await userDataProvider.getUserData()
+        cachedUserData.modify { $0 = userData }
+        return userData
     }
 
     func save(_ userData: UserData) async throws {
-        let encryptedUserData = try encrypt(userData: userData)
-        try await persistentStorage.save(data: encryptedUserData)
-    }
-
-    // periphery:ignore
-    func remove(_ userData: UserData) async throws {
-        try await remove(userData.user.ID)
-    }
-
-    // periphery:ignore
-    func remove(_ userDataId: String) async throws {
-        let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userDataId }
-        try await persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
-    }
-
-    func removeAllUsers() async throws {
-        try await persistentStorage.deleteAll(dataTypes: [EncryptedUserDataEntity.self])
-    }
-
-    // periphery:ignore
-    func update(_ userData: UserData) async throws {
-        guard let entity = try await persistentStorage
-            .fetchOne(predicate: #Predicate<EncryptedUserDataEntity> { $0.id == userData.user.ID }) else {
-            return
-        }
-        let encryptedData = try encrypt(userData: userData)
-        entity.updateEncryptedData(encryptedData.encryptedData)
-        try await persistentStorage.save(data: entity)
-    }
-
-    private func encrypt(userData: UserData) throws -> EncryptedUserDataEntity {
-        let symmetricKey = try keysProvider.getSymmetricKey()
-        let data = try JSONEncoder().encode(userData)
-        let encryptedData = try symmetricKey.encrypt(data)
-        return EncryptedUserDataEntity(id: userData.user.ID, encryptedData: encryptedData)
-    }
-
-    private func decrypt(encryptedData: Data) throws -> UserData? {
-        let symmetricKey = try keysProvider.getSymmetricKey()
-        let data = try symmetricKey.decrypt(encryptedData)
-        let userData = try JSONDecoder().decode(UserData.self, from: data)
-        return userData
+        try await userDataProvider.save(userData)
+        cachedUserData.modify { $0 = userData }
     }
 }
 
@@ -584,38 +551,5 @@ extension Credential: Codable, @retroactive Hashable {
         try container.encode(userID, forKey: .userID)
         try container.encode(scopes, forKey: .scopes)
         try container.encode(mailboxPassword, forKey: .mailboxPassword)
-    }
-}
-
-// swiftlint:disable:next todo
-// TODO: to be removed once proton core wis updated with the codable conformance
-extension UserData: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case credential
-        case user
-        case salts
-        case passphrases
-        case addresses
-        case scopes
-    }
-
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        try self.init(credential: container.decode(AuthCredential.self, forKey: .credential),
-                      user: container.decode(User.self, forKey: .user),
-                      salts: container.decode([KeySalt].self, forKey: .salts),
-                      passphrases: container.decode([String: String].self, forKey: .passphrases),
-                      addresses: container.decode([Address].self, forKey: .addresses),
-                      scopes: container.decode([String].self, forKey: .scopes))
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(credential, forKey: .credential)
-        try container.encode(user, forKey: .user)
-        try container.encode(salts, forKey: .salts)
-        try container.encode(passphrases, forKey: .passphrases)
-        try container.encode(addresses, forKey: .addresses)
-        try container.encode(scopes, forKey: .scopes)
     }
 }

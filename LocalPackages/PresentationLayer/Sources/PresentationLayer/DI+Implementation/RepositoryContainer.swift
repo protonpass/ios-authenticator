@@ -33,4 +33,12 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
         self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
                                encryptionService: ServiceContainer.shared.encryptionService()) }
     }
+
+    // MARK: - Data sources
+
+    var userDataSource: Factory<any UserDataProvider> {
+        self { UserDataSource(logger: ToolsContainer.shared.logManager(),
+                              persistentStorage: ToolsContainer.shared.persistenceService(),
+                              encryptionService: ServiceContainer.shared.encryptionService()) }
+    }
 }
