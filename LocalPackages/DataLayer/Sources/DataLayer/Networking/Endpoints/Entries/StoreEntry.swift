@@ -1,6 +1,6 @@
 //  
-// StoreKey.swift
-// Proton Authenticator - Created on 06/05/2025.
+// StoreEntry.swift
+// Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -21,31 +21,35 @@
 import Foundation
 @preconcurrency import ProtonCoreNetworking
 
-struct GetKeyResponse: Decodable, Equatable, Sendable {
-    let key: RemoteEncryptedKey
+struct GetEntryResponse: Decodable, Equatable, Sendable {
+    let entry: RemoteEncryptedEntry
 }
 
-struct StoreKeyRequest: Encodable, Sendable {
-    let key: String
+struct StoreEntryRequest: Encodable, Sendable {
+    let authenticatorKeyID: String
+    let content: String
+    let contentFormatVersion: Int
     
     enum CodingKeys: String, CodingKey {
-        case key = "Key"
+        case authenticatorKeyID = "AuthenticatorKeyID"
+        case content = "Content"
+        case contentFormatVersion = "ContentFormatVersion"
     }
 }
 
-struct StoreKey: Endpoint {
-    typealias Body = StoreKeyRequest
-    typealias Response = GetKeyResponse
+struct StoreEntry: Endpoint {
+    typealias Body = StoreEntryRequest
+    typealias Response = GetEntryResponse
 
     var debugDescription: String
     var path: String
     var method: HTTPMethod
-    var body: StoreKeyRequest?
+    var body: StoreEntryRequest?
 
-    init(encryptedKey: String) {
-        debugDescription = "Store the Proton Authenticator Key"
-        path = "/authenticator/v1/key"
+    init(request: StoreEntryRequest) {
+        debugDescription = "Store a new Proton Authenticator entry"
+        path = "/authenticator/v1/entry"
         method = .post
-        body = StoreKeyRequest(key: encryptedKey)
+        body = request
     }
 }

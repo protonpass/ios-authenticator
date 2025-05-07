@@ -28,7 +28,7 @@ struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
     let key: String
 }
 
-struct PaginatedKeys {
+struct PaginatedKeys: Decodable, Equatable, Sendable {
     let keys: [RemoteEncryptedKey]
 }
 

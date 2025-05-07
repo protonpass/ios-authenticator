@@ -30,3 +30,29 @@ final class APIClient {
         self.manager = manager
     }
 }
+
+
+private extension APIClient {
+        func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
+            try await manager.apiService.exec(endpoint: endpoint)
+        }
+}
+
+protocol RemoteKeysDataSource {
+    func getKeys() async throws -> [RemoteEncryptedKey]
+    func storeKey(encryptedKey: String) async throws  -> RemoteEncryptedKey 
+}
+
+extension APIClient: RemoteKeysDataSource {
+    func getKeys() async throws -> [RemoteEncryptedKey] {
+        let endpoint = GetKeys()
+        let response = try await exec(endpoint: endpoint)
+        return response.keys.keys
+    }
+    
+    func storeKey(encryptedKey: String) async throws  -> RemoteEncryptedKey {
+        let endpoint = StoreKey(encryptedKey: encryptedKey)
+        let response = try await exec(endpoint: endpoint)
+        return response.key
+    }
+}
