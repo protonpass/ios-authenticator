@@ -38,8 +38,7 @@ struct UserMobileLoginController: UIViewControllerRepresentable {
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
-        let controller = coordinator.rootViewController
-        return controller
+        coordinator.rootViewController
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
@@ -54,7 +53,7 @@ protocol MobileCoordinatorProtocol {
 final class MobileLoginCoordinator: MobileCoordinatorProtocol {
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
-    private lazy var welcomeViewController = makeWelcomeViewController()
+    private lazy var welcomeViewController = createLoginFlow()
 
     var rootViewController: UIViewController { welcomeViewController }
     private let logger: any LoggerProtocol
@@ -65,36 +64,22 @@ final class MobileLoginCoordinator: MobileCoordinatorProtocol {
         self.logger = logger
     }
 
-    func makeWelcomeViewController() -> UIViewController {
-        let welcomeViewController = createLoginFlow()
-
-        return welcomeViewController
-    }
-
     func createLoginFlow() -> UIViewController {
-        UIHostingController(rootView: UserLoginView(onAction: { [weak self] signUp in
+        UIHostingController(rootView: UserLoginView(onLogin: { [weak self] in
             guard let self else { return }
-            beginAddAccountFlow(isSigningUp: signUp)
-        }))
-    }
-
-    func beginAddAccountFlow(isSigningUp: Bool) {
-        let options = LoginCustomizationOptions(inAppTheme: {
-            .default
-        })
-        if isSigningUp {
-            logInAndSignUp.presentSignupFlow(over: rootViewController,
-                                             customization: options) { [weak self] result in
-                guard let self else { return }
-                handle(result)
-            }
-        } else {
             logInAndSignUp.presentLoginFlow(over: rootViewController,
-                                            customization: options) { [weak self] result in
+                                            customization: .empty) { [weak self] result in
                 guard let self else { return }
                 handle(result)
             }
-        }
+        }, onCreateNewAccount: { [weak self] in
+            guard let self else { return }
+            logInAndSignUp.presentSignupFlow(over: rootViewController,
+                                             customization: .empty) { [weak self] result in
+                guard let self else { return }
+                handle(result)
+            }
+        }))
     }
 
     func makeLoginAndSignUp() -> LoginAndSignup {

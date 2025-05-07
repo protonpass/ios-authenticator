@@ -25,83 +25,88 @@ import SwiftUI
 struct UserLoginView: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let onAction: (Bool) -> Void
+    private let onLogin: () -> Void
+    private let onCreateNewAccount: () -> Void
 
-    init(onAction: @escaping (_ signUp: Bool) -> Void) {
-        self.onAction = onAction
+    init(onLogin: @escaping () -> Void,
+         onCreateNewAccount: @escaping () -> Void) {
+        self.onLogin = onLogin
+        self.onCreateNewAccount = onCreateNewAccount
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            Image(.loginIcon)
-                .resizable()
-                .scaledToFit()
-            Spacer()
-
-            VStack(spacing: 8) {
-                Text("Device sync", bundle: .module)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .kerning(0.392)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.textNorm)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                Text("Proton account is required to enable end-to-end encrypted sync between devices.",
-                     bundle: .module)
-                    .font(.title3)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.textWeak)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .opacity(0.9)
-            }
-
-            Spacer()
-
-            VStack(spacing: DesignConstant.padding) {
-                CapsuleButton(title: "Create a free account",
-                              textColor: .white,
-                              style: .borderedFilled) {
-                    onAction(true)
-                }
-                #if os(iOS)
-                .impactHaptic()
-                #endif
-
-                CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {
-                    onAction(false)
-                })
-                #if os(iOS)
-                .impactHaptic()
-                #endif
-
-                Image(.protonPrivacy)
+        NavigationStack {
+            VStack(spacing: 20) {
+                Spacer()
+                Image(.loginIcon)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 20)
-                    .padding(.top, 16)
-            }
+                Spacer()
 
-            Spacer()
-        }
-        .padding(.horizontal, 40)
-        .toolbar {
-            ToolbarItem(placement: toolbarTrailingItemPlacement) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
+                VStack(spacing: 8) {
+                    Text("Device sync", bundle: .module)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .kerning(0.392)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .frame(maxWidth: .infinity, alignment: .top)
+                    Text("Proton account is required to enable end-to-end encrypted sync between devices.",
+                         bundle: .module)
+                        .font(.title3)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .top)
+                        .opacity(0.9)
+                }
+
+                Spacer()
+
+                VStack(spacing: DesignConstant.padding) {
+                    CapsuleButton(title: "Create a free account",
+                                  textColor: .white,
+                                  style: .borderedFilled) {
+                        onCreateNewAccount()
+                    }
+                    #if os(iOS)
+                    .impactHaptic()
+                    #endif
+
+                    CapsuleButton(title: "Sign in", textColor: .textNorm, style: .bordered, action: {
+                        onLogin()
+                    })
+                    #if os(iOS)
+                    .impactHaptic()
+                    #endif
+
+                    Image(.protonPrivacy)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
+                        .frame(height: 20)
+                        .padding(.top, 16)
                 }
-                .adaptiveButtonStyle()
+
+                Spacer()
             }
+            .padding(.horizontal, 40)
+            .toolbar {
+                ToolbarItem(placement: toolbarTrailingItemPlacement) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                }
+            }
+            .toastDisplay()
+            .fullScreenMainBackground()
+            .sheetAlertService()
         }
-        .toastDisplay()
-        .fullScreenMainBackground()
-        .sheetAlertService()
     }
 
     private var toolbarTrailingItemPlacement: ToolbarItemPlacement {
@@ -114,5 +119,5 @@ struct UserLoginView: View {
 }
 
 #Preview {
-    UserLoginView(onAction: { _ in })
+    UserLoginView(onLogin: {}, onCreateNewAccount: {})
 }

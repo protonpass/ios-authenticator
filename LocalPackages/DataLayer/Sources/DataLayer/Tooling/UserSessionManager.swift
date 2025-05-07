@@ -43,7 +43,7 @@ public struct APIManagerConfiguration: Sendable {
     let appVersion: String
     let doh: any DoHInterface
 
-    public init(appVersion: String, doh: any DoHInterface = AuthDoH()) {
+    public init(appVersion: String, doh: any DoHInterface) {
         self.appVersion = appVersion
         self.doh = doh
     }
@@ -70,7 +70,7 @@ final class ForceUpgradeControllerImpl: ForceUpgradeController {
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
 
-public final class UserSessionManager: @unchecked Sendable, APIManagerProtocol, UserInfoProviding {
+public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let logger: any LoggerProtocol
     private let configuration: APIManagerConfiguration
     private let forceUpgradeHelper: ForceUpgradeHelper
@@ -494,7 +494,7 @@ public final class AuthDoH: DoH, ServerConfig {
     public let proxyToken: String?
 
     public init(bundle: Bundle = .main,
-                userDefaults: UserDefaults = kSharedUserDefaults) {
+                userDefaults: UserDefaults) {
         var environment: AuthenticatorEnvironment = .black
         if bundle.isQaBuild {
             switch userDefaults.string(forKey: "pref_environment") {
