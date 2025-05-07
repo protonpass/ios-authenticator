@@ -41,18 +41,18 @@ extension ToolsContainer {
                 let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
                                                      cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let logConfig = ModelConfiguration("localData",
-                                                   schema: Schema([
-                                                       LogEntryEntity.self,
-                                                       EncryptedUserDataEntity.self
-                                                   ]),
-                                                   isStoredInMemoryOnly: false,
-                                                   cloudKitDatabase: .none)
+                let localDataConfig = ModelConfiguration("localData",
+                                                         schema: Schema([
+                                                             LogEntryEntity.self,
+                                                             EncryptedUserDataEntity.self
+                                                         ]),
+                                                         isStoredInMemoryOnly: false,
+                                                         cloudKitDatabase: .none)
                 return try PersistenceService(for: EncryptedEntryEntity.self,
                                               LogEntryEntity.self,
                                               EncryptedUserDataEntity.self,
                                               configurations: entryConfig,
-                                              logConfig)
+                                              localDataConfig)
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
@@ -107,7 +107,7 @@ extension ToolsContainer {
     }
 
     #if os(iOS)
-    var authLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
+    var mobileLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
         self {
             @MainActor in MobileLoginCoordinator(logger: self.logManager())
         }

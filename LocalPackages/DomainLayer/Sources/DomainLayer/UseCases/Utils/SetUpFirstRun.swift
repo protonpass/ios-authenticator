@@ -63,7 +63,7 @@ public final class SetUpFirstRun: SetUpFirstRunUseCase {
 }
 
 private extension SetUpFirstRun {
-    func log(_ level: LogLevel, _ message: String) {
-        logger.log(level, category: .data, message)
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
     }
 }

@@ -161,13 +161,13 @@ public extension SettingsService {
     func toggleICloudBackUpDisplay(_ value: Bool) {
         update(currentValue: &displayICloudBackUp,
                newValue: value,
-               key: AppConstants.Settings.hapticFeedbackEnabled)
+               key: AppConstants.Settings.displayICloudBackUp)
     }
 
     func toggleBESyncDisplay(_ value: Bool) {
         update(currentValue: &displayBESync,
                newValue: value,
-               key: AppConstants.Settings.hapticFeedbackEnabled)
+               key: AppConstants.Settings.displayBESync)
     }
 }
 

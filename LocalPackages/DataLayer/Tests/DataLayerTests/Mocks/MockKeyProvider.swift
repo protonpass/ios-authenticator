@@ -1,6 +1,6 @@
-//
-// Models+Extensions.swift
-// Proton Authenticator - Created on 02/05/2025.
+//  
+// MockKeyProvider.swift
+// Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,4 +18,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import DataLayer
 import Foundation
+import CryptoKit
+
+final class MockKeyProvider: KeysProvider {
+    let data: Data
+    
+    init() {
+        self.data = try! Data.random()
+    }
+    
+    public func getSymmetricKey() throws -> SymmetricKey {
+        return .init(data: data)
+    }
+}
