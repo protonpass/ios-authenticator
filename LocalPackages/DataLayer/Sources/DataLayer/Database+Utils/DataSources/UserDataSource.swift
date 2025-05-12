@@ -28,12 +28,16 @@ public protocol UserDataProvider {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     // periphery:ignore
-    func remove(_ userData: UserData) async throws
-    // periphery:ignore
     func remove(_ userId: String) async throws
     func removeAllUsers() async throws
     // periphery:ignore
     func update(_ userData: UserData) async throws
+}
+
+public extension UserDataProvider {
+    func remove(_ userData: UserData) async throws {
+        try await remove(userData.user.ID)
+    }
 }
 
 public final class UserDataSource: UserDataProvider {
@@ -79,12 +83,6 @@ public extension UserDataSource {
             log(.error, "Failed to save user data: \(error.localizedDescription)")
             throw error
         }
-    }
-
-    // periphery:ignore
-    func remove(_ userData: UserData) async throws {
-        log(.info, "Removing user data for ID: \(userData.user.ID)")
-        try await remove(userData.user.ID)
     }
 
     // periphery:ignore
