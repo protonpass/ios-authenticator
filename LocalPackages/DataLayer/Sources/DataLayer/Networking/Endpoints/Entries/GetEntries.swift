@@ -50,14 +50,14 @@ public struct RemoteEncryptedEntry: Decodable, Equatable, Sendable {
     }
 }
 
-struct GetEntriesResponse: Decodable, Sendable {
+struct GetEntriesResponse: Decodable, Sendable, Equatable {
     let entries: PaginatedEntries
-    let total: Int
-    let lastID: String?
 }
 
-public struct PaginatedEntries: Decodable, Sendable {
+public struct PaginatedEntries: Decodable, Sendable, Equatable {
     public let entries: [RemoteEncryptedEntry]
+    let total: Int
+    let lastID: String?
 }
 
 struct GetEntries: Endpoint, @unchecked Sendable {
