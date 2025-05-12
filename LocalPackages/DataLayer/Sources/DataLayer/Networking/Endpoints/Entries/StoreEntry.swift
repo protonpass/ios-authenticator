@@ -25,10 +25,16 @@ struct GetEntryResponse: Decodable, Equatable, Sendable {
     let entry: RemoteEncryptedEntry
 }
 
-struct StoreEntryRequest: Encodable, Sendable {
+public struct StoreEntryRequest: Encodable, Sendable {
     let authenticatorKeyID: String
     let content: String
     let contentFormatVersion: Int
+
+    public init(authenticatorKeyID: String, content: String, contentFormatVersion: Int) {
+        self.authenticatorKeyID = authenticatorKeyID
+        self.content = content
+        self.contentFormatVersion = contentFormatVersion
+    }
 
     enum CodingKeys: String, CodingKey {
         case authenticatorKeyID = "AuthenticatorKeyID"

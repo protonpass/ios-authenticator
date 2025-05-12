@@ -20,12 +20,30 @@
 
 import Foundation
 
-final class APIClient {
+// MARK: - Keys
+
+public protocol RemoteKeysDataSource {
+    func getKeys() async throws -> [RemoteEncryptedKey]
+    func storeKey(encryptedKey: String) async throws -> RemoteEncryptedKey
+}
+
+// MARK: - Entries
+
+public protocol RemoteEntriesDataSource {
+    func getEntries(lastId: String?) async throws -> [RemoteEncryptedEntry]
+    func storeEntry(request: StoreEntryRequest) async throws -> RemoteEncryptedEntry
+    func storeEntries(request: StoreEntriesRequest) async throws -> [RemoteEncryptedEntry]
+    func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry
+    func delete(entryId: String) async throws
+    func changeOrder(entryId: String, request: NewOrderRequest) async throws
+}
+
+public final class APIClient: RemoteKeysDataSource, RemoteEntriesDataSource {
     private let manager: any APIManagerProtocol
     private let logger: any LoggerProtocol
 
-    init(manager: any APIManagerProtocol,
-         logger: any LoggerProtocol) {
+    public init(manager: any APIManagerProtocol,
+                logger: any LoggerProtocol) {
         self.logger = logger
         self.manager = manager
     }
@@ -37,12 +55,7 @@ private extension APIClient {
     }
 }
 
-protocol RemoteKeysDataSource {
-    func getKeys() async throws -> [RemoteEncryptedKey]
-    func storeKey(encryptedKey: String) async throws -> RemoteEncryptedKey
-}
-
-extension APIClient: RemoteKeysDataSource {
+public extension APIClient {
     func getKeys() async throws -> [RemoteEncryptedKey] {
         let endpoint = GetKeys()
         let response = try await exec(endpoint: endpoint)
@@ -53,5 +66,47 @@ extension APIClient: RemoteKeysDataSource {
         let endpoint = StoreKey(encryptedKey: encryptedKey)
         let response = try await exec(endpoint: endpoint)
         return response.key
+    }
+}
+
+public extension RemoteEntriesDataSource {
+    func getEntries(lastId: String? = nil) async throws -> [RemoteEncryptedEntry] {
+        try await getEntries(lastId: lastId)
+    }
+}
+
+public extension APIClient {
+    func getEntries(lastId: String? = nil) async throws -> [RemoteEncryptedEntry] {
+        let endpoint = GetEntries(lastId: lastId)
+        let response = try await exec(endpoint: endpoint)
+        return response.entries.entries
+    }
+
+    func storeEntry(request: StoreEntryRequest) async throws -> RemoteEncryptedEntry {
+        let endpoint = StoreEntry(request: request)
+        let response = try await exec(endpoint: endpoint)
+        return response.entry
+    }
+
+    func storeEntries(request: StoreEntriesRequest) async throws -> [RemoteEncryptedEntry] {
+        let endpoint = StoreEntries(request: request)
+        let response = try await exec(endpoint: endpoint)
+        return response.entries.entries
+    }
+
+    func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry {
+        let endpoint = UpdateEntry(entryId: entryId, request: request)
+        let response = try await exec(endpoint: endpoint)
+        return response.entry
+    }
+
+    func delete(entryId: String) async throws {
+        let endpoint = DeleteEntry(entryId: entryId)
+        _ = try await exec(endpoint: endpoint)
+    }
+
+    func changeOrder(entryId: String, request: NewOrderRequest) async throws {
+        let endpoint = ChangeEntryOrder(entryId: entryId, request: request)
+        _ = try await exec(endpoint: endpoint)
     }
 }

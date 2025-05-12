@@ -21,8 +21,12 @@
 import Foundation
 @preconcurrency import ProtonCoreNetworking
 
-struct NewOrderRequest: Encodable, Sendable {
+public struct NewOrderRequest: Encodable, Sendable {
     let afterID: String
+
+    public init(afterID: String) {
+        self.afterID = afterID
+    }
 
     enum CodingKeys: String, CodingKey {
         case afterID = "AfterID"

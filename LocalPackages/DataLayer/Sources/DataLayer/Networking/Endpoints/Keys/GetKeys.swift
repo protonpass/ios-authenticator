@@ -20,12 +20,22 @@
 
 import Foundation
 
-struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
+public struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
     // An encrypted ID
-    let keyID: String
+    public let keyID: String
 
     // Base64 representation of the authenticator key encrypted with the user key
-    let key: String
+    public let key: String
+
+    public init(keyID: String, key: String) {
+        self.keyID = keyID
+        self.key = key
+    }
+
+    public enum CodingKeys: CodingKey {
+        case keyID
+        case key
+    }
 }
 
 struct PaginatedKeys: Decodable, Equatable, Sendable {

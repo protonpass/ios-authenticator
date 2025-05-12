@@ -24,7 +24,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/lukacs-m/DocScanner", branch: "main"),
-        .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.3"),
+        .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.12"),
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", .upToNextMajor(from: "3.0.0")),
         .package(name: "Models", path: "../Models"),

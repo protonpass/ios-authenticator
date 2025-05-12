@@ -21,11 +21,18 @@
 import Foundation
 @preconcurrency import ProtonCoreNetworking
 
-struct UpdateEntryRequest: Encodable, Sendable {
+public struct UpdateEntryRequest: Encodable, Sendable {
     let authenticatorKeyID: String
     let content: String
     let contentFormatVersion: Int
     let lastRevision: Int
+
+    public init(authenticatorKeyID: String, content: String, contentFormatVersion: Int, lastRevision: Int) {
+        self.authenticatorKeyID = authenticatorKeyID
+        self.content = content
+        self.contentFormatVersion = contentFormatVersion
+        self.lastRevision = lastRevision
+    }
 
     enum CodingKeys: String, CodingKey {
         case authenticatorKeyID = "AuthenticatorKeyID"

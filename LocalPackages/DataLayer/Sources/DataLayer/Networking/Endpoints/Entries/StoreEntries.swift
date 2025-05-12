@@ -21,8 +21,12 @@
 import Foundation
 @preconcurrency import ProtonCoreNetworking
 
-struct StoreEntriesRequest: Encodable, Sendable {
+public struct StoreEntriesRequest: Encodable, Sendable {
     let entries: [StoreEntryRequest]
+
+    public init(entries: [StoreEntryRequest]) {
+        self.entries = entries
+    }
 
     enum CodingKeys: String, CodingKey {
         case entries = "Entries"

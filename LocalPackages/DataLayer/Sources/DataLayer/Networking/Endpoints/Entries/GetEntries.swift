@@ -22,14 +22,32 @@ import Foundation
 import ProtonCoreNetworking
 
 public struct RemoteEncryptedEntry: Decodable, Equatable, Sendable {
-    let entryID: String
-    let authenticatorKeyID: String
-    let revision: Int
-    let contentFormatVersion: Int
-    let content: String
-    let flags: Int
-    let createTime: Int
-    let modifyTime: Int
+    public let entryID: String
+    public let authenticatorKeyID: String
+    public let revision: Int
+    public let contentFormatVersion: Int
+    public let content: String
+    public let flags: Int
+    public let createTime: Int
+    public let modifyTime: Int
+
+    public init(entryID: String,
+                authenticatorKeyID: String,
+                revision: Int,
+                contentFormatVersion: Int,
+                content: String,
+                flags: Int,
+                createTime: Int,
+                modifyTime: Int) {
+        self.entryID = entryID
+        self.authenticatorKeyID = authenticatorKeyID
+        self.revision = revision
+        self.contentFormatVersion = contentFormatVersion
+        self.content = content
+        self.flags = flags
+        self.createTime = createTime
+        self.modifyTime = modifyTime
+    }
 }
 
 struct GetEntriesResponse: Decodable, Sendable {
@@ -42,7 +60,7 @@ public struct PaginatedEntries: Decodable, Sendable {
     public let entries: [RemoteEncryptedEntry]
 }
 
-struct GetEntriesEndpoint: Endpoint, @unchecked Sendable {
+struct GetEntries: Endpoint, @unchecked Sendable {
     typealias Body = EmptyRequest
     typealias Response = GetEntriesResponse
 
@@ -51,7 +69,7 @@ struct GetEntriesEndpoint: Endpoint, @unchecked Sendable {
     var method: HTTPMethod
     var parameters: [String: Any]?
 
-    init(lastId: String?) {
+    init(lastId: String? = nil) {
         debugDescription = "Get the Proton Authenticator entries"
         path = "/authenticator/v1/entry"
         method = .get
