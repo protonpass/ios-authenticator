@@ -54,7 +54,7 @@ public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data")
         let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
-        assert(encryptedUsersData.count <= 1, "More than one user data found")
+        log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
             log(.info, "No user data found")
             return nil
