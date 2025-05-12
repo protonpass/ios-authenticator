@@ -1,4 +1,4 @@
-//  
+//
 // GetEntries.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -33,13 +33,13 @@ public struct RemoteEncryptedEntry: Decodable, Equatable, Sendable {
 }
 
 struct GetEntriesResponse: Decodable, Sendable {
-    let files: PaginatedItemFiles
+    let entries: PaginatedEntries
+    let total: Int
+    let lastID: String?
 }
 
-public struct PaginatedItemFiles: Decodable, Sendable {
+public struct PaginatedEntries: Decodable, Sendable {
     public let entries: [RemoteEncryptedEntry]
-    public let total: Int
-    public let lastID: String?
 }
 
 struct GetEntriesEndpoint: Endpoint, @unchecked Sendable {
@@ -60,4 +60,3 @@ struct GetEntriesEndpoint: Endpoint, @unchecked Sendable {
         }
     }
 }
-

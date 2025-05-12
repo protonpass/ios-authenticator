@@ -1,4 +1,4 @@
-//  
+//
 // StoreEntries.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -19,3 +19,29 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+@preconcurrency import ProtonCoreNetworking
+
+struct StoreEntriesRequest: Encodable, Sendable {
+    let entries: [StoreEntryRequest]
+
+    enum CodingKeys: String, CodingKey {
+        case entries = "Entries"
+    }
+}
+
+struct StoreEntries: Endpoint {
+    typealias Body = StoreEntriesRequest
+    typealias Response = GetEntriesResponse
+
+    var debugDescription: String
+    var path: String
+    var method: HTTPMethod
+    var body: StoreEntriesRequest?
+
+    init(request: StoreEntriesRequest) {
+        debugDescription = "Store many Proton Authenticator entries in bulk"
+        path = "/authenticator/v1/entry/bulk"
+        method = .post
+        body = request
+    }
+}

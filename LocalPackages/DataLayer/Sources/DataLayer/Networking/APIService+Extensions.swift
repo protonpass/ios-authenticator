@@ -1,4 +1,4 @@
-//  
+//
 // APIService+Extensions.swift
 // Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -19,8 +19,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-@preconcurrency import ProtonCoreServices
 import ProtonCoreNetworking
+@preconcurrency import ProtonCoreServices
 
 private actor SessionTask {
     private var state: State = .ready
@@ -69,7 +69,7 @@ extension APIService {
         } catch URLError.cancelled {
             throw CancellationError()
         } catch {
-            throw Task.isCancelled  ? CancellationError() : error
+            throw Task.isCancelled ? CancellationError() : error
         }
     }
 }

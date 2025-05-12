@@ -1,4 +1,4 @@
-//  
+//
 // UpdateEntry.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -19,3 +19,35 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+@preconcurrency import ProtonCoreNetworking
+
+struct UpdateEntryRequest: Encodable, Sendable {
+    let authenticatorKeyID: String
+    let content: String
+    let contentFormatVersion: Int
+    let lastRevision: Int
+
+    enum CodingKeys: String, CodingKey {
+        case authenticatorKeyID = "AuthenticatorKeyID"
+        case content = "Content"
+        case contentFormatVersion = "ContentFormatVersion"
+        case lastRevision = "LastRevision"
+    }
+}
+
+struct UpdateEntry: Endpoint {
+    typealias Body = UpdateEntryRequest
+    typealias Response = GetEntryResponse
+
+    var debugDescription: String
+    var path: String
+    var method: HTTPMethod
+    var body: UpdateEntryRequest?
+
+    init(entryId: String, request: UpdateEntryRequest) {
+        debugDescription = "Update a Proton Authenticator entry"
+        path = "/authenticator/v1/entry/\(entryId)"
+        method = .put
+        body = request
+    }
+}

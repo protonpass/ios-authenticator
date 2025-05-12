@@ -1,4 +1,4 @@
-//  
+//
 // StoreKey.swift
 // Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -27,7 +27,7 @@ struct GetKeyResponse: Decodable, Equatable, Sendable {
 
 struct StoreKeyRequest: Encodable, Sendable {
     let key: String
-    
+
     enum CodingKeys: String, CodingKey {
         case key = "Key"
     }

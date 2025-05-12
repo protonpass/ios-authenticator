@@ -1,4 +1,4 @@
-//  
+//
 // APIClient.swift
 // Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -23,7 +23,7 @@ import Foundation
 final class APIClient {
     private let manager: any APIManagerProtocol
     private let logger: any LoggerProtocol
-    
+
     init(manager: any APIManagerProtocol,
          logger: any LoggerProtocol) {
         self.logger = logger
@@ -31,16 +31,15 @@ final class APIClient {
     }
 }
 
-
 private extension APIClient {
-        func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
-            try await manager.apiService.exec(endpoint: endpoint)
-        }
+    func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
+        try await manager.apiService.exec(endpoint: endpoint)
+    }
 }
 
 protocol RemoteKeysDataSource {
     func getKeys() async throws -> [RemoteEncryptedKey]
-    func storeKey(encryptedKey: String) async throws  -> RemoteEncryptedKey 
+    func storeKey(encryptedKey: String) async throws -> RemoteEncryptedKey
 }
 
 extension APIClient: RemoteKeysDataSource {
@@ -49,8 +48,8 @@ extension APIClient: RemoteKeysDataSource {
         let response = try await exec(endpoint: endpoint)
         return response.keys.keys
     }
-    
-    func storeKey(encryptedKey: String) async throws  -> RemoteEncryptedKey {
+
+    func storeKey(encryptedKey: String) async throws -> RemoteEncryptedKey {
         let endpoint = StoreKey(encryptedKey: encryptedKey)
         let response = try await exec(endpoint: endpoint)
         return response.key

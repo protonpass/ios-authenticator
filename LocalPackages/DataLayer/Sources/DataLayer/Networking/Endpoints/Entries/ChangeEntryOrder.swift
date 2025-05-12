@@ -1,4 +1,4 @@
-//  
+//
 // ChangeEntryOrder.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -19,3 +19,29 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+@preconcurrency import ProtonCoreNetworking
+
+struct NewOrderRequest: Encodable, Sendable {
+    let afterID: String
+
+    enum CodingKeys: String, CodingKey {
+        case afterID = "AfterID"
+    }
+}
+
+struct ChangeEntryOrder: Endpoint {
+    typealias Body = NewOrderRequest
+    typealias Response = CodeOnlyResponse
+
+    var debugDescription: String
+    var path: String
+    var method: HTTPMethod
+    var body: NewOrderRequest?
+
+    init(entryId: String, request: NewOrderRequest) {
+        debugDescription = "Move a Proton Authenticator entry"
+        path = "/authenticator/v1/entry/\(entryId)/order"
+        method = .put
+        body = request
+    }
+}

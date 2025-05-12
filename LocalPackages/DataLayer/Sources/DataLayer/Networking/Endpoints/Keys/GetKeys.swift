@@ -1,4 +1,4 @@
-//  
+//
 // GetKeys.swift
 // Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -21,9 +21,9 @@
 import Foundation
 
 struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
-    //An encrypted ID
+    // An encrypted ID
     let keyID: String
-    
+
     // Base64 representation of the authenticator key encrypted with the user key
     let key: String
 }
@@ -48,5 +48,3 @@ struct GetKeys: Endpoint {
         path = "/authenticator/v1/key"
     }
 }
-
-

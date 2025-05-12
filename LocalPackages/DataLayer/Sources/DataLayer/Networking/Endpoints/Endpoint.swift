@@ -1,4 +1,4 @@
-//  
+//
 // Endpoint.swift
 // Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG

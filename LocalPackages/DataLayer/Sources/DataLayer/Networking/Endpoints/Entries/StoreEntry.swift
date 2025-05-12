@@ -1,4 +1,4 @@
-//  
+//
 // StoreEntry.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -29,7 +29,7 @@ struct StoreEntryRequest: Encodable, Sendable {
     let authenticatorKeyID: String
     let content: String
     let contentFormatVersion: Int
-    
+
     enum CodingKeys: String, CodingKey {
         case authenticatorKeyID = "AuthenticatorKeyID"
         case content = "Content"
