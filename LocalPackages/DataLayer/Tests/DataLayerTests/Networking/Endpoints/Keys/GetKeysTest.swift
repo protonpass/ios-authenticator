@@ -1,0 +1,53 @@
+//  
+// GetKeysTest.swift
+// Proton Authenticator - Created on 12/05/2025.
+// Copyright (c) 2025 Proton Technologies AG
+//
+// This file is part of Proton Authenticator.
+//
+// Proton Authenticator is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Proton Authenticator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+
+@testable import DataLayer
+import Testing
+import Foundation
+
+@Suite(.tags(.endpoint))
+struct GetKeysTest {
+    @Test("Paginated keys decoding")
+    func decodeInAppNotification() throws {
+        // Given
+        let string = """
+{
+  "Code": 1000,
+  "Keys": {
+    "Keys": [
+      {
+        "Key": "abcdefg==",
+        "KeyID": "string"
+      }
+    ]
+  }
+}
+"""
+
+        let remoteEncryptedKey = RemoteEncryptedKey(keyID: "string", key: "abcdefg==")
+        let paginatedKeys = PaginatedKeys(keys: [remoteEncryptedKey])
+        let expectedResult = GetKeysResponse(keys: paginatedKeys)
+
+        // When
+        let sut = try GetKeysResponse.decode(from: string)
+
+        #expect(sut == expectedResult)
+    }
+}

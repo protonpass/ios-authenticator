@@ -45,6 +45,7 @@ enum MockKeychainError: Error {
     case typeMismatch
 }
 
+@Suite(.tags(.repository))
 struct EntryRepositoryTests {
     let sut: EntryRepositoryProtocol
 
