@@ -1,6 +1,6 @@
-//
-// SearchBarDisplayMode.swift
-// Proton Authenticator - Created on 19/02/2025.
+//  
+// MockLogger.swift
+// Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,8 +18,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-public enum SearchBarDisplayMode: Int, Sendable, CaseIterable, IntegerDefaulting {
-    case top, bottom
+import DataLayer
+import Foundation
 
-    public static var `default`: Self { .bottom }
+final class MockLogger: LoggerProtocol {
+    nonisolated func log(_ level: LogLevel,
+                         category: LogCategory,
+                         _ message: String,
+                         file: String,
+                         function: String,
+                         line: Int) {
+    }
+
+    func logsContent(category: LogCategory?) async throws -> String {
+        return ""
+    }
+    
+    func fetchLogs(category: LogCategory?) async throws -> [LogEntry] {
+        []
+    }
 }

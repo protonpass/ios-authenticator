@@ -157,9 +157,8 @@ public final actor LogManager: LoggerProtocol {
         self.persistentStorage = persistentStorage
         self.configuration = configuration
 
-        loggers = LogCategory.allCases.reduce(into: [LogCategory: Logger]()) { dict, category in
-            var dict = dict
-            dict[category] = Logger(subsystem: subsystem, category: category.rawValue)
+        loggers = LogCategory.allCases.reduce(into: [LogCategory: Logger]()) { result, category in
+            result[category] = Logger(subsystem: subsystem, category: category.rawValue)
         }
         startSaveTimer()
     }
@@ -254,7 +253,7 @@ private extension LogManager {
 
         let logger = loggers[logEntry.category]
         logger?.log(level: logEntry.level.osLogType,
-                    "[\(logEntry.category.rawValue)][\(logEntry.level.rawValue)] \(logEntry.message) (\(logEntry.file):\(logEntry.line) \(logEntry.function))")
+                    "[\(logEntry.category.rawValue)][\(logEntry.level.rawValue)] \(logEntry.message) (\(logEntry.file):\(logEntry.line)")
     }
 
     // MARK: - Cleanup Old Logs

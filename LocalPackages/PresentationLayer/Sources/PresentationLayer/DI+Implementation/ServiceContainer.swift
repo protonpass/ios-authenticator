@@ -61,7 +61,9 @@ public extension ServiceContainer {
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keyStore: self.keychainService(), logger: self.logger) }
+        self { EncryptionService(keychain: self.keychainService(),
+                                 keysProvider: self.keyManager(),
+                                 logger: self.logger) }
     }
 
     var keychainService: Factory<any KeychainServicing> {
@@ -90,5 +92,23 @@ public extension ServiceContainer {
 
     var toastService: Factory<any ToastServiceProtocol> {
         self { @MainActor in ToastService() }
+    }
+
+    var userSessionManager: Factory<any UserSessionTooling> {
+        self {
+            UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
+                                   .appVersion(),
+                doh: AuthDoH(userDefaults: kSharedUserDefaults)),
+            keychain: self.keychainService(),
+            encryptionService: self.encryptionService(),
+            userDataProvider: RepositoryContainer.shared.userDataSource(),
+            logger: self.logger)
+        }
+    }
+
+    var keyManager: Factory<any KeysProvider> {
+        self {
+            KeyManager(keychain: self.keychainService())
+        }
     }
 }

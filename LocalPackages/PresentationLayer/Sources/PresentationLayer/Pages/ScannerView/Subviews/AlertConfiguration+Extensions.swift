@@ -40,5 +40,17 @@ extension AlertConfiguration {
                      message: .localized("Please enable camera access from Settings", .module),
                      actions: [openSettingsAction, enterManuallyAction, ActionConfig.cancel])
     }
+
+    static func logout(onLogout: @MainActor @escaping () -> Void) -> Self {
+        let logoutAction = ActionConfig(title: "Stop syncing",
+                                        titleBundle: .module,
+                                        action: onLogout)
+        return .init(title: "Are you sure?",
+                     titleBundle: .module,
+                     // swiftlint:disable:next line_length
+                     message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.",
+                                         .module),
+                     actions: [logoutAction, ActionConfig.cancel])
+    }
 }
 #endif

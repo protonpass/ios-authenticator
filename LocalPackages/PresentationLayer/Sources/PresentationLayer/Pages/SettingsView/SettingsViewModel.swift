@@ -20,6 +20,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Combine
+import DataLayer
 import Factory
 import Foundation
 import Macro
@@ -35,6 +37,8 @@ final class SettingsViewModel {
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
+
+    var settingSheet: SettingsSheet?
 
     var exportedDocument: TextDocument?
 
@@ -68,14 +72,23 @@ final class SettingsViewModel {
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
+
     #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private(set) var hapticsManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.mobileLoginCoordinator) private(set) var mobileLoginCoordinator
     #endif
 
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var cancellables: Set<AnyCancellable> = []
 
     var theme: Theme {
         settingsService.theme
@@ -114,6 +127,14 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
+    var displayICloudBackUp: Bool {
+        settingsService.displayICloudBackUp
+    }
+
+    var displayBESync: Bool {
+        settingsService.displayBESync
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
@@ -126,6 +147,15 @@ final class SettingsViewModel {
             return true
         }
         biometricLock = authenticationService.biometricEnabled
+
+        userSessionManager.isAuthenticated
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] authenticated in
+                guard let self, authenticated != syncEnabled else { return }
+                syncEnabled = authenticated
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -142,13 +172,25 @@ extension SettingsViewModel {
         backUpEnabled.toggle()
     }
 
-    // swiftlint:disable:next todo
-    // TODO: use this function
-    // periphery:ignore
+    #if os(iOS)
     func toggleSync() {
-        syncEnabled.toggle()
+        if !syncEnabled {
+            settingSheet = .login(mobileLoginCoordinator)
+        } else {
+            let config = AlertConfiguration.logout {
+                Task { [weak self] in
+                    guard let self else { return }
+                    do {
+                        try await userSessionManager.logout()
+                    } catch {
+                        handle(error)
+                    }
+                }
+            }
+            alertService.showAlert(.sheet(config))
+        }
     }
-
+    #endif
     func toggleBioLock() {
         guard toggleBioLockTask == nil else {
             return

@@ -37,6 +37,18 @@ final class QAMenuViewModel {
         }
     }
 
+    var displayICloudBackUp: Bool {
+        didSet {
+            appSettings.toggleICloudBackUpDisplay(displayICloudBackUp)
+        }
+    }
+
+    var displayBESync: Bool {
+        didSet {
+            appSettings.toggleBESyncDisplay(displayBESync)
+        }
+    }
+
     @ObservationIgnored
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
@@ -49,5 +61,7 @@ final class QAMenuViewModel {
     init() {
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
+        displayICloudBackUp = appSettings.displayICloudBackUp
+        displayBESync = appSettings.displayBESync
     }
 }

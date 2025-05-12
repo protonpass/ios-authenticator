@@ -28,6 +28,7 @@ struct QAMenuView: View {
     var body: some View {
         NavigationStack {
             List {
+                syncSection
                 mockEntriesSection
                 onboardingSection
                 passBannerSection
@@ -89,6 +90,17 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.displayPassBanner, label: { Text(verbatim: "Display Pass Banner") })
         }, header: {
             Text(verbatim: "Pass Banner")
+        })
+    }
+
+    var syncSection: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.displayICloudBackUp,
+                   label: { Text(verbatim: "Display iCloud backup") })
+
+            Toggle(isOn: $viewModel.displayBESync, label: { Text(verbatim: "Display BE sync") })
+        }, header: {
+            Text(verbatim: "Syncs")
         })
     }
 }

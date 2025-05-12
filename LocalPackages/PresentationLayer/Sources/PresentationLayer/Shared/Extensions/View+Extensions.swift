@@ -24,6 +24,7 @@ import SwiftUI
 // MARK: - View builder functions
 
 public extension View {
+    // periphery:ignore
     /// Applies the given transform if the given condition evaluates to `true`.
     /// - Parameters:
     ///   - condition: The condition to evaluate.

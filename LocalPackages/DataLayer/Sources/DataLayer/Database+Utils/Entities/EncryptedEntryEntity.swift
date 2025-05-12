@@ -60,17 +60,17 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
         self.encryptedData = encryptedData
         self.keyId = keyId
-        modifiedTime = Date().timeIntervalSince1970
+        modifiedTime = Date.now.timeIntervalSince1970
     }
 
     func updateOrder(newOrder: Int) {
         order = newOrder
-        modifiedTime = Date().timeIntervalSince1970
+        modifiedTime = Date.now.timeIntervalSince1970
     }
 
     // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
         syncState = newState
-        modifiedTime = Date().timeIntervalSince1970
+        modifiedTime = Date.now.timeIntervalSince1970
     }
 }

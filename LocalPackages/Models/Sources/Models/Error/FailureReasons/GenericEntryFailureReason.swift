@@ -26,6 +26,8 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case wrongTypeOfEntryParams
     case duplicatedEntry
     case exportEmptyData
+    case mainKeyNotFound
+    case failedToRandomizeData
 
     public var debugDescription: String {
         switch self {
@@ -39,6 +41,10 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "An entry with the same data already exists"
         case .exportEmptyData:
             "No data to export"
+        case .mainKeyNotFound:
+            "Main key not found"
+        case .failedToRandomizeData:
+            "Failed to randomize data"
         }
     }
 }

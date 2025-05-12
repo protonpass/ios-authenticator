@@ -1,5 +1,5 @@
 //
-// Models+Extensions.swift
+// RustModels+Extensions.swift
 // Proton Authenticator - Created on 11/02/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,6 +20,8 @@
 
 import AuthenticatorRustCore
 import Models
+
+// MARK: - Rust models to
 
 extension AuthenticatorEntryModel {
     var toEntry: Entry {

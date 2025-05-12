@@ -65,7 +65,7 @@ struct LogsView: View {
                 .navigationBarTitleDisplayMode(.inline)
             #endif
                 .toastDisplay()
-                .mainBackground()
+                .fullScreenMainBackground()
                 .sheetAlertService()
                 .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
                               document: viewModel.exportedDocument,

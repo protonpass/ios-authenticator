@@ -41,14 +41,18 @@ extension ToolsContainer {
                 let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
                                                      cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let logConfig = ModelConfiguration("logs",
-                                                   schema: Schema([LogEntryEntity.self]),
-                                                   isStoredInMemoryOnly: false,
-                                                   cloudKitDatabase: .none)
+                let localDataConfig = ModelConfiguration("localData",
+                                                         schema: Schema([
+                                                             LogEntryEntity.self,
+                                                             EncryptedUserDataEntity.self
+                                                         ]),
+                                                         isStoredInMemoryOnly: false,
+                                                         cloudKitDatabase: .none)
                 return try PersistenceService(for: EncryptedEntryEntity.self,
                                               LogEntryEntity.self,
+                                              EncryptedUserDataEntity.self,
                                               configurations: entryConfig,
-                                              logConfig)
+                                              localDataConfig)
             } catch {
                 fatalError("Should have persistence storage \(error)")
             }
@@ -95,6 +99,19 @@ extension ToolsContainer {
     #if os(iOS)
     var hapticsManager: Factory<any HapticsServicing> {
         self { @MainActor in HapticsManager(settings: ServiceContainer.shared.settingsService()) }
+    }
+    #endif
+
+    var appVersion: Factory<String> {
+        self { "ios-authenticator@\(Bundle.main.fullAppVersionName)" }
+    }
+
+    #if os(iOS)
+    var mobileLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
+        self {
+            @MainActor in MobileLoginCoordinator(logger: self.logManager())
+        }
+        .shared
     }
     #endif
 }

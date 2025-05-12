@@ -48,6 +48,9 @@ public protocol EncryptionServicing: Sendable {
     // periphery:ignore
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
+
+    func symmetricEncrypt<T: Codable>(object: T) throws -> Data
+    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
 }
 
 // swiftlint:disable:next todo
@@ -56,39 +59,44 @@ public protocol EncryptionServicing: Sendable {
 public final class EncryptionService: EncryptionServicing {
     public let keyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
-    private let keyStore: KeychainServicing
-    private let logger: LoggerProtocol
+    private let keychain: any KeychainServicing
+    private let keysProvider: any KeysProvider
+    private let logger: any LoggerProtocol
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
-                keyStore: KeychainServicing,
+                keychain: any KeychainServicing,
+                keysProvider: any KeysProvider,
                 deviceIdentifier: String = DeviceIdentifier.current,
-                logger: LoggerProtocol) {
-        self.keyStore = keyStore
+                logger: any LoggerProtocol) {
+        self.keychain = keychain
         self.logger = logger
+        self.keysProvider = keysProvider
         keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
     }
 
     private var localEncryptionKey: Data {
         get throws {
-            if let key: Data = try? keyStore.get(key: keyId, shouldSync: true) {
+            if let key: Data = try? keychain.get(key: keyId, shouldSync: true) {
                 return key
             }
             log(.info, "Generating a new local encryption key")
             let newKey = authenticatorCrypto.generateKey()
-            try keyStore.set(newKey, for: keyId, shouldSync: true)
+            try keychain.set(newKey, for: keyId, shouldSync: true)
             return newKey
         }
     }
 
     private func getEncryptionKey(for keyId: String) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keyStore.get(key: keyId, shouldSync: true)
+        let key: Data = try keychain.get(key: keyId, shouldSync: true)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
+}
 
-    public func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
+public extension EncryptionService {
+    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
@@ -98,7 +106,7 @@ public final class EncryptionService: EncryptionServicing {
         return .decrypted(rustEntry.toEntry, entry.syncState)
     }
 
-    public func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         log(.info, "Decrypting entries")
         return try entries.map { entry in
             guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
@@ -111,7 +119,7 @@ public final class EncryptionService: EncryptionServicing {
         }
     }
 
-    public func encrypt(entry: Entry) throws -> Data {
+    func encrypt(entry: Entry) throws -> Data {
         let localKey = try localEncryptionKey
         log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
@@ -119,17 +127,29 @@ public final class EncryptionService: EncryptionServicing {
                                                     key: localKey)
     }
 
-    public func encrypt(entries: [Entry]) throws -> [Data] {
+    func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
         log(.info, "Encrypting \(entries.count) entries with local encryption key ")
 
         return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
     }
+
+    func symmetricEncrypt(object: some Codable) throws -> Data {
+        let symmetricKey = try keysProvider.getSymmetricKey()
+        let data = try JSONEncoder().encode(object)
+        return try symmetricKey.encrypt(data)
+    }
+
+    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T {
+        let symmetricKey = try keysProvider.getSymmetricKey()
+        let data = try symmetricKey.decrypt(encryptedData)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
 }
 
 private extension EncryptionService {
-    func log(_ level: LogLevel, _ message: String) {
-        logger.log(level, category: .data, message)
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
     }
 }

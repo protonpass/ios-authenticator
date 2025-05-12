@@ -23,9 +23,12 @@ import CommonUtilities
 import Models
 import SwiftUI
 
-enum SettingsSheetStates {
+enum SettingsSheet {
     case logs
     case qa
+    #if os(iOS)
+    case login(MobileCoordinatorProtocol)
+    #endif
 
     @MainActor @ViewBuilder
     var destination: some View {
@@ -34,6 +37,10 @@ enum SettingsSheetStates {
             LogsView()
         case .qa:
             QAMenuView()
+        #if os(iOS)
+        case let .login(coordinator):
+            UserMobileLoginController(coordinator: coordinator)
+        #endif
         }
     }
 }
@@ -45,7 +52,6 @@ public struct SettingsView: View {
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
-    @State private var settingSheet: SettingsSheetStates?
     @State private var showImportOptions = false
 
     public init() {}
@@ -104,8 +110,8 @@ public struct SettingsView: View {
                           contentType: .text,
                           defaultFilename: viewModel.generateExportFileName(),
                           onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $settingSheet.mappedToBool()) {
-                settingSheet?.destination
+            .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                viewModel.settingSheet?.destination
             }
         }
         .animation(.default, value: viewModel.theme)
@@ -133,21 +139,25 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("Backup", .module),
-                       subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
-                       trailingMode: .toggle(isOn: viewModel.backUpEnabled,
-                                             onToggle: viewModel.toggleBackUp))
+            if viewModel.displayICloudBackUp {
+                SettingRow(title: .localized("Backup", .module),
+                           subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
+                           trailingMode: .toggle(isOn: viewModel.backUpEnabled,
+                                                 onToggle: viewModel.toggleBackUp))
 
-            SettingDivider()
+                SettingDivider()
+            }
+            #if os(iOS)
+            if viewModel.displayBESync {
+                SettingRow(title: .localized("Sync between devices", .module),
+                           trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                                 onToggle: {
+                                                     viewModel.toggleSync()
+                                                 }))
 
-            /*
-             SettingRow(title: .localized("Sync between devices"),
-                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                              onToggle: viewModel.toggleSync))
-
-             SettingDivider()
-              */
-
+                SettingDivider()
+            }
+            #endif
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
@@ -157,6 +167,9 @@ private extension SettingsView {
             SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
+        }
+        .onChange(of: viewModel.syncEnabled) {
+            viewModel.settingSheet = nil
         }
     }
 
@@ -260,7 +273,7 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Logs", .module), onTap: { settingSheet = .logs })
+            SettingRow(title: .localized("Logs", .module), onTap: { viewModel.settingSheet = .logs })
         }
     }
 
@@ -287,9 +300,9 @@ private extension SettingsView {
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
-                .if(viewModel.isQaBuild) { view in
-                    view.onTapGesture(count: 3) {
-                        settingSheet = .qa
+                .onTapGesture(count: 3) {
+                    if viewModel.isQaBuild {
+                        viewModel.settingSheet = .qa
                     }
                 }
         }
@@ -304,12 +317,12 @@ private extension SettingsView {
 
 private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding / 2) {
+        VStack(spacing: DesignConstant.padding) {
             Text(title, bundle: .module)
                 .font(.callout)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, DesignConstant.padding * 2)
+                .padding(.horizontal, DesignConstant.padding)
 
             VStack(alignment: .leading, spacing: 0) {
                 content()
@@ -320,9 +333,9 @@ private extension SettingsView {
             .overlay(RoundedRectangle(cornerRadius: 18)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
-            .padding(.horizontal, DesignConstant.padding)
         }
         .plainListRow()
+        .padding(.horizontal, DesignConstant.padding)
         .padding(.top, DesignConstant.padding * 2)
     }
 

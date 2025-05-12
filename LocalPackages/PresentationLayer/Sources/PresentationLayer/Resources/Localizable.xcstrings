@@ -91,6 +91,16 @@
         }
       }
     },
+    "Are you sure?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure?"
+          }
+        }
+      }
+    },
     "Backup" : {
       "localizations" : {
         "en" : {
@@ -221,6 +231,16 @@
         }
       }
     },
+    "Create a free account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a free account"
+          }
+        }
+      }
+    },
     "Create new code" : {
       "localizations" : {
         "en" : {
@@ -241,6 +261,16 @@
         }
       }
     },
+    "Data on this device won't be updated and changes will not be reflected on other devices." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on this device won't be updated and changes will not be reflected on other devices."
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "en" : {
@@ -257,6 +287,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete entry"
+          }
+        }
+      }
+    },
+    "Device sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device sync"
           }
         }
       }
@@ -672,6 +712,16 @@
         }
       }
     },
+    "Proton account is required to enable end-to-end encrypted sync between devices." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proton account is required to enable end-to-end encrypted sync between devices."
+          }
+        }
+      }
+    },
     "Proton Authenticator will periodically save all the data to iCloud." : {
       "localizations" : {
         "en" : {
@@ -803,12 +853,32 @@
         }
       }
     },
+    "Sign in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in"
+          }
+        }
+      }
+    },
     "Skip" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skip"
+          }
+        }
+      }
+    },
+    "Stop syncing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop syncing"
           }
         }
       }
@@ -861,6 +931,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SUPPORT"
+          }
+        }
+      }
+    },
+    "Sync between devices" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync between devices"
           }
         }
       }

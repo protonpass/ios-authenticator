@@ -28,6 +28,7 @@ let package = Package(
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
         .package(url: "https://github.com/lukacs-m/SimplyPersist", .upToNextMajor(from: "0.1.2")),
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
+        .package(url: "https://github.com/ProtonMail/protoncore_ios", exact: "32.0.5"),
         .package(name: "Macro", path: "../Macro"),
     ],
     targets: [
@@ -41,7 +42,20 @@ let package = Package(
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
                 .product(name: "SimplyPersist", package: "SimplyPersist"),
                 .product(name: "Macro", package: "Macro"),
-                .product(name: "SimpleToast", package: "SimpleToast")
+                .product(name: "SimpleToast", package: "SimpleToast"),
+                // Core products
+                .product(name: "ProtonCoreKeyManager", package: "protoncore_ios"),
+                .product(name: "ProtonCoreDoh", package: "protoncore_ios"),
+                .product(name: "ProtonCoreFoundations", package: "protoncore_ios"),
+                .product(name: "ProtonCoreDataModel", package: "protoncore_ios"),
+                .product(name: "ProtonCoreNetworking", package: "protoncore_ios"),
+                .product(name: "ProtonCoreChallenge", package: "protoncore_ios"),
+                .product(name: "ProtonCoreForceUpgrade", package: "protoncore_ios"),
+                .product(name: "ProtonCoreCryptoGoImplementation", package: "protoncore_ios"),
+                .product(name: "ProtonCoreHumanVerification", package: "protoncore_ios"),
+                .product(name: "ProtonCoreLogin", package: "protoncore_ios"),
+                .product(name: "ProtonCoreKeymaker", package: "protoncore_ios"),
+
             ],
             resources: [.process("Resources")]),
         .testTarget(
@@ -50,3 +64,4 @@ let package = Package(
         ),
     ]
 )
+
