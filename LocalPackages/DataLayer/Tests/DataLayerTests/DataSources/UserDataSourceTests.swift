@@ -41,13 +41,13 @@ struct UserDataSourceTests {
 
     }
     
-    @Test("Test getUserData returns nil if no data exists")
+    @Test("Return nil if no user data exists")
     func noUserdata() async throws {
         let result = try await sut.getUserData()
         #expect(result == nil)
     }
     
-    @Test("Test getUserData returns decrypted data if present")
+    @Test("Returns decrypted user data if present")
     func getValidUserData() async throws {
         let userData = UserData.mock()
         try await sut.save(userData)
@@ -55,42 +55,42 @@ struct UserDataSourceTests {
         #expect(userData == decryptedUserData)
     }
     
-    @Test("Test removing user by id")
+    @Test("Removing user by id")
     func removeUserById() async throws {
         let userData = UserData.mock()
         try await sut.save(userData)
-        try #require(try await sut.getUserData())
+       _ = try #require(try await sut.getUserData())
         try await sut.remove(userData.user.ID)
         let result = try await sut.getUserData()
         #expect(result == nil)
     }
     
-    @Test("Test removing user by data")
+    @Test("Removing user by data")
     func removeUserByData() async throws {
         let userData = UserData.mock()
         try await sut.save(userData)
-        try #require(try await sut.getUserData())
+       _ = try #require(try await sut.getUserData())
         try await sut.remove(userData)
         let result = try await sut.getUserData()
         #expect(result == nil)
     }
     
-    @Test("Test removing all user data")
+    @Test("Removing all users data")
     func removeAllUsers() async throws {
         let userData = UserData.mock()
         let userData2 = UserData.mock(id: "newId")
 
         try await sut.save(userData)
         try await sut.save(userData2)
-        try #require(try await sut.getUserData())
+       _ = try #require(try await sut.getUserData())
         try await sut.removeAllUsers()
         let result = try await sut.getUserData()
         #expect(result == nil)
     }
     
-    @Test("Test removing all user data")
+    @Test("Updating current saved user data")
     func updateUser() async throws {
-        var userData = UserData.mock()
+        let userData = UserData.mock()
 
         try await sut.save(userData)
         let result = try #require(try await sut.getUserData())

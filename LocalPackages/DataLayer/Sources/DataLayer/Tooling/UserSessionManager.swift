@@ -138,11 +138,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
 
         do {
             let encryptedContent: Data = try keychain.get(key: credentialsKey, ofType: .generic, shouldSync: false)
-//            let symmetricKey = try keysProvider.getSymmetricKey()
-//            let decryptedContent = try symmetricKey.decrypt(encryptedContent)
-//            let credentials:Credentials  = try JSONDecoder().decode(Credentials.self, from: decryptedContent)
-            let credentials: Credentials = try encryptionService
-                .symmetricKeyDecrypt(encryptedData: encryptedContent)
+            let credentials: Credentials = try encryptionService.symmetricDecrypt(encryptedData: encryptedContent)
 
             cachedCredentials.modify {
                 $0 = credentials
@@ -245,10 +241,7 @@ private extension UserSessionManager {
 
     func saveDataToKeychain(data: some Codable, for key: String) {
         do {
-            let encryptedContent = try encryptionService.symmetricKeyEncrypt(object: data)
-//            let symmetricKey = try keysProvider.getSymmetricKey()
-//            let data = try JSONEncoder().encode(data)
-//            let encryptedContent = try symmetricKey.encrypt(data)
+            let encryptedContent = try encryptionService.symmetricEncrypt(object: data)
             try keychain.set(encryptedContent, for: key, shouldSync: false)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")

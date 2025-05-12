@@ -49,8 +49,8 @@ public protocol EncryptionServicing: Sendable {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 
-    func symmetricKeyEncrypt<T: Codable>(object: T) throws -> Data
-    func symmetricKeyDecrypt<T: Codable>(encryptedData: Data) throws -> T
+    func symmetricEncrypt<T: Codable>(object: T) throws -> Data
+    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
 }
 
 // swiftlint:disable:next todo
@@ -135,13 +135,13 @@ public extension EncryptionService {
                                                           key: localKey)
     }
 
-    func symmetricKeyEncrypt(object: some Codable) throws -> Data {
+    func symmetricEncrypt(object: some Codable) throws -> Data {
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try JSONEncoder().encode(object)
         return try symmetricKey.encrypt(data)
     }
 
-    func symmetricKeyDecrypt<T: Codable>(encryptedData: Data) throws -> T {
+    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T {
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try symmetricKey.decrypt(encryptedData)
         return try JSONDecoder().decode(T.self, from: data)
