@@ -28,12 +28,16 @@ public protocol UserDataProvider {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     // periphery:ignore
-    func remove(_ userData: UserData) async throws
-    // periphery:ignore
-    func remove(_ userDataId: String) async throws
+    func remove(_ userId: String) async throws
     func removeAllUsers() async throws
     // periphery:ignore
     func update(_ userData: UserData) async throws
+}
+
+public extension UserDataProvider {
+    func remove(_ userData: UserData) async throws {
+        try await remove(userData.user.ID)
+    }
 }
 
 public final class UserDataSource: UserDataProvider {
@@ -54,6 +58,7 @@ public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data")
         let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
+        log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
             log(.info, "No user data found")
             return nil
@@ -81,20 +86,14 @@ public extension UserDataSource {
     }
 
     // periphery:ignore
-    func remove(_ userData: UserData) async throws {
-        log(.info, "Removing user data for ID: \(userData.user.ID)")
-        try await remove(userData.user.ID)
-    }
-
-    // periphery:ignore
-    func remove(_ userDataId: String) async throws {
-        log(.info, "Removing user data by ID: \(userDataId)")
+    func remove(_ userId: String) async throws {
+        log(.info, "Removing user data by ID: \(userId)")
         do {
-            let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userDataId }
+            let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userId }
             try await persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
-            log(.info, "Successfully removed user data with ID: \(userDataId)")
+            log(.info, "Successfully removed user data with ID: \(userId)")
         } catch {
-            log(.error, "Failed to remove user data with ID \(userDataId): \(error.localizedDescription)")
+            log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription)")
             throw error
         }
     }
@@ -132,12 +131,12 @@ public extension UserDataSource {
 
 private extension UserDataSource {
     func encrypt(userData: UserData) throws -> EncryptedUserDataEntity {
-        let encryptedData = try encryptionService.symmetricKeyEncrypt(object: userData)
+        let encryptedData = try encryptionService.symmetricEncrypt(object: userData)
         return EncryptedUserDataEntity(id: userData.user.ID, encryptedData: encryptedData)
     }
 
     func decrypt(encryptedData: Data) throws -> UserData {
-        try encryptionService.symmetricKeyDecrypt(encryptedData: encryptedData)
+        try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
