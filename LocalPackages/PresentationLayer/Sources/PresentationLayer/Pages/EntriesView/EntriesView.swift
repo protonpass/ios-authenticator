@@ -65,10 +65,14 @@ public struct EntriesView: View {
                         Color.clear.frame(height: 10)
                     }
                 }
-                .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-                    if viewModel.dataState.data?.isEmpty == false {
+                .safeAreaInset(edge: .bottom) {
+                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         actionBar
                     }
+                }
+                .if(searchBarAlignment == .top) { view in
+                    view
+                        .searchable(text: $viewModel.query)
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
@@ -262,7 +266,7 @@ private extension EntriesView {
                 .coloredBackgroundButton(.circle)
                 .impactHaptic()
         }
-        .padding(.horizontal, searchBarAlignment == .bottom ? 22 : 16)
+        .padding(.horizontal, 22)
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(.bar)
@@ -274,12 +278,10 @@ private extension EntriesView {
             startPoint: UnitPoint(x: 0.5, y: 1),
             endPoint: UnitPoint(x: 0.5, y: 0)))
         .overlay(alignment: .top) {
-            if searchBarAlignment == .bottom {
-                // Top border line
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundStyle(.actionBarBorder)
-            }
+            // Top border line
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundStyle(.actionBarBorder)
         }
     }
 
