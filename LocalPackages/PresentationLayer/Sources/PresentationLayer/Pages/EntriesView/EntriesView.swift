@@ -266,10 +266,11 @@ private extension EntriesView {
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(.bar)
-        .background(LinearGradient(stops: [
+        .background(LinearGradient(stops:
+            [
                 Gradient.Stop(color: .black.opacity(0.5), location: 0.00),
                 Gradient.Stop(color: .black.opacity(0), location: 1.00)
-        ],
+            ],
             startPoint: UnitPoint(x: 0.5, y: 1),
             endPoint: UnitPoint(x: 0.5, y: 0)))
         .overlay(alignment: .top) {
