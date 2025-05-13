@@ -47,11 +47,12 @@ struct SettingRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title) // ignore:missing_bundle
                     .foregroundStyle(.textNorm)
+                    .font(.system(size: 17, weight: .regular))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 if let subtitle {
                     Text(subtitle, bundle: .module)
-                        .font(.callout)
+                        .font(.system(size: 15, weight: .regular))
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 }

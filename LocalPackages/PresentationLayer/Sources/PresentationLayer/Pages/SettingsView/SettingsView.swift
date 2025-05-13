@@ -296,7 +296,7 @@ private extension SettingsView {
     var versionLabel: some View {
         if let version = viewModel.versionString {
             Text(verbatim: version)
-                .font(.callout)
+                .font(.system(size: 13, weight: .regular))
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
@@ -319,7 +319,7 @@ private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         VStack(spacing: DesignConstant.padding) {
             Text(title, bundle: .module)
-                .font(.callout)
+                .font(.system(size: 13, weight: .regular))
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, DesignConstant.padding)
@@ -329,8 +329,8 @@ private extension SettingsView {
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .cornerRadius(18)
-            .overlay(RoundedRectangle(cornerRadius: 18)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .inset(by: 0.5)
                 .stroke(settingsBorder, lineWidth: 1))
         }
