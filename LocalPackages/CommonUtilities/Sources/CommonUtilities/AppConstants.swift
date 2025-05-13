@@ -91,4 +91,9 @@ public enum AppConstants {
     public enum CommonUrls {
         public static let feedbackUrl = "https://proton.me/support/contact"
     }
+
+    public enum ContentFormatVersion {
+        public static let entry = 1
+        public static let key = 1
+    }
 }

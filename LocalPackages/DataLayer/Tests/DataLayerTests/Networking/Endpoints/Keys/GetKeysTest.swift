@@ -21,6 +21,7 @@
 @testable import DataLayer
 import Testing
 import Foundation
+import Models
 
 @Suite(.tags(.endpoint))
 struct GetKeysTest {

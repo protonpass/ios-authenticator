@@ -129,19 +129,21 @@ public extension EncryptionService {
 
     func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
-        log(.info, "Encrypting \(entries.count) entries with local encryption key ")
+        log(.info, "Encrypting \(entries.count) entries with local encryption key")
 
         return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
     }
 
     func symmetricEncrypt(object: some Codable) throws -> Data {
+        log(.info, "Encrypting entry with symmetric encryption key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try JSONEncoder().encode(object)
         return try symmetricKey.encrypt(data)
     }
 
     func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T {
+        log(.info, "Decrypting entry with symmetric encryption key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try symmetricKey.decrypt(encryptedData)
         return try JSONDecoder().decode(T.self, from: data)

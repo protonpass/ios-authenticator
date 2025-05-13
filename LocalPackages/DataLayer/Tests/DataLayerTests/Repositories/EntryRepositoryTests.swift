@@ -52,9 +52,13 @@ struct EntryRepositoryTests {
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
-        sut = EntryRepository(persistentStorage: persistenceService, encryptionService: EncryptionService(keychain: MockKeychainService(),
-                                                                                                          keysProvider: MockKeyProvider(),
-                                                                                                          logger: MockLogger()))
+        sut = EntryRepository(persistentStorage: persistenceService,
+                              encryptionService: EncryptionService(keychain: MockKeychainService(),
+                                                                                                        keysProvider: MockKeyProvider(),
+                                                                                                          logger: MockLogger()),
+                              apiClient: MockAPIClient(),
+                              userSessionManager: MockUserSessionTooling()
+        )
     }
     
     @Test("Test generating entry for uri")

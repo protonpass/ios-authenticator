@@ -25,6 +25,7 @@ import CommonUtilities
 import Foundation
 import Models
 import ProtonCoreChallenge
+import ProtonCoreCrypto
 import ProtonCoreCryptoGoImplementation
 @preconcurrency import ProtonCoreCryptoGoInterface
 import ProtonCoreDataModel
@@ -33,6 +34,7 @@ import ProtonCoreDoh
 @preconcurrency import ProtonCoreForceUpgrade
 @preconcurrency import ProtonCoreFoundations
 import ProtonCoreHumanVerification
+import ProtonCoreKeyManager
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 @preconcurrency import ProtonCoreObservability
@@ -57,27 +59,12 @@ public protocol APIManagerProtocol: Sendable {
 }
 
 public protocol UserInfoProviding: Sendable {
+    var userData: UserData? { get }
     // periphery:ignore
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
-}
-
-// public protocol APIClient: Sendable {
-//
-//
-////    func exec<E: Endpoint>(endpoint: E) async throws -> E.Response
-// }
-
-// extension APIClient {
-//    func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
-//        try await apiService.exec(endpoint: endpoint)
-//    }
-// }
-
-final class ForceUpgradeControllerImpl: ForceUpgradeController {
-    func performForceUpgrade(message: String,
-                             config: ForceUpgradeConfig,
-                             responseDelegate: ForceUpgradeResponseDelegate?) {}
+    func userKeyEncrypt<T: Codable>(object: T) throws -> String
+//    func userKeyDecrypt<T: Codable>(encryptedData: Data) throws -> T
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -111,6 +98,10 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     // swiftlint:disable:next identifier_name
     public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
         .AuthSessionInvalidatedDelegate)?
+
+    public var userData: UserData? {
+        cachedUserData.value
+    }
 
     public init(configuration: APIManagerConfiguration,
                 keychain: any KeychainServicing,
@@ -183,6 +174,9 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         apiService.serviceDelegate = self
         (apiService as? PMAPIService)?.loggingDelegate = self
         updateTools()
+        Task {
+            _ = try? await getUserData()
+        }
     }
 
     public func logout() async throws {
@@ -443,12 +437,39 @@ public extension UserSessionManager {
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
+
         return userData
     }
 
     func save(_ userData: UserData) async throws {
         try await userDataProvider.save(userData)
         cachedUserData.modify { $0 = userData }
+    }
+
+    func userKeyEncrypt(object: some Codable) throws -> String {
+        guard let userData else {
+            throw AuthError.generic(.missingUserData)
+        }
+
+        guard let userKey = userData.user.keys.first(where: { $0.active == 1 }) else {
+            throw AuthError.crypto(.missingUserKey(userID: userData.user.ID))
+        }
+
+        guard let passphrase = userData.passphrases[userKey.keyID] else {
+            throw AuthError.crypto(.missingPassphrase(keyID: userKey.keyID))
+        }
+
+        let publicKey = ArmoredKey(value: userKey.publicKey)
+        let privateKey = ArmoredKey(value: userKey.privateKey)
+        let signerKey = SigningKey(privateKey: privateKey,
+                                   passphrase: .init(value: passphrase))
+
+        let data = try JSONEncoder().encode(object)
+
+        let encryptedData = try Encryptor.encrypt(publicKey: publicKey,
+                                                  clearData: data,
+                                                  signerKey: signerKey)
+        return try encryptedData.unArmor().value.base64EncodedString()
     }
 }
 
@@ -501,60 +522,8 @@ public final class AuthDoH: DoH, ServerConfig {
     }
 }
 
-// MARK: - Keychain codable wrappers for credential elements & extensions
-
-struct Credentials: Hashable, Sendable, Codable {
-    let credential: Credential
-    let authCredential: AuthCredential
-}
-
-extension Credential: Codable, @retroactive Hashable {
-    private enum CodingKeys: String, CodingKey {
-        case UID
-        case accessToken
-        case refreshToken
-        case userName
-        case userID
-        case scopes
-        case mailboxPassword
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(UID)
-        hasher.combine(accessToken)
-        hasher.combine(refreshToken)
-        hasher.combine(userName)
-        hasher.combine(userID)
-        hasher.combine(scopes)
-        hasher.combine(mailboxPassword)
-    }
-
-    public init(from decoder: any Decoder) throws {
-        self.init(UID: "",
-                  accessToken: "",
-                  refreshToken: "",
-                  userName: "",
-                  userID: "",
-                  scopes: [],
-                  mailboxPassword: "")
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        UID = try values.decode(String.self, forKey: .UID)
-        accessToken = try values.decode(String.self, forKey: .accessToken)
-        refreshToken = try values.decode(String.self, forKey: .refreshToken)
-        userName = try values.decode(String.self, forKey: .userName)
-        userID = try values.decode(String.self, forKey: .userID)
-        scopes = try values.decode([String].self, forKey: .scopes)
-        mailboxPassword = try values.decode(String.self, forKey: .mailboxPassword)
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(UID, forKey: .UID)
-        try container.encode(accessToken, forKey: .accessToken)
-        try container.encode(refreshToken, forKey: .refreshToken)
-        try container.encode(userName, forKey: .userName)
-        try container.encode(userID, forKey: .userID)
-        try container.encode(scopes, forKey: .scopes)
-        try container.encode(mailboxPassword, forKey: .mailboxPassword)
-    }
+final class ForceUpgradeControllerImpl: ForceUpgradeController {
+    func performForceUpgrade(message: String,
+                             config: ForceUpgradeConfig,
+                             responseDelegate: ForceUpgradeResponseDelegate?) {}
 }

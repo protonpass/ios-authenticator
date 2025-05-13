@@ -70,12 +70,18 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let rustClient: AuthenticatorMobileClientProtocol
     private let persistentStorage: any PersistenceServicing
     private let encryptionService: any EncryptionServicing
+    private let apiClient: any APIClientProtocol
+    private let userSessionManager: any UserSessionTooling
 
     public init(persistentStorage: any PersistenceServicing,
                 encryptionService: any EncryptionServicing,
+                apiClient: any APIClientProtocol,
+                userSessionManager: any UserSessionTooling,
                 rustClient: any AuthenticatorMobileClientProtocol = AuthenticatorMobileClient()) {
         self.persistentStorage = persistentStorage
         self.encryptionService = encryptionService
+        self.apiClient = apiClient
+        self.userSessionManager = userSessionManager
         self.rustClient = rustClient
     }
 }

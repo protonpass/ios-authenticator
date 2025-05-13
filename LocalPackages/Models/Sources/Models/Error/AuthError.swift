@@ -28,6 +28,7 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
     case deeplinking(DeeplinkingFailureReason)
     case generic(GenericEntryFailureReason)
     case symmetricCrypto(SymmetricKeyCryptoFailureReasons)
+    case crypto(CryptoFailureReason)
 
     public var debugDescription: String {
         switch self {
@@ -42,6 +43,8 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
         case let .deeplinking(reason):
             reason.debugDescription
         case let .symmetricCrypto(reason):
+            reason.debugDescription
+        case let .crypto(reason):
             reason.debugDescription
         }
     }

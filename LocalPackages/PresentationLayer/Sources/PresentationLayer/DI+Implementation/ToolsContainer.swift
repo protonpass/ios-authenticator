@@ -114,4 +114,8 @@ extension ToolsContainer {
         .shared
     }
     #endif
+
+    var apiClient: Factory<any APIClientProtocol> {
+        self { APIClient(manager: ServiceContainer.shared.userSessionManager(), logger: self.logManager()) }
+    }
 }

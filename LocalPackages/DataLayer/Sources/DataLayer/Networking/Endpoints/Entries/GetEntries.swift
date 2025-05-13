@@ -19,36 +19,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Models
 import ProtonCoreNetworking
-
-public struct RemoteEncryptedEntry: Decodable, Equatable, Sendable {
-    public let entryID: String
-    public let authenticatorKeyID: String
-    public let revision: Int
-    public let contentFormatVersion: Int
-    public let content: String
-    public let flags: Int
-    public let createTime: Int
-    public let modifyTime: Int
-
-    public init(entryID: String,
-                authenticatorKeyID: String,
-                revision: Int,
-                contentFormatVersion: Int,
-                content: String,
-                flags: Int,
-                createTime: Int,
-                modifyTime: Int) {
-        self.entryID = entryID
-        self.authenticatorKeyID = authenticatorKeyID
-        self.revision = revision
-        self.contentFormatVersion = contentFormatVersion
-        self.content = content
-        self.flags = flags
-        self.createTime = createTime
-        self.modifyTime = modifyTime
-    }
-}
 
 struct GetEntriesResponse: Decodable, Sendable, Equatable {
     let entries: PaginatedEntries

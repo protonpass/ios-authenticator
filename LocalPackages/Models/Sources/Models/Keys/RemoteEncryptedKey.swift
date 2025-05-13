@@ -1,6 +1,6 @@
 //
-// GetKeys.swift
-// Proton Authenticator - Created on 06/05/2025.
+// RemoteEncryptedKey.swift
+// Proton Authenticator - Created on 13/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,26 +18,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-import Models
+public struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
+    // An encrypted ID
+    public let keyID: String
 
-struct PaginatedKeys: Decodable, Equatable, Sendable {
-    let keys: [RemoteEncryptedKey]
-}
+    // Base64 representation of the authenticator key encrypted with the user key
+    public let key: String
 
-struct GetKeysResponse: Decodable, Equatable, Sendable {
-    let keys: PaginatedKeys
-}
+    public init(keyID: String, key: String) {
+        self.keyID = keyID
+        self.key = key
+    }
 
-struct GetKeys: Endpoint {
-    typealias Body = EmptyRequest
-    typealias Response = GetKeysResponse
-
-    var debugDescription: String
-    var path: String
-
-    init() {
-        debugDescription = "Get the proton authenticator Keys"
-        path = "/authenticator/v1/key"
+    public enum CodingKeys: CodingKey {
+        case keyID
+        case key
     }
 }

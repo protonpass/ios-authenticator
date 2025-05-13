@@ -55,7 +55,7 @@ let package = Package(
                 .product(name: "ProtonCoreHumanVerification", package: "protoncore_ios"),
                 .product(name: "ProtonCoreLogin", package: "protoncore_ios"),
                 .product(name: "ProtonCoreKeymaker", package: "protoncore_ios"),
-
+                .product(name: "ProtonCoreCrypto", package: "protoncore_ios"),
             ],
             resources: [.process("Resources")]),
         .testTarget(
