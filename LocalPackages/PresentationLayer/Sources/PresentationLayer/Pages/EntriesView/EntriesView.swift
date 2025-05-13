@@ -305,6 +305,16 @@ private extension EntriesView {
                           searchFieldFocus = false
                       }
                       .impactHaptic()
+
+            Button(action: {
+                viewModel.query = ""
+            }, label: {
+                Image(systemName: "xmark.circle.fill")
+                    .fontWeight(.medium)
+                    .foregroundStyle(.textWeak)
+                    .animation(.default, value: viewModel.query.isEmpty)
+                    .opacity(viewModel.query.isEmpty ? 0 : 1)
+            })
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
