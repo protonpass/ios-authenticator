@@ -254,7 +254,7 @@ private extension EntriesView {
 
 private extension EntriesView {
     var actionBar: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(alignment: .bottom, spacing: 10) {
             searchBar
             addButton
                 .padding(10)
@@ -262,16 +262,23 @@ private extension EntriesView {
                 .coloredBackgroundButton(.circle)
                 .impactHaptic()
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 20)
-        .background(.ultraThinMaterial)
+        .padding(.horizontal, searchBarAlignment == .bottom ? 22 : 16)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .background(.bar)
+        .background(LinearGradient(stops:
+            [
+                Gradient.Stop(color: .black.opacity(0.5), location: 0.00),
+                Gradient.Stop(color: .black.opacity(0), location: 1.00)
+            ],
+            startPoint: UnitPoint(x: 0.5, y: 1),
+            endPoint: UnitPoint(x: 0.5, y: 0)))
         .overlay(alignment: .top) {
             if searchBarAlignment == .bottom {
                 // Top border line
                 Rectangle()
                     .frame(height: 0.5)
-                    .foregroundStyle(.gradientEnd)
+                    .foregroundStyle(.actionBarBorder)
             }
         }
     }
@@ -286,6 +293,7 @@ private extension EntriesView {
             TextField(text: $viewModel.query,
                       label: {
                           Text("Search", bundle: .module)
+                              .foregroundStyle(.textWeak)
                       })
                       .adaptiveTextFieldStyle()
                       .foregroundStyle(.textNorm)
@@ -296,12 +304,19 @@ private extension EntriesView {
                       }
                       .impactHaptic()
         }
-
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(colorScheme == .light ? .white.opacity(0.5) : .black.opacity(0.5))
-        .clipShape(.capsule)
+        .background(Capsule()
+            .fill(.shadow(.inner(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)))
+            .shadow(color: .white.opacity(0.2),
+                    radius: 1,
+                    x: 0,
+                    y: 0.5)
+            .foregroundStyle(colorScheme == .light ? Color(red: 0.9, green: 0.9, blue: 0.89)
+                .opacity(0.7) : Color(red: 0.06,
+                                      green: 0.06,
+                                      blue: 0.06).opacity(0.8)))
     }
 
     var addButton: some View {
