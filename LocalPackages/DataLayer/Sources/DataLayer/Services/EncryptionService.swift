@@ -51,6 +51,12 @@ public protocol EncryptionServicing: Sendable {
 
     func symmetricEncrypt<T: Codable>(object: T) throws -> Data
     func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
+
+    // MARK: - Proton BE
+
+    func saveProtonKey(keyId: String, key: Data) throws
+    func contains(keyId: String) -> Bool
+    func decryptProtonData(encryptedData: RemoteEncryptedEntry) throws -> Entry
 }
 
 // swiftlint:disable:next todo
@@ -103,7 +109,7 @@ public extension EncryptionService {
             return .nonDecryptable
         }
         let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        return .decrypted(rustEntry.toEntry, entry.syncState)
+        return .decrypted(rustEntry.toEntry, EntrySyncState(rawValue: entry.syncState) ?? .unsynced)
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
@@ -115,7 +121,7 @@ public extension EncryptionService {
             }
             let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
                                                                  key: encryptionKey)
-            return .decrypted(rustEntry.toEntry, entry.syncState)
+            return .decrypted(rustEntry.toEntry, EntrySyncState(rawValue: entry.syncState) ?? .unsynced)
         }
     }
 
@@ -147,6 +153,42 @@ public extension EncryptionService {
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try symmetricKey.decrypt(encryptedData)
         return try JSONDecoder().decode(T.self, from: data)
+    }
+}
+
+// MARK: - Proton BE
+
+public extension EncryptionService {
+    func saveProtonKey(keyId: String, key: Data) throws {
+        try keychain.set(key, for: keyId, shouldSync: false)
+    }
+
+    func contains(keyId: String) -> Bool {
+        guard (try? keychain.get(key: keyId) as Data) != nil else {
+            return false
+        }
+
+        return true
+    }
+
+    func decryptProtonData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
+        let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID)
+
+        guard !protonKey.isEmpty else {
+            throw AuthError.crypto(.missingKeys)
+        }
+
+        guard let contentData = try encryptedData.content.base64Decode() else {
+            throw AuthError.crypto(.failedToBase64Decode)
+        }
+
+        guard contentData.count > 12 else {
+            throw AuthError.crypto(.corruptedContent(encryptedData.entryID))
+        }
+
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: contentData, key: protonKey)
+
+        return rustEntry.toEntry
     }
 }
 

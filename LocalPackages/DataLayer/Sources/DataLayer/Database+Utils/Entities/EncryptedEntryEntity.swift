@@ -28,7 +28,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var encryptedData = Data()
     public private(set) var keyId: String = ""
     public private(set) var order: Int = 0
-    public private(set) var syncState = EntrySyncState.unsynced
+    public private(set) var syncState: Int = EntrySyncState.unsynced.rawValue
     public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
     public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
     public private(set) var flags: Int = 0
@@ -49,7 +49,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.encryptedData = encryptedData
         self.keyId = keyId
         self.order = order
-        self.syncState = syncState
+        self.syncState = syncState.rawValue
         self.creationDate = creationDate
         self.modifiedTime = modifiedTime
         self.flags = flags
@@ -70,7 +70,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
 
     // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
-        syncState = newState
+        syncState = newState.rawValue
         modifiedTime = Date.now.timeIntervalSince1970
     }
 }

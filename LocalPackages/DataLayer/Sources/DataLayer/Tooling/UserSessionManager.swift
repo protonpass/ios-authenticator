@@ -64,7 +64,7 @@ public protocol UserInfoProviding: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     func userKeyEncrypt<T: Codable>(object: T) throws -> String
-//    func userKeyDecrypt<T: Codable>(encryptedData: Data) throws -> T
+    func userKeyDecrypt /* <T: Codable> */ (keyId: String, data: String) throws -> Data
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -447,6 +447,8 @@ public extension UserSessionManager {
     }
 
     func userKeyEncrypt(object: some Codable) throws -> String {
+        log(.info, "Encrypting with user key")
+
         guard let userData else {
             throw AuthError.generic(.missingUserData)
         }
@@ -470,6 +472,40 @@ public extension UserSessionManager {
                                                   clearData: data,
                                                   signerKey: signerKey)
         return try encryptedData.unArmor().value.base64EncodedString()
+    }
+
+    func userKeyDecrypt /* <T: Codable> */ (keyId: String, data: String) throws -> Data {
+        log(.info, "Decrypting with user key")
+        guard let userData else {
+            log(.info, "Missing user data")
+            throw AuthError.generic(.missingUserData)
+        }
+
+        guard let encryptedData = try data.base64Decode() else {
+            log(.info, "Failed to base 64 decode encripted string")
+            throw AuthError.crypto(.failedToBase64Decode)
+        }
+
+        let armoredEncryptedData = try armorMessage(encryptedData)
+
+        let decryptionKeys = userData.user.keys.map {
+            DecryptionKey(privateKey: .init(value: $0.privateKey),
+                          passphrase: .init(value: userData.passphrases[$0.keyID] ?? ""))
+        }
+
+        let verificationKeys = userData.user.keys.map(\.publicKey).map { ArmoredKey(value: $0) }
+        let decryptedData: VerifiedData = try Decryptor.decryptAndVerify(decryptionKeys: decryptionKeys,
+                                                                         value: .init(value: armoredEncryptedData),
+                                                                         verificationKeys: verificationKeys)
+
+        return decryptedData.content
+    }
+
+    private func armorMessage(_ message: Data) throws -> String {
+        var error: NSError?
+        let result = CryptoGo.ArmorArmorWithType(message, "MESSAGE", &error)
+        if let error { throw error }
+        return result
     }
 }
 

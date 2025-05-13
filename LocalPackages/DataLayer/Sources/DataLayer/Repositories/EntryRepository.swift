@@ -49,6 +49,11 @@ public protocol EntryRepositoryProtocol: Sendable {
     func removeAll() async throws
     func update(_ entry: Entry) async throws
     func updateOrder(_ entries: [any IdentifiableOrderedEntry]) async throws
+
+    // MARK: - Proton BE
+
+    func fetchKeys() async throws
+    func fetchEntries() async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -134,7 +139,10 @@ public extension EntryRepository {
 
 public extension EntryRepository {
     func getAllEntries() async throws -> [EntryState] {
-        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
+        let state = EntrySyncState.unsynced
+        let predicate = #Predicate<EncryptedEntryEntity> { $0.syncState == state.rawValue }
+
+        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate,
                                                                                          sortingDescriptor: [
                                                                                              SortDescriptor(\.order)
                                                                                          ])
@@ -180,6 +188,49 @@ public extension EntryRepository {
             entry.updateOrder(newOrder: orderedEntry.order)
         }
         try await persistentStorage.batchSave(content: encryptedEntries)
+    }
+}
+
+public extension EntryRepository {
+    func fetchKeys() async throws {
+        guard userSessionManager.isAuthenticated.value else {
+            return
+        }
+
+        let encryptedKeysData = try await apiClient.getKeys()
+
+        for encryptedKeyData in encryptedKeysData
+            where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
+            let keyDataDecrypted: Data = try userSessionManager.userKeyDecrypt(keyId: encryptedKeyData.keyID,
+                                                                               data: encryptedKeyData.key)
+
+            try encryptionService.saveProtonKey(keyId: encryptedKeyData.keyID, key: keyDataDecrypted)
+        }
+    }
+
+    func fetchEntries() async throws {
+        guard userSessionManager.isAuthenticated.value else {
+            return
+        }
+        let encryptedEntries = try await apiClient.getEntries()
+        var count = try await persistentStorage.count(EncryptedEntryEntity.self)
+
+        var entries: [OrderedEntry] = []
+        for (index, encryptedEntry) in encryptedEntries.enumerated() {
+            let decryptedEntry = try encryptionService.decryptProtonData(encryptedData: encryptedEntry)
+            let orderedEntry = OrderedEntry(entry: decryptedEntry,
+                                            order: count + index,
+                                            syncState: .synced,
+                                            creationDate: Double(encryptedEntry.createTime),
+                                            modifiedTime: Double(encryptedEntry.modifyTime),
+                                            flags: encryptedEntry.flags,
+                                            revision: encryptedEntry.revision,
+                                            contentFormatVersion: encryptedEntry.contentFormatVersion)
+            entries.append(orderedEntry)
+        }
+
+        print("woot entries \(entries)")
+//        try await save(entries)
     }
 }
 

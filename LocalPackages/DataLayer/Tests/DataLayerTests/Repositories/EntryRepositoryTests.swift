@@ -25,21 +25,6 @@ import Models
 import SwiftData
 import DataLayer
 
-struct OrderedEntry: IdentifiableOrderedEntry {
-    let entry: Entry
-    let order: Int
-    let syncState: EntrySyncState
-
-    init(entry: Entry, order: Int) {
-        self.entry = entry
-        self.order = order
-        syncState = .unsynced
-    }
-
-    var id: String { entry.id }
- }
-
-
 enum MockKeychainError: Error {
     case itemNotFound
     case typeMismatch
@@ -486,3 +471,18 @@ struct EntryRepositoryTests {
         #expect(reorderedfetchedEntries.last?.0.id == "id0")
     }
 }
+
+extension OrderedEntry {
+    init(entry: Entry, order: Int) {
+        self.init(entry: entry, order: order, revision: 1, contentFormatVersion: 1)
+    }
+}
+
+//(entry: Entry,
+//            order: Int,
+//            syncState: EntrySyncState = .unsynced,
+//            creationDate: TimeInterval = Date().timeIntervalSince1970,
+//            modifiedTime: TimeInterval = Date().timeIntervalSince1970,
+//            flags: Int = 0,
+//            revision: Int,
+//            contentFormatVersion: Int)

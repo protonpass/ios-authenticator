@@ -201,8 +201,8 @@ public extension EntryDataService {
                 log(.debug, "Loaded \(entries.count) entries.")
                 updateData(entries)
             } catch {
-                if let data = dataState.data, !data.isEmpty { return }
                 log(.error, "Failed to load entries: \(error)")
+                if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
             }
         }

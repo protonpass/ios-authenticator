@@ -37,12 +37,11 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
     case failedToAESEncrypt
     case inactiveUserKey(userKeyId: String) // Caused by "forgot password"
     case addressNotFound(addressID: String)
-    case corruptedShareContent(shareID: String)
     case missingUserKey(userID: String)
     case missingPassphrase(keyID: String)
     case missingKeys
     case unmatchedKeyRotation(lhsKey: Int64, rhsKey: Int64)
-    case missingItemKeyRotation(Int)
+    case corruptedContent(String)
 
     public var debugDescription: String {
         switch self {
@@ -78,8 +77,8 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
             "Inactive user key \(userKeyId)"
         case let .addressNotFound(addressID):
             "Address not found \"\(addressID)\""
-        case let .corruptedShareContent(shareID):
-            "Corrupted share content shareID \"\(shareID)\""
+        case let .corruptedContent(contentID):
+            "Corrupted content id \"\(contentID)\""
         case let .missingUserKey(userID):
             "Missing user key \"\(userID)\""
         case let .missingPassphrase(keyID):
@@ -88,8 +87,6 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
             "Missing keys"
         case let .unmatchedKeyRotation(lhsKey, rhsKey):
             "Unmatch key rotation \(lhsKey) - \(rhsKey)"
-        case let .missingItemKeyRotation(rotation):
-            "Missing item key rotation \(rotation)"
         }
     }
 }

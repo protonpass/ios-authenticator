@@ -24,6 +24,7 @@ import ProtonCoreLogin
 import ProtonCoreServices
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
+
     
     // MARK: - APIManagerProtocol
 
@@ -71,6 +72,15 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
         encryptObjectCalled = true
         return try encryptObjectResult.get()
     }
+    
+    public var decryptObjectResult: Result<any Codable, Error> = .success("encrypted")
+    public var decryptObjectCalled = false
+    
+    public func userKeyDecrypt<T: Codable>(keyId: String, data: String) throws -> T {
+        decryptObjectCalled = true
+        return try decryptObjectResult.get() as! T
+    }
+    
 
     // If needed:
     // public var decryptObjectResult: Result<Any, Error> = ...
