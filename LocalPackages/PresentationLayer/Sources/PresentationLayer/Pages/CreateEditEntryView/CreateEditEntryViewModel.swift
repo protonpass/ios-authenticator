@@ -19,9 +19,11 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import AuthenticatorRustCore
 import CommonUtilities
 import Factory
 import Foundation
+import Macro
 import Models
 
 @Observable @MainActor
@@ -35,6 +37,7 @@ final class CreateEditEntryViewModel {
     var type: TotpType = .totp
     var note = ""
     var shouldDismiss = false
+    var errorMessage: String?
 
     var supportedDigits: [Int] = AppConstants.EntryOptions.supportedDigits
     var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
@@ -103,7 +106,17 @@ final class CreateEditEntryViewModel {
                 }
                 shouldDismiss = true
             } catch {
-                handle(error)
+                if let error = error as? AuthenticatorRustCore.AuthenticatorError {
+                    let errorMessage = error.message()
+                    switch error.message() {
+                    case "Unknown(\"InvalidData(Secret)\")":
+                        self.errorMessage = #localized("Invalid secret", bundle: .module)
+                    default:
+                        self.errorMessage = errorMessage
+                    }
+                } else {
+                    handle(error)
+                }
             }
         }
     }

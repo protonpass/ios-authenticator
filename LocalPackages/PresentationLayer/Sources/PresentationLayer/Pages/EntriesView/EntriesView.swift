@@ -426,9 +426,6 @@ private extension EntriesView {
                 }
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {

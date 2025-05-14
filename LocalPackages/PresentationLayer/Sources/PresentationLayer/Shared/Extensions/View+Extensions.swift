@@ -61,6 +61,13 @@ public extension View {
             alert(title, isPresented: isPresented, actions: actions)
         }
     }
+
+    func errorMessageAlert(_ message: Binding<String?>) -> some View {
+        alert(Text("An error occurred", bundle: .module),
+              isPresented: message.mappedToBool(),
+              actions: {},
+              message: { Text(verbatim: message.wrappedValue ?? "") })
+    }
 }
 
 // MARK: - Common UI modification tools

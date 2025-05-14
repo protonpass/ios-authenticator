@@ -61,6 +61,16 @@
         }
       }
     },
+    "An error occurred" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An error occurred"
+          }
+        }
+      }
+    },
     "Animate code change" : {
       "localizations" : {
         "en" : {
@@ -518,6 +528,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import from Files"
+          }
+        }
+      }
+    },
+    "Invalid secret" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid secret"
           }
         }
       }
