@@ -89,8 +89,8 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
                                                                 provideParametersForSessionFetching: { [] })
     #endif
 
-    private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
-    private let cachedUserData: LegacyMutex<UserData?> = .init(nil)
+    private let cachedCredentials: any MutexProtected<Credentials?> = SafeMutex.create(nil)
+    private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
 
     public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
     public private(set) var apiService: APIService

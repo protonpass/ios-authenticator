@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
+import CommonUtilities
 import Foundation
 import Models
 import SimplyPersist
@@ -52,8 +53,8 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     // MARK: - Proton BE
 
-    func fetchKeys() async throws
-    func fetchEntries() async throws
+    func fetchAndSaveKeys() async throws
+    func fetchEntries() async throws -> [OrderedEntry]?
 }
 
 public extension EntryRepositoryProtocol {
@@ -192,7 +193,7 @@ public extension EntryRepository {
 }
 
 public extension EntryRepository {
-    func fetchKeys() async throws {
+    func fetchAndSaveKeys() async throws {
         guard userSessionManager.isAuthenticated.value else {
             return
         }
@@ -208,18 +209,17 @@ public extension EntryRepository {
         }
     }
 
-    func fetchEntries() async throws {
+    func fetchEntries() async throws -> [OrderedEntry]? {
         guard userSessionManager.isAuthenticated.value else {
-            return
+            return nil
         }
         let encryptedEntries = try await apiClient.getEntries()
-        var count = try await persistentStorage.count(EncryptedEntryEntity.self)
 
         var entries: [OrderedEntry] = []
         for (index, encryptedEntry) in encryptedEntries.enumerated() {
             let decryptedEntry = try encryptionService.decryptProtonData(encryptedData: encryptedEntry)
             let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                            order: count + index,
+                                            order: index,
                                             syncState: .synced,
                                             creationDate: Double(encryptedEntry.createTime),
                                             modifiedTime: Double(encryptedEntry.modifyTime),
@@ -228,9 +228,9 @@ public extension EntryRepository {
                                             contentFormatVersion: encryptedEntry.contentFormatVersion)
             entries.append(orderedEntry)
         }
-
         print("woot entries \(entries)")
-//        try await save(entries)
+
+        return entries
     }
 }
 
@@ -241,6 +241,14 @@ private extension EntryRepository {
                                     encryptedData: encryptedData,
                                     keyId: encryptionService.keyId,
                                     order: entry.order,
-                                    syncState: entry.syncState)
+                                    syncState: entry.syncState,
+                                    creationDate: (entry as? OrderedEntry)?.creationDate ?? Date.now
+                                        .timeIntervalSince1970,
+                                    modifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date.now
+                                        .timeIntervalSince1970,
+                                    flags: (entry as? OrderedEntry)?.flags ?? 0,
+                                    contentFormatVersion: (entry as? OrderedEntry)?
+                                        .contentFormatVersion ?? AppConstants.ContentFormatVersion.entry,
+                                    revision: (entry as? OrderedEntry)?.revision ?? 0)
     }
 }

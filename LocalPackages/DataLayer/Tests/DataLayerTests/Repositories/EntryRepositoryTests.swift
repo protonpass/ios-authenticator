@@ -477,12 +477,3 @@ extension OrderedEntry {
         self.init(entry: entry, order: order, revision: 1, contentFormatVersion: 1)
     }
 }
-
-//(entry: Entry,
-//            order: Int,
-//            syncState: EntrySyncState = .unsynced,
-//            creationDate: TimeInterval = Date().timeIntervalSince1970,
-//            modifiedTime: TimeInterval = Date().timeIntervalSince1970,
-//            flags: Int = 0,
-//            revision: Int,
-//            contentFormatVersion: Int)

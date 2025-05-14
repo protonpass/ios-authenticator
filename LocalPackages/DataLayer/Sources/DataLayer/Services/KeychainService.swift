@@ -87,7 +87,7 @@ public final class KeychainService: KeychainServicing {
     private let accessGroup: String?
     private let logger: LoggerProtocol
 
-    private let serviceSyncState: LegacyMutex<Bool> = .init(false)
+    private let serviceSyncState: any MutexProtected<Bool> = SafeMutex.create(false)
 
     public init(service: String? = nil, accessGroup: String? = nil, logger: LoggerProtocol) {
         self.service = service

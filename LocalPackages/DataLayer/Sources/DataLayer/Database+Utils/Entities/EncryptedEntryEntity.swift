@@ -39,9 +39,9 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
                 encryptedData: Data,
                 keyId: String,
                 order: Int,
-                syncState: EntrySyncState = .unsynced,
-                creationDate: TimeInterval = Date().timeIntervalSince1970,
-                modifiedTime: TimeInterval = Date().timeIntervalSince1970,
+                syncState: EntrySyncState,
+                creationDate: TimeInterval,
+                modifiedTime: TimeInterval,
                 flags: Int = 0,
                 contentFormatVersion: Int = 0,
                 revision: Int = 0) {
