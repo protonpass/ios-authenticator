@@ -23,7 +23,7 @@ import SimplyPersist
 import Testing
 import Models
 import SwiftData
-import DataLayer
+@testable import DataLayer
 
 enum MockKeychainError: Error {
     case itemNotFound
@@ -183,14 +183,14 @@ struct EntryRepositoryTests {
                                               type: .totp,
                                               note: "Note"), order: 0)
        
-        try await sut.save(entry)
+        try await sut.save(entry, remotePush: false)
         
         var entries = try await sut.getAllEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 1)
-        #expect(entries.first?.0.period == entry.entry.period)
-        #expect(entries.first?.0.uri == entry.entry.uri)
+        #expect(entries.first?.entry.period == entry.entry.period)
+        #expect(entries.first?.entry.uri == entry.entry.uri)
         
         let entry2 = OrderedEntry(entry: Entry(id: "id2",
                         name: "Test2",
@@ -201,7 +201,7 @@ struct EntryRepositoryTests {
                         type: .totp,
                                                note: "Note"), order:1)
        
-        try await sut.save(entry2)
+        try await sut.save(entry2, remotePush: false)
         entries = try await sut.getAllEntries().decodedEntries
 
         // Assert
@@ -241,7 +241,7 @@ struct EntryRepositoryTests {
                                                               note: "Note"), order: 2)
         ]
         
-        try await sut.save(entries)
+        try await sut.save(entries, remotePush: false)
         
         let fetchedEntries = try await sut.getAllEntries()
 
@@ -278,7 +278,7 @@ struct EntryRepositoryTests {
         ]
         
        
-        try await sut.save(entries)
+        try await sut.save(entries, remotePush: false)
         try await sut.removeAll()
         
         let fetchedEntries = try await sut.getAllEntries()
@@ -316,15 +316,15 @@ struct EntryRepositoryTests {
         ]
         
        
-        try await sut.save(entries)
-        try await sut.remove(entries.first!.entry)
+        try await sut.save(entries, remotePush: false)
+        try await sut.remove(entries.first!.entry, remotePush: false)
         
         var fetchedEntries = try await sut.getAllEntries()
 
         // Assert
         #expect(fetchedEntries.count == 2)
         
-        try await sut.remove("id2")
+        try await sut.remove("id2", remotePush: false)
         
          fetchedEntries = try await sut.getAllEntries()
 
@@ -369,16 +369,16 @@ struct EntryRepositoryTests {
                               type: .totp,
                                                    note: "new note"), order: 3)
         
-        try await sut.save(entries)
+        try await sut.save(entries, remotePush: false)
 
-        try await sut.update(newEntry1.entry)
+        try await sut.update(newEntry1.entry, remotePush: false)
         
         let fetchedEntries = try await sut.getAllEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.count == 3)
 
-        #expect(fetchedEntries.map(\.0.note).contains("new note") == true)
+        #expect(fetchedEntries.map(\.entry.note).contains("new note") == true)
     }
     
     
@@ -453,22 +453,22 @@ struct EntryRepositoryTests {
         ]
         
         
-        try await sut.save(entries)
+        try await sut.save(entries, remotePush: false)
         
         let fetchedEntries = try await sut.getAllEntries().decodedEntries
 
         // Assert
-        #expect(fetchedEntries.first?.0.id == "id0")
+        #expect(fetchedEntries.first?.entry.id == "id0")
 
-        #expect(fetchedEntries.last?.0.id == "id3")
+        #expect(fetchedEntries.last?.entry.id == "id3")
         
-        try await sut.updateOrder(reorderEntries)
+        try await sut.updateOrder(entryIdMoved: nil, reorderEntries, remotePush: false)
         
         let reorderedfetchedEntries = try await sut.getAllEntries().decodedEntries
         
-        #expect(reorderedfetchedEntries.first?.0.id == "id3")
+        #expect(reorderedfetchedEntries.first?.entry.id == "id3")
 
-        #expect(reorderedfetchedEntries.last?.0.id == "id0")
+        #expect(reorderedfetchedEntries.last?.entry.id == "id0")
     }
 }
 

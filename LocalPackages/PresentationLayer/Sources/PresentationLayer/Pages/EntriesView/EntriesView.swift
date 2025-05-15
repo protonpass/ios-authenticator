@@ -83,6 +83,8 @@ public struct EntriesView: View {
                         withAnimation {
                             searchFieldFocus = viewModel.focusSearchOnLaunch
                         }
+
+                        // TODO: fetch remote
                     }
                 }
                 .sheetDestinations($router.presentedSheet)

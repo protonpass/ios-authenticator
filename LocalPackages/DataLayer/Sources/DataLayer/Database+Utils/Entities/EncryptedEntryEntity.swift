@@ -35,6 +35,10 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var contentFormatVersion: Int = 0
     public private(set) var revision: Int = 0
 
+    public var isSynced: Bool {
+        syncState == EntrySyncState.synced.rawValue
+    }
+
     public init(id: String,
                 encryptedData: Data,
                 keyId: String,
@@ -71,6 +75,5 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
         syncState = newState.rawValue
-        modifiedTime = Date.now.timeIntervalSince1970
     }
 }

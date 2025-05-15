@@ -38,6 +38,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func delete(_ entry: EntryUiModel) async throws
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
+    func fullRefresh() async throws
+
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
     func getTotpParams(entry: Entry) throws -> TotpParams
@@ -76,6 +78,11 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
+    @ObservationIgnored
+    private var fullRefreshTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private let syncOperation: any SyncOperationCheckerProtocol
 
     @ObservationIgnored
     private let logger: LoggerProtocol
@@ -86,12 +93,14 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 importService: any ImportingServicing,
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
-                logger: any LoggerProtocol) {
+                logger: any LoggerProtocol,
+                syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
+        self.syncOperation = syncOperation
         setUp()
     }
 
@@ -150,27 +159,12 @@ public extension EntryDataService {
 
         var entry = try createEntry(with: params)
         entry.id = entryId
-        try await repository.update(entry)
-
-        var data: [EntryUiModel] = dataState.data ?? []
-        if let index = data.firstIndex(where: { $0.id == entryId }) {
-            data[index] = data[index].copy(newEntry: entry)
-        }
-        updateData(data)
+        try await updateEntry(entry: entry, remotePush: true)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
         log(.debug, "Deleting entry with ID: \(entry.id)")
-        guard var data = dataState.data else {
-            return
-        }
-        log(.info, "Deleting entry with ID: \(entry.id)")
-        try await repository.remove(entry.entry.id)
-        data = data.filter { $0.entry.id != entry.entry.id }
-        data = updateOrder(data: data)
-        try await repository.updateOrder(data)
-        updateData(data)
-        log(.debug, "Deleted entry with ID: \(entry.id)")
+        try await deleteEntry(with: entry.id, remotePush: true)
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
@@ -184,7 +178,7 @@ public extension EntryDataService {
         data.remove(at: currentPosition)
         data.insert(entry, at: newPosition)
         data = updateOrder(data: data)
-        try await repository.updateOrder(data)
+        try await repository.updateOrder(entryIdMoved: entry.id, data, remotePush: true)
         updateData(data)
     }
 
@@ -195,7 +189,7 @@ public extension EntryDataService {
             guard let self else { return }
             do {
                 if Task.isCancelled { return }
-                let entriesStates = try await repository.getAllEntries()
+                let entriesStates = try await repository.getAllLocalEntries()
                 if Task.isCancelled { return }
                 let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
                 log(.debug, "Loaded \(entries.count) entries.")
@@ -212,6 +206,61 @@ public extension EntryDataService {
         log(.debug, "Updating data with \(entries.count) entries")
         dataState = .loaded(entries)
         totpUpdate(entries.map(\.entry))
+    }
+
+    // TODO: need to push local key
+    func fullRefresh() async throws {
+        log(.debug, "Full BE refresh")
+        await task?.value
+
+        fullRefreshTask?.cancel()
+        fullRefreshTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await repository.fetchAndSaveRemoteKeys()
+
+                guard let remoteOrderedEntries = try await repository.fetchRemoteEntries() else {
+                    return
+                }
+
+                if Task.isCancelled { return }
+                let entriesStates = try await repository.getAllLocalEntries()
+
+                let operations = try syncOperation
+                    .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
+                                         local: entriesStates.toLocalEntries)
+
+                for operation in operations {
+                    switch operation.operation {
+                    case .upsert:
+                        try await save(operation.entry.toEntry, syncState: .synced, remotePush: false)
+                    case .deleteLocal:
+                        try await deleteEntry(with: operation.entry.id, remotePush: false)
+                    case .deleteLocalAndRemote:
+                        try await deleteEntry(with: operation.entry.id, remotePush: true)
+                    case .push:
+                        try await save(operation.entry.toEntry, syncState: .unsynced, remotePush: true)
+                    case .conflict:
+                        guard let remoteEntry = remoteOrderedEntries.first(where: { operation.entry.id == $0.id }),
+                              let localEntry = entriesStates.decodedEntries
+                              .first(where: { operation.entry.id == $0.id }) else {
+                            return
+                        }
+                        if remoteEntry.modifiedTime > localEntry.modifiedTime {
+                            try await updateEntry(entry: remoteEntry.entry, remotePush: false)
+                        } else {
+                            try await updateEntry(entry: localEntry.entry, remotePush: true)
+                        }
+                    }
+                }
+                // TODO: reorder if remote and local not same remote should be
+
+            } catch {
+                log(.error, "Failed to load entries: \(error)")
+                if let data = dataState.data, !data.isEmpty { return }
+                dataState = .failed(error)
+            }
+        }
     }
 }
 
@@ -244,8 +293,6 @@ public extension EntryDataService {
         var uiEntries: [EntryUiModel] = []
         for code in codes {
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            // swiftlint:disable:next todo
-            // TODO: change state to sync if connection to BE
             uiEntries.append(EntryUiModel(entry: code.entry,
                                           code: code,
                                           order: index,
@@ -253,7 +300,7 @@ public extension EntryDataService {
                                           issuerInfo: issuerInfo))
             index += 1
         }
-        try await repository.save(uiEntries)
+        try await repository.save(uiEntries, remotePush: true)
 
         data.append(contentsOf: uiEntries)
         await MainActor.run {
@@ -300,7 +347,7 @@ private extension EntryDataService {
         }
     }
 
-    func save(_ entry: Entry) async throws {
+    func save(_ entry: Entry, syncState: EntrySyncState = .unsynced, remotePush: Bool = true) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
 
         guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
@@ -316,18 +363,39 @@ private extension EntryDataService {
         }
         let order = data.count
         let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-        // swiftlint:disable:next todo
-        // TODO: change state to sync if connection to BE
         let entryUI = EntryUiModel(entry: code.entry,
                                    code: code,
                                    order: order,
-                                   syncState: .unsynced,
+                                   syncState: syncState,
                                    issuerInfo: issuerInfo)
-        try await repository.save(entryUI)
+        try await repository.save(entryUI, remotePush: remotePush)
 
         data.append(entryUI)
         updateData(data)
         log(.debug, "Saved entry \(entryUI.id)")
+    }
+
+    func updateEntry(entry: Entry, remotePush: Bool) async throws {
+        try await repository.update(entry, remotePush: remotePush)
+
+        var data: [EntryUiModel] = dataState.data ?? []
+        if let index = data.firstIndex(where: { $0.id == entry.id }) {
+            data[index] = data[index].copy(newEntry: entry)
+        }
+        updateData(data)
+    }
+
+    func deleteEntry(with id: String, remotePush: Bool) async throws {
+        guard var data = dataState.data else {
+            return
+        }
+        log(.info, "Deleting entry with ID: \(id)")
+        try await repository.remove(id, remotePush: remotePush)
+        data = data.filter { $0.entry.id != id }
+        data = updateOrder(data: data)
+        try await repository.updateOrder(entryIdMoved: nil, data, remotePush: false)
+        updateData(data)
+        log(.debug, "Deleted entry with ID: \(id)")
     }
 
     func createEntry(with params: EntryParameters) throws -> Entry {
@@ -341,9 +409,9 @@ private extension EntryDataService {
         }
     }
 
-    func generateUIEntries(from entries: [(Entry, EntrySyncState)]) async throws -> [EntryUiModel] {
+    func generateUIEntries(from entries: [OrderedEntry]) async throws -> [EntryUiModel] {
         log(.debug, "Generating UI entries from \(entries.count) entries")
-        let codes = try repository.generateCodes(entries: entries.map(\.0))
+        let codes = try repository.generateCodes(entries: entries.map(\.entry))
         guard codes.count == entries.count else {
             log(.warning, "Mismatch between codes and entries: \(codes.count) codes, \(entries.count) entries")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
@@ -357,10 +425,10 @@ private extension EntryDataService {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            results.append(.init(entry: entry.0,
+            results.append(.init(entry: entry.entry,
                                  code: code,
                                  order: index,
-                                 syncState: entry.1,
+                                 syncState: entry.syncState,
                                  issuerInfo: issuerInfo))
         }
 
@@ -395,8 +463,8 @@ private extension EntryDataService {
     }
 }
 
-public extension [EntryState] {
-    var decodedEntries: [(Entry, EntrySyncState)] {
+extension [EntryState] {
+    var decodedEntries: [OrderedEntry] {
         compactMap(\.entryAndSyncState)
     }
 }

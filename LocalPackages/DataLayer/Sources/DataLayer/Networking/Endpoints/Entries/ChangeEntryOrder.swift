@@ -22,9 +22,9 @@ import Foundation
 @preconcurrency import ProtonCoreNetworking
 
 public struct NewOrderRequest: Encodable, Sendable {
-    let afterID: String
+    let afterID: String?
 
-    public init(afterID: String) {
+    public init(afterID: String?) {
         self.afterID = afterID
     }
 

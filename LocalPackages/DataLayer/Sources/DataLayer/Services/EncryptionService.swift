@@ -26,13 +26,13 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(Entry, EntrySyncState)
+    case decrypted(OrderedEntry)
     case nonDecryptable
 
-    public var entryAndSyncState: (Entry, EntrySyncState)? {
+    public var entryAndSyncState: OrderedEntry? {
         switch self {
-        case let .decrypted(entry, state):
-            (entry, state)
+        case let .decrypted(entry):
+            entry
         default:
             nil
         }
@@ -41,6 +41,7 @@ public enum EntryState: Sendable {
 
 public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
+    var localEncryptionKey: Data { get throws }
 
     func encrypt(entry: Entry) throws -> Data
     // periphery:ignore
@@ -81,7 +82,7 @@ public final class EncryptionService: EncryptionServicing {
         self.authenticatorCrypto = authenticatorCrypto
     }
 
-    private var localEncryptionKey: Data {
+    public var localEncryptionKey: Data {
         get throws {
             if let key: Data = try? keychain.get(key: keyId, shouldSync: true) {
                 return key
@@ -109,19 +110,21 @@ public extension EncryptionService {
             return .nonDecryptable
         }
         let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        return .decrypted(rustEntry.toEntry, EntrySyncState(rawValue: entry.syncState) ?? .unsynced)
+        let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
+                                        order: entry.order,
+                                        syncState: EntrySyncState(rawValue: entry.syncState) ?? .unsynced,
+                                        creationDate: entry.creationDate,
+                                        modifiedTime: entry.modifiedTime,
+                                        flags: entry.flags,
+                                        revision: entry.revision,
+                                        contentFormatVersion: entry.contentFormatVersion)
+        return .decrypted(orderedEntry)
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         log(.info, "Decrypting entries")
         return try entries.map { entry in
-            guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-                log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
-                return .nonDecryptable
-            }
-            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
-                                                                 key: encryptionKey)
-            return .decrypted(rustEntry.toEntry, EntrySyncState(rawValue: entry.syncState) ?? .unsynced)
+            try decrypt(entry: entry)
         }
     }
 

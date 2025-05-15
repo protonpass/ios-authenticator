@@ -58,6 +58,7 @@ public enum AppConstants {
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
         public static let displayICloudBackUp = "DisplayICloudBackUp"
         public static let displayBESync = "DisplayBESync"
+        public static let hasPushedEncryptionKey = "HasPushedEncryptionKey"
     }
 
     @MainActor

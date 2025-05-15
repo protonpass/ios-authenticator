@@ -30,12 +30,6 @@ public struct OrderedEntry: IdentifiableOrderedEntry {
     public let revision: Int
     public let contentFormatVersion: Int
 
-//    public init(entry: Entry, order: Int, state: EntrySyncState = .unsynced) {
-//        self.entry = entry
-//        self.order = order
-//        syncState = .unsynced
-//    }
-
     public init(entry: Entry,
                 order: Int,
                 syncState: EntrySyncState = .unsynced,
@@ -56,25 +50,3 @@ public struct OrderedEntry: IdentifiableOrderedEntry {
 
     public var id: String { entry.id }
 }
-
-// public let entryID: String
-// public let authenticatorKeyID: String
-//
-//
-// public let content: String
-// public let flags: Int
-// public let createTime: Int
-// public let modifyTime: Int
-//
-
-//
-// public private(set) var id: String = UUID().uuidString
-// public private(set) var encryptedData = Data()
-// public private(set) var keyId: String = ""
-// public private(set) var order: Int = 0
-// public private(set) var syncState = EntrySyncState.unsynced
-// public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
-// public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
-// public private(set) var flags: Int = 0
-// public private(set) var contentFormatVersion: Int = 0
-// public private(set) var revision: Int = 0
