@@ -82,12 +82,12 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
     private let apiClient: any APIClientProtocol
     private let userSessionManager: any UserSessionTooling
     private let store: UserDefaults
-    
+
     private let entryContentFormatVersion = AppConstants.ContentFormatVersion.entry
     private nonisolated(unsafe) var cancellables: Set<AnyCancellable> = []
 
     private let savingKeyId = AppConstants.Settings.hasPushedEncryptionKey
-    
+
     private var isAuthenticated: Bool {
         userSessionManager.isAuthenticated.value
     }
@@ -104,7 +104,7 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
         self.userSessionManager = userSessionManager
         self.rustClient = rustClient
         self.store = store
-        
+
         store.register(defaults: [
             savingKeyId: false
         ])

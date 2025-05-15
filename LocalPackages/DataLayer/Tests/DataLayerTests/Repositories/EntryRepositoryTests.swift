@@ -42,7 +42,8 @@ struct EntryRepositoryTests {
                                                                                                         keysProvider: MockKeyProvider(),
                                                                                                           logger: MockLogger()),
                               apiClient: MockAPIClient(),
-                              userSessionManager: MockUserSessionTooling()
+                              userSessionManager: MockUserSessionTooling(),
+                              store: UserDefaults()
         )
     }
     
@@ -185,7 +186,7 @@ struct EntryRepositoryTests {
        
         try await sut.save(entry, remotePush: false)
         
-        var entries = try await sut.getAllEntries().decodedEntries
+        var entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 1)
@@ -202,7 +203,7 @@ struct EntryRepositoryTests {
                                                note: "Note"), order:1)
        
         try await sut.save(entry2, remotePush: false)
-        entries = try await sut.getAllEntries().decodedEntries
+        entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 2)
@@ -243,7 +244,7 @@ struct EntryRepositoryTests {
         
         try await sut.save(entries, remotePush: false)
         
-        let fetchedEntries = try await sut.getAllEntries()
+        let fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -281,7 +282,7 @@ struct EntryRepositoryTests {
         try await sut.save(entries, remotePush: false)
         try await sut.removeAll()
         
-        let fetchedEntries = try await sut.getAllEntries()
+        let fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 0)
@@ -319,14 +320,14 @@ struct EntryRepositoryTests {
         try await sut.save(entries, remotePush: false)
         try await sut.remove(entries.first!.entry, remotePush: false)
         
-        var fetchedEntries = try await sut.getAllEntries()
+        var fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 2)
         
         try await sut.remove("id2", remotePush: false)
         
-         fetchedEntries = try await sut.getAllEntries()
+         fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 1)
@@ -373,7 +374,7 @@ struct EntryRepositoryTests {
 
         try await sut.update(newEntry1.entry, remotePush: false)
         
-        let fetchedEntries = try await sut.getAllEntries().decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -455,7 +456,7 @@ struct EntryRepositoryTests {
         
         try await sut.save(entries, remotePush: false)
         
-        let fetchedEntries = try await sut.getAllEntries().decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.first?.entry.id == "id0")
@@ -464,7 +465,7 @@ struct EntryRepositoryTests {
         
         try await sut.updateOrder(entryIdMoved: nil, reorderEntries, remotePush: false)
         
-        let reorderedfetchedEntries = try await sut.getAllEntries().decodedEntries
+        let reorderedfetchedEntries = try await sut.getAllLocalEntries().decodedEntries
         
         #expect(reorderedfetchedEntries.first?.entry.id == "id3")
 

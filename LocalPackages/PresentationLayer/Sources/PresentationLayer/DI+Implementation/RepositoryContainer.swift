@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import DataLayer
 import Factory
 
@@ -33,7 +34,8 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
         self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
                                encryptionService: ServiceContainer.shared.encryptionService(),
                                apiClient: ToolsContainer.shared.apiClient(),
-                               userSessionManager: ServiceContainer.shared.userSessionManager()) }
+                               userSessionManager: ServiceContainer.shared.userSessionManager(),
+                               store: kSharedUserDefaults) }
     }
 
     // MARK: - Data sources
