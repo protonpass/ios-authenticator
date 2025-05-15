@@ -224,7 +224,7 @@ public extension EntryDataService {
                 let entriesStates = try await repository.getAllLocalEntries()
 
                 try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
-           
+
                 // swiftlint:disable:next todo
                 // TODO: reorder if remote and local not same remote should be
 
@@ -434,7 +434,7 @@ private extension EntryDataService {
 
         dataState = .loaded(entryUiModels)
     }
-    
+
     func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws {
         let operations = try syncOperation
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
