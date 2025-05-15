@@ -65,10 +65,14 @@ public struct EntriesView: View {
                         Color.clear.frame(height: 10)
                     }
                 }
-                .safeAreaInset(edge: searchBarAlignment == .bottom ? .bottom : .top) {
-                    if viewModel.dataState.data?.isEmpty == false {
+                .safeAreaInset(edge: .bottom) {
+                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         actionBar
                     }
+                }
+                .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
+                    view
+                        .searchable(text: $viewModel.query)
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
@@ -111,10 +115,17 @@ public struct EntriesView: View {
 private extension EntriesView {
     @ViewBuilder
     var mainContainer: some View {
-        if horizontalSizeClass == .compact {
-            list
-        } else {
-            grid
+        ZStack(alignment: .bottomTrailing) {
+            if horizontalSizeClass == .compact {
+                list
+            } else {
+                grid
+            }
+
+            if searchBarAlignment == .top {
+                addButton(size: 52)
+                    .padding([.trailing, .bottom], DesignConstant.padding * 2)
+            }
         }
     }
 }
@@ -256,13 +267,10 @@ private extension EntriesView {
     var actionBar: some View {
         HStack(alignment: .bottom, spacing: 10) {
             searchBar
-            addButton
+            addButton(size: 44)
                 .padding(10)
-                .frame(width: 44, height: 44, alignment: .center)
-                .coloredBackgroundButton(.circle)
-                .impactHaptic()
         }
-        .padding(.horizontal, searchBarAlignment == .bottom ? 22 : 16)
+        .padding(.horizontal, 22)
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(.bar)
@@ -274,12 +282,10 @@ private extension EntriesView {
             startPoint: UnitPoint(x: 0.5, y: 1),
             endPoint: UnitPoint(x: 0.5, y: 0)))
         .overlay(alignment: .top) {
-            if searchBarAlignment == .bottom {
-                // Top border line
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundStyle(.actionBarBorder)
-            }
+            // Top border line
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundStyle(.actionBarBorder)
         }
     }
 
@@ -303,6 +309,16 @@ private extension EntriesView {
                           searchFieldFocus = false
                       }
                       .impactHaptic()
+
+            Button(action: {
+                viewModel.query = ""
+            }, label: {
+                Image(systemName: "xmark.circle.fill")
+                    .fontWeight(.medium)
+                    .foregroundStyle(.textWeak)
+                    .animation(.default, value: viewModel.query.isEmpty)
+                    .opacity(viewModel.query.isEmpty ? 0 : 1)
+            })
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -319,11 +335,14 @@ private extension EntriesView {
                                       blue: 0.06).opacity(0.8)))
     }
 
-    var addButton: some View {
+    func addButton(size: CGFloat) -> some View {
         Button(action: handleAddNewCode) {
             plusIcon
         }
         .adaptiveButtonStyle()
+        .frame(width: size, height: size, alignment: .center)
+        .coloredBackgroundButton(.circle)
+        .impactHaptic()
     }
 
     func handleAddNewCode() {
@@ -388,9 +407,7 @@ private extension EntriesView {
                     .impactHaptic()
                 }
                 .foregroundStyle(.textNorm)
-            }
-            // Empty search overlay
-            if viewModel.entries.isEmpty, viewModel.dataState != .loading, !viewModel.query.isEmpty {
+            } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()
                     Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
@@ -409,9 +426,6 @@ private extension EntriesView {
                 }
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
@@ -443,16 +457,16 @@ private extension EntriesView {
     @ViewBuilder
     var trailingContent: some View {
         HStack {
-            if AppConstants.isIpad, !viewModel.entries.isEmpty {
+            if AppConstants.isIpad {
                 Button {
-                    withAnimation {
-                        isEditing.toggle()
-                    }
+                    isEditing.toggle()
                 } label: {
                     Text(isEditing ? "Done" : "Edit", bundle: .module)
                         .fontWeight(.medium)
                         .foregroundStyle(isEditing ? .textNorm : .textWeak)
+                        .disableAnimations()
                 }
+                .opacity(viewModel.entries.isEmpty ? 0 : 1)
             }
             Button {
                 router.presentedSheet = .settings

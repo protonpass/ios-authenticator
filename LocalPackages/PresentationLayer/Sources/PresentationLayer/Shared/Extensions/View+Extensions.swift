@@ -24,21 +24,6 @@ import SwiftUI
 // MARK: - View builder functions
 
 public extension View {
-    // periphery:ignore
-    /// Applies the given transform if the given condition evaluates to `true`.
-    /// - Parameters:
-    ///   - condition: The condition to evaluate.
-    ///   - transform: The transform to apply to the source `View`.
-    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
-    @ViewBuilder
-    func `if`(_ condition: @autoclosure () -> Bool, transform: (Self) -> some View) -> some View {
-        if condition() {
-            transform(self)
-        } else {
-            self
-        }
-    }
-
     /// Applies the given transform if the given value is not nil.
     /// - Parameters:
     ///   - value: The optional value.
@@ -75,6 +60,13 @@ public extension View {
         } else {
             alert(title, isPresented: isPresented, actions: actions)
         }
+    }
+
+    func errorMessageAlert(_ message: Binding<String?>) -> some View {
+        alert(Text("An error occurred", bundle: .module),
+              isPresented: message.mappedToBool(),
+              actions: {},
+              message: { Text(verbatim: message.wrappedValue ?? "") })
     }
 }
 

@@ -84,6 +84,7 @@ struct CreateEditEntryView: View {
             }
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
+            .errorMessageAlert($viewModel.errorMessage)
             #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
             #endif
