@@ -208,7 +208,6 @@ public extension EntryDataService {
         totpUpdate(entries.map(\.entry))
     }
 
-    // TODO: need to push local key
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
         await task?.value
@@ -219,40 +218,14 @@ public extension EntryDataService {
             do {
                 try await repository.fetchAndSaveRemoteKeys()
 
-                guard let remoteOrderedEntries = try await repository.fetchRemoteEntries() else {
-                    return
-                }
+                let remoteOrderedEntries = try await repository.fetchRemoteEntries()
 
                 if Task.isCancelled { return }
                 let entriesStates = try await repository.getAllLocalEntries()
 
-                let operations = try syncOperation
-                    .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
-                                         local: entriesStates.toLocalEntries)
-
-                for operation in operations {
-                    switch operation.operation {
-                    case .upsert:
-                        try await save(operation.entry.toEntry, syncState: .synced, remotePush: false)
-                    case .deleteLocal:
-                        try await deleteEntry(with: operation.entry.id, remotePush: false)
-                    case .deleteLocalAndRemote:
-                        try await deleteEntry(with: operation.entry.id, remotePush: true)
-                    case .push:
-                        try await save(operation.entry.toEntry, syncState: .unsynced, remotePush: true)
-                    case .conflict:
-                        guard let remoteEntry = remoteOrderedEntries.first(where: { operation.entry.id == $0.id }),
-                              let localEntry = entriesStates.decodedEntries
-                              .first(where: { operation.entry.id == $0.id }) else {
-                            return
-                        }
-                        if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                            try await updateEntry(entry: remoteEntry.entry, remotePush: false)
-                        } else {
-                            try await updateEntry(entry: localEntry.entry, remotePush: true)
-                        }
-                    }
-                }
+                try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
+           
+                // swiftlint:disable:next todo
                 // TODO: reorder if remote and local not same remote should be
 
             } catch {
@@ -460,6 +433,36 @@ private extension EntryDataService {
         }
 
         dataState = .loaded(entryUiModels)
+    }
+    
+    func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws {
+        let operations = try syncOperation
+            .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
+                                 local: entriesStates.toLocalEntries)
+
+        for operation in operations {
+            switch operation.operation {
+            case .upsert:
+                try await save(operation.entry.toEntry, syncState: .synced, remotePush: false)
+            case .deleteLocal:
+                try await deleteEntry(with: operation.entry.id, remotePush: false)
+            case .deleteLocalAndRemote:
+                try await deleteEntry(with: operation.entry.id, remotePush: true)
+            case .push:
+                try await save(operation.entry.toEntry, syncState: .unsynced, remotePush: true)
+            case .conflict:
+                guard let remoteEntry = remoteOrderedEntries.first(where: { operation.entry.id == $0.id }),
+                      let localEntry = entriesStates.decodedEntries
+                      .first(where: { operation.entry.id == $0.id }) else {
+                    return
+                }
+                if remoteEntry.modifiedTime > localEntry.modifiedTime {
+                    try await updateEntry(entry: remoteEntry.entry, remotePush: false)
+                } else {
+                    try await updateEntry(entry: localEntry.entry, remotePush: true)
+                }
+            }
+        }
     }
 }
 

@@ -82,6 +82,14 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.userSessionManager)
+    private(set) var userSessionManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private(set) var logger
+
     #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
@@ -96,6 +104,10 @@ final class EntriesViewModel: ObservableObject {
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
+
+    var isAuthenticated: Bool {
+        userSessionManager.isAuthenticated.value
+    }
 
     init() {
         searchTextStream
@@ -125,6 +137,17 @@ final class EntriesViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
+    func fullSync() {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await entryDataService.fullRefresh()
             } catch {
                 handle(error)
             }
@@ -182,9 +205,8 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
-    func handle(_ error: any Error) {
-        // swiftlint:disable:next todo
-        // TODO: Log
+    func handle(_ error: any Error, function: String = #function, line: Int = #line) {
+        logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
         alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

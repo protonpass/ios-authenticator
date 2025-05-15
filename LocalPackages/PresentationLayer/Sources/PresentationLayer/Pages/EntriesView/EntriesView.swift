@@ -87,8 +87,9 @@ public struct EntriesView: View {
                         withAnimation {
                             searchFieldFocus = viewModel.focusSearchOnLaunch
                         }
-
-                        // TODO: fetch remote
+                        if viewModel.isAuthenticated {
+                            viewModel.fullSync()
+                        }
                     }
                 }
                 .sheetDestinations($router.presentedSheet)

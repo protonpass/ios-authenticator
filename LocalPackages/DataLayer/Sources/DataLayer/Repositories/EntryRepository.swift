@@ -57,7 +57,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Proton BE
 
     func fetchAndSaveRemoteKeys() async throws
-    func fetchRemoteEntries() async throws -> [OrderedEntry]?
+    func fetchRemoteEntries() async throws -> [OrderedEntry]
 }
 
 public extension EntryRepositoryProtocol {
@@ -113,7 +113,8 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
             .sink { [weak self] authStatus in
                 guard let self, authStatus else { return }
                 pushLocalKey()
-            }.store(in: &cancellables)
+            }
+            .store(in: &cancellables)
     }
 }
 
@@ -234,6 +235,7 @@ public extension EntryRepository {
             guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
             entry.updateOrder(newOrder: orderedEntry.order)
         }
+        // swiftlint:disable:next todo
         // TODO: maybe check if the moved item is synched and maybe have a multi order function
         if isAuthenticated, remotePush, let entryIdMoved {
             try await remoteOrdering(entryId: entryIdMoved, entries: encryptedEntries)
@@ -278,9 +280,9 @@ public extension EntryRepository {
     }
 
     func fetchAndSaveRemoteKeys() async throws {
-        guard userSessionManager.isAuthenticated.value else {
-            return
-        }
+//        guard userSessionManager.isAuthenticated.value else {
+//            return
+//        }
 
         let encryptedKeysData = try await apiClient.getKeys()
 
@@ -302,10 +304,10 @@ public extension EntryRepository {
         _ = try await apiClient.storeKey(encryptedKey: encryptedKey)
     }
 
-    func fetchRemoteEntries() async throws -> [OrderedEntry]? {
-        guard userSessionManager.isAuthenticated.value else {
-            return nil
-        }
+    func fetchRemoteEntries() async throws -> [OrderedEntry] {
+//        guard userSessionManager.isAuthenticated.value else {
+//            return nil
+//        }
         let encryptedEntries = try await apiClient.getEntries()
 
         var entries: [OrderedEntry] = []
