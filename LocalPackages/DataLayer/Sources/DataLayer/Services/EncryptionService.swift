@@ -50,7 +50,7 @@ public protocol EncryptionServicing: Sendable {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 
-    func symmetricEncrypt<T: Codable>(object: T) throws -> Data
+    func symmetricEncrypt(object: some Codable) throws -> Data
     func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
 
     // MARK: - Proton BE

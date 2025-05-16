@@ -63,7 +63,7 @@ public protocol UserInfoProviding: Sendable {
     // periphery:ignore
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
-    func userKeyEncrypt<T: Codable>(object: T) throws -> String
+    func userKeyEncrypt(object: some Codable) throws -> String
     func userKeyDecrypt /* <T: Codable> */ (keyId: String, data: String) throws -> Data
 }
 

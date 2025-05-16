@@ -62,7 +62,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 
 public extension EntryRepositoryProtocol {
     func save(_ entry: any IdentifiableOrderedEntry, remotePush: Bool) async throws {
-        try await save([entry], remotePush: false)
+        try await save([entry], remotePush: remotePush)
     }
 }
 

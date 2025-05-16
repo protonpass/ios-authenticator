@@ -46,10 +46,10 @@ public protocol KeychainServicing: Sendable {
     func get<T: Decodable & Sendable>(key: String,
                                       ofType itemClassType: ItemClassType,
                                       shouldSync: Bool?) throws -> T
-    func set<T: Encodable & Sendable>(_ item: T,
-                                      for key: String,
-                                      config: KeychainQueryConfig,
-                                      shouldSync: Bool?) throws
+    func set(_ item: some Encodable & Sendable,
+             for key: String,
+             config: KeychainQueryConfig,
+             shouldSync: Bool?) throws
     func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
     func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
     func clear(key: String, shouldSync: Bool?) throws
