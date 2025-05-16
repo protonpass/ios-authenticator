@@ -39,6 +39,7 @@ struct ScannerView: View {
                     regionOfInterest: $regionOfInterest) { [weak viewModel] results in
             viewModel?.processPayload(results: results)
         }
+        .edgesIgnoringSafeArea(.all)
         .onChange(of: viewModel.shouldDismiss) {
             dismiss()
         }
@@ -51,7 +52,7 @@ struct ScannerView: View {
                       matching: .images,
                       photoLibrary: .shared())
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(regionOfInterestOverlay)
+        .overlay(regionOfInterestOverlay.edgesIgnoringSafeArea(.all))
     }
 }
 

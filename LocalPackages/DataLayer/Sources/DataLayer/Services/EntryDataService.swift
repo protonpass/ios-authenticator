@@ -223,15 +223,23 @@ public extension EntryDataService {
                 if Task.isCancelled { return }
                 let entriesStates = try await repository.getAllLocalEntries()
 
+                // TODO: if diffs than sync other ignore.
+
+                guard entriesStates.decodedEntries != remoteOrderedEntries else {
+                    return
+                }
+
                 try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
 
                 // swiftlint:disable:next todo
-                // TODO: reorder if remote and local not same remote should be
-
+                // TODO: reorder if remote and local not same remote should be and push
+                let newOrderedItems = reorderItems(localItems: entriesStates.decodedEntries,
+                                                   remoteItems: remoteOrderedEntries)
+                let entries = try await generateUIEntries(from: newOrderedItems)
+//                log(.debug, "Loaded \(entries.count) entries.")
+                updateData(entries)
             } catch {
-                log(.error, "Failed to load entries: \(error)")
-                if let data = dataState.data, !data.isEmpty { return }
-                dataState = .failed(error)
+                log(.error, "Failed to fullRefresh: \(error)")
             }
         }
     }
@@ -463,6 +471,41 @@ private extension EntryDataService {
                 }
             }
         }
+    }
+
+    func reorderItems(localItems: [OrderedEntry], remoteItems: [OrderedEntry]) -> [OrderedEntry] {
+        // Step 1: Merge items by `id` with conflict resolution
+        var currentItems = [String: OrderedEntry]()
+        for item in localItems + remoteItems {
+            if let existing = currentItems[item.id] {
+                if item.order != existing.order {
+                    // Resolve by most recently modified
+                    currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
+                } else {
+                    // Same order: keep existing (or latest modified if desired)
+                    currentItems[item.id] = existing
+                }
+            } else {
+                currentItems[item.id] = item
+            }
+        }
+
+        // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
+        let mergedItems = currentItems.values.sorted { $0.order < $1.order && $0.modifiedTime < $1.modifiedTime }
+            .enumerated().map { index, item in
+                item.updateOrder(index)
+            }
+//
+//        // Step 3: Rewrite `order` to ensure uniqueness and stability
+//        for (index, item) in mergedItems.enumerated() {
+//            mergedItems[index] = item.updateOrder(index)
+//        }
+//        //TODO: save new order if changes detected
+//
+
+        return mergedItems
+
+        //
     }
 }
 

@@ -20,9 +20,9 @@
 
 import Foundation
 
-public struct OrderedEntry: IdentifiableOrderedEntry {
+public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public let entry: Entry
-    public let order: Int
+    public var order: Int
     public let syncState: EntrySyncState
     public let creationDate: TimeInterval
     public let modifiedTime: TimeInterval
@@ -49,4 +49,10 @@ public struct OrderedEntry: IdentifiableOrderedEntry {
     }
 
     public var id: String { entry.id }
+
+    public func updateOrder(_ newOrder: Int) -> OrderedEntry {
+        var updatedSelf = self
+        updatedSelf.order = newOrder
+        return updatedSelf
+    }
 }

@@ -105,6 +105,9 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
+    @ObservationIgnored
+    private var fullSyncTask: Task<Void, Never>?
+
     var isAuthenticated: Bool {
         userSessionManager.isAuthenticated.value
     }
@@ -118,6 +121,15 @@ final class EntriesViewModel: ObservableObject {
             .sink { [weak self] newSearch in
                 guard let self else { return }
                 lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            }
+            .store(in: &cancellables)
+
+        userSessionManager.isAuthenticated
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self, status else { return }
+                fullSync()
             }
             .store(in: &cancellables)
     }
@@ -144,7 +156,10 @@ final class EntriesViewModel: ObservableObject {
     }
 
     func fullSync() {
-        Task { [weak self] in
+        guard fullSyncTask == nil else {
+            return
+        }
+        fullSyncTask = Task { [weak self] in
             guard let self else { return }
             do {
                 try await entryDataService.fullRefresh()
