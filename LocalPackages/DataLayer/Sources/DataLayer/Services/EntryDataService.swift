@@ -492,20 +492,15 @@ private extension EntryDataService {
 
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedItems = currentItems.values.sorted { $0.order < $1.order && $0.modifiedTime < $1.modifiedTime }
-            .enumerated().map { index, item in
+            .enumerated()
+            .map { index, item in
                 item.updateOrder(index)
             }
-//
-//        // Step 3: Rewrite `order` to ensure uniqueness and stability
-//        for (index, item) in mergedItems.enumerated() {
-//            mergedItems[index] = item.updateOrder(index)
-//        }
-//        //TODO: save new order if changes detected
+
+//        //TODO: save new order if changes detected need to implement
 //
 
         return mergedItems
-
-        //
     }
 }
 
