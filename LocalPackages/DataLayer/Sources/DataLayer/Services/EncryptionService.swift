@@ -43,7 +43,7 @@ public protocol EncryptionServicing: Sendable {
     var keyId: String { get }
     var localEncryptionKey: Data { get throws }
 
-    func encrypt(entry: Entry) throws -> Data
+    func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
     // periphery:ignore
@@ -80,6 +80,7 @@ public final class EncryptionService: EncryptionServicing {
         self.keysProvider = keysProvider
         keyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
+        _ = try? localEncryptionKey
     }
 
     public var localEncryptionKey: Data {
@@ -111,6 +112,8 @@ public extension EncryptionService {
         }
         let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
         let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
+                                        keyId: entry.keyId,
+                                        remoteId: entry.remoteId.nilIfEmpty,
                                         order: entry.order,
                                         syncState: EntrySyncState(rawValue: entry.syncState) ?? .unsynced,
                                         creationDate: entry.creationDate,
@@ -128,12 +131,12 @@ public extension EncryptionService {
         }
     }
 
-    func encrypt(entry: Entry) throws -> Data {
-        let localKey = try localEncryptionKey
+    func encrypt(entry: Entry, keyId: String) throws -> Data {
+        let encryptionKey = try getEncryptionKey(for: keyId)
         log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
-                                                    key: localKey)
+                                                    key: encryptionKey)
     }
 
     func encrypt(entries: [Entry]) throws -> [Data] {
@@ -163,6 +166,8 @@ public extension EncryptionService {
 
 public extension EncryptionService {
     func saveProtonKey(keyId: String, key: Data) throws {
+        log(.info, "Saving remote proton key with id \(keyId)")
+
         try keychain.set(key, for: keyId, shouldSync: false)
     }
 

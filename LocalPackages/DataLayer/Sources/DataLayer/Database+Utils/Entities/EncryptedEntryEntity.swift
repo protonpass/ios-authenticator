@@ -25,6 +25,7 @@ import SwiftData
 @Model
 public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
     public private(set) var id: String = UUID().uuidString
+    public private(set) var remoteId: String = ""
     public private(set) var encryptedData = Data()
     public private(set) var keyId: String = ""
     public private(set) var order: Int = 0
@@ -36,11 +37,12 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var revision: Int = 0
 
     public var isSynced: Bool {
-        syncState == EntrySyncState.synced.rawValue
+        syncState == EntrySyncState.synced.rawValue && !remoteId.isEmpty
     }
 
     public init(id: String,
                 encryptedData: Data,
+                remoteId: String,
                 keyId: String,
                 order: Int,
                 syncState: EntrySyncState,
@@ -75,5 +77,9 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
         syncState = newState.rawValue
+    }
+
+    func updateRemoteId(_ newRemoteId: String) {
+        remoteId = newRemoteId
     }
 }

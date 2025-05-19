@@ -22,6 +22,8 @@ import Foundation
 
 public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public let entry: Entry
+    public let keyId: String
+    public let remoteId: String?
     public var order: Int
     public let syncState: EntrySyncState
     public let creationDate: TimeInterval
@@ -31,6 +33,8 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public let contentFormatVersion: Int
 
     public init(entry: Entry,
+                keyId: String,
+                remoteId: String?,
                 order: Int,
                 syncState: EntrySyncState = .unsynced,
                 creationDate: TimeInterval = Date().timeIntervalSince1970,
@@ -45,6 +49,8 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
         self.modifiedTime = modifiedTime
         self.revision = revision
         self.flags = flags
+        self.keyId = keyId
+        self.remoteId = remoteId
         self.contentFormatVersion = contentFormatVersion
     }
 
@@ -54,5 +60,29 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
         var updatedSelf = self
         updatedSelf.order = newOrder
         return updatedSelf
+    }
+
+    public static func == (lhs: OrderedEntry, rhs: OrderedEntry) -> Bool {
+        lhs.entry == rhs.entry &&
+            lhs.keyId == rhs.keyId &&
+            lhs.remoteId == rhs.remoteId &&
+            lhs.order == rhs.order &&
+            lhs.syncState == rhs.syncState &&
+            lhs.flags == rhs.flags &&
+            lhs.revision == rhs.revision &&
+            lhs.contentFormatVersion == rhs.contentFormatVersion
+        // creationDate and modifiedTime are intentionally excluded
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(entry)
+        hasher.combine(keyId)
+        hasher.combine(remoteId)
+        hasher.combine(order)
+        hasher.combine(syncState)
+        hasher.combine(flags)
+        hasher.combine(revision)
+        hasher.combine(contentFormatVersion)
+        // creationDate and modifiedTime are intentionally excluded
     }
 }

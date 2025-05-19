@@ -176,8 +176,14 @@ extension [OrderedEntry] {
 }
 
 extension OrderedEntry {
-    var toRemoteEntry: RemoteEntry {
-        RemoteEntry(remoteId: id, entry: entry.toRustEntry)
+    var toRemoteEntry: RemoteEntry? {
+        guard let remoteId else {
+            #if !targetEnvironment(simulator)
+            assert(remoteId, "Should have a remoteId to convert to a RemoteEntry")
+            #endif
+            return nil
+        }
+        return RemoteEntry(remoteId: remoteId, entry: entry.toRustEntry)
     }
 }
 

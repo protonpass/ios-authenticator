@@ -189,6 +189,9 @@ private extension SettingsService {
 
 private extension UserDefaults {
     func value<T: IntegerDefaulting>(for key: String) -> T {
-        T(rawValue: integer(forKey: key)) ?? .default
+        guard let number = object(forKey: key) as? Int else {
+            return .default
+        }
+        return T(rawValue: number) ?? .default
     }
 }

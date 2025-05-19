@@ -24,8 +24,6 @@ import ProtonCoreLogin
 import ProtonCoreServices
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
-
-    
     // MARK: - APIManagerProtocol
 
     public var isAuthenticated = CurrentValueSubject<Bool, Never>(false)
@@ -94,6 +92,10 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
 
      init(apiService: APIService = PMAPIService.dummyService()) {
         self.apiService = apiService
+    }
+    
+    public func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String? {
+        nil
     }
 }
 

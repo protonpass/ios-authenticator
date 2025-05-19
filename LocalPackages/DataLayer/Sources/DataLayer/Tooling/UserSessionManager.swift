@@ -64,7 +64,8 @@ public protocol UserInfoProviding: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     func userKeyEncrypt(object: some Codable) throws -> String
-    func userKeyDecrypt /* <T: Codable> */ (keyId: String, data: String) throws -> Data
+    func userKeyDecrypt(keyId: String, data: String) throws -> Data
+    func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String?
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -152,7 +153,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
                                                           challengeParametersProvider: challengeProvider)
             isAuthenticated.send(!credentials.credential.isForUnauthenticatedSession)
         } catch {
-            logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
+            logger.log(.warning, category: .network, "Couldn't get credentials from keychain: \(error)")
             newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
                                                                         challengeParametersProvider: challengeProvider)
         }
@@ -395,8 +396,6 @@ extension UserSessionManager: APIServiceDelegate {
     }
 
     public func isReachable() -> Bool {
-        // swiftlint:disable:next todo
-        // TODO: Handle this
         true
     }
 }
@@ -474,11 +473,16 @@ public extension UserSessionManager {
         return try encryptedData.unArmor().value.base64EncodedString()
     }
 
-    func userKeyDecrypt /* <T: Codable> */ (keyId: String, data: String) throws -> Data {
+    func userKeyDecrypt(keyId: String, data: String) throws -> Data {
         log(.info, "Decrypting with user key")
         guard let userData else {
             log(.info, "Missing user data")
             throw AuthError.generic(.missingUserData)
+        }
+
+        guard let userKey = userData.user.keys.first(where: { $0.keyID == keyId }),
+              userKey.active == 1 else {
+            throw AuthError.crypto(.inactiveUserKey(userKeyId: keyId))
         }
 
         guard let encryptedData = try data.base64Decode() else {
@@ -499,6 +503,16 @@ public extension UserSessionManager {
                                                                          verificationKeys: verificationKeys)
 
         return decryptedData.content
+    }
+
+    func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String? {
+        guard let userData else {
+            throw AuthError.generic(.missingUserData)
+        }
+
+        return remoteKeyIds.first { remoteKeyId in
+            userData.user.keys.contains(where: { $0.keyID == remoteKeyId && $0.active == 1 })
+        }
     }
 
     private func armorMessage(_ message: Data) throws -> String {

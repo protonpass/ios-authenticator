@@ -23,7 +23,7 @@ import Models
 
 extension RemoteEncryptedKey {
     static var mock: RemoteEncryptedKey {
-        .init(keyID: "id", key: "default")
+        .init(keyID: "id", userKeyID: "userKeyId", key: "default")
     }
 }
 

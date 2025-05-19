@@ -33,14 +33,17 @@ enum MockKeychainError: Error {
 @Suite(.tags(.repository))
 struct EntryRepositoryTests {
     let sut: EntryRepositoryProtocol
-
+    let encryptionService: any EncryptionServicing
+    
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
+        
+        encryptionService = EncryptionService(keychain: MockKeychainService(),
+                                                                                  keysProvider: MockKeyProvider(),
+                                                                                    logger: MockLogger())
         sut = EntryRepository(persistentStorage: persistenceService,
-                              encryptionService: EncryptionService(keychain: MockKeychainService(),
-                                                                                                        keysProvider: MockKeyProvider(),
-                                                                                                          logger: MockLogger()),
+                              encryptionService: encryptionService,
                               apiClient: MockAPIClient(),
                               userSessionManager: MockUserSessionTooling(),
                               store: UserDefaults()
@@ -182,7 +185,7 @@ struct EntryRepositoryTests {
                                                 issuer: "SimpleLogin",
                                                 secret: "CKTQQJVWT5IXTGD",
                                               type: .totp,
-                                              note: "Note"), order: 0)
+                                              note: "Note"), order: 0, keyId: encryptionService.keyId)
        
         try await sut.save(entry, remotePush: false)
         
@@ -200,7 +203,7 @@ struct EntryRepositoryTests {
                            issuer: "SimpleLogin",
                            secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
-                                               note: "Note"), order:1)
+                                               note: "Note"), order:1, keyId: encryptionService.keyId)
        
         try await sut.save(entry2, remotePush: false)
         entries = try await sut.getAllLocalEntries().decodedEntries
@@ -222,7 +225,7 @@ struct EntryRepositoryTests {
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
-                                               order: 0
+                                              order: 0, keyId: encryptionService.keyId
                                                ),
                                         .init(  entry: Entry(id: "id2",
                               name: "Test2",
@@ -231,7 +234,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                      note: "Note"), order:1),
+                                                             note: "Note"), order:1, keyId: encryptionService.keyId),
                                         .init(  entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -239,7 +242,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                              note: "Note"), order: 2)
+                                                             note: "Note"), order: 2, keyId: encryptionService.keyId)
         ]
         
         try await sut.save(entries, remotePush: false)
@@ -259,7 +262,7 @@ struct EntryRepositoryTests {
                                                             issuer: "SimpleLogin",
                                                             secret: "CKTQQJVWT5IXTGD",
                                                             type: .totp,
-                                                            note: "Note"), order: 0),
+                                                            note: "Note"), order: 0, keyId: encryptionService.keyId),
                                         .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -267,7 +270,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                            note: "Note"), order:1),
+                                                            note: "Note"), order:1, keyId: encryptionService.keyId),
                                         .init(entry:  Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -275,7 +278,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                            note: "Note"), order: 2),
+                                                            note: "Note"), order: 2, keyId: encryptionService.keyId),
         ]
         
        
@@ -297,7 +300,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 0),
+                                                          note: "Note"), order: 0, keyId: encryptionService.keyId),
                                       .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -305,7 +308,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1),
+                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
                                       .init(entry:   Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -313,7 +316,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                              note: "Note"), order: 2),
+                                                           note: "Note"), order: 2, keyId: encryptionService.keyId),
         ]
         
        
@@ -342,7 +345,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"),order: 0),
+                                                          note: "Note"),order: 0, keyId: encryptionService.keyId),
                                       .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -350,7 +353,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1),
+                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
                                       .init(entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -358,7 +361,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2)
+                                                         note: "Note"),order: 2, keyId: encryptionService.keyId)
         ]
         
         let newEntry1 =  OrderedEntry(entry: Entry(id: "id",
@@ -368,7 +371,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                   note: "new note"), order: 3)
+                                                   note: "new note"), order: 3, keyId: encryptionService.keyId)
         
         try await sut.save(entries, remotePush: false)
 
@@ -392,7 +395,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"),order: 0),
+                                                          note: "Note"),order: 0, keyId: encryptionService.keyId),
                                       .init(entry:  Entry(id: "id1",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -400,7 +403,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1),
+                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
                                       .init(entry: Entry(id: "id2",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -408,7 +411,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2),
+                                                         note: "Note"),order: 2, keyId: encryptionService.keyId),
                                       OrderedEntry(entry: Entry(id: "id3",
                                                             name: "Test",
                                                             uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -416,7 +419,7 @@ struct EntryRepositoryTests {
                                                             issuer: "SimpleLogin",
                                                             secret: "CKTQQJVWT5IXTGD",
                                                             type: .totp,
-                                                                                 note: "new note"), order: 3)
+                                                                note: "new note"), order: 3, keyId: encryptionService.keyId)
         ]
         
         let reorderEntries:[OrderedEntry] = [.init(entry:  Entry(id: "id3",
@@ -426,7 +429,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"),order: 0),
+                                                                 note: "Note"),order: 0, keyId: encryptionService.keyId),
                                       .init(entry:  Entry(id: "id1",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -434,7 +437,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1),
+                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
                                       .init(entry: Entry(id: "id2",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -442,7 +445,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2),
+                                                         note: "Note"),order: 2, keyId: encryptionService.keyId),
                                              OrderedEntry(entry: Entry(id: "id0",
                                                                        name: "Test",
                                                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -450,7 +453,7 @@ struct EntryRepositoryTests {
                                                                        issuer: "SimpleLogin",
                                                                        secret: "CKTQQJVWT5IXTGD",
                                                                        type: .totp,
-                                                                       note: "new note"), order: 3)
+                                                                       note: "new note"), order: 3, keyId: encryptionService.keyId)
         ]
         
         
@@ -474,7 +477,7 @@ struct EntryRepositoryTests {
 }
 
 extension OrderedEntry {
-    init(entry: Entry, order: Int) {
-        self.init(entry: entry, order: order, revision: 1, contentFormatVersion: 1)
+    init(entry: Entry, order: Int, keyId: String) {
+        self.init(entry: entry, keyId: keyId, remoteId: nil, order: order, revision: 1, contentFormatVersion: 1)
     }
 }

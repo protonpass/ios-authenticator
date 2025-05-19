@@ -35,14 +35,15 @@ struct GetKeysTest {
     "Keys": [
       {
         "Key": "abcdefg==",
-        "KeyID": "string"
+        "KeyID": "string",
+        "UserKeyID": "userKeyId"
       }
     ]
   }
 }
 """
 
-        let remoteEncryptedKey = RemoteEncryptedKey(keyID: "string", key: "abcdefg==")
+        let remoteEncryptedKey = RemoteEncryptedKey(keyID: "string", userKeyID: "userKeyId", key: "abcdefg==")
         let paginatedKeys = PaginatedKeys(keys: [remoteEncryptedKey])
         let expectedResult = GetKeysResponse(keys: paginatedKeys)
 

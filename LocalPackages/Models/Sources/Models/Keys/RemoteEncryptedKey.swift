@@ -22,16 +22,20 @@ public struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
     // An encrypted ID
     public let keyID: String
 
+    public let userKeyID: String
+
     // Base64 representation of the authenticator key encrypted with the user key
     public let key: String
 
-    public init(keyID: String, key: String) {
+    public init(keyID: String, userKeyID: String, key: String) {
         self.keyID = keyID
+        self.userKeyID = userKeyID
         self.key = key
     }
 
     public enum CodingKeys: CodingKey {
         case keyID
         case key
+        case userKeyID
     }
 }
