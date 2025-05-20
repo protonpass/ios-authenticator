@@ -35,7 +35,8 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
                                encryptionService: ServiceContainer.shared.encryptionService(),
                                apiClient: ToolsContainer.shared.apiClient(),
                                userSessionManager: ServiceContainer.shared.userSessionManager(),
-                               store: kSharedUserDefaults) }
+                               store: kSharedUserDefaults,
+                               logger: ToolsContainer.shared.logManager()) }
     }
 
     // MARK: - Data sources

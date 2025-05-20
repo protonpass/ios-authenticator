@@ -139,6 +139,18 @@ public extension LoggerProtocol {
     }
 }
 
+protocol LoggingImplemented {
+    var logger: LoggerProtocol { get }
+
+    func log(_ level: LogLevel, _ message: String, function: String, line: Int)
+}
+
+extension LoggingImplemented {
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
+    }
+}
+
 public final actor LogManager: LoggerProtocol {
     private let configuration: LogManagerConfiguration
     private let loggers: [LogCategory: Logger]
