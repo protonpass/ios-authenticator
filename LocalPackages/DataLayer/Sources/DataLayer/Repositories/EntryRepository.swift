@@ -557,4 +557,5 @@ extension [EncryptedEntryEntity] {
         }
     }
 }
+
 // swiftlint:enable line_length
