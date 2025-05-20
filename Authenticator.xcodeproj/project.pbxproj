@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 5B387F7B2D54CFD1006E0312 /* Factory */; };
+		5B58796C2DDC64C600CF7BF4 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5B58796B2DDC64C600CF7BF4 /* FactoryKit */; };
 		5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C982D5618E500E7BCD4 /* Macro */; };
 		5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */; };
 		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
@@ -144,10 +144,10 @@
 			files = (
 				5B8765742D527F9C00B4CC30 /* Models in Frameworks */,
 				5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */,
-				5B387F7C2D54CFD1006E0312 /* Factory in Frameworks */,
 				5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */,
 				5B5E0F7A2D6F6D5A00E7BCD4 /* CommonUtilities in Frameworks */,
 				5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */,
+				5B58796C2DDC64C600CF7BF4 /* FactoryKit in Frameworks */,
 				5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */,
 				5BF607E12D79FDB900904FC8 /* CloudKit.framework in Frameworks */,
 				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
@@ -262,12 +262,12 @@
 				5B8765712D527F9C00B4CC30 /* DomainLayer */,
 				5B8765732D527F9C00B4CC30 /* Models */,
 				5B8765752D527F9C00B4CC30 /* PresentationLayer */,
-				5B387F7B2D54CFD1006E0312 /* Factory */,
 				5B5E0C982D5618E500E7BCD4 /* Macro */,
 				5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */,
 				5B5E0D542D5A332D00E7BCD4 /* Sentry */,
 				5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */,
 				5B5E0F792D6F6D5A00E7BCD4 /* CommonUtilities */,
+				5B58796B2DDC64C600CF7BF4 /* FactoryKit */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -1136,7 +1136,7 @@
 			repositoryURL = "https://github.com/hmlongco/Factory";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.3;
+				minimumVersion = 2.5.1;
 			};
 		};
 		5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
@@ -1150,10 +1150,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		5B387F7B2D54CFD1006E0312 /* Factory */ = {
+		5B58796B2DDC64C600CF7BF4 /* FactoryKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */;
-			productName = Factory;
+			productName = FactoryKit;
 		};
 		5B5E0C982D5618E500E7BCD4 /* Macro */ = {
 			isa = XCSwiftPackageProductDependency;

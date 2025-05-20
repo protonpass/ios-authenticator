@@ -20,7 +20,7 @@
 
 import AuthenticatorRustCore
 import DataLayer
-import Factory
+import FactoryKit
 import LocalAuthentication
 import SimplyPersist
 import SwiftData

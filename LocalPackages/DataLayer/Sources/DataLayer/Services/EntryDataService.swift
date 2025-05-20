@@ -471,8 +471,7 @@ private extension EntryDataService {
         }
     }
 
-    func reorderItems( /* localItems: [OrderedEntry], remoteItems: [OrderedEntry] */ ) async throws
-        -> [OrderedEntry] {
+    func reorderItems( ) async throws -> [OrderedEntry] {
         async let remoteOrderedEntries = repository.fetchRemoteEntries()
         async let localEntriesFetch = repository.getAllLocalEntries()
 
@@ -497,8 +496,8 @@ private extension EntryDataService {
                 item.updateOrder(index)
             }
 
-//        //TODO: save new order if changes detected need to implement
-
+        // swiftlint:disable:next todo
+       // TODO: save new order if changes detected need to implement
         return mergedAndOrderedItems
     }
 }

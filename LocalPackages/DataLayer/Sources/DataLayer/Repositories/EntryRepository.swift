@@ -26,6 +26,7 @@ import Models
 import SimplyPersist
 import SwiftData
 
+// swiftlint:disable line_length
 public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Uri parsing and params from rust lib
 
@@ -190,8 +191,7 @@ public extension EntryRepository {
         log(.debug, "Saving \(entries.count) entries with remotePush: \(remotePush)")
         do {
             // Fetch entities that already exist for the ids (as we cannot leverage swiftdata .unique with icloud)
-            // to
-            // remove duplicates.
+            // to remove duplicates.
             let idsToFetch: [String] = entries.map(\.id)
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
                 idsToFetch.contains(entity.id)
@@ -213,6 +213,7 @@ public extension EntryRepository {
                 log(.debug, "Pushing \(encryptedEntries.count) entries to remote")
                 let remoteEntries = try await remoteSave(encryptedEntries)
                 encryptedEntries.updateSyncState(.synced, remoteEntries: remoteEntries)
+                try await persistentStorage.batchSave(content: encryptedEntries)
                 log(.info, "Successfully pushed \(remoteEntries.count) entries to remote")
             }
         } catch {
@@ -252,6 +253,7 @@ public extension EntryRepository {
         log(.info, "Successfully deleted entry \(entryId) from local storage")
     }
 
+    // swiftlint:disable:next todo
     // TODO: need maybe remote delete all ?
     func removeAll() async throws {
         log(.info, "Removing all entries from local storage")
@@ -292,12 +294,13 @@ public extension EntryRepository {
         }
     }
 
-    // TODO: factionnal index for ordering ?
+    // swiftlint:disable:next todo
+    // TODO: maybe imeplement factionnal index for ordering if the current reorder if to heavy?
     func updateOrder(entryIdMoved: String?,
                      _ entries: [any IdentifiableOrderedEntry],
                      remotePush: Bool) async throws {
         log(.debug,
-            "Updating order for \(entries.count) entries, moved entry ID: \(entryIdMoved ?? "none"), remotePush: \(remotePush)")
+            "Updating order for \(entries.count) entries, moved entry ID: \(entryIdMoved ?? "none")")
         do {
             let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
             log(.debug, "Found \(encryptedEntries.count) local entries for order update")
@@ -332,7 +335,7 @@ public extension EntryRepository {
 
         guard let remoteKeyId = store.string(forKey: remoteKeyId) else {
             log(.error, "No remote key ID registered for remote save")
-
+            // swiftlint:disable:next todo
             // TODO: maybe return error
             return []
         }
@@ -368,7 +371,6 @@ public extension EntryRepository {
 
             _ = try await apiClient.update(entryId: entryId, request: request)
             log(.info, "Successfully updated entry with id \(entryId) on remote")
-
         } catch {
             log(.error, "Failed to update entry with id \(entryId) on remote: \(error.localizedDescription)")
             throw error
@@ -538,7 +540,6 @@ private extension EntryRepository {
                 store.set(remoteKeyInfo?.keyID, forKey: remoteKeyId)
                 log(.info,
                     "Successfully pushed local encryption key, stored remote key ID: \(remoteKeyInfo?.keyID ?? "unknown")")
-
             } catch {
                 log(.error, "Failed in fetchOrPushLocalKey: \(error.localizedDescription)")
             }
@@ -556,3 +557,4 @@ extension [EncryptedEntryEntity] {
         }
     }
 }
+// swiftlint:enable line_length

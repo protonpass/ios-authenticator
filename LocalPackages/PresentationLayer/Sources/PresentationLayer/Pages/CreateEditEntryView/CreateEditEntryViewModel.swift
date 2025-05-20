@@ -21,7 +21,7 @@
 
 import AuthenticatorRustCore
 import CommonUtilities
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models

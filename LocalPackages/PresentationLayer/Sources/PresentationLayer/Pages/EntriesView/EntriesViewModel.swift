@@ -21,7 +21,7 @@
 
 import Combine
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models

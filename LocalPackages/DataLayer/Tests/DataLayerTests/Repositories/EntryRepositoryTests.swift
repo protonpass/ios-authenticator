@@ -46,7 +46,8 @@ struct EntryRepositoryTests {
                               encryptionService: encryptionService,
                               apiClient: MockAPIClient(),
                               userSessionManager: MockUserSessionTooling(),
-                              store: UserDefaults()
+                              store: UserDefaults(),
+                              logger: MockLogger()
         )
     }
     
@@ -210,13 +211,10 @@ struct EntryRepositoryTests {
 
         // Assert
         #expect(entries.count == 2)
-        
-
-        
     }
     
     @Test("Test saving mutiple entry in db")
-    func savingArrayofEntry() async throws {
+    func savingArrayOfEntry() async throws {
         let entries: [OrderedEntry] = [ .init(entry: Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
