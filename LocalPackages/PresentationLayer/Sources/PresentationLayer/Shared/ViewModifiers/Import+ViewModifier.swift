@@ -24,7 +24,7 @@ import DataLayer
 #if os(iOS)
 import DocScanner
 #endif
-import FactoryKit
+import Factory
 import Foundation
 import Models
 import PhotosUI

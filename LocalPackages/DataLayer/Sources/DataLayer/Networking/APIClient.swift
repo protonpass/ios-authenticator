@@ -128,7 +128,7 @@ public extension APIClient {
     }
 
     func changeOrder(entryId: String, request: NewOrderRequest) async throws {
-        log(.debug, "Changing order for entry ID: \(entryId), placed after entry ID: \(request.afterID)")
+        log(.debug, "Changing order for entry ID: \(entryId), placed after entry ID: \(request.afterID ?? "none")")
         let endpoint = ChangeEntryOrder(entryId: entryId, request: request)
         _ = try await exec(endpoint: endpoint)
     }

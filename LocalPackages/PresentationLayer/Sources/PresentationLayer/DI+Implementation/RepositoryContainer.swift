@@ -20,7 +20,7 @@
 
 import CommonUtilities
 import DataLayer
-import FactoryKit
+import Factory
 
 final class RepositoryContainer: SharedContainer, AutoRegistering {
     static let shared = RepositoryContainer()

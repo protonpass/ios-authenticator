@@ -60,6 +60,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.modifiedTime = modifiedTime
         self.flags = flags
         self.contentFormatVersion = contentFormatVersion
+        self.remoteId = remoteId
         self.revision = revision
     }
 

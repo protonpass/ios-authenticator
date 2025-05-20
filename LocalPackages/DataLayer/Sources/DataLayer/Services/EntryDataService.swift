@@ -237,7 +237,7 @@ public extension EntryDataService {
 //                log(.debug, "Loaded \(entries.count) entries.")
                 updateData(entries)
             } catch {
-                log(.error, "Failed to fullRefresh: \(error)")
+                log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
             }
         }
     }

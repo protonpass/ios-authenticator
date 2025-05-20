@@ -22,7 +22,7 @@
 import AVFoundation
 import CommonUtilities
 import DataLayer
-import FactoryKit
+import Factory
 import Models
 import SimpleToast
 import SwiftUI

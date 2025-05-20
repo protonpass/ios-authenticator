@@ -20,7 +20,7 @@
 
 import DataLayer
 import DomainLayer
-import FactoryKit
+import Factory
 import Foundation
 import Models
 import PresentationLayer

@@ -20,7 +20,7 @@
 
 import Combine
 import CommonUtilities
-import FactoryKit
+import Factory
 import Models
 import SwiftUI
 

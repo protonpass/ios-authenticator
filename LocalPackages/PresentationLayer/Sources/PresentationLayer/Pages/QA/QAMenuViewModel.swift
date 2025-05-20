@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import FactoryKit
+import Factory
 import Foundation
 
 @MainActor

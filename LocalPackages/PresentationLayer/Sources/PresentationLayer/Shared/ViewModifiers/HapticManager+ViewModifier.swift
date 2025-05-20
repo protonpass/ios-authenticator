@@ -22,7 +22,7 @@ import SwiftUI
 #if os(iOS)
 // periphery:ignore
 import DataLayer
-import FactoryKit
+import Factory
 import Foundation
 
 private struct HapticModifier: ViewModifier {
