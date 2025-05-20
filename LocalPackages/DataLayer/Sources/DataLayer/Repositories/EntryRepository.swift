@@ -75,18 +75,19 @@ public extension EntryRepositoryProtocol {
 // swiftlint:disable:next todo
 // TODO: take into account user settings for backup sync local data
 
-public final class EntryRepository: Sendable, EntryRepositoryProtocol {
+public final class EntryRepository: Sendable, EntryRepositoryProtocol, LoggingImplemented {
     private let rustClient: AuthenticatorMobileClientProtocol
     private let persistentStorage: any PersistenceServicing
     private let encryptionService: any EncryptionServicing
     private let apiClient: any APIClientProtocol
     private let userSessionManager: any UserSessionTooling
     private let store: UserDefaults
+    let logger: any LoggerProtocol
 
     private let entryContentFormatVersion = AppConstants.ContentFormatVersion.entry
     private nonisolated(unsafe) var cancellables: Set<AnyCancellable> = []
 
-    private let savingKeyId = AppConstants.Settings.hasPushedEncryptionKey
+    private let remoteKeyId = AppConstants.Settings.hasPushedEncryptionKey
 
     private var isAuthenticated: Bool {
         userSessionManager.isAuthenticated.value
@@ -97,6 +98,7 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
                 apiClient: any APIClientProtocol,
                 userSessionManager: any UserSessionTooling,
                 store: UserDefaults,
+                logger: any LoggerProtocol,
                 rustClient: any AuthenticatorMobileClientProtocol = AuthenticatorMobileClient()) {
         self.persistentStorage = persistentStorage
         self.encryptionService = encryptionService
@@ -104,15 +106,15 @@ public final class EntryRepository: Sendable, EntryRepositoryProtocol {
         self.userSessionManager = userSessionManager
         self.rustClient = rustClient
         self.store = store
+        self.logger = logger
 
-        store.register(defaults: [
-            savingKeyId: false
-        ])
+        log(.info, "Entry Repository initialized")
 
         userSessionManager.isAuthenticated
             .sink { [weak self] authStatus in
                 guard let self, authStatus else { return }
-                pushLocalKey()
+                log(.info, "User authentication status changed to: \(authStatus)")
+                fetchOrPushLocalKey()
             }
             .store(in: &cancellables)
     }
@@ -166,24 +168,57 @@ public extension EntryRepository {
 
 public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
-        let state = EntrySyncState.toDelete
-        let predicate = #Predicate<EncryptedEntryEntity> { $0.syncState != state.rawValue }
+        log(.debug, "Fetching all local entries")
+        do {
+            let state = EntrySyncState.toDelete
+            let predicate = #Predicate<EncryptedEntryEntity> { $0.syncState != state.rawValue }
 
-        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate,
-                                                                                         sortingDescriptor: [
-                                                                                             SortDescriptor(\.order)
-                                                                                         ])
-        return try encryptionService.decrypt(entries: encryptedEntries)
+            let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate,
+                                                                                             sortingDescriptor: [
+                                                                                                 SortDescriptor(\.order)
+                                                                                             ])
+            let entries = try encryptionService.decrypt(entries: encryptedEntries)
+            log(.info, "Successfully fetched \(entries.count) local entries")
+            return entries
+        } catch {
+            log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func save(_ entries: [any IdentifiableOrderedEntry], remotePush: Bool) async throws {
-        let encryptedEntries = try entries.map { try encrypt($0) }
+        log(.debug, "Saving \(entries.count) entries with remotePush: \(remotePush)")
+        do {
+            // Fetch entities that already exist for the ids (as we cannot leverage swiftdata .unique with icloud)
+            // to
+            // remove duplicates.
+            let idsToFetch: [String] = entries.map(\.id)
+            let predicate = #Predicate<EncryptedEntryEntity> { entity in
+                idsToFetch.contains(entity.id)
+            }
 
-        if remotePush, isAuthenticated {
-            try await remoteSave(encryptedEntries)
-            encryptedEntries.updateSyncState(.synced)
+            var encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate)
+            let currentLocalIds = encryptedEntries.map(\.id)
+            log(.debug, "Found \(encryptedEntries.count) existing entries")
+
+            let newEntries = entries.filter { !currentLocalIds.contains($0.id) }
+            log(.debug, "Adding \(newEntries.count) new entries")
+
+            encryptedEntries += try newEntries.map { try encrypt($0) }
+
+            try await persistentStorage.batchSave(content: encryptedEntries)
+            log(.info, "Successfully saved \(encryptedEntries.count) entries locally")
+
+            if remotePush, isAuthenticated {
+                log(.debug, "Pushing \(encryptedEntries.count) entries to remote")
+                let remoteEntries = try await remoteSave(encryptedEntries)
+                encryptedEntries.updateSyncState(.synced, remoteEntries: remoteEntries)
+                log(.info, "Successfully pushed \(remoteEntries.count) entries to remote")
+            }
+        } catch {
+            log(.error, "Failed to save entries: \(error.localizedDescription)")
+            throw error
         }
-        try await persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func remove(_ entry: Entry, remotePush: Bool) async throws {
@@ -191,151 +226,286 @@ public extension EntryRepository {
     }
 
     func remove(_ entryId: String, remotePush: Bool) async throws {
+        log(.debug, "Removing entry with ID: \(entryId), remotePush: \(remotePush)")
+
         if isAuthenticated {
+            guard let entity = try? await persistentStorage
+                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entryId }) else {
+                log(.warning, "Cannot find local entry with ID: \(entryId)")
+                return
+            }
             do {
-                try await remoteDelete(entryId: entryId)
+                log(.debug, "Attempting to delete entry \(entryId) from remote")
+                try await remoteDelete(entryId: entity.remoteId)
+                log(.info, "Successfully deleted entry \(entryId) from remote")
             } catch {
-                guard let entity = try? await persistentStorage
-                    .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entryId }) else {
-                    return
-                }
+                log(.warning, "Failed to delete entry \(entryId) from remote: \(error.localizedDescription)")
+                log(.debug, "Marking entry \(entryId) for deletion on next sync")
                 entity.updateSyncState(newState: .toDelete)
                 try? await persistentStorage.save(data: entity)
                 return
             }
         }
+        log(.debug, "Deleting entry \(entryId) from local storage")
         let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryId }
         try await persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
+        log(.info, "Successfully deleted entry \(entryId) from local storage")
     }
 
+    // TODO: need maybe remote delete all ?
     func removeAll() async throws {
+        log(.info, "Removing all entries from local storage")
         try await persistentStorage.deleteAll(dataTypes: [EncryptedEntryEntity.self])
+        log(.info, "Successfully removed all entries from local storage")
     }
 
     func update(_ entry: Entry, remotePush: Bool) async throws {
-        guard let entity = try await persistentStorage
-            .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
-            return
+        log(.debug, "Updating entry with ID: \(entry.id), remotePush: \(remotePush)")
+        do {
+            guard let entity = try await persistentStorage
+                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
+                log(.warning, "Cannot find local entry with ID: \(entry.id) for update")
+                return
+            }
+            log(.debug, "Found local entry, encrypting updated data")
+
+            let encryptedData = try encryptionService.encrypt(entry: entry, keyId: entity.keyId)
+            entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
+            try await persistentStorage.save(data: entity)
+            log(.info, "Successfully updated entry \(entry.id) in local storage")
+
+            if remotePush, isAuthenticated, entity.isSynced {
+                log(.debug, "Updating entry \(entry.id) on remote with revision \(entity.revision)")
+
+                do {
+                    try await remoteUpdate(entryId: entity.remoteId,
+                                           encryptedUpdatedEntry: encryptedData,
+                                           revision: entity.revision)
+                    log(.info, "Successfully updated entry \(entry.id) on remote")
+                } catch {
+                    log(.error, "Failed to update entry \(entry.id) remotely: \(error.localizedDescription)")
+                }
+            }
+        } catch {
+            log(.error, "Failed to update entry \(entry.id): \(error.localizedDescription)")
+            throw error
         }
-        let encryptedData = try encryptionService.encrypt(entry: entry)
-        if remotePush, isAuthenticated, entity.isSynced {
-            try await remoteUpdate(entryId: entity.id,
-                                   encryptedUpdatedEntry: encryptedData,
-                                   revision: entity.revision)
-        }
-        entity.updateEncryptedData(encryptedData, with: encryptionService.keyId)
-        try await persistentStorage.save(data: entity)
     }
 
+    // TODO: factionnal index for ordering ?
     func updateOrder(entryIdMoved: String?,
                      _ entries: [any IdentifiableOrderedEntry],
                      remotePush: Bool) async throws {
-        let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
-        for entry in encryptedEntries {
-            guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
-            entry.updateOrder(newOrder: orderedEntry.order)
+        log(.debug,
+            "Updating order for \(entries.count) entries, moved entry ID: \(entryIdMoved ?? "none"), remotePush: \(remotePush)")
+        do {
+            let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetchAll()
+            log(.debug, "Found \(encryptedEntries.count) local entries for order update")
+
+            for entry in encryptedEntries {
+                guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
+                entry.updateOrder(newOrder: orderedEntry.order)
+            }
+
+            try await persistentStorage.batchSave(content: encryptedEntries)
+            log(.info, "Successfully saved updated order to local storage")
+
+            // swiftlint:disable:next todo
+            // TODO: maybe check if the moved item is synched and maybe have a multi order function
+            if isAuthenticated, remotePush, let entryIdMoved {
+                log(.debug, "Updating order for entry \(entryIdMoved) on remote")
+                try await remoteOrdering(entryId: entryIdMoved, entries: encryptedEntries)
+                log(.info, "Successfully updated order for entry \(entryIdMoved) on remote")
+            }
+        } catch {
+            log(.error, "Failed to update entry order: \(error.localizedDescription)")
+            throw error
         }
-        // swiftlint:disable:next todo
-        // TODO: maybe check if the moved item is synched and maybe have a multi order function
-        if isAuthenticated, remotePush, let entryIdMoved {
-            try await remoteOrdering(entryId: entryIdMoved, entries: encryptedEntries)
-        }
-        try await persistentStorage.batchSave(content: encryptedEntries)
     }
 }
 
 // MARK: - Remote proton BE CRUD
 
 public extension EntryRepository {
-    func remoteSave(_ encryptedEntries: [EncryptedEntryEntity]) async throws {
-        let encryptedEntriesRequest = encryptedEntries.map { entry in
-            StoreEntryRequest(authenticatorKeyID: encryptionService.keyId,
-                              content: entry.encryptedData.encodeBase64(),
-                              contentFormatVersion: entryContentFormatVersion)
+    func remoteSave(_ encryptedEntries: [EncryptedEntryEntity]) async throws -> [RemoteEncryptedEntry] {
+        log(.debug, "Saving \(encryptedEntries.count) entries to remote")
+
+        guard let remoteKeyId = store.string(forKey: remoteKeyId) else {
+            log(.error, "No remote key ID registered for remote save")
+
+            // TODO: maybe return error
+            return []
         }
-        let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
-        _ = try await apiClient.storeEntries(request: request)
+
+        do {
+            let encryptedEntriesRequest = encryptedEntries.map { entry in
+                StoreEntryRequest(authenticatorKeyID: remoteKeyId,
+                                  content: entry.encryptedData.encodeBase64(),
+                                  contentFormatVersion: entryContentFormatVersion)
+            }
+            let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
+            let result = try await apiClient.storeEntries(request: request)
+            log(.info, "Successfully stored \(result.count) entries on remote")
+            return result
+        } catch {
+            log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func remoteUpdate(entryId: String, encryptedUpdatedEntry: Data, revision: Int) async throws {
-        let request = UpdateEntryRequest(authenticatorKeyID: encryptionService.keyId,
-                                         content: encryptedUpdatedEntry.encodeBase64(),
-                                         contentFormatVersion: entryContentFormatVersion,
-                                         lastRevision: revision)
+        log(.debug, "Updating entry \(entryId) on remote with revision \(revision)")
 
-        _ = try await apiClient.update(entryId: entryId, request: request)
+        guard let remoteKey = store.string(forKey: remoteKeyId) else {
+            log(.error, "No remote key ID registered for remote update")
+            return
+        }
+        do {
+            let request = UpdateEntryRequest(authenticatorKeyID: remoteKey,
+                                             content: encryptedUpdatedEntry.encodeBase64(),
+                                             contentFormatVersion: entryContentFormatVersion,
+                                             lastRevision: revision)
+
+            _ = try await apiClient.update(entryId: entryId, request: request)
+            log(.info, "Successfully updated entry with id \(entryId) on remote")
+
+        } catch {
+            log(.error, "Failed to update entry with id \(entryId) on remote: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func remoteDelete(entryId: String) async throws {
-        _ = try await apiClient.delete(entryId: entryId)
+        log(.debug, "Deleting entry \(entryId) from remote")
+
+        do {
+            _ = try await apiClient.delete(entryId: entryId)
+            log(.info, "Successfully deleted entry with id\(entryId) from remote")
+        } catch {
+            log(.error, "Failed to delete entry with id \(entryId) from remote: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func remoteOrdering(entryId: String, entries: [EncryptedEntryEntity]) async throws {
+        log(.debug, "Updating order for entry \(entryId) on remote")
+
         var afterID: String?
         if let index = entries.firstIndex(where: { $0.id == entryId }), index > 0 {
-            afterID = entries[index - 1].id
+            afterID = entries[index - 1].remoteId
+            log(.debug, "Entry will be positioned after entry with remote ID: \(afterID ?? "nil")")
         }
-        let request = NewOrderRequest(afterID: afterID)
-        _ = try await apiClient.changeOrder(entryId: entryId, request: request)
+
+        do {
+            let request = NewOrderRequest(afterID: afterID)
+            _ = try await apiClient.changeOrder(entryId: entryId, request: request)
+            log(.info, "Successfully updated order for entry \(entryId) on remote")
+        } catch {
+            log(.error, "Failed to update order for entry \(entryId) on remote: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func fetchAndSaveRemoteKeys() async throws {
-//        guard userSessionManager.isAuthenticated.value else {
-//            return
-//        }
+        log(.debug, "Fetching remote encryption keys")
+        do {
+            let encryptedKeysData = try await apiClient.getKeys()
+            log(.debug, "Retrieved \(encryptedKeysData.count) remote encryption keys")
 
-        let encryptedKeysData = try await apiClient.getKeys()
+            // Check if there is an rust auth key link to active user key
+            guard let currentEncryptionKeyId = try userSessionManager
+                .getKeyLinkedToActiveUserKey(remoteKeyIds: encryptedKeysData.map(\.userKeyID)) else {
+                log(.warning, "No encryption key linked to active user key found")
+                return
+            }
 
-        for encryptedKeyData in encryptedKeysData
-            where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
-            let keyDataDecrypted: Data = try userSessionManager.userKeyDecrypt(keyId: encryptedKeyData.keyID,
+            store.set(currentEncryptionKeyId, forKey: remoteKeyId)
+            log(.info, "Set current encryption key ID: \(currentEncryptionKeyId)")
+
+            var newKeysAdded = 0
+            for encryptedKeyData in encryptedKeysData
+                where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
+                log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
+
+                let keyDecrypted: Data = try userSessionManager.userKeyDecrypt(keyId: encryptedKeyData.keyID,
                                                                                data: encryptedKeyData.key)
-
-            try encryptionService.saveProtonKey(keyId: encryptedKeyData.keyID, key: keyDataDecrypted)
+                try encryptionService.saveProtonKey(keyId: encryptedKeyData.keyID, key: keyDecrypted)
+                newKeysAdded += 1
+            }
+            log(.info, "Successfully processed remote keys, added \(newKeysAdded) new keys")
+        } catch {
+            log(.error, "Failed to fetch and save remote keys: \(error.localizedDescription)")
+            throw error
         }
     }
 
-    func sendLocalEncryptionKey() async throws {
+    func sendLocalEncryptionKey() async throws -> RemoteEncryptedKey? {
+        log(.debug, "Sending local encryption key to remote")
+
         guard userSessionManager.isAuthenticated.value else {
-            return
+            log(.warning, "Cannot send local encryption key: user not authenticated")
+            return nil
         }
-        let key = try encryptionService.localEncryptionKey
-        let encryptedKey = try userSessionManager.userKeyEncrypt(object: key)
-        _ = try await apiClient.storeKey(encryptedKey: encryptedKey)
+
+        do {
+            let key = try encryptionService.localEncryptionKey
+            log(.debug, "Encrypting local encryption key for remote storage")
+            let encryptedKey = try userSessionManager.userKeyEncrypt(object: key)
+            let result = try await apiClient.storeKey(encryptedKey: encryptedKey)
+            log(.info, "Successfully stored local encryption key on remote with ID: \(result.keyID)")
+            return result
+        } catch {
+            log(.error, "Failed to send local encryption key to remote: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func fetchRemoteEntries() async throws -> [OrderedEntry] {
-//        guard userSessionManager.isAuthenticated.value else {
-//            return nil
-//        }
-        let encryptedEntries = try await apiClient.getEntries()
+        log(.debug, "Fetching entries from remote")
 
-        var entries: [OrderedEntry] = []
-        for (index, encryptedEntry) in encryptedEntries.enumerated() {
-            if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
-                try await fetchAndSaveRemoteKeys()
+        do {
+            let encryptedEntries = try await apiClient.getEntries()
+            log(.debug, "Retrieved \(encryptedEntries.count) encrypted entries from remote")
+
+            var entries: [OrderedEntry] = []
+            for (index, encryptedEntry) in encryptedEntries.enumerated() {
+                if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
+                    log(.debug,
+                        "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
+                    try await fetchAndSaveRemoteKeys()
+                }
+                let decryptedEntry = try encryptionService.decryptProtonData(encryptedData: encryptedEntry)
+                let orderedEntry = OrderedEntry(entry: decryptedEntry,
+                                                keyId: encryptedEntry.authenticatorKeyID,
+                                                remoteId: encryptedEntry.entryID,
+                                                order: index,
+                                                syncState: .synced,
+                                                creationDate: Double(encryptedEntry.createTime),
+                                                modifiedTime: Double(encryptedEntry.modifyTime),
+                                                flags: encryptedEntry.flags,
+                                                revision: encryptedEntry.revision,
+                                                contentFormatVersion: encryptedEntry.contentFormatVersion)
+                entries.append(orderedEntry)
             }
-            let decryptedEntry = try encryptionService.decryptProtonData(encryptedData: encryptedEntry)
-            let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                            order: index,
-                                            syncState: .synced,
-                                            creationDate: Double(encryptedEntry.createTime),
-                                            modifiedTime: Double(encryptedEntry.modifyTime),
-                                            flags: encryptedEntry.flags,
-                                            revision: encryptedEntry.revision,
-                                            contentFormatVersion: encryptedEntry.contentFormatVersion)
-            entries.append(orderedEntry)
+            log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")
+
+            return entries
+        } catch {
+            log(.error, "Failed to fetch entries from remote: \(error.localizedDescription)")
+            throw error
         }
-        return entries
     }
 }
 
 private extension EntryRepository {
     func encrypt(_ entry: any IdentifiableOrderedEntry) throws -> EncryptedEntryEntity {
-        let encryptedData = try encryptionService.encrypt(entry: entry.entry)
-        return EncryptedEntryEntity(id: entry.id,
+        let encryptedData = try encryptionService.encrypt(entry: entry.entry,
+                                                          keyId: (entry as? OrderedEntry)?
+                                                              .keyId ?? encryptionService.keyId)
+        return EncryptedEntryEntity(id: (entry as? OrderedEntry)?.id ?? entry.id,
                                     encryptedData: encryptedData,
-                                    keyId: encryptionService.keyId,
+                                    remoteId: ((entry as? OrderedEntry)?.remoteId) ?? "",
+                                    keyId: (entry as? OrderedEntry)?.keyId ?? encryptionService.keyId,
                                     order: entry.order,
                                     syncState: entry.syncState,
                                     creationDate: (entry as? OrderedEntry)?.creationDate ?? Date.now
@@ -348,26 +518,41 @@ private extension EntryRepository {
                                     revision: (entry as? OrderedEntry)?.revision ?? 0)
     }
 
-    func pushLocalKey() {
-        guard store.bool(forKey: savingKeyId) == false else {
-            return
-        }
+    func fetchOrPushLocalKey() {
         Task { [weak self] in
             guard let self else { return }
             do {
-                try await sendLocalEncryptionKey()
-                store.set(true, forKey: savingKeyId)
+                log(.info, "Initiating fetch or push of encryption keys")
+
+                try await fetchAndSaveRemoteKeys()
+                log(.debug,
+                    "Completed fetchAndSaveRemoteKeys, stored key: \(store.string(forKey: remoteKeyId) ?? "nil")")
+
+                guard store.string(forKey: remoteKeyId) == nil else {
+                    log(.debug, "Remote key already exists, no need to push local key")
+                    return
+                }
+                log(.debug, "No remote key found, sending local encryption key")
+
+                let remoteKeyInfo = try await sendLocalEncryptionKey()
+                store.set(remoteKeyInfo?.keyID, forKey: remoteKeyId)
+                log(.info,
+                    "Successfully pushed local encryption key, stored remote key ID: \(remoteKeyInfo?.keyID ?? "unknown")")
+
             } catch {
-                print(error)
+                log(.error, "Failed in fetchOrPushLocalKey: \(error.localizedDescription)")
             }
         }
     }
 }
 
 extension [EncryptedEntryEntity] {
-    func updateSyncState(_ newState: EntrySyncState) {
-        for entry in self {
+    func updateSyncState(_ newState: EntrySyncState, remoteEntries: [RemoteEncryptedEntry]) {
+        for (index, entry) in self.enumerated() {
             entry.updateSyncState(newState: newState)
+            if remoteEntries.count > index {
+                entry.updateRemoteId(remoteEntries[index].entryID)
+            }
         }
     }
 }
