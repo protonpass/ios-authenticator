@@ -64,7 +64,6 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
 
     public static func == (lhs: OrderedEntry, rhs: OrderedEntry) -> Bool {
         lhs.entry == rhs.entry &&
-            lhs.keyId == rhs.keyId &&
             lhs.remoteId == rhs.remoteId &&
             lhs.order == rhs.order &&
             lhs.syncState == rhs.syncState &&
@@ -76,7 +75,6 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(entry)
-        hasher.combine(keyId)
         hasher.combine(remoteId)
         hasher.combine(order)
         hasher.combine(syncState)

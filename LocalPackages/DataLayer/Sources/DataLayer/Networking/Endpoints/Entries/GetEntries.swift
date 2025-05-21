@@ -26,8 +26,8 @@ struct GetEntriesResponse: Decodable, Sendable, Equatable {
     let entries: PaginatedEntries
 }
 
-public struct PaginatedEntries: Decodable, Sendable, Equatable {
-    public let entries: [RemoteEncryptedEntry]
+struct PaginatedEntries: Decodable, Sendable, Equatable {
+    let entries: [RemoteEncryptedEntry]
     let total: Int
     let lastID: String?
 }

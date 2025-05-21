@@ -25,6 +25,7 @@ import UniformTypeIdentifiers
 public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable,
     IdentifiableOrderedEntry {
     public let entry: Entry
+    public var remoteId: String?
     public let code: Code
     public let order: Int
     public let issuerInfo: AuthIssuerInfo?
@@ -38,16 +39,29 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
                 code: Code,
                 order: Int,
                 syncState: EntrySyncState,
+                remoteId: String?,
                 issuerInfo: AuthIssuerInfo?) {
         self.entry = entry
         self.code = code
         self.order = order
         self.issuerInfo = issuerInfo
+        self.remoteId = remoteId
         self.syncState = syncState
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(entry: newEntry,
+                     code: code,
+                     order: order,
+                     syncState: syncState,
+                     remoteId: remoteId,
+                     issuerInfo: issuerInfo)
+    }
+
+    public func updateRemoteId(_ remoteId: String?) -> EntryUiModel {
+        var entryUiModel = self
+        entryUiModel.remoteId = remoteId
+        return entryUiModel
     }
 
     public static var transferRepresentation: some TransferRepresentation {
@@ -61,10 +75,20 @@ public extension UTType {
 
 public extension EntryUiModel {
     func updateCode(_ code: Code) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(entry: entry,
+                     code: code,
+                     order: order,
+                     syncState: syncState,
+                     remoteId: remoteId,
+                     issuerInfo: issuerInfo)
     }
 
     func updateOrder(_ order: Int) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(entry: entry,
+                     code: code,
+                     order: order,
+                     syncState: syncState,
+                     remoteId: remoteId,
+                     issuerInfo: issuerInfo)
     }
 }

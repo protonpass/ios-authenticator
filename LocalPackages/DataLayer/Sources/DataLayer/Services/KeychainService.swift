@@ -45,7 +45,7 @@ public struct KeychainQueryConfig {
 public protocol KeychainServicing: Sendable {
     func get<T: Decodable & Sendable>(key: String,
                                       ofType itemClassType: ItemClassType,
-                                      shouldSync: Bool?) throws -> T
+                                      isSyncedKey: Bool?) throws -> T
     func set(_ item: some Encodable & Sendable,
              for key: String,
              config: KeychainQueryConfig,
@@ -59,8 +59,8 @@ public protocol KeychainServicing: Sendable {
 extension KeychainServicing {
     func get<T: Decodable & Sendable>(key: String,
                                       ofType itemClassType: ItemClassType = .generic,
-                                      shouldSync: Bool? = nil) throws -> T {
-        try get(key: key, ofType: itemClassType, shouldSync: shouldSync)
+                                      isSyncedKey: Bool? = nil) throws -> T {
+        try get(key: key, ofType: itemClassType, isSyncedKey: isSyncedKey)
     }
 
     func set(_ item: some Encodable & Sendable,
@@ -97,10 +97,10 @@ public final class KeychainService: KeychainServicing {
 
     public func get<T: Decodable & Sendable>(key: String,
                                              ofType itemClassType: ItemClassType = .generic,
-                                             shouldSync: Bool?) throws -> T {
+                                             isSyncedKey: Bool?) throws -> T {
         log(.debug, "Getting key '\(key)' from keychain")
 
-        let shouldSyncData = shouldSync ?? serviceSyncState.value
+        let shouldSyncData = isSyncedKey ?? serviceSyncState.value
 
         var query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
         query[kSecMatchLimit] = kSecMatchLimitOne
@@ -243,7 +243,7 @@ private extension KeychainService {
 
         let result = SecItemAdd(query as CFDictionary, nil)
         if result != errSecSuccess {
-            log(.error, "Failed to add key '\(key)': \(result.toKeychainError)")
+            log(.warning, "Failed to add key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
     }

@@ -42,6 +42,7 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
     case missingKeys
     case unmatchedKeyRotation(lhsKey: Int64, rhsKey: Int64)
     case corruptedContent(String)
+    case missingRemoteEncryptionKey
 
     public var debugDescription: String {
         switch self {
@@ -87,6 +88,8 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
             "Missing keys"
         case let .unmatchedKeyRotation(lhsKey, rhsKey):
             "Unmatch key rotation \(lhsKey) - \(rhsKey)"
+        case .missingRemoteEncryptionKey:
+            "Missing remote encryption key"
         }
     }
 }

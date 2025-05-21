@@ -159,12 +159,22 @@ public extension EntryDataService {
 
         var entry = try createEntry(with: params)
         entry.id = entryId
-        try await updateEntry(entry: entry, remotePush: true)
+        try await repository.completeUpdate(entry: entry)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
+        guard var data = dataState.data else {
+            return
+        }
         log(.debug, "Deleting entry with ID: \(entry.id)")
-        try await deleteEntry(with: entry.id, remotePush: true)
+
+        try await repository.completeRemove(entry: entry)
+
+        data = data.filter { $0.entry.id != entry.id }
+        data = updateOrder(data: data)
+        try await repository.localReorder(data)
+        updateData(data)
+        log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
@@ -172,14 +182,14 @@ public extension EntryDataService {
         guard let entry = dataState.data?[currentPosition] else {
             return
         }
-        guard var data = dataState.data else {
+        guard var entryUiModels = dataState.data else {
             return
         }
-        data.remove(at: currentPosition)
-        data.insert(entry, at: newPosition)
-        data = updateOrder(data: data)
-        try await repository.updateOrder(entryIdMoved: entry.id, data, remotePush: true)
-        updateData(data)
+        entryUiModels.remove(at: currentPosition)
+        entryUiModels.insert(entry, at: newPosition)
+        entryUiModels = updateOrder(data: entryUiModels)
+        try await repository.completeSingleItemReordering(entry.id, entries: entryUiModels)
+        updateData(entryUiModels)
     }
 
     func loadEntries() {
@@ -216,25 +226,18 @@ public extension EntryDataService {
         fullRefreshTask = Task { [weak self] in
             guard let self else { return }
             do {
-                try await repository.fetchAndSaveRemoteKeys()
+                await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
-                let remoteOrderedEntries = try await repository.fetchRemoteEntries()
-
+                let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
                 if Task.isCancelled { return }
                 let entriesStates = try await repository.getAllLocalEntries()
 
-                guard entriesStates.decodedEntries != remoteOrderedEntries else {
-                    return
-                }
-
-//                print("woot sync local entries: \(entriesStates.decodedEntries) remote: \(remoteOrderedEntries)")
                 try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
-
-                // swiftlint:disable:next todo
-                // TODO: reorder if remote and local not same remote should be
+//
+//                // swiftlint:disable:next todo
+//                // TODO: reorder if remote and local not same remote should be
                 let newOrderedItems = try await reorderItems()
                 let entries = try await generateUIEntries(from: newOrderedItems)
-//                log(.debug, "Loaded \(entries.count) entries.")
                 updateData(entries)
             } catch {
                 log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
@@ -276,10 +279,12 @@ public extension EntryDataService {
                                           code: code,
                                           order: index,
                                           syncState: .unsynced,
+                                          remoteId: nil,
                                           issuerInfo: issuerInfo))
             index += 1
         }
-        try await repository.save(uiEntries, remotePush: true)
+
+        try await repository.completeSave(entries: uiEntries)
 
         data.append(contentsOf: uiEntries)
         await MainActor.run {
@@ -326,14 +331,11 @@ private extension EntryDataService {
         }
     }
 
-    func save(_ entry: Entry, syncState: EntrySyncState = .unsynced, remotePush: Bool = true) async throws {
+    func save(_ entry: Entry,
+              remoteId: String? = nil,
+              syncState: EntrySyncState = .unsynced) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
 
-//        guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
-//            log(.warning, "Attempted to save duplicate entry")
-//            throw AuthError.generic(.duplicatedEntry)
-//        }
-//
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
             log(.error, "Missing generated codes: expected 1, got \(codes.count)")
@@ -346,35 +348,13 @@ private extension EntryDataService {
                                    code: code,
                                    order: order,
                                    syncState: syncState,
+                                   remoteId: remoteId,
                                    issuerInfo: issuerInfo)
-        try await repository.save(entryUI, remotePush: remotePush)
+        try await repository.completeSave(entries: [entryUI])
 
         data.append(entryUI)
         updateData(data)
         log(.debug, "Saved entry \(entryUI.id)")
-    }
-
-    func updateEntry(entry: Entry, remotePush: Bool) async throws {
-        try await repository.update(entry, remotePush: remotePush)
-
-        var data: [EntryUiModel] = dataState.data ?? []
-        if let index = data.firstIndex(where: { $0.id == entry.id }) {
-            data[index] = data[index].copy(newEntry: entry)
-        }
-        updateData(data)
-    }
-
-    func deleteEntry(with id: String, remotePush: Bool) async throws {
-        guard var data = dataState.data else {
-            return
-        }
-        log(.info, "Deleting entry with ID: \(id)")
-        try await repository.remove(id, remotePush: remotePush)
-        data = data.filter { $0.entry.id != id }
-        data = updateOrder(data: data)
-        try await repository.updateOrder(entryIdMoved: nil, data, remotePush: false)
-        updateData(data)
-        log(.debug, "Deleted entry with ID: \(id)")
     }
 
     func createEntry(with params: EntryParameters) throws -> Entry {
@@ -408,6 +388,7 @@ private extension EntryDataService {
                                  code: code,
                                  order: index,
                                  syncState: entry.syncState,
+                                 remoteId: entry.remoteId,
                                  issuerInfo: issuerInfo))
         }
 
@@ -441,6 +422,7 @@ private extension EntryDataService {
         dataState = .loaded(entryUiModels)
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws {
         let operations = try syncOperation
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
@@ -449,30 +431,36 @@ private extension EntryDataService {
         for operation in operations {
             switch operation.operation {
             case .upsert:
-                try await save(operation.entry.toEntry, syncState: .synced, remotePush: false)
+                if let orderedEntry = remoteOrderedEntries
+                    .getFirstOrderedEntry(for: operation.entry.id) {
+                    try await repository.localSave([orderedEntry])
+                }
             case .deleteLocal:
-                try await deleteEntry(with: operation.entry.id, remotePush: false)
+                try await repository.localRemove(operation.entry.id)
             case .deleteLocalAndRemote:
-                try await deleteEntry(with: operation.entry.id, remotePush: true)
+                if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    try await repository.completeRemove(entry: orderedEntry)
+                }
             case .push:
-                try await save(operation.entry.toEntry, syncState: .unsynced, remotePush: true)
+                if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    _ = try await repository.remoteSave(entries: [orderedEntry])
+                }
             case .conflict:
-                guard let remoteEntry = remoteOrderedEntries.first(where: { operation.entry.id == $0.id }),
-                      let localEntry = entriesStates.decodedEntries
-                      .first(where: { operation.entry.id == $0.id }) else {
+                guard let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
+                      let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) else {
                     return
                 }
                 if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                    try await updateEntry(entry: remoteEntry.entry, remotePush: false)
+                    _ = try await repository.localUpdate(remoteEntry.entry)
                 } else {
-                    try await updateEntry(entry: localEntry.entry, remotePush: true)
+                    _ = try await repository.remoteUpdate(entry: localEntry)
                 }
             }
         }
     }
 
     func reorderItems() async throws -> [OrderedEntry] {
-        async let remoteOrderedEntries = repository.fetchRemoteEntries()
+        async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
         async let localEntriesFetch = repository.getAllLocalEntries()
 
         let (remoteEntries, localEntries) = try await (remoteOrderedEntries, localEntriesFetch)
@@ -504,6 +492,16 @@ private extension EntryDataService {
 
 extension [EntryState] {
     var decodedEntries: [OrderedEntry] {
-        compactMap(\.entryAndSyncState)
+        compactMap(\.entry)
+    }
+
+    func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
+        decodedEntries.getFirstOrderedEntry(for: entryId)
+    }
+}
+
+extension [OrderedEntry] {
+    func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
+        self.first { $0.entry.id == entryId }
     }
 }

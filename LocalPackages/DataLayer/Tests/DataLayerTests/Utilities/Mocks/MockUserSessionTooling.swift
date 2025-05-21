@@ -22,6 +22,7 @@ import DataLayer
 import Combine
 import ProtonCoreLogin
 import ProtonCoreServices
+import Models
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
     // MARK: - APIManagerProtocol
@@ -74,7 +75,7 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
     public var decryptObjectResult: Result<any Codable, Error> = .success("encrypted")
     public var decryptObjectCalled = false
     
-    public func userKeyDecrypt<T: Codable>(keyId: String, data: String) throws -> T {
+    public func userKeyDecrypt<T: Codable>(key: RemoteEncryptedKey) throws -> T {
         decryptObjectCalled = true
         return try decryptObjectResult.get() as! T
     }
@@ -94,7 +95,7 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
         self.apiService = apiService
     }
     
-    public func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String? {
+    public func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws -> RemoteEncryptedKey? {
         nil
     }
 }

@@ -179,6 +179,7 @@ struct EntryRepositoryTests {
 
     @Test("Test saving an entry in db")
     func savingAnEntry() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
         let entry = OrderedEntry(entry: Entry(id: "id",
                                               name: "Test",
                                               uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=40",
@@ -186,9 +187,9 @@ struct EntryRepositoryTests {
                                                 issuer: "SimpleLogin",
                                                 secret: "CKTQQJVWT5IXTGD",
                                               type: .totp,
-                                              note: "Note"), order: 0, keyId: encryptionService.keyId)
+                                              note: "Note"), order: 0, keyId: localKeyId)
        
-        try await sut.save(entry, remotePush: false)
+        try await sut.localSave(entry)
         
         var entries = try await sut.getAllLocalEntries().decodedEntries
 
@@ -204,9 +205,9 @@ struct EntryRepositoryTests {
                            issuer: "SimpleLogin",
                            secret: "CKTQQJVWT5IXTGD",
                         type: .totp,
-                                               note: "Note"), order:1, keyId: encryptionService.keyId)
+                                               note: "Note"), order:1, keyId: localKeyId)
        
-        try await sut.save(entry2, remotePush: false)
+        try await sut.localSave(entry2)
         entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
@@ -215,6 +216,8 @@ struct EntryRepositoryTests {
     
     @Test("Test saving mutiple entry in db")
     func savingArrayOfEntry() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+
         let entries: [OrderedEntry] = [ .init(entry: Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -223,7 +226,7 @@ struct EntryRepositoryTests {
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
                               note: "Note"),
-                                              order: 0, keyId: encryptionService.keyId
+                                              order: 0, keyId: localKeyId
                                                ),
                                         .init(  entry: Entry(id: "id2",
                               name: "Test2",
@@ -232,7 +235,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                             note: "Note"), order:1, keyId: encryptionService.keyId),
+                                                             note: "Note"), order:1, keyId: localKeyId),
                                         .init(  entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -240,10 +243,10 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                             note: "Note"), order: 2, keyId: encryptionService.keyId)
+                                                             note: "Note"), order: 2, keyId: localKeyId)
         ]
         
-        try await sut.save(entries, remotePush: false)
+        try await sut.localSave(entries)
         
         let fetchedEntries = try await sut.getAllLocalEntries()
 
@@ -253,6 +256,8 @@ struct EntryRepositoryTests {
     
     @Test("Test removing all entries in db")
     func removingAllEntries() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+
         let entries: [OrderedEntry] = [ .init(entry:  Entry(id: "id",
                                                             name: "Test",
                                                             uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -260,7 +265,7 @@ struct EntryRepositoryTests {
                                                             issuer: "SimpleLogin",
                                                             secret: "CKTQQJVWT5IXTGD",
                                                             type: .totp,
-                                                            note: "Note"), order: 0, keyId: encryptionService.keyId),
+                                                            note: "Note"), order: 0, keyId: localKeyId),
                                         .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -268,7 +273,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                            note: "Note"), order:1, keyId: encryptionService.keyId),
+                                                            note: "Note"), order:1, keyId: localKeyId),
                                         .init(entry:  Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -276,12 +281,12 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                            note: "Note"), order: 2, keyId: encryptionService.keyId),
+                                                            note: "Note"), order: 2, keyId: localKeyId),
         ]
         
        
-        try await sut.save(entries, remotePush: false)
-        try await sut.removeAll()
+        try await sut.localSave(entries)
+        try await sut.localRemoveAll()
         
         let fetchedEntries = try await sut.getAllLocalEntries()
 
@@ -291,6 +296,8 @@ struct EntryRepositoryTests {
     
     @Test("Test removing one entry from db")
     func removingOneEntry() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+
         let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -298,7 +305,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 0, keyId: encryptionService.keyId),
+                                                          note: "Note"), order: 0, keyId: localKeyId),
                                       .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -306,7 +313,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
+                                                          note: "Note"), order: 1, keyId: localKeyId),
                                       .init(entry:   Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -314,19 +321,19 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                           note: "Note"), order: 2, keyId: encryptionService.keyId),
+                                                           note: "Note"), order: 2, keyId: localKeyId),
         ]
         
        
-        try await sut.save(entries, remotePush: false)
-        try await sut.remove(entries.first!.entry, remotePush: false)
+        try await sut.localSave(entries)
+        try await sut.localRemove(entries.first!.entry)
         
         var fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 2)
         
-        try await sut.remove("id2", remotePush: false)
+        try await sut.localRemove("id2")
         
          fetchedEntries = try await sut.getAllLocalEntries()
 
@@ -336,6 +343,8 @@ struct EntryRepositoryTests {
 
     @Test("Test updating one entry from db")
     func updateOneEntry() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+
         let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -343,7 +352,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"),order: 0, keyId: encryptionService.keyId),
+                                                          note: "Note"),order: 0, keyId: localKeyId),
                                       .init(entry:  Entry(id: "id2",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -351,7 +360,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
+                                                          note: "Note"), order: 1, keyId: localKeyId),
                                       .init(entry: Entry(id: "id3",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -359,7 +368,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2, keyId: encryptionService.keyId)
+                                                         note: "Note"),order: 2, keyId: localKeyId)
         ]
         
         let newEntry1 =  OrderedEntry(entry: Entry(id: "id",
@@ -369,11 +378,11 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                   note: "new note"), order: 3, keyId: encryptionService.keyId)
+                                                   note: "new note"), order: 3, keyId: localKeyId)
         
-        try await sut.save(entries, remotePush: false)
+        try await sut.localSave(entries)
 
-        try await sut.update(newEntry1.entry, remotePush: false)
+       _ = try await sut.localUpdate(newEntry1.entry)
         
         let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
@@ -386,6 +395,8 @@ struct EntryRepositoryTests {
     
     @Test("Test updating the order of an entries")
     func reorderEntry() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+
         let entries:[OrderedEntry] = [.init(entry:  Entry(id: "id0",
                               name: "Test",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -393,7 +404,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"),order: 0, keyId: encryptionService.keyId),
+                                                          note: "Note"),order: 0, keyId: localKeyId),
                                       .init(entry:  Entry(id: "id1",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -401,7 +412,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
+                                                          note: "Note"), order: 1, keyId: localKeyId),
                                       .init(entry: Entry(id: "id2",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -409,7 +420,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2, keyId: encryptionService.keyId),
+                                                         note: "Note"),order: 2, keyId: localKeyId),
                                       OrderedEntry(entry: Entry(id: "id3",
                                                             name: "Test",
                                                             uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -417,7 +428,7 @@ struct EntryRepositoryTests {
                                                             issuer: "SimpleLogin",
                                                             secret: "CKTQQJVWT5IXTGD",
                                                             type: .totp,
-                                                                note: "new note"), order: 3, keyId: encryptionService.keyId)
+                                                                note: "new note"), order: 3, keyId: localKeyId)
         ]
         
         let reorderEntries:[OrderedEntry] = [.init(entry:  Entry(id: "id3",
@@ -427,7 +438,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                                 note: "Note"),order: 0, keyId: encryptionService.keyId),
+                                                                 note: "Note"),order: 0, keyId: localKeyId),
                                       .init(entry:  Entry(id: "id1",
                               name: "Test2",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -435,7 +446,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                          note: "Note"), order: 1, keyId: encryptionService.keyId),
+                                                          note: "Note"), order: 1, keyId: localKeyId),
                                       .init(entry: Entry(id: "id2",
                               name: "Test3",
                               uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -443,7 +454,7 @@ struct EntryRepositoryTests {
                               issuer: "SimpleLogin",
                               secret: "CKTQQJVWT5IXTGD",
                               type: .totp,
-                                                         note: "Note"),order: 2, keyId: encryptionService.keyId),
+                                                         note: "Note"),order: 2, keyId: localKeyId),
                                              OrderedEntry(entry: Entry(id: "id0",
                                                                        name: "Test",
                                                                        uri: "otpauth://totp/SimpleLogin:john.doe%40example.com?secret=CKTQQJVWT5IXTGD&amp;issuer=SimpleLogin",
@@ -451,11 +462,11 @@ struct EntryRepositoryTests {
                                                                        issuer: "SimpleLogin",
                                                                        secret: "CKTQQJVWT5IXTGD",
                                                                        type: .totp,
-                                                                       note: "new note"), order: 3, keyId: encryptionService.keyId)
+                                                                       note: "new note"), order: 3, keyId: localKeyId)
         ]
         
         
-        try await sut.save(entries, remotePush: false)
+        try await sut.localSave(entries)
         
         let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
@@ -464,7 +475,7 @@ struct EntryRepositoryTests {
 
         #expect(fetchedEntries.last?.entry.id == "id3")
         
-        try await sut.updateOrder(entryIdMoved: nil, reorderEntries, remotePush: false)
+        try await sut.localReorder(reorderEntries)
         
         let reorderedfetchedEntries = try await sut.getAllLocalEntries().decodedEntries
         

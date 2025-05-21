@@ -92,7 +92,12 @@ public final class QAService: QAServicing {
             guard let entry = entries[safeIndex: index] else {
                 return
             }
-            results.append(.init(entry: entry, code: code, order: index, syncState: .unsynced, issuerInfo: nil))
+            results.append(.init(entry: entry,
+                                 code: code,
+                                 order: index,
+                                 syncState: .unsynced,
+                                 remoteId: nil,
+                                 issuerInfo: nil))
         }
         dataState = .loaded(results)
     }

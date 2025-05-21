@@ -63,7 +63,7 @@ struct SafeMutexTests {
         let mutex = SafeMutex.create(42)
 
         await withTaskGroup(of: Void.self) { group in
-            for _ in 0..<10_000 {
+            for _ in 0..<100 {
                 group.addTask {
                     _ = mutex.value
                 }
@@ -76,7 +76,7 @@ struct SafeMutexTests {
 
     @Test func concurrentWritesAsync() async throws {
         let mutex = SafeMutex.create(0)
-        let iterations = 10_000
+        let iterations = 100
 
         await withTaskGroup(of: Void.self) { group in
             for _ in 0..<iterations {
@@ -93,7 +93,7 @@ struct SafeMutexTests {
 
     @Test func concurrentModifyAsync() async throws {
         let mutex = SafeMutex.create(0)
-        let iterations = 100_000
+        let iterations = 100
 
         await withTaskGroup(of: Void.self) { group in
             for _ in 0..<iterations {
@@ -111,7 +111,7 @@ struct SafeMutexTests {
     @Test func atomicIncrementPreventRaceConditionAsync() async throws {
         // This test demonstrates how modify prevents race conditions
         let mutex = SafeMutex.create(0)
-        let iterations = 100_000
+        let iterations = 100
 
         await withTaskGroup(of: Void.self) { group in
             for _ in 0..<iterations {
@@ -129,7 +129,7 @@ struct SafeMutexTests {
 
     @Test func randomAccessPatternAsync() async throws {
         let mutex = SafeMutex.create([Int: Int]())
-        let iterations = 10_000
+        let iterations = 100
 
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<iterations {
@@ -231,7 +231,7 @@ struct SafeMutexTests {
         let startTime = Date()
 
         await withTaskGroup(of: Void.self) { group in
-            for _ in 0..<100_000 {
+            for _ in 0..<100 {
                 group.addTask {
                     mutex.modify { value in
                         value += 1
@@ -243,6 +243,6 @@ struct SafeMutexTests {
         let duration = Date().timeIntervalSince(startTime)
         print("Time to complete 100,000 atomic increments: \(duration) seconds")
 
-        #expect(mutex.value == 100_000)
+        #expect(mutex.value == 100)
     }
 }

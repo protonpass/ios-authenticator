@@ -1,5 +1,5 @@
 //
-// LegacyMutex.swift
+// MutexProtected.swift
 // Proton Authenticator - Created on 26/03/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -22,9 +22,7 @@
 
 import Foundation
 import os
-#if canImport(Synchronization)
 import Synchronization
-#endif
 
 /// A type-erasing protocol for mutex implementations
 public protocol MutexProtected<Value>: Sendable {
@@ -39,25 +37,25 @@ public protocol MutexProtected<Value>: Sendable {
 }
 
 /// Legacy mutex implementation using OSAllocatedUnfairLock
-public final class LegacyMutex<Value: Sendable>: MutexProtected {
+final class LegacyMutex<Value: Sendable>: MutexProtected {
     private let lock: OSAllocatedUnfairLock<Value>
 
     public init(_ value: Value) {
         lock = .init(uncheckedState: value)
     }
 
-    public var value: Value {
+    var value: Value {
         lock.withLock { $0 }
     }
 
-    public func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
+    func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
         try lock.withLock { value in
             try block(value)
         }
     }
 
     @discardableResult
-    public func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
+    func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
         try lock.withLock { state in
             try block(&state)
         }
@@ -65,30 +63,26 @@ public final class LegacyMutex<Value: Sendable>: MutexProtected {
 }
 
 @available(iOS 18.0, macOS 15.0, *)
-public final class NativeMutex<Value: Sendable>: MutexProtected {
+final class NativeMutex<Value: Sendable>: MutexProtected {
     private let mutex: Mutex<Value>
 
-    public init(_ value: Value) {
+    init(_ value: Value) {
         mutex = Mutex(value)
     }
 
-    public var value: Value {
+    var value: Value {
         mutex.withLock { $0 }
     }
 
-    public func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
+    func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
         try mutex.withLock { value in
             try block(value)
         }
     }
 
     @discardableResult
-    public func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
+    func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
         try mutex.withLock { value in
-//            var mutableValue = value
-//            let result = try block(&mutableValue)
-//            value = mutableValue // Update the original value
-//            return result
             try block(&value)
         }
     }

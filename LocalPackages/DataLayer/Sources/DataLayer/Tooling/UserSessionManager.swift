@@ -64,8 +64,9 @@ public protocol UserInfoProviding: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     func userKeyEncrypt(object: some Codable) throws -> String
-    func userKeyDecrypt(keyId: String, data: String) throws -> Data
-    func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String?
+    func userKeyDecrypt(key: RemoteEncryptedKey) throws -> Data
+    func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
+        -> RemoteEncryptedKey?
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -141,7 +142,9 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         let newApiService: PMAPIService
 
         do {
-            let encryptedContent: Data = try keychain.get(key: credentialsKey, ofType: .generic, shouldSync: false)
+            let encryptedContent: Data = try keychain.get(key: credentialsKey,
+                                                          ofType: .generic,
+                                                          isSyncedKey: false)
             let credentials: Credentials = try encryptionService.symmetricDecrypt(encryptedData: encryptedContent)
 
             cachedCredentials.modify {
@@ -465,7 +468,11 @@ public extension UserSessionManager {
         let signerKey = SigningKey(privateKey: privateKey,
                                    passphrase: .init(value: passphrase))
 
-        let data = try JSONEncoder().encode(object)
+        let data: Data = if let dataObject = object as? Data {
+            dataObject
+        } else {
+            try JSONEncoder().encode(object)
+        }
 
         let encryptedData = try Encryptor.encrypt(publicKey: publicKey,
                                                   clearData: data,
@@ -473,19 +480,19 @@ public extension UserSessionManager {
         return try encryptedData.unArmor().value.base64EncodedString()
     }
 
-    func userKeyDecrypt(keyId: String, data: String) throws -> Data {
+    func userKeyDecrypt(key: RemoteEncryptedKey) throws -> Data {
         log(.info, "Decrypting with user key")
         guard let userData else {
             log(.info, "Missing user data")
             throw AuthError.generic(.missingUserData)
         }
 
-        guard let userKey = userData.user.keys.first(where: { $0.keyID == keyId }),
+        guard let userKey = userData.user.keys.first(where: { $0.keyID == key.userKeyID }),
               userKey.active == 1 else {
-            throw AuthError.crypto(.inactiveUserKey(userKeyId: keyId))
+            throw AuthError.crypto(.inactiveUserKey(userKeyId: key.userKeyID))
         }
 
-        guard let encryptedData = try data.base64Decode() else {
+        guard let encryptedData = try key.key.base64Decode() else {
             log(.info, "Failed to base 64 decode encripted string")
             throw AuthError.crypto(.failedToBase64Decode)
         }
@@ -505,13 +512,14 @@ public extension UserSessionManager {
         return decryptedData.content
     }
 
-    func getKeyLinkedToActiveUserKey(remoteKeyIds: [String]) throws -> String? {
+    func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
+        -> RemoteEncryptedKey? {
         guard let userData else {
             throw AuthError.generic(.missingUserData)
         }
 
-        return remoteKeyIds.first { remoteKeyId in
-            userData.user.keys.contains(where: { $0.keyID == remoteKeyId && $0.active == 1 })
+        return remoteKeys.first { remoteKey in
+            userData.user.keys.contains(where: { $0.keyID == remoteKey.userKeyID && $0.active == 1 })
         }
     }
 

@@ -161,6 +161,7 @@ final class EntriesViewModel: ObservableObject {
         }
         fullSyncTask = Task { [weak self] in
             guard let self else { return }
+            defer { fullSyncTask = nil }
             do {
                 try await entryDataService.fullRefresh()
             } catch {

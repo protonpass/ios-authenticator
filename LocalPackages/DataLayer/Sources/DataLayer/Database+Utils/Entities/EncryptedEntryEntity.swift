@@ -26,7 +26,7 @@ import SwiftData
 public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
     public private(set) var id: String = UUID().uuidString
     public private(set) var remoteId: String = ""
-    public private(set) var encryptedData = Data()
+    public private(set) var encryptedData = ""
     public private(set) var keyId: String = ""
     public private(set) var order: Int = 0
     public private(set) var syncState: Int = EntrySyncState.unsynced.rawValue
@@ -41,7 +41,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     }
 
     public init(id: String,
-                encryptedData: Data,
+                encryptedData: String,
                 remoteId: String,
                 keyId: String,
                 order: Int,
@@ -64,23 +64,29 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.revision = revision
     }
 
-    func updateEncryptedData(_ encryptedData: Data, with keyId: String) {
+    func updateEncryptedData(_ encryptedData: String,
+                             with keyId: String,
+                             remoteModifiedTime: TimeInterval? = nil) {
         self.encryptedData = encryptedData
         self.keyId = keyId
-        modifiedTime = Date.now.timeIntervalSince1970
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
-    func updateOrder(newOrder: Int) {
+    func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
         order = newOrder
-        modifiedTime = Date.now.timeIntervalSince1970
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
     // periphery:ignore
-    func updateSyncState(newState: EntrySyncState) {
+    func updateSyncState(newState: EntrySyncState, remoteModifiedTime: TimeInterval? = nil) {
         syncState = newState.rawValue
     }
 
-    func updateRemoteId(_ newRemoteId: String) {
-        remoteId = newRemoteId
+    func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
+        remoteId = remoteEncryptedEntry.entryID
+        syncState = EntrySyncState.synced.rawValue
+        modifiedTime = Double(remoteEncryptedEntry.modifyTime)
+        flags = remoteEncryptedEntry.flags
+        revision = remoteEncryptedEntry.revision
     }
 }

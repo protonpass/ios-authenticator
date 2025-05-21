@@ -40,8 +40,8 @@ public extension UserDataProvider {
     }
 }
 
-public final class UserDataSource: UserDataProvider, LoggingImplemented {
-    let logger: any LoggerProtocol
+public final class UserDataSource: UserDataProvider {
+    private let logger: any LoggerProtocol
     private let encryptionService: any EncryptionServicing
     private let persistentStorage: any PersistenceServicing
 
@@ -56,7 +56,7 @@ public final class UserDataSource: UserDataProvider, LoggingImplemented {
 
 public extension UserDataSource {
     func getUserData() async throws -> UserData? {
-        log(.info, "Fetching user data")
+        log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
         log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
@@ -137,6 +137,10 @@ private extension UserDataSource {
 
     func decrypt(encryptedData: Data) throws -> UserData {
         try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+    }
+
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
     }
 }
 
