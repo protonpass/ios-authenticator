@@ -78,7 +78,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     }
 
     // periphery:ignore
-    func updateSyncState(newState: EntrySyncState, remoteModifiedTime: TimeInterval? = nil) {
+    func updateSyncState(newState: EntrySyncState) {
         syncState = newState.rawValue
     }
 

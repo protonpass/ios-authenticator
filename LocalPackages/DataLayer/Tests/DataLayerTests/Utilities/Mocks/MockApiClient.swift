@@ -53,6 +53,8 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
     public var updateResult: Result<RemoteEncryptedEntry, Error> = .success(RemoteEncryptedEntry.mock)
     public var deleteShouldSucceed: Bool = true
     public var changeOrderShouldSucceed: Bool = true
+    public var batchOrderingSucceed: Bool = true
+
 
     // MARK: - Tracking
     
@@ -105,7 +107,14 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
             throw MockError.stub
         }
     }
-
+    
+    public func batchOrdering(request: BatchOrderRequest) async throws {
+        calledMethods.append(#function)
+        if !batchOrderingSucceed {
+            throw MockError.stub
+        }
+    }
+    
     // MARK: - Helpers
 
     public enum MockError: Error {

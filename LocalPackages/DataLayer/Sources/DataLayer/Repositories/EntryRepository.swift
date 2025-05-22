@@ -59,12 +59,13 @@ public protocol EntryRepositoryProtocol: Sendable {
     func remoteUpdate(entry: OrderedEntry) async throws -> RemoteEncryptedEntry
     func remoteDelete(remoteEntryId: String) async throws
     func singleItemRemoteReordering(entryId: String, entries: [any IdentifiableOrderedEntry]) async throws
+    func batchRemoteReordering(entries: [any IdentifiableOrderedEntry]) async throws
     func fetchAllRemoteEntries() async throws -> [OrderedEntry]
     func fetchRemoteEncryptionKeyOrPushLocalKey() async
 
     // MARK: - Full CRUD
 
-    func completeSingleItemReordering(_ entryIdToMove: String,
+    func completeSingleItemReordering(_ remoteIdToMove: String?,
                                       entries: [any IdentifiableOrderedEntry]) async throws
     func completeSave(entries: [any IdentifiableOrderedEntry]) async throws
     func completeRemove(entry: any IdentifiableOrderedEntry) async throws
@@ -168,11 +169,11 @@ public extension EntryRepository {
 // MARK: - local & remote CRUD
 
 public extension EntryRepository {
-    func completeSingleItemReordering(_ entryIdToMove: String,
+    func completeSingleItemReordering(_ remoteIdToMove: String?,
                                       entries: [any IdentifiableOrderedEntry]) async throws {
         try await localReorder(entries)
-        if isAuthenticated {
-            try await singleItemRemoteReordering(entryId: entryIdToMove, entries: entries)
+        if isAuthenticated, let remoteIdToMove {
+            try await singleItemRemoteReordering(entryId: remoteIdToMove, entries: entries)
         }
     }
 
@@ -206,7 +207,7 @@ public extension EntryRepository {
     func completeUpdate(entry: Entry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
-            _ = try await remoteUpdate(entry: orderedEntity)
+             _ = try await remoteUpdate(entry: orderedEntity)
         }
     }
 }
@@ -332,50 +333,6 @@ public extension EntryRepository {
 // MARK: - Remote proton BE CRUD for entries
 
 public extension EntryRepository {
-//    func remoteSave(entries: [any IdentifiableOrderedEntry] /*_ encryptedEntries: [EncryptedEntryEntity]*/) async
-//    throws -> [RemoteEncryptedEntry] {
-//        log(.debug, "Saving \(entries.count) entries to remote")
-//
-//        guard let remoteEncryptionKeyId else {
-//            log(.error, "No remote key ID registered for remote save")
-//            throw AuthError.crypto(.missingRemoteEncryptionKey)
-//        }
-    ////
-    ////        do {
-    ////            var results: [RemoteEncryptedEntry] = []
-    ////            for entry in encryptedEntries {
-    ////                log(.debug, "Saving entry with ID \(entry.id)")
-    ////                let request = StoreEntryRequest(authenticatorKeyID: remoteKeyId,
-    ////                                                content: entry.encryptedData,
-    ////                                                contentFormatVersion: entryContentFormatVersion)
-    ////                let result = try await apiClient.storeEntry(request: request)
-    ////                results.append(result)
-    ////            }
-    ////            log(.info, "Successfully stored \(results.count) entries on remote")
-    ////            return results
-    ////        } catch {
-    ////            log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
-    ////            throw error
-    ////        }
-    ////
-//        do {
-    ////            let encryptedEntries = try entries.map { try encrypt($0, shouldEncryptWithLocalKey: false) }
-//            let encryptedEntriesRequest = try entries.map { entry in
-//                let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
-//               return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-//                                  content: encryptedEntry.encryptedData,
-//                                  contentFormatVersion: entryContentFormatVersion)
-//            }
-//            let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
-//            let result = try await apiClient.storeEntries(request: request)
-//            log(.info, "Successfully stored \(result.count) entries on remote")
-//            return result
-//        } catch {
-//            log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
-//            throw error
-//        }
-//    }
-
     func remoteSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry] {
         log(.debug, "Saving \(entries.count) entries to remote")
 
@@ -385,17 +342,15 @@ public extension EntryRepository {
         }
 
         do {
-            var results: [RemoteEncryptedEntry] = []
-            for entry in entries {
-                log(.debug, "Saving entry with ID \(entry.id)")
+            let encryptedEntriesRequest = try entries.map { entry in
                 let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
-                let request = StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                                content: encryptedEntry.encryptedData,
-                                                contentFormatVersion: entryContentFormatVersion)
-                let result = try await apiClient.storeEntry(request: request)
-                results.append(result)
+                return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
+                                         content: encryptedEntry.encryptedData,
+                                         contentFormatVersion: entryContentFormatVersion)
             }
-            log(.info, "Successfully stored \(results.count) entries on remote")
+            let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
+            let result = try await apiClient.storeEntries(request: request)
+            log(.info, "Successfully stored \(result.count) entries on remote")
 
             let idsToFetch: [String] = entries.map(\.id)
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
@@ -403,38 +358,13 @@ public extension EntryRepository {
             }
             let encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
                 .fetch(predicate: predicate)) ?? []
-            encryptedEntries.updateToSyncState(remoteEntries: results)
+            encryptedEntries.updateWithData(from: result)
             try await persistentStorage.batchSave(content: encryptedEntries)
-            return results
+            return result
         } catch {
             log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
             throw error
         }
-
-//        do {
-//            let encryptedEntriesRequest = try entries.map { entry in
-//                let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
-//                return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-//                                         content: encryptedEntry.encryptedData,
-//                                         contentFormatVersion: entryContentFormatVersion)
-//            }
-//            let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
-//            let result = try await apiClient.storeEntries(request: request)
-//            log(.info, "Successfully stored \(result.count) entries on remote")
-//
-//            let idsToFetch: [String] = entries.map(\.id)
-//            let predicate = #Predicate<EncryptedEntryEntity> { entity in
-//                idsToFetch.contains(entity.id)
-//            }
-//            let encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
-//                .fetch(predicate: predicate)) ?? []
-//            encryptedEntries.updateToSyncState(remoteEntries: result)
-//            try await persistentStorage.batchSave(content: encryptedEntries)
-//            return result
-//        } catch {
-//            log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
-//            throw error
-//        }
     }
 
     func remoteUpdate(entry: OrderedEntry) async throws -> RemoteEncryptedEntry {
@@ -458,6 +388,15 @@ public extension EntryRepository {
                                              lastRevision: entry.revision)
 
             let result = try await apiClient.update(entryId: remoteId, request: request)
+            
+            let entityId = entry.id
+            if let localEntity = try await persistentStorage
+                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) {
+                log(.debug, "Found local entry, and updating it with remote entry data")
+                localEntity.update(with: result)
+                try await persistentStorage.save(data: localEntity)
+            }
+            
             log(.info, "Successfully updated entry with id \(remoteId) on remote")
             return result
         } catch {
@@ -495,6 +434,26 @@ public extension EntryRepository {
             log(.error, "Failed to update order for entry \(entryId) on remote: \(error.localizedDescription)")
             throw error
         }
+    }
+
+    func batchRemoteReordering(entries: [any IdentifiableOrderedEntry]) async throws {
+        log(.debug, "Updating order for multiple entries on remote")
+
+        do {
+            let batches: [[String]] = entries
+                .compactMap(\.remoteId)
+                .chunked(into: 500)
+            for (index, batch) in batches.enumerated() {
+                log(.debug, "Sending batch \(index + 1)/\(batches.count)")
+                let request = BatchOrderRequest(startingPosition: index * 500, entries: batch)
+                _ = try await apiClient.batchOrdering(request: request)
+            }
+        } catch {
+            log(.error,
+                "Failed to update order of  \(entries.count) entries on remote: \(error.localizedDescription)")
+            throw error
+        }
+        log(.debug, "Successfully updated order for multiple entries on remote")
     }
 
     func fetchAllRemoteEntries() async throws -> [OrderedEntry] {
@@ -657,8 +616,8 @@ private extension EntryRepository {
 }
 
 extension [EncryptedEntryEntity] {
-    func updateToSyncState(remoteEntries: [RemoteEncryptedEntry]) {
-        for (index, entry) in self.enumerated() where index < remoteEntries.count {
+    func updateWithData(from remoteEntries: [RemoteEncryptedEntry]) {
+        for (index, entry) in enumerated() where index < remoteEntries.count {
             entry.update(with: remoteEntries[index])
         }
     }

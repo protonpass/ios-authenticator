@@ -160,6 +160,11 @@ public extension EntryDataService {
         var entry = try createEntry(with: params)
         entry.id = entryId
         try await repository.completeUpdate(entry: entry)
+        var data: [EntryUiModel] = dataState.data ?? []
+        if let index = data.firstIndex(where: { $0.id == entry.id }) {
+            data[index] = data[index].copy(newEntry: entry)
+        }
+        updateData(data)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
@@ -188,7 +193,7 @@ public extension EntryDataService {
         entryUiModels.remove(at: currentPosition)
         entryUiModels.insert(entry, at: newPosition)
         entryUiModels = updateOrder(data: entryUiModels)
-        try await repository.completeSingleItemReordering(entry.id, entries: entryUiModels)
+        try await repository.completeSingleItemReordering(entry.remoteId, entries: entryUiModels)
         updateData(entryUiModels)
     }
 
@@ -233,9 +238,7 @@ public extension EntryDataService {
                 let entriesStates = try await repository.getAllLocalEntries()
 
                 try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
-//
-//                // swiftlint:disable:next todo
-//                // TODO: reorder if remote and local not same remote should be
+
                 let newOrderedItems = try await reorderItems()
                 let entries = try await generateUIEntries(from: newOrderedItems)
                 updateData(entries)
@@ -423,7 +426,7 @@ private extension EntryDataService {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws {
+    func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws -> Bool {
         let operations = try syncOperation
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
                                  local: entriesStates.toLocalEntries)
@@ -433,7 +436,8 @@ private extension EntryDataService {
             case .upsert:
                 if let orderedEntry = remoteOrderedEntries
                     .getFirstOrderedEntry(for: operation.entry.id) {
-                    try await repository.localSave([orderedEntry])
+                    let syncedEntry = orderedEntry.updateSyncState(.synced)
+                    try await repository.localSave([syncedEntry])
                 }
             case .deleteLocal:
                 try await repository.localRemove(operation.entry.id)
@@ -446,17 +450,20 @@ private extension EntryDataService {
                     _ = try await repository.remoteSave(entries: [orderedEntry])
                 }
             case .conflict:
-                guard let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
-                      let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) else {
-                    return
-                }
-                if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                    _ = try await repository.localUpdate(remoteEntry.entry)
-                } else {
-                    _ = try await repository.remoteUpdate(entry: localEntry)
+                if let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
+                   let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
+                    if remoteEntry.modifiedTime > localEntry.modifiedTime {
+                        _ = try await repository.localUpdate(remoteEntry.entry)
+                    } else {
+                        let updatedRevision = localEntry.updateRevision(latestRevision)
+                        _ = try await repository.remoteUpdate(entry: updatedRevision)
+                    }
                 }
             }
         }
+
+        return !operations.isEmpty
     }
 
     func reorderItems() async throws -> [OrderedEntry] {
@@ -478,15 +485,25 @@ private extension EntryDataService {
 
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedAndOrderedItems = currentItems.values
-            .sorted { $0.order < $1.order && $0.modifiedTime < $1.modifiedTime }
+            .sorted {
+                if $0.order != $1.order {
+                    $0.order < $1.order
+                } else {
+                    $0.modifiedTime < $1.modifiedTime
+                }
+//                ($0.order, $0.modifiedTime) < ($1.order, $1.modifiedTime)
+            }
             .enumerated()
             .map { index, item in
                 item.updateOrder(index)
             }
 
-        // swiftlint:disable:next todo
-        // TODO: save new order if changes detected need to implement
+        try await repository.batchRemoteReordering(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems
+    }
+
+    func getLatestRevision(for lhs: OrderedEntry, and rhs: OrderedEntry) -> Int {
+        max(lhs.revision, rhs.revision)
     }
 }
 

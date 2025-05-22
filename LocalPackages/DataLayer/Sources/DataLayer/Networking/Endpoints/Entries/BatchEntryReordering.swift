@@ -1,6 +1,6 @@
 //
-// StoreEntries.swift
-// Proton Authenticator - Created on 07/05/2025.
+// BatchEntryReordering.swift
+// Proton Authenticator - Created on 21/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,38 +19,36 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import Models
 @preconcurrency import ProtonCoreNetworking
 
-struct StoreEntriesResponse: Decodable, Sendable, Equatable {
-    let entries: [RemoteEncryptedEntry]
-}
+public struct BatchOrderRequest: Encodable, Sendable {
+    let startingPosition: Int
+    let entries: [String]
 
-public struct StoreEntriesRequest: Encodable, Sendable {
-    let entries: [StoreEntryRequest]
-
-    public init(entries: [StoreEntryRequest]) {
+    public init(startingPosition: Int, entries: [String]) {
+        self.startingPosition = startingPosition
         self.entries = entries
     }
 
     enum CodingKeys: String, CodingKey {
+        case startingPosition = "StartingPosition"
         case entries = "Entries"
     }
 }
 
-struct StoreEntries: Endpoint {
-    typealias Body = StoreEntriesRequest
-    typealias Response = StoreEntriesResponse
+struct BatchEntryReordering: Endpoint {
+    typealias Body = BatchOrderRequest
+    typealias Response = CodeOnlyResponse
 
     var debugDescription: String
     var path: String
     var method: HTTPMethod
-    var body: StoreEntriesRequest?
+    var body: BatchOrderRequest?
 
-    init(request: StoreEntriesRequest) {
-        debugDescription = "Store many Proton Authenticator entries in bulk"
-        path = "/authenticator/v1/entry/bulk"
-        method = .post
+    init(request: BatchOrderRequest) {
+        debugDescription = "Reorder a batch of entries"
+        path = "/authenticator/v1/entry/order"
+        method = .put
         body = request
     }
 }

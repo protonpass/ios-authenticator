@@ -37,6 +37,7 @@ public protocol RemoteEntriesDataSource: Sendable {
     func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry
     func delete(entryId: String) async throws
     func changeOrder(entryId: String, request: NewOrderRequest) async throws
+    func batchOrdering(request: BatchOrderRequest) async throws
 }
 
 public typealias APIClientProtocol = RemoteEntriesDataSource & RemoteKeysDataSource
@@ -111,7 +112,7 @@ public extension APIClient {
         log(.debug, "Storing multiple entries")
         let endpoint = StoreEntries(request: request)
         let response = try await exec(endpoint: endpoint)
-        return response.entries.entries
+        return response.entries
     }
 
     func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry {
@@ -130,6 +131,12 @@ public extension APIClient {
     func changeOrder(entryId: String, request: NewOrderRequest) async throws {
         log(.debug, "Changing order for entry ID: \(entryId), placed after entry ID: \(request.afterID ?? "none")")
         let endpoint = ChangeEntryOrder(entryId: entryId, request: request)
+        _ = try await exec(endpoint: endpoint)
+    }
+
+    func batchOrdering(request: BatchOrderRequest) async throws {
+        log(.debug, "Changing order for \(request.entries.count) entries")
+        let endpoint = BatchEntryReordering(request: request)
         _ = try await exec(endpoint: endpoint)
     }
 }

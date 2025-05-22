@@ -25,11 +25,11 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public let keyId: String
     public let remoteId: String?
     public var order: Int
-    public let syncState: EntrySyncState
+    public var syncState: EntrySyncState
     public let creationDate: TimeInterval
     public let modifiedTime: TimeInterval
     public let flags: Int
-    public let revision: Int
+    public var revision: Int
     public let contentFormatVersion: Int
 
     public init(entry: Entry,
@@ -59,6 +59,18 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public func updateOrder(_ newOrder: Int) -> OrderedEntry {
         var updatedSelf = self
         updatedSelf.order = newOrder
+        return updatedSelf
+    }
+
+    public func updateSyncState(_ newSyncState: EntrySyncState) -> OrderedEntry {
+        var updatedSelf = self
+        updatedSelf.syncState = newSyncState
+        return updatedSelf
+    }
+
+    public func updateRevision(_ newRevision: Int) -> OrderedEntry {
+        var updatedSelf = self
+        updatedSelf.revision = newRevision
         return updatedSelf
     }
 
