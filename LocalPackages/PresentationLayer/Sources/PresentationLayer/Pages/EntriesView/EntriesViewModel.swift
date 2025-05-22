@@ -20,6 +20,7 @@
 //
 
 import Combine
+import CoreData
 import DataLayer
 import Factory
 import Foundation
@@ -106,6 +107,8 @@ final class EntriesViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     @ObservationIgnored
+    private var loadLocalTask: Task<Void, Never>?
+    @ObservationIgnored
     private var fullSyncTask: Task<Void, Never>?
 
     var isAuthenticated: Bool {
@@ -113,6 +116,22 @@ final class EntriesViewModel: ObservableObject {
     }
 
     init() {
+        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                guard let self,
+                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
+                      event.endDate != nil, event.type == .import else { return }
+                logger.log(.debug,
+                           category: .ui,
+                           "Received notification of updates from iCloud Database",
+                           function: #function,
+                           line: #line)
+                loadEntries()
+            }
+            .store(in: &cancellables)
+
         searchTextStream
             .dropFirst()
             .removeDuplicates()
@@ -155,6 +174,18 @@ final class EntriesViewModel: ObservableObject {
         }
     }
 
+    func loadEntries() {
+        loadLocalTask?.cancel()
+        loadLocalTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await entryDataService.loadEntries()
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
     func fullSync() {
         guard fullSyncTask == nil else {
             return
@@ -163,6 +194,7 @@ final class EntriesViewModel: ObservableObject {
             guard let self else { return }
             defer { fullSyncTask = nil }
             do {
+                await loadLocalTask?.value
                 try await entryDataService.fullRefresh()
             } catch {
                 handle(error)
@@ -173,7 +205,10 @@ final class EntriesViewModel: ObservableObject {
 
 extension EntriesViewModel {
     func reloadData() {
-        entryDataService.loadEntries()
+        loadEntries()
+        if isAuthenticated {
+            fullSync()
+        }
     }
 
     func copyTokenToClipboard(_ entry: EntryUiModel) {

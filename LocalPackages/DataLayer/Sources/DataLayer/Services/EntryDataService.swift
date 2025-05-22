@@ -34,7 +34,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func insertAndRefreshEntry(from params: EntryParameters) async throws
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
     func insertAndRefresh(entry: Entry) async throws
-    func loadEntries()
+    func loadEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
@@ -68,8 +68,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let repository: any EntryRepositoryProtocol
     @ObservationIgnored
     private let importService: any ImportingServicing
-    @ObservationIgnored
-    private var task: Task<Void, Never>?
+//    @ObservationIgnored
+//    private var task: Task<Void, Never>?
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
@@ -105,20 +105,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     }
 
     private func setUp() {
-        loadEntries()
-
-        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-                guard let self,
-                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import else { return }
-                log(.debug, "Received notification of updates from iCloud Database")
-                loadEntries()
-            }
-            .store(in: &cancellables)
-
         totpGenerator.currentCode
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
@@ -197,23 +183,19 @@ public extension EntryDataService {
         updateData(entryUiModels)
     }
 
-    func loadEntries() {
+    func loadEntries() async throws {
         log(.debug, "Loading entries")
-        task?.cancel()
-        task = Task { [weak self] in
-            guard let self else { return }
-            do {
-                if Task.isCancelled { return }
-                let entriesStates = try await repository.getAllLocalEntries()
-                if Task.isCancelled { return }
-                let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
-                log(.debug, "Loaded \(entries.count) entries.")
-                updateData(entries)
-            } catch {
-                log(.error, "Failed to load entries: \(error)")
-                if let data = dataState.data, !data.isEmpty { return }
-                dataState = .failed(error)
-            }
+        do {
+            if Task.isCancelled { return }
+            let entriesStates = try await repository.getAllLocalEntries()
+            if Task.isCancelled { return }
+            let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            log(.debug, "Loaded \(entries.count) entries.")
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to load entries: \(error)")
+            if let data = dataState.data, !data.isEmpty { return }
+            dataState = .failed(error)
         }
     }
 
@@ -225,26 +207,20 @@ public extension EntryDataService {
 
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
-        await task?.value
+        do {
+            await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
-        fullRefreshTask?.cancel()
-        fullRefreshTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
+            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
+            if Task.isCancelled { return }
+            let entriesStates = try await repository.getAllLocalEntries()
 
-                let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
-                if Task.isCancelled { return }
-                let entriesStates = try await repository.getAllLocalEntries()
+            try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
 
-                try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
-
-                let newOrderedItems = try await reorderItems()
-                let entries = try await generateUIEntries(from: newOrderedItems)
-                updateData(entries)
-            } catch {
-                log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
-            }
+            let newOrderedItems = try await reorderItems()
+            let entries = try await generateUIEntries(from: newOrderedItems)
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
         }
     }
 }

@@ -207,7 +207,7 @@ public extension EntryRepository {
     func completeUpdate(entry: Entry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
-             _ = try await remoteUpdate(entry: orderedEntity)
+            _ = try await remoteUpdate(entry: orderedEntity)
         }
     }
 }
@@ -388,7 +388,7 @@ public extension EntryRepository {
                                              lastRevision: entry.revision)
 
             let result = try await apiClient.update(entryId: remoteId, request: request)
-            
+
             let entityId = entry.id
             if let localEntity = try await persistentStorage
                 .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) {
@@ -396,7 +396,7 @@ public extension EntryRepository {
                 localEntity.update(with: result)
                 try await persistentStorage.save(data: localEntity)
             }
-            
+
             log(.info, "Successfully updated entry with id \(remoteId) on remote")
             return result
         } catch {
