@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "2Fas file" : {
+
+    },
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
       "localizations" : {

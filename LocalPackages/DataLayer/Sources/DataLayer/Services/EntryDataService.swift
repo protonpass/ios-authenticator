@@ -498,7 +498,7 @@ private extension EntryDataService {
             }
         print("woot ordered items: \(mergedAndOrderedItems)\n")
 
-        try await repository.completeReorder(entries:mergedAndOrderedItems)
+        try await repository.completeReorder(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems
     }
 

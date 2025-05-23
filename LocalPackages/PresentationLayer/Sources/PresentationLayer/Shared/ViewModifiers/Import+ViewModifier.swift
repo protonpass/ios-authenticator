@@ -350,7 +350,7 @@ private extension ImportOption {
         case .lastPassAuthenticator:
             [.json]
         case .enteAuth, .protonAuthenticator, .twoFas:
-            [.text, .plainText]
+            [.text, .plainText, .twoFAS]
         case .googleAuthenticator:
             [.image]
         }
@@ -387,4 +387,8 @@ private extension GoogleImportType {
             "Import from Files"
         }
     }
+}
+
+extension UTType {
+    static let twoFAS = UTType(exportedAs: "com.app.2fas")
 }
