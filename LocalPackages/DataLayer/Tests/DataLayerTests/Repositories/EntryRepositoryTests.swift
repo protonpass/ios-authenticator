@@ -382,7 +382,7 @@ struct EntryRepositoryTests {
         
         try await sut.localSave(entries)
 
-       _ = try await sut.localUpdate(newEntry1.entry)
+       _ = try await sut.localUpdate(newEntry1)
         
         let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
@@ -487,6 +487,6 @@ struct EntryRepositoryTests {
 
 extension OrderedEntry {
     init(entry: Entry, order: Int, keyId: String) {
-        self.init(entry: entry, keyId: keyId, remoteId: nil, order: order, revision: 1, contentFormatVersion: 1)
+        self.init(entry: entry, keyId: keyId, remoteId: nil, order: order, modifiedTime: Date.now.timeIntervalSince1970, revision: 1, contentFormatVersion: 1)
     }
 }

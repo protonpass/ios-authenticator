@@ -29,7 +29,7 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
     public let code: Code
     public let order: Int
     public let issuerInfo: AuthIssuerInfo?
-    public let syncState: EntrySyncState
+    public var syncState: EntrySyncState
 
     public var id: String {
         entry.id
@@ -58,9 +58,10 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
                      issuerInfo: issuerInfo)
     }
 
-    public func updateRemoteId(_ remoteId: String?) -> EntryUiModel {
+    public func updateRemoteInfos(_ remoteId: String) -> EntryUiModel {
         var entryUiModel = self
         entryUiModel.remoteId = remoteId
+        entryUiModel.syncState = .synced
         return entryUiModel
     }
 

@@ -38,7 +38,7 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
                 order: Int,
                 syncState: EntrySyncState = .unsynced,
                 creationDate: TimeInterval = Date().timeIntervalSince1970,
-                modifiedTime: TimeInterval = Date().timeIntervalSince1970,
+                modifiedTime: TimeInterval,
                 flags: Int = 0,
                 revision: Int,
                 contentFormatVersion: Int) {

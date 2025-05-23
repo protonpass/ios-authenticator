@@ -36,23 +36,22 @@ struct ScannerView: View {
         DataScanner(with: .barcode,
                     startScanning: $viewModel.scanning,
                     automaticDismiss: false,
-                    regionOfInterest: $regionOfInterest) { [weak viewModel] results in
-            viewModel?.processPayload(results: results)
-        }
-        .edgesIgnoringSafeArea(.all)
-        .onChange(of: viewModel.shouldDismiss) {
-            dismiss()
-        }
-        .onChange(of: viewModel.shouldEnterManually) {
-            enterManually()
-        }
-        .sheetAlertService()
-        .photosPicker(isPresented: $showPhotosPicker,
-                      selection: $viewModel.imageSelection,
-                      matching: .images,
-                      photoLibrary: .shared())
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(regionOfInterestOverlay.edgesIgnoringSafeArea(.all))
+                    regionOfInterest: $regionOfInterest,
+                    resultStream: viewModel.scanResponsePublisher)
+            .edgesIgnoringSafeArea(.all)
+            .onChange(of: viewModel.shouldDismiss) {
+                dismiss()
+            }
+            .onChange(of: viewModel.shouldEnterManually) {
+                enterManually()
+            }
+            .sheetAlertService()
+            .photosPicker(isPresented: $showPhotosPicker,
+                          selection: $viewModel.imageSelection,
+                          matching: .images,
+                          photoLibrary: .shared())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(regionOfInterestOverlay.edgesIgnoringSafeArea(.all))
     }
 }
 
@@ -67,8 +66,8 @@ private extension ScannerView {
 
     func enterManually() {
         viewModel.clean()
-        dismiss()
         router.presentedSheet = .createEditEntry(nil)
+        dismiss()
     }
 }
 

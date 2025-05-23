@@ -50,7 +50,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func localRemove(_ entryId: String) async throws
     // periphery:ignore
     func localRemoveAll() async throws
-    func localUpdate(_ entry: Entry) async throws -> OrderedEntry?
+    func localUpdate(_ entry: any IdentifiableOrderedEntry) async throws -> OrderedEntry?
     func localReorder(_ entries: [any IdentifiableOrderedEntry]) async throws
 
     // MARK: - Remote Proton BE CRUD
@@ -67,9 +67,9 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func completeSingleItemReordering(_ remoteIdToMove: String?,
                                       entries: [any IdentifiableOrderedEntry]) async throws
-    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws
+    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]?
     func completeRemove(entry: any IdentifiableOrderedEntry) async throws
-    func completeUpdate(entry: Entry) async throws
+    func completeUpdate(entry: any IdentifiableOrderedEntry) async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -177,11 +177,12 @@ public extension EntryRepository {
         }
     }
 
-    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws {
+    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]? {
         try await localSave(entries)
         if isAuthenticated {
-            _ = try await remoteSave(entries: entries)
+            return try await remoteSave(entries: entries)
         }
+        return nil
     }
 
     func completeRemove(entry: any IdentifiableOrderedEntry) async throws {
@@ -204,7 +205,7 @@ public extension EntryRepository {
         try await localRemove(entry.id)
     }
 
-    func completeUpdate(entry: Entry) async throws {
+    func completeUpdate(entry: any IdentifiableOrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
             _ = try await remoteUpdate(entry: orderedEntity)
@@ -280,25 +281,32 @@ public extension EntryRepository {
         log(.info, "Successfully removed all entries from local storage")
     }
 
-    func localUpdate(_ entry: Entry) async throws -> OrderedEntry? {
+    func localUpdate(_ entry: any IdentifiableOrderedEntry) async throws -> OrderedEntry? {
         log(.debug, "Updating entry with ID: \(entry.id)")
         do {
+            let entryId = entry.id
             guard let entity = try await persistentStorage
-                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entry.id }) else {
+                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entryId }) else {
                 log(.warning, "Cannot find local entry with ID: \(entry.id) for update")
                 return nil
             }
             log(.debug, "Found local entry, encrypting updated data")
 
-            let encryptedData = try encryptionService.encrypt(entry: entry, keyId: entity.keyId, locally: true)
+            let encryptedData = try encryptionService.encrypt(entry: entry.entry,
+                                                              keyId: entity.keyId,
+                                                              locally: true)
                 .encodeBase64()
-            entity.updateEncryptedData(encryptedData, with: entity.keyId)
+            entity.updateEncryptedData(encryptedData,
+                                       with: entity.keyId,
+                                       remoteModifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date
+                                           .currentTimestamp)
             try await persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
-            return OrderedEntry(entry: entry,
+            return OrderedEntry(entry: entry.entry,
                                 keyId: entity.keyId,
                                 remoteId: entity.remoteId,
                                 order: entity.order,
+                                modifiedTime: entity.modifiedTime,
                                 revision: entity.revision,
                                 contentFormatVersion: entryContentFormatVersion)
         } catch {
@@ -358,7 +366,7 @@ public extension EntryRepository {
             }
             let encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
                 .fetch(predicate: predicate)) ?? []
-            encryptedEntries.updateWithData(from: result)
+            encryptedEntries.updateData(with: result)
             try await persistentStorage.batchSave(content: encryptedEntries)
             return result
         } catch {
@@ -471,11 +479,18 @@ public extension EntryRepository {
                     await fetchRemoteEncryptionKeyOrPushLocalKey()
                 }
                 let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
+
+                var syncState = EntrySyncState.unsynced
+                let entityId = decryptedEntry.id
+                if await (try? persistentStorage
+                    .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId })) != nil {
+                    syncState = .synced
+                }
                 let orderedEntry = OrderedEntry(entry: decryptedEntry,
                                                 keyId: encryptedEntry.authenticatorKeyID,
                                                 remoteId: encryptedEntry.entryID,
                                                 order: index,
-                                                syncState: .unsynced, // check if it should be synced or not
+                                                syncState: syncState,
                                                 creationDate: Double(encryptedEntry.createTime),
                                                 modifiedTime: Double(encryptedEntry.modifyTime),
                                                 flags: encryptedEntry.flags,
@@ -600,10 +615,8 @@ private extension EntryRepository {
                                     keyId: encryptionKeyId,
                                     order: entry.order,
                                     syncState: entry.syncState,
-                                    creationDate: (entry as? OrderedEntry)?.creationDate ?? Date.now
-                                        .timeIntervalSince1970,
-                                    modifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date.now
-                                        .timeIntervalSince1970,
+                                    creationDate: (entry as? OrderedEntry)?.creationDate ?? Date.currentTimestamp,
+                                    modifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date.currentTimestamp,
                                     flags: (entry as? OrderedEntry)?.flags ?? 0,
                                     contentFormatVersion: (entry as? OrderedEntry)?
                                         .contentFormatVersion ?? entryContentFormatVersion,
@@ -616,7 +629,7 @@ private extension EntryRepository {
 }
 
 extension [EncryptedEntryEntity] {
-    func updateWithData(from remoteEntries: [RemoteEncryptedEntry]) {
+    func updateData(with remoteEntries: [RemoteEncryptedEntry]) {
         for (index, entry) in enumerated() where index < remoteEntries.count {
             entry.update(with: remoteEntries[index])
         }
@@ -624,3 +637,9 @@ extension [EncryptedEntryEntity] {
 }
 
 // swiftlint:enable line_length
+
+extension Date {
+    static var currentTimestamp: TimeInterval {
+        Date.now.timeIntervalSince1970
+    }
+}
