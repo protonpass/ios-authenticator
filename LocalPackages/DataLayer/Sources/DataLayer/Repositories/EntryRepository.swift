@@ -70,6 +70,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func completeSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]?
     func completeRemove(entry: any IdentifiableOrderedEntry) async throws
     func completeUpdate(entry: any IdentifiableOrderedEntry) async throws
+    func completeReorder(entries: [any IdentifiableOrderedEntry]) async throws
 }
 
 public extension EntryRepositoryProtocol {
@@ -173,7 +174,8 @@ public extension EntryRepository {
                                       entries: [any IdentifiableOrderedEntry]) async throws {
         try await localReorder(entries)
         if isAuthenticated, let remoteIdToMove {
-            try await singleItemRemoteReordering(entryId: remoteIdToMove, entries: entries)
+            try await batchRemoteReordering(entries: entries)
+//            try await singleItemRemoteReordering(entryId: remoteIdToMove, entries: entries)
         }
     }
 
@@ -209,6 +211,13 @@ public extension EntryRepository {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
             _ = try await remoteUpdate(entry: orderedEntity)
+        }
+    }
+    
+    func completeReorder(entries: [any IdentifiableOrderedEntry]) async throws {
+        try await localReorder(entries)
+        if isAuthenticated {
+            try await batchRemoteReordering(entries: entries)
         }
     }
 }

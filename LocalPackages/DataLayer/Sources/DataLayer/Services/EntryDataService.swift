@@ -68,8 +68,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let repository: any EntryRepositoryProtocol
     @ObservationIgnored
     private let importService: any ImportingServicing
-//    @ObservationIgnored
-//    private var task: Task<Void, Never>?
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
@@ -128,6 +126,7 @@ public extension EntryDataService {
 
     // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws {
+        if Task.isCancelled { return }
         log(.info, "Inserting entry from URI: \(uri)")
         let entry = try await repository.entry(for: uri)
         try await save(entry)
@@ -145,11 +144,15 @@ public extension EntryDataService {
 
         var entry = try createEntry(with: params)
         entry.id = entryId
-        try await repository.completeUpdate(entry: entry)
         var data: [EntryUiModel] = dataState.data ?? []
         if let index = data.firstIndex(where: { $0.id == entry.id }) {
             data[index] = data[index].copy(newEntry: entry)
+            try await repository.completeUpdate(entry: data[index])
         }
+//        var data: [EntryUiModel] = dataState.data ?? []
+//        if let index = data.firstIndex(where: { $0.id == entry.id }) {
+//            data[index] = data[index].copy(newEntry: entry)
+//        }
         updateData(data)
     }
 
@@ -323,13 +326,17 @@ private extension EntryDataService {
         }
         let order = data.count
         let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-        let entryUI = EntryUiModel(entry: code.entry,
+        var entryUI = EntryUiModel(entry: code.entry,
                                    code: code,
                                    order: order,
                                    syncState: syncState,
                                    remoteId: remoteId,
                                    issuerInfo: issuerInfo)
-        try await repository.completeSave(entries: [entryUI])
+        let remoteResults = try await repository.completeSave(entries: [entryUI])
+
+        if let remoteResult = remoteResults?.first {
+            entryUI = entryUI.updateRemoteInfos(remoteResult.entryID)
+        }
 
         data.append(entryUI)
         updateData(data)
@@ -430,7 +437,7 @@ private extension EntryDataService {
                    let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
                     let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
                     if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                        _ = try await repository.localUpdate(remoteEntry.entry)
+                        _ = try await repository.localUpdate(remoteEntry)
                     } else {
                         let updatedRevision = localEntry.updateRevision(latestRevision)
                         _ = try await repository.remoteUpdate(entry: updatedRevision)
@@ -448,9 +455,22 @@ private extension EntryDataService {
 
         let (remoteEntries, localEntries) = try await (remoteOrderedEntries, localEntriesFetch)
 
+        guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
+            return localEntries.decodedEntries
+        }
+
+        print("woot remote Entries values: \(remoteEntries)\n")
+
+        print("\n############################################\n")
+        print("woot local Entries values: \(localEntries)\n")
+        print("\n############################################\n")
+
         // Step 1: Merge items by `id` with conflict resolution
         var currentItems = [String: OrderedEntry]()
-        for item in localEntries.decodedEntries + remoteEntries {
+        var globalValues = localEntries.decodedEntries
+        globalValues.append(contentsOf: remoteEntries)
+        print("woot global values: \(globalValues)\n")
+        for item in globalValues {
             if let existing = currentItems[item.id], item.order != existing.order {
                 // Resolve by most recently modified
                 currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
@@ -458,23 +478,27 @@ private extension EntryDataService {
                 currentItems[item.id] = item
             }
         }
+        print("\n############################################\n")
+
+        print("woot current items: \(currentItems)\n")
+
+        print("\n############################################\n")
 
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedAndOrderedItems = currentItems.values
             .sorted {
                 if $0.order != $1.order {
-                    $0.order < $1.order
-                } else {
-                    $0.modifiedTime < $1.modifiedTime
+                    return $0.order < $1.order
                 }
-//                ($0.order, $0.modifiedTime) < ($1.order, $1.modifiedTime)
+                return $0.modifiedTime > $1.modifiedTime
             }
             .enumerated()
             .map { index, item in
                 item.updateOrder(index)
             }
+        print("woot ordered items: \(mergedAndOrderedItems)\n")
 
-        try await repository.batchRemoteReordering(entries: mergedAndOrderedItems)
+        try await repository.completeReorder(entries:mergedAndOrderedItems)
         return mergedAndOrderedItems
     }
 
