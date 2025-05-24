@@ -235,7 +235,7 @@ struct EntryCell: View {
     }
 
     var letterDisplay: some View {
-        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? "")")
+        Text(verbatim: "\(entry.issuer.first?.uppercased() ?? entry.name.first?.uppercased() ?? "")")
             .font(.system(size: 23, weight: .medium))
             .foregroundStyle(LinearGradient(gradient:
                 Gradient(colors: [

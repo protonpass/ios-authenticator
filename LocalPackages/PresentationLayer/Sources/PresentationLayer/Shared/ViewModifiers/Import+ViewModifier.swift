@@ -36,7 +36,9 @@ struct ImportingServiceModifier: ViewModifier {
     @State private var showImportFromGoogleOptions = false
     @State private var showPhotosPicker = false
     @State private var showScanner = false
+    @FocusState private var focusedField: Bool
 
+    @Environment(\.dismiss) private var dismiss
     @Binding var showImportOptions: Bool
 
     init(showImportOptions: Binding<Bool>, mainDisplay: Bool) {
@@ -50,18 +52,68 @@ struct ImportingServiceModifier: ViewModifier {
             .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                            onSelect: handle)
             .sheet(isPresented: $viewModel.showPasswordSheet) {
-                VStack {
-                    Text("Your import file is password protected. Please enter the password to proceed.",
-                         bundle: .module)
+                VStack(alignment: .center, spacing: 30) {
+                    HStack {
+                        Spacer()
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24)
+                                .foregroundStyle(.textNorm.opacity(0.7))
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                    .frame(height: 149)
+                    VStack(spacing: 8) {
+                        Text("Protected file",
+                             bundle: .module)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.textNorm)
+                            .fontWeight(.bold)
+                        Text("Your import file is protected by a password. Please enter the password to proceed.",
+                             bundle: .module)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.textWeak)
+                    }
+
                     TextField("Password", text: $viewModel.password)
+                        .autocorrectionDisabled(true)
+                        .frame(minHeight: 55)
+                        .focused($focusedField, equals: true)
+                    #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                    #endif
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(.inputBorder)
+                                .frame(height: 1)
+                        }
+                    
 
                     CapsuleButton(title: "Import",
                                   textColor: .white,
                                   style: .borderedFilled) {
                         viewModel.encryptedImport()
                     }.disabled(viewModel.password.isEmpty)
+                    Spacer()
                 }
-                .mainBackground()
+//                .mainBackground()
+                .padding(.horizontal, 36)
+                .fullScreenMainBackground()
+                .onAppear {
+                    withAnimation {
+                        focusedField = true
+                    }
+                }
+                .alert("Wrong password", isPresented: $showDeviceNotCapacityAlert, actions: {
+                    //TODO: retry / dismiss
+                    
+                })
+
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
@@ -241,7 +293,8 @@ final class ImportViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                password = ""
+                alertService.showError(error, mainDisplay: false /* mainDisplay */, action: nil)
             }
         }
     }
