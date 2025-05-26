@@ -218,16 +218,15 @@ struct EntryCell: View {
             } placeholder: {
                 letterDisplay
             }
-            .indicator(.activity)
             .transition(.fade(duration: 0.5))
             .scaledToFit()
             .padding(4)
             .frame(width: 34, height: 34, alignment: .center)
-            .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
+                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) :
+                    .black.opacity(0),
                         lineWidth: 0.5))
         } else {
             letterDisplay
