@@ -78,6 +78,8 @@ public struct EntriesView: View {
                     viewModel?.reloadData()
                 }
                 .onAppear {
+                    viewModel.reloadData()
+
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
                     }
@@ -271,7 +273,6 @@ private extension EntriesView {
         HStack(alignment: .bottom, spacing: 10) {
             searchBar
             addButton(size: 44)
-                .padding(10)
         }
         .padding(.horizontal, 22)
         .padding(.top, 8)
@@ -382,7 +383,7 @@ private extension EntriesView {
                         .padding(.bottom, 16)
                 } description: {
                     VStack(spacing: 16) {
-                        Text("No codes", bundle: .module)
+                        Text("No codes yet", bundle: .module)
                             .font(.title3)
                             .monospaced()
                             .multilineTextAlignment(.center)

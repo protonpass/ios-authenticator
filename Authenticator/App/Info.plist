@@ -8,15 +8,13 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>2Fas file</string>
+			<string></string>
 			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<string>None</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.app.2fas</string>
-			</array>
+			<array/>
 			<key>NSDocumentClass</key>
 			<string>NSDocument</string>
 		</dict>

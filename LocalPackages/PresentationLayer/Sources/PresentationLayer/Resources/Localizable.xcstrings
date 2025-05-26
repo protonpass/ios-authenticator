@@ -181,6 +181,16 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
     "Choose a Photo" : {
       "localizations" : {
         "en" : {
@@ -622,12 +632,12 @@
         }
       }
     },
-    "No codes" : {
+    "No codes yet" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No codes"
+            "value" : "No codes yet"
           }
         }
       }
@@ -728,6 +738,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protect your inbox from spam, tracking, and targeted ads."
+          }
+        }
+      }
+    },
+    "Protected file" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protected file"
           }
         }
       }
@@ -1075,6 +1095,16 @@
         }
       }
     },
+    "Wrong password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrong password"
+          }
+        }
+      }
+    },
     "Yes" : {
       "localizations" : {
         "en" : {
@@ -1085,12 +1115,12 @@
         }
       }
     },
-    "Your import file is password protected. Please enter the password to proceed." : {
+    "Your import file is protected by a password. Please enter the password to proceed." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your import file is password protected. Please enter the password to proceed."
+            "value" : "Your import file is protected by a password. Please enter the password to proceed."
           }
         }
       }

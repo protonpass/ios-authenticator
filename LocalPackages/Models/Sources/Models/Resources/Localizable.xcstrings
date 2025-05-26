@@ -1,0 +1,416 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Address not found \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address not found \"%@\""
+          }
+        }
+      }
+    },
+    "An entry with the same data already exists" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An entry with the same data already exists"
+          }
+        }
+      }
+    },
+    "Corrupted content id \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corrupted content id \"%@\""
+          }
+        }
+      }
+    },
+    "Empty QR code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty QR code"
+          }
+        }
+      }
+    },
+    "Error detecting QR code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error detecting QR code"
+          }
+        }
+      }
+    },
+    "Error importing image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error importing image"
+          }
+        }
+      }
+    },
+    "Error processing image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error processing image"
+          }
+        }
+      }
+    },
+    "Failed to AES encrypt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to AES encrypt"
+          }
+        }
+      }
+    },
+    "Failed to armor %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to armor %@"
+          }
+        }
+      }
+    },
+    "Failed to base 64 decode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to base 64 decode"
+          }
+        }
+      }
+    },
+    "Failed to base 64 decode \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to base 64 decode \"%@\""
+          }
+        }
+      }
+    },
+    "Failed to decode" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to decode"
+          }
+        }
+      }
+    },
+    "Failed to decode URL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to decode URL"
+          }
+        }
+      }
+    },
+    "Failed to decrypt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to decrypt"
+          }
+        }
+      }
+    },
+    "Failed to decrypt content" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to decrypt content"
+          }
+        }
+      }
+    },
+    "Failed to encode \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to encode \"%@\""
+          }
+        }
+      }
+    },
+    "Failed to encrypt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to encrypt"
+          }
+        }
+      }
+    },
+    "Failed to generate key ring" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to generate key ring"
+          }
+        }
+      }
+    },
+    "Failed to generate session key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to generate session key"
+          }
+        }
+      }
+    },
+    "Failed to get fingerprint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to get fingerprint"
+          }
+        }
+      }
+    },
+    "Failed to randomize data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to randomize data"
+          }
+        }
+      }
+    },
+    "Failed to split PGP message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to split PGP message"
+          }
+        }
+      }
+    },
+    "Failed to unarmor %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to unarmor %@"
+          }
+        }
+      }
+    },
+    "Failed to UTF8 convert to data \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to UTF8 convert to data \"%@\""
+          }
+        }
+      }
+    },
+    "Failed to verify signature" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to verify signature"
+          }
+        }
+      }
+    },
+    "Failed to verify vault" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to verify vault"
+          }
+        }
+      }
+    },
+    "Inactive user key %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactive user key %@"
+          }
+        }
+      }
+    },
+    "Is not the correct file format" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Is not the correct file format"
+          }
+        }
+      }
+    },
+    "Main key not found" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Main key not found"
+          }
+        }
+      }
+    },
+    "Missing entry for generated code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing entry for generated code"
+          }
+        }
+      }
+    },
+    "Missing generated codes: %lld instead of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Missing generated codes: %1$lld instead of %2$lld"
+          }
+        }
+      }
+    },
+    "Missing keys" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing keys"
+          }
+        }
+      }
+    },
+    "Missing passphrase \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing passphrase \"%@\""
+          }
+        }
+      }
+    },
+    "Missing remote encryption key" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing remote encryption key"
+          }
+        }
+      }
+    },
+    "Missing remote id for entity" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing remote id for entity"
+          }
+        }
+      }
+    },
+    "Missing user data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing user data"
+          }
+        }
+      }
+    },
+    "Missing user key \"%@\"" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing user key \"%@\""
+          }
+        }
+      }
+    },
+    "No data to export" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data to export"
+          }
+        }
+      }
+    },
+    "No entries detected to import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries detected to import"
+          }
+        }
+      }
+    },
+    "Unmatch key rotation %lld - %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unmatch key rotation %1$lld - %2$lld"
+          }
+        }
+      }
+    },
+    "Wrong type of entry params" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrong type of entry params"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

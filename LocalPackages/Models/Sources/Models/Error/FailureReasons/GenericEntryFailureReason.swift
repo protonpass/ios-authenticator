@@ -34,23 +34,23 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
         case let .missingGeneratedCodes(codeCount, entryCount):
-            "Missing generated codes: \(codeCount) instead of \(entryCount)"
+            String(localized: "Missing generated codes: \(codeCount) instead of \(entryCount)", bundle: .module)
         case .missingEntryForGeneratedCode:
-            "Missing entry for generated code"
+            String(localized: "Missing entry for generated code", bundle: .module)
         case .wrongTypeOfEntryParams:
-            "Wrong type of entry params"
+            String(localized: "Wrong type of entry params", bundle: .module)
         case .duplicatedEntry:
-            "An entry with the same data already exists"
+            String(localized: "An entry with the same data already exists", bundle: .module)
         case .exportEmptyData:
-            "No data to export"
+            String(localized: "No data to export", bundle: .module)
         case .mainKeyNotFound:
-            "Main key not found"
+            String(localized: "Main key not found", bundle: .module)
         case .failedToRandomizeData:
-            "Failed to randomize data"
+            String(localized: "Failed to randomize data", bundle: .module)
         case .missingUserData:
-            "Missing user data"
+            String(localized: "Missing user data", bundle: .module)
         case .missingRemoteId:
-            "Missing remote id for entity"
+            String(localized: "Missing remote id for entity", bundle: .module)
         }
     }
 }
