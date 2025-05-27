@@ -23,9 +23,9 @@ import Combine
 import Models
 
 public protocol TotpGeneratorProtocol: Sendable {
-    var currentCode: CurrentValueSubject<[Code]?, Never> { get }
+    var currentCodes: CurrentValueSubject<[Code]?, Never> { get }
 
-    func totpUpdate(_ entries: [Entry]) async throws
+    func startTotpCodeUpdate(_ entries: [Entry]) async throws
     func stopUpdating() async
 }
 
@@ -33,7 +33,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
     private let rustTotpGenerator: any MobileTotpGeneratorProtocol
     private var cancellableGenerator: (any MobileTotpGenerationHandle)?
 
-    public nonisolated let currentCode: CurrentValueSubject<[Code]?, Never> = .init(nil)
+    public nonisolated let currentCodes: CurrentValueSubject<[Code]?, Never> = .init(nil)
 
     public init(rustTotpGenerator: any MobileTotpGeneratorProtocol) {
         self.rustTotpGenerator = rustTotpGenerator
@@ -44,10 +44,8 @@ public actor TotpGenerator: TotpGeneratorProtocol {
         cancellableGenerator = nil
     }
 
-    public func totpUpdate(_ entries: [Entry]) async throws {
-        cancellableGenerator?.cancel()
-        cancellableGenerator = nil
-
+    public func startTotpCodeUpdate(_ entries: [Entry]) async throws {
+        await stopUpdating()
         cancellableGenerator = try rustTotpGenerator.start(entries: entries.toRustEntries, callback: self)
     }
 
@@ -59,7 +57,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
 
 extension TotpGenerator: MobileTotpGeneratorCallback {
     public nonisolated func onCodes(codes: [AuthenticatorCodeResponse]) {
-        currentCode.send(codes.map(\.toCode))
+        currentCodes.send(codes.map(\.toCode))
     }
 }
 
