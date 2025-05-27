@@ -227,7 +227,7 @@ struct EntryCell: View {
                 .inset(by: -0.25)
                 .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) :
                     .black.opacity(0),
-                        lineWidth: 0.5))
+                    lineWidth: 0.5))
         } else {
             letterDisplay
         }

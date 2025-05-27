@@ -164,6 +164,9 @@ final class EntriesViewModel: ObservableObject {
         if offset < destination {
             targetIndex -= 1
         }
+        guard offset != targetIndex else {
+            return
+        }
         Task { [weak self] in
             guard let self else { return }
             do {
