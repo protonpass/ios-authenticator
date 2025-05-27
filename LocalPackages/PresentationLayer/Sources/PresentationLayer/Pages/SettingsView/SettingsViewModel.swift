@@ -156,6 +156,8 @@ final class SettingsViewModel {
                 syncEnabled = authenticated
             }
             .store(in: &cancellables)
+
+        exportData()
     }
 }
 

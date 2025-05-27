@@ -22,16 +22,19 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-public struct TextDocument: FileDocument {
+public struct TextDocument: FileDocument, Transferable, Codable {
+    public let title: String
     private let content: String
 
     public init(_ content: String = "") {
+        title = TextDocument.exportFileName
         self.content = content
     }
 
     public static let readableContentTypes: [UTType] = [.text]
 
     public init(configuration: ReadConfiguration) throws {
+        title = TextDocument.exportFileName
         if let data = configuration.file.regularFileContents,
            let newContent = String(data: data, encoding: .utf8) {
             content = newContent
@@ -44,5 +47,39 @@ public struct TextDocument: FileDocument {
     public func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let data = Data(content.utf8)
         return FileWrapper(regularFileWithContents: data)
+    }
+
+    public static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(contentType: .plainText) { file in
+            // Create temporary file
+            let tempURL = URL.temporaryDirectory
+                .appendingPathComponent(file.title)
+                .appendingPathExtension("txt")
+
+            // Write content to file
+            try file.content.write(to: tempURL, atomically: true, encoding: .utf8)
+            return SentTransferredFile(tempURL)
+        } importing: { received in
+            // This is required but won't be used for sharing
+            let data = try Data(contentsOf: received.file)
+            let content = String(data: data, encoding: .utf8) ?? ""
+            return TextDocument(content)
+        }
+
+        // Add fallback data representation
+        DataRepresentation(exportedContentType: .plainText) { file in
+            Data(file.content.utf8)
+        }
+        .suggestedFileName { file in
+            file.title
+        }
+    }
+
+    static var exportFileName: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let currentDate = dateFormatter.string(from: .now)
+
+        return "Authenticator_backup_\(currentDate).txt"
     }
 }

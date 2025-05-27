@@ -105,11 +105,11 @@ public struct SettingsView: View {
             .fullScreenMainBackground()
             .sheetAlertService()
             .importingService($showImportOptions, onMainDisplay: false)
-            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                          document: viewModel.exportedDocument,
-                          contentType: .text,
-                          defaultFilename: viewModel.generateExportFileName(),
-                          onCompletion: viewModel.handleExportResult)
+//            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
+//                          document: viewModel.exportedDocument,
+//                          contentType: .text,
+//                          defaultFilename: viewModel.generateExportFileName(),
+//                          onCompletion: viewModel.handleExportResult)
             .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
                 viewModel.settingSheet?.destination
             }
@@ -257,7 +257,12 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export", .module), onTap: viewModel.exportData)
+            if let exportedDocument = viewModel.exportedDocument {
+                ShareLink(item: exportedDocument, preview: SharePreview(exportedDocument.title,
+                                                                        image: Image(systemName: "text.document"))) {
+                    SettingRow(title: .localized("Export", .module))
+                }
+            }
         }
     }
 
