@@ -467,10 +467,10 @@ private extension EntryDataService {
 
         // Step 1: Merge items by `id` with conflict resolution
         var currentItems = [String: OrderedEntry]()
-        var globalValues = localEntries.decodedEntries
-        globalValues.append(contentsOf: remoteEntries)
-        print("woot global values: \(globalValues)\n")
-        for item in globalValues {
+//        var globalValues = localEntries.decodedEntries
+//        globalValues.append(contentsOf: remoteEntries)
+//        print("woot global values: \(globalValues)\n")
+        for item in localEntries.decodedEntries + remoteEntries {
             if let existing = currentItems[item.id], item.order != existing.order {
                 // Resolve by most recently modified
                 currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
@@ -478,11 +478,11 @@ private extension EntryDataService {
                 currentItems[item.id] = item
             }
         }
-        print("\n############################################\n")
-
-        print("woot current items: \(currentItems)\n")
-
-        print("\n############################################\n")
+//        print("\n############################################\n")
+//
+//        print("woot current items: \(currentItems)\n")
+//
+//        print("\n############################################\n")
 
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedAndOrderedItems = currentItems.values
@@ -496,9 +496,9 @@ private extension EntryDataService {
             .map { index, item in
                 item.updateOrder(index)
             }
-        print("woot ordered items: \(mergedAndOrderedItems)\n")
+//        print("woot ordered items: \(mergedAndOrderedItems)\n")
 
-        try await repository.completeReorder(entries:mergedAndOrderedItems)
+        try await repository.completeReorder(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems
     }
 

@@ -213,7 +213,7 @@ public extension EntryRepository {
             _ = try await remoteUpdate(entry: orderedEntity)
         }
     }
-    
+
     func completeReorder(entries: [any IdentifiableOrderedEntry]) async throws {
         try await localReorder(entries)
         if isAuthenticated {
