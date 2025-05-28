@@ -48,7 +48,6 @@ struct ImportingServiceModifier: ViewModifier {
     @State private var showScanner = false
     @FocusState private var focusedField: FocusField?
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @Binding var showImportOptions: Bool
 

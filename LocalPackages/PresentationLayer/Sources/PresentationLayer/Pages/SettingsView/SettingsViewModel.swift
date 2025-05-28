@@ -60,9 +60,9 @@ final class SettingsViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.toastService)
-    private var toastService
+//    @ObservationIgnored
+//    @LazyInjected(\ServiceContainer.toastService)
+//    private var toastService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -252,13 +252,13 @@ extension SettingsViewModel {
         haptic()
     }
 
-    func generateExportFileName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let currentDate = dateFormatter.string(from: .now)
-
-        return "Authenticator_backup_\(currentDate).txt"
-    }
+//    func generateExportFileName() -> String {
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+//        let currentDate = dateFormatter.string(from: .now)
+//
+//        return "Authenticator_backup_\(currentDate).txt"
+//    }
 
     func exportData() {
         do {
@@ -269,15 +269,15 @@ extension SettingsViewModel {
         }
     }
 
-    func handleExportResult(_ result: Result<URL, any Error>) {
-        switch result {
-        case .success:
-            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
-                                         title: #localized("Successfully exported", bundle: .module)))
-        case let .failure(error):
-            handle(error)
-        }
-    }
+//    func handleExportResult(_ result: Result<URL, any Error>) {
+//        switch result {
+//        case .success:
+//            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
+//                                         title: #localized("Successfully exported", bundle: .module)))
+//        case let .failure(error):
+//            handle(error)
+//        }
+//    }
 }
 
 private extension SettingsViewModel {
