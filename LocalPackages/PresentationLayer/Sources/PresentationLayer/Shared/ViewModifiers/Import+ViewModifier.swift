@@ -334,7 +334,6 @@ final class ImportViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
             } catch {
-                print("Failed to import entries: \(error)")
                 password = ""
                 showWrongPasswordAlert = true
             }
@@ -488,5 +487,5 @@ private extension GoogleImportType {
 }
 
 extension UTType {
-    static let twoFAS = UTType(exportedAs: "com.app.2fas")
+    static let twoFAS = UTType(exportedAs: "me.proton.2fas")
 }

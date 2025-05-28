@@ -292,15 +292,6 @@ public extension EntryDataService {
 
         log(.info, "Starting TOTP generator")
         startUpdatingTotpCode(entries)
-//        entryUpdateTask?.cancel()
-//        entryUpdateTask = Task { [weak self] in
-//            do {
-//                try await totpGenerator.startTotpCodeUpdate(data)
-//                log(.debug, "TOTP generator started for \(data.count) entries")
-//            } catch {
-//                log(.error, "Failed to start TOTP generator: \(error)")
-//            }
-//        }
     }
 }
 
