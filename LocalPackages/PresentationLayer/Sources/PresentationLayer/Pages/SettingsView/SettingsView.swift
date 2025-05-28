@@ -80,45 +80,50 @@ public struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close", bundle: .module)
-                            .foregroundStyle(.purpleInteraction)
-                    }
-                    .adaptiveButtonStyle()
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .routingProvided
-            .navigationTitle(Text("Settings", bundle: .module))
-            .task {
-                await viewModel.setUp()
-            }
             #if os(iOS)
-            .listSectionSpacing(DesignConstant.padding * 2)
-            .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Close", bundle: .module)
+                                .foregroundStyle(.purpleInteraction)
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
             #endif
-            .toastDisplay()
-            .fullScreenMainBackground()
-            .sheetAlertService()
-            .importingService($showImportOptions, onMainDisplay: false)
+                .scrollContentBackground(.hidden)
+                .routingProvided
+                .navigationTitle(Text("Settings", bundle: .module))
+                .task {
+                    await viewModel.setUp()
+                }
+            #if os(iOS)
+                .listSectionSpacing(DesignConstant.padding * 2)
+                .navigationBarTitleDisplayMode(.inline)
+            #endif
+                .toastDisplay()
+                .fullScreenMainBackground()
+                .sheetAlertService()
+                .importingService($showImportOptions, onMainDisplay: false)
 //            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
 //                          document: viewModel.exportedDocument,
 //                          contentType: .text,
 //                          defaultFilename: viewModel.generateExportFileName(),
 //                          onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
-                viewModel.settingSheet?.destination
-            }
+                .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                    viewModel.settingSheet?.destination
+                }
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
         #if os(macOS)
             .frame(minWidth: 800, minHeight: 600)
         #endif
+            .onAppear {
+                viewModel.exportData()
+            }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -189,7 +194,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Theme", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title, .module)))
+                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                               .detailChevronUpDown(.localized(viewModel.theme.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
 
@@ -209,8 +217,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Search bar position", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
-                                                                         .module)))
+                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
 
@@ -229,7 +239,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Digit style", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)))
+                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                               .detailChevronUpDown(.localized(viewModel.digitStyle.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
             SettingDivider()
@@ -262,6 +275,9 @@ private extension SettingsView {
                                                                         image: Image(systemName: "text.document"))) {
                     SettingRow(title: .localized("Export", .module))
                 }
+                #if os(macOS)
+                .offset(x: -7)
+                #endif
             }
         }
     }

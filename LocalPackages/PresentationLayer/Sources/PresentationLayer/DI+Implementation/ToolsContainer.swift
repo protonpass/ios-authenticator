@@ -35,6 +35,8 @@ final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
 }
 
 extension ToolsContainer {
+    // swiftlint:disable:next todo
+    // TODO: make it can so we can toggle icluod sync for EncryptedEntryEntity
     var persistenceService: Factory<any PersistenceServicing> {
         self {
             do {
