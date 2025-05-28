@@ -189,7 +189,7 @@ struct EntryRepositoryTests {
                                               type: .totp,
                                               note: "Note"), order: 0, keyId: localKeyId)
        
-        try await sut.localSave(entry)
+        try await sut.localUpsert(entry)
         
         var entries = try await sut.getAllLocalEntries().decodedEntries
 
@@ -207,7 +207,7 @@ struct EntryRepositoryTests {
                         type: .totp,
                                                note: "Note"), order:1, keyId: localKeyId)
        
-        try await sut.localSave(entry2)
+        try await sut.localUpsert(entry2)
         entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
@@ -246,7 +246,7 @@ struct EntryRepositoryTests {
                                                              note: "Note"), order: 2, keyId: localKeyId)
         ]
         
-        try await sut.localSave(entries)
+        try await sut.localUpsert(entries)
         
         let fetchedEntries = try await sut.getAllLocalEntries()
 
@@ -285,7 +285,7 @@ struct EntryRepositoryTests {
         ]
         
        
-        try await sut.localSave(entries)
+        try await sut.localUpsert(entries)
         try await sut.localRemoveAll()
         
         let fetchedEntries = try await sut.getAllLocalEntries()
@@ -325,7 +325,7 @@ struct EntryRepositoryTests {
         ]
         
        
-        try await sut.localSave(entries)
+        try await sut.localUpsert(entries)
         try await sut.localRemove(entries.first!.entry)
         
         var fetchedEntries = try await sut.getAllLocalEntries()
@@ -380,7 +380,7 @@ struct EntryRepositoryTests {
                               type: .totp,
                                                    note: "new note"), order: 3, keyId: localKeyId)
         
-        try await sut.localSave(entries)
+        try await sut.localUpsert(entries)
 
        _ = try await sut.localUpdate(newEntry1)
         
@@ -466,7 +466,7 @@ struct EntryRepositoryTests {
         ]
         
         
-        try await sut.localSave(entries)
+        try await sut.localUpsert(entries)
         
         let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 

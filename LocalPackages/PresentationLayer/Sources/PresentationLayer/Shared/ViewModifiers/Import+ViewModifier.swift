@@ -31,6 +31,12 @@ import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 
+public extension View {
+    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
+        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
+    }
+}
+
 enum FocusField: Hashable {
     case field
 }
@@ -57,80 +63,7 @@ struct ImportingServiceModifier: ViewModifier {
             .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                            onSelect: handle)
             .sheet(isPresented: $viewModel.showPasswordSheet) {
-                VStack {
-                    HStack(alignment: .top) {
-                        Spacer()
-                        Button {
-                            viewModel.showPasswordSheet = false
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24)
-                                .foregroundStyle(.textNorm.opacity(0.7))
-                        }
-                        .adaptiveButtonStyle()
-                    }
-                    .frame(height: 60)
-                    .padding(.trailing, 16)
-                    VStack(alignment: .center, spacing: 30) {
-                        VStack(spacing: 8) {
-                            Text("Protected file",
-                                 bundle: .module)
-                                .font(.system(size: 28))
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(.textNorm)
-                                .fontWeight(.bold)
-                            Text("Your import file is protected by a password. Please enter the password to proceed.",
-                                 bundle: .module)
-                                .font(.system(size: 20))
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(.textWeak)
-                        }
-
-                        TextField("Password", text: $viewModel.password)
-                            .font(.system(size: 20))
-                            .focused($focusedField, equals: .field)
-                            .autocorrectionDisabled(true)
-                        #if os(iOS)
-                            .textInputAutocapitalization(.never)
-                        #endif
-                            .overlay(alignment: .bottom) {
-                                Rectangle()
-                                    .foregroundStyle(.clear)
-                                    .frame(height: 1)
-                                    .background(colorScheme == .light ? .black.opacity(0.08) : Color.white
-                                        .opacity(0.12))
-                            }
-
-                        CapsuleButton(title: "Import",
-                                      textColor: .white,
-                                      style: .borderedFilled) {
-                            viewModel.encryptedImport()
-                        }.disabled(viewModel.password.isEmpty)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 36)
-                }
-                .defaultFocus($focusedField, .field)
-                .fullScreenMainBackground()
-                .onChange(of: viewModel.showPasswordSheet) {
-                    if viewModel.showPasswordSheet {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                            focusedField = .field
-                        }
-                    }
-                }
-                .alert("Wrong password",
-                       isPresented: $viewModel.showWrongPasswordAlert,
-                       actions: {
-                           Button("Cancel", role: .cancel) {
-                               viewModel.showPasswordSheet = false
-                           }
-                           Button("Retry") {
-                               viewModel.password = ""
-                           }
-                       })
+                passwordView()
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
@@ -182,6 +115,83 @@ struct ImportingServiceModifier: ViewModifier {
             viewModel.importEntries(from: .googleAuthenticator)
         }
     }
+
+    func passwordView() -> some View {
+        VStack {
+            HStack(alignment: .top) {
+                Spacer()
+                Button {
+                    viewModel.showPasswordSheet = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm.opacity(0.7))
+                }
+                .adaptiveButtonStyle()
+            }
+            .frame(height: 60)
+            .padding(.trailing, 16)
+            VStack(alignment: .center, spacing: 30) {
+                VStack(spacing: 8) {
+                    Text("Protected file",
+                         bundle: .module)
+                        .font(.system(size: 28))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .fontWeight(.bold)
+                    Text("Your import file is protected by a password. Please enter the password to proceed.",
+                         bundle: .module)
+                        .font(.system(size: 20))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textWeak)
+                }
+
+                TextField("Password", text: $viewModel.password)
+                    .font(.system(size: 20))
+                    .focused($focusedField, equals: .field)
+                    .autocorrectionDisabled(true)
+                #if os(iOS)
+                    .textInputAutocapitalization(.never)
+                #endif
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .foregroundStyle(.clear)
+                            .frame(height: 1)
+                            .background(colorScheme == .light ? .black.opacity(0.08) : Color.white
+                                .opacity(0.12))
+                    }
+
+                CapsuleButton(title: "Import",
+                              textColor: .white,
+                              style: .borderedFilled) {
+                    viewModel.encryptedImport()
+                }.disabled(viewModel.password.isEmpty)
+                Spacer()
+            }
+            .padding(.horizontal, 36)
+        }
+        .defaultFocus($focusedField, .field)
+        .fullScreenMainBackground()
+        .onChange(of: viewModel.showPasswordSheet) {
+            if viewModel.showPasswordSheet {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                    focusedField = .field
+                }
+            }
+        }
+        .alert("Wrong password",
+               isPresented: $viewModel.showWrongPasswordAlert,
+               actions: {
+                   Button("Cancel", role: .cancel) {
+                       viewModel.showPasswordSheet = false
+                   }
+                   Button("Retry") {
+                       viewModel.password = ""
+                   }
+               })
+    }
 }
 
 private extension View {
@@ -210,12 +220,6 @@ private extension View {
                 })
             }
         }
-    }
-}
-
-public extension View {
-    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
-        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
     }
 }
 

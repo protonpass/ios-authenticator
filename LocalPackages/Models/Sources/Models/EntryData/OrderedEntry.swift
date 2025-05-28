@@ -20,10 +20,10 @@
 
 import Foundation
 
-public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
-    public let entry: Entry
-    public let keyId: String
-    public let remoteId: String?
+public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codable {
+    public var entry: Entry
+    public let keyId: String?
+    public var remoteId: String?
     public var order: Int
     public var syncState: EntrySyncState
     public let creationDate: TimeInterval
@@ -33,11 +33,11 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public let contentFormatVersion: Int
 
     public init(entry: Entry,
-                keyId: String,
+                keyId: String?,
                 remoteId: String?,
                 order: Int,
                 syncState: EntrySyncState = .unsynced,
-                creationDate: TimeInterval = Date().timeIntervalSince1970,
+                creationDate: TimeInterval = Date.now.timeIntervalSince1970,
                 modifiedTime: TimeInterval,
                 flags: Int = 0,
                 revision: Int,
@@ -56,6 +56,12 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
 
     public var id: String { entry.id }
 
+    public func updateEntry(_ newEntry: Entry) -> OrderedEntry {
+        var updatedSelf = self
+        updatedSelf.entry = newEntry
+        return updatedSelf
+    }
+
     public func updateOrder(_ newOrder: Int) -> OrderedEntry {
         var updatedSelf = self
         updatedSelf.order = newOrder
@@ -71,6 +77,13 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable {
     public func updateRevision(_ newRevision: Int) -> OrderedEntry {
         var updatedSelf = self
         updatedSelf.revision = newRevision
+        return updatedSelf
+    }
+
+    public func updateRemoteInfos(_ remoteId: String) -> OrderedEntry {
+        var updatedSelf = self
+        updatedSelf.remoteId = remoteId
+        updatedSelf.syncState = .synced
         return updatedSelf
     }
 

@@ -20,6 +20,7 @@
 
 import AuthenticatorRustCore
 import Combine
+import CommonUtilities
 import CoreData
 import Foundation
 import Models
@@ -76,8 +77,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
-    @ObservationIgnored
-    private var fullRefreshTask: Task<Void, Never>?
 
     @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
@@ -145,10 +144,11 @@ public extension EntryDataService {
         var entry = try createEntry(with: params)
         entry.id = entryId
         var data: [EntryUiModel] = dataState.data ?? []
-        if let index = data.firstIndex(where: { $0.id == entry.id }) {
-            data[index] = data[index].copy(newEntry: entry)
-            try await repository.completeUpdate(entry: data[index])
+        guard let index = data.firstIndex(where: { $0.id == entry.id }) else {
+            return
         }
+        data[index] = data[index].copy(newEntry: entry)
+        try await repository.completeUpdate(entry: data[index].orderedEntry)
 //        var data: [EntryUiModel] = dataState.data ?? []
 //        if let index = data.firstIndex(where: { $0.id == entry.id }) {
 //            data[index] = data[index].copy(newEntry: entry)
@@ -162,27 +162,26 @@ public extension EntryDataService {
         }
         log(.debug, "Deleting entry with ID: \(entry.id)")
 
-        try await repository.completeRemove(entry: entry)
+        try await repository.completeRemove(entry: entry.orderedEntry)
 
-        data = data.filter { $0.entry.id != entry.id }
-        data = updateOrder(data: data)
-        try await repository.localReorder(data)
+        data = data.filter { $0.orderedEntry.id != entry.id }
+        data = updateOrder(uiEntries: data)
+        try await repository.localReorder(data.map(\.orderedEntry))
         updateData(data)
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
         log(.debug, "Reordering item from position \(currentPosition) to \(newPosition)")
-        guard let entry = dataState.data?[currentPosition] else {
+        guard currentPosition != newPosition else {
             return
         }
         guard var entryUiModels = dataState.data else {
             return
         }
-        entryUiModels.remove(at: currentPosition)
-        entryUiModels.insert(entry, at: newPosition)
-        entryUiModels = updateOrder(data: entryUiModels)
-        try await repository.completeSingleItemReordering(entry.remoteId, entries: entryUiModels)
+        entryUiModels.move(from: currentPosition, to: newPosition)
+        entryUiModels = updateOrder(uiEntries: entryUiModels)
+        try await repository.completeReorder(entries: entryUiModels.map(\.orderedEntry))
         updateData(entryUiModels)
     }
 
@@ -204,7 +203,7 @@ public extension EntryDataService {
 
     func updateData(_ entries: [EntryUiModel]) {
         log(.debug, "Updating data with \(entries.count) entries")
-        startUpdatingTotpCode(entries.map(\.entry))
+        startUpdatingTotpCode(entries.map(\.orderedEntry.entry))
         dataState = .loaded(entries)
     }
 
@@ -217,7 +216,7 @@ public extension EntryDataService {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
 
-            try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
@@ -241,8 +240,8 @@ public extension EntryDataService {
         guard let data = dataState.data else {
             throw AuthError.generic(.exportEmptyData)
         }
-        let entries = data.map(\.entry)
-        return try repository.export(entries: entries)
+        let entries = data.map(\.orderedEntry)
+        return try repository.export(entries: entries.map(\.entry))
     }
 
     nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
@@ -250,23 +249,27 @@ public extension EntryDataService {
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
-            .filter { entry in !data.contains(where: { $0.entry.isDuplicate(of: entry) }) }
+            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
         let codes = try repository.generateCodes(entries: filteredResults)
 
         var index = data.count
         var uiEntries: [EntryUiModel] = []
         for code in codes {
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            uiEntries.append(EntryUiModel(entry: code.entry,
-                                          code: code,
-                                          order: index,
-                                          syncState: .unsynced,
+            let orderEntry = OrderedEntry(entry: code.entry,
+                                          keyId: nil,
                                           remoteId: nil,
+                                          order: index,
+                                          modifiedTime: Date.currentTimestamp,
+                                          revision: 0,
+                                          contentFormatVersion: AppConstants.ContentFormatVersion.entry)
+            uiEntries.append(EntryUiModel(orderedEntry: orderEntry,
+                                          code: code,
                                           issuerInfo: issuerInfo))
             index += 1
         }
 
-        try await repository.completeSave(entries: uiEntries)
+        _ = try await repository.completeSave(entries: uiEntries.map(\.orderedEntry))
 
         data.append(contentsOf: uiEntries)
         await MainActor.run {
@@ -285,10 +288,10 @@ public extension EntryDataService {
     }
 
     func startTotpGenerator() {
-        guard let data = dataState.data?.map(\.entry) else { return }
+        guard let entries = dataState.data?.map(\.orderedEntry.entry) else { return }
 
         log(.info, "Starting TOTP generator")
-        startUpdatingTotpCode(data)
+        startUpdatingTotpCode(entries)
 //        entryUpdateTask?.cancel()
 //        entryUpdateTask = Task { [weak self] in
 //            do {
@@ -318,8 +321,7 @@ private extension EntryDataService {
     }
 
     func save(_ entry: Entry,
-              remoteId: String? = nil,
-              syncState: EntrySyncState = .unsynced) async throws {
+              remoteId: String? = nil) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
 
         let codes = try repository.generateCodes(entries: [entry])
@@ -330,13 +332,17 @@ private extension EntryDataService {
         }
         let order = data.count
         let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-        var entryUI = EntryUiModel(entry: code.entry,
+        let orderEntry = OrderedEntry(entry: code.entry,
+                                      keyId: nil,
+                                      remoteId: remoteId,
+                                      order: order,
+                                      modifiedTime: Date.currentTimestamp,
+                                      revision: 0,
+                                      contentFormatVersion: AppConstants.ContentFormatVersion.entry)
+        var entryUI = EntryUiModel(orderedEntry: orderEntry,
                                    code: code,
-                                   order: order,
-                                   syncState: syncState,
-                                   remoteId: remoteId,
                                    issuerInfo: issuerInfo)
-        let remoteResults = try await repository.completeSave(entries: [entryUI])
+        let remoteResults = try await repository.completeSave(entries: [entryUI.orderedEntry])
 
         if let remoteResult = remoteResults?.first {
             entryUI = entryUI.updateRemoteInfos(remoteResult.entryID)
@@ -376,28 +382,25 @@ private extension EntryDataService {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            results.append(.init(entry: entry.entry,
+            results.append(.init(orderedEntry: entry,
                                  code: code,
-                                 order: index,
-                                 syncState: entry.syncState,
-                                 remoteId: entry.remoteId,
                                  issuerInfo: issuerInfo))
         }
 
         return results
     }
 
-    func updateOrder(data: [EntryUiModel]?) -> [EntryUiModel] {
+    func updateOrder(uiEntries: [EntryUiModel]?) -> [EntryUiModel] {
         log(.debug, "Updating entry order")
-        guard var data else {
+        guard var uiEntries else {
             log(.warning, "No data available to update order")
             return []
         }
 
-        for (index, entry) in data.enumerated() where entry.order != index {
-            data[index] = entry.updateOrder(index)
+        for (index, uiEntry) in uiEntries.enumerated() where uiEntry.orderedEntry.order != index {
+            uiEntries[index] = uiEntry.updateOrder(index)
         }
-        return data
+        return uiEntries
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -426,7 +429,7 @@ private extension EntryDataService {
                 if let orderedEntry = remoteOrderedEntries
                     .getFirstOrderedEntry(for: operation.entry.id) {
                     let syncedEntry = orderedEntry.updateSyncState(.synced)
-                    try await repository.localSave([syncedEntry])
+                    try await repository.localUpsert(syncedEntry)
                 }
             case .deleteLocal:
                 try await repository.localRemove(operation.entry.id)
@@ -465,18 +468,9 @@ private extension EntryDataService {
             return localEntries.decodedEntries
         }
 
-        print("woot remote Entries values: \(remoteEntries)\n")
-
-        print("\n############################################\n")
-        print("woot local Entries values: \(localEntries)\n")
-        print("\n############################################\n")
-
         // Step 1: Merge items by `id` with conflict resolution
         var currentItems = [String: OrderedEntry]()
-        var globalValues = localEntries.decodedEntries
-        globalValues.append(contentsOf: remoteEntries)
-        print("woot global values: \(globalValues)\n")
-        for item in globalValues {
+        for item in localEntries.decodedEntries + remoteEntries {
             if let existing = currentItems[item.id], item.order != existing.order {
                 // Resolve by most recently modified
                 currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
@@ -484,11 +478,6 @@ private extension EntryDataService {
                 currentItems[item.id] = item
             }
         }
-        print("\n############################################\n")
-
-        print("woot current items: \(currentItems)\n")
-
-        print("\n############################################\n")
 
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedAndOrderedItems = currentItems.values
@@ -502,7 +491,6 @@ private extension EntryDataService {
             .map { index, item in
                 item.updateOrder(index)
             }
-        print("woot ordered items: \(mergedAndOrderedItems)\n")
 
         try await repository.completeReorder(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems

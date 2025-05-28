@@ -89,4 +89,11 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         flags = remoteEncryptedEntry.flags
         revision = remoteEncryptedEntry.revision
     }
+
+    func update(with orderedEntry: OrderedEntry) {
+        syncState = orderedEntry.syncState.rawValue
+        modifiedTime = orderedEntry.modifiedTime
+        flags = orderedEntry.flags
+        revision = orderedEntry.revision
+    }
 }

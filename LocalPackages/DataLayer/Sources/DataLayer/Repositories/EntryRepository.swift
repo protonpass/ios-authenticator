@@ -44,38 +44,36 @@ public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - local CRUD
 
     func getAllLocalEntries() async throws -> [EntryState]
-    func localSave(_ entries: [any IdentifiableOrderedEntry]) async throws
+    func localUpsert(_ entries: [OrderedEntry]) async throws
     // periphery:ignore
     func localRemove(_ entry: Entry) async throws
     func localRemove(_ entryId: String) async throws
     // periphery:ignore
     func localRemoveAll() async throws
-    func localUpdate(_ entry: any IdentifiableOrderedEntry) async throws -> OrderedEntry?
-    func localReorder(_ entries: [any IdentifiableOrderedEntry]) async throws
+    func localUpdate(_ entry: OrderedEntry) async throws -> OrderedEntry?
+    func localReorder(_ entries: [OrderedEntry]) async throws
 
     // MARK: - Remote Proton BE CRUD
 
-    func remoteSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]
+    func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
     func remoteUpdate(entry: OrderedEntry) async throws -> RemoteEncryptedEntry
     func remoteDelete(remoteEntryId: String) async throws
-    func singleItemRemoteReordering(entryId: String, entries: [any IdentifiableOrderedEntry]) async throws
-    func batchRemoteReordering(entries: [any IdentifiableOrderedEntry]) async throws
+    func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws
+    func batchRemoteReordering(entries: [OrderedEntry]) async throws
     func fetchAllRemoteEntries() async throws -> [OrderedEntry]
     func fetchRemoteEncryptionKeyOrPushLocalKey() async
 
     // MARK: - Full CRUD
 
-    func completeSingleItemReordering(_ remoteIdToMove: String?,
-                                      entries: [any IdentifiableOrderedEntry]) async throws
-    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]?
-    func completeRemove(entry: any IdentifiableOrderedEntry) async throws
-    func completeUpdate(entry: any IdentifiableOrderedEntry) async throws
-    func completeReorder(entries: [any IdentifiableOrderedEntry]) async throws
+    func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]?
+    func completeRemove(entry: OrderedEntry) async throws
+    func completeUpdate(entry: OrderedEntry) async throws
+    func completeReorder(entries: [OrderedEntry]) async throws
 }
 
 public extension EntryRepositoryProtocol {
-    func localSave(_ entry: any IdentifiableOrderedEntry) async throws {
-        try await localSave([entry])
+    func localUpsert(_ entry: OrderedEntry) async throws {
+        try await localUpsert([entry])
     }
 }
 
@@ -170,24 +168,15 @@ public extension EntryRepository {
 // MARK: - local & remote CRUD
 
 public extension EntryRepository {
-    func completeSingleItemReordering(_ remoteIdToMove: String?,
-                                      entries: [any IdentifiableOrderedEntry]) async throws {
-        try await localReorder(entries)
-        if isAuthenticated, let remoteIdToMove {
-            try await batchRemoteReordering(entries: entries)
-//            try await singleItemRemoteReordering(entryId: remoteIdToMove, entries: entries)
-        }
-    }
-
-    func completeSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry]? {
-        try await localSave(entries)
+    func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]? {
+        try await localUpsert(entries)
         if isAuthenticated {
             return try await remoteSave(entries: entries)
         }
         return nil
     }
 
-    func completeRemove(entry: any IdentifiableOrderedEntry) async throws {
+    func completeRemove(entry: OrderedEntry) async throws {
         if isAuthenticated, let remoteId = entry.remoteId {
             do {
                 try await remoteDelete(remoteEntryId: remoteId)
@@ -207,14 +196,14 @@ public extension EntryRepository {
         try await localRemove(entry.id)
     }
 
-    func completeUpdate(entry: any IdentifiableOrderedEntry) async throws {
+    func completeUpdate(entry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
             _ = try await remoteUpdate(entry: orderedEntity)
         }
     }
 
-    func completeReorder(entries: [any IdentifiableOrderedEntry]) async throws {
+    func completeReorder(entries: [OrderedEntry]) async throws {
         try await localReorder(entries)
         if isAuthenticated {
             try await batchRemoteReordering(entries: entries)
@@ -244,8 +233,8 @@ public extension EntryRepository {
         }
     }
 
-    func localSave(_ entries: [any IdentifiableOrderedEntry]) async throws {
-        log(.debug, "Saving \(entries.count) entries")
+    func localUpsert(_ entries: [OrderedEntry]) async throws {
+        log(.debug, "Upserting \(entries.count) entries")
         do {
             // Fetch entities that already exist for the ids (as we cannot leverage swiftData `.unique` with
             // iCloud)
@@ -255,20 +244,49 @@ public extension EntryRepository {
                 idsToFetch.contains(entity.id)
             }
 
-            var encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
+            let encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
                 .fetch(predicate: predicate)) ?? []
             let currentLocalIds = encryptedEntries.map(\.id)
             log(.debug, "Found \(encryptedEntries.count) existing entries")
 
+            let entitiesToUpdate = entries.filter { currentLocalIds.contains($0.id) }
+            try await localUpdates(encryptedEntries: encryptedEntries, entriesToUpdate: entitiesToUpdate)
+
             let newEntries = entries.filter { !currentLocalIds.contains($0.id) }
             log(.debug, "Adding \(newEntries.count) new entries")
 
-            encryptedEntries += try newEntries.map { try encrypt($0, shouldEncryptWithLocalKey: true) }
+            let newEncryptedEntries = try newEntries.map { try encrypt($0, shouldEncryptWithLocalKey: true) }
 
-            try await persistentStorage.batchSave(content: encryptedEntries)
+            try await persistentStorage.batchSave(content: newEncryptedEntries)
             log(.info, "Successfully saved \(encryptedEntries.count) entries locally")
         } catch {
             log(.error, "Failed to save entries: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    private func localUpdates(encryptedEntries: [EncryptedEntryEntity],
+                              entriesToUpdate: [OrderedEntry]) async throws {
+        do {
+            for orderedEntry in entriesToUpdate {
+                guard let keyId = orderedEntry.keyId,
+                      let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
+                else { continue }
+
+                let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
+                                                                  keyId: keyId,
+                                                                  locally: true)
+                    .encodeBase64()
+                encryptedEntry.updateEncryptedData(encryptedData,
+                                                   with: keyId,
+                                                   remoteModifiedTime: orderedEntry.modifiedTime)
+                encryptedEntry.update(with: orderedEntry)
+            }
+
+            try await persistentStorage.batchSave(content: encryptedEntries)
+            log(.info, "Successfully updated \(encryptedEntries.count) entries locally")
+        } catch {
+            log(.error, "Failed to update entries: \(error.localizedDescription)")
             throw error
         }
     }
@@ -290,7 +308,7 @@ public extension EntryRepository {
         log(.info, "Successfully removed all entries from local storage")
     }
 
-    func localUpdate(_ entry: any IdentifiableOrderedEntry) async throws -> OrderedEntry? {
+    func localUpdate(_ entry: OrderedEntry) async throws -> OrderedEntry? {
         log(.debug, "Updating entry with ID: \(entry.id)")
         do {
             let entryId = entry.id
@@ -307,8 +325,7 @@ public extension EntryRepository {
                 .encodeBase64()
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
-                                       remoteModifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date
-                                           .currentTimestamp)
+                                       remoteModifiedTime: entry.modifiedTime)
             try await persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
@@ -324,9 +341,7 @@ public extension EntryRepository {
         }
     }
 
-    // swiftlint:disable:next todo
-    // TODO: maybe implement factional index for ordering if the current reorder if to heavy?
-    func localReorder(_ entries: [any IdentifiableOrderedEntry]) async throws {
+    func localReorder(_ entries: [OrderedEntry]) async throws {
         log(.debug,
             "Updating order for \(entries.count) entries")
         do {
@@ -350,7 +365,7 @@ public extension EntryRepository {
 // MARK: - Remote proton BE CRUD for entries
 
 public extension EntryRepository {
-    func remoteSave(entries: [any IdentifiableOrderedEntry]) async throws -> [RemoteEncryptedEntry] {
+    func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry] {
         log(.debug, "Saving \(entries.count) entries to remote")
 
         guard let remoteEncryptionKeyId else {
@@ -434,7 +449,7 @@ public extension EntryRepository {
         }
     }
 
-    func singleItemRemoteReordering(entryId: String, entries: [any IdentifiableOrderedEntry]) async throws {
+    func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws {
         log(.debug, "Updating order for entry \(entryId) on remote")
 
         var previousRemoteID: String?
@@ -453,7 +468,7 @@ public extension EntryRepository {
         }
     }
 
-    func batchRemoteReordering(entries: [any IdentifiableOrderedEntry]) async throws {
+    func batchRemoteReordering(entries: [OrderedEntry]) async throws {
         log(.debug, "Updating order for multiple entries on remote")
 
         do {
@@ -599,7 +614,7 @@ extension EntryRepository {
 // MARK: - Utils
 
 private extension EntryRepository {
-    func encrypt(_ entry: any IdentifiableOrderedEntry,
+    func encrypt(_ entry: OrderedEntry,
                  shouldEncryptWithLocalKey: Bool) throws -> EncryptedEntryEntity {
         let encryptionKeyId: String
         if shouldEncryptWithLocalKey {
@@ -618,18 +633,17 @@ private extension EntryRepository {
                                                           keyId: encryptionKeyId,
                                                           locally: shouldEncryptWithLocalKey)
             .encodeBase64()
-        return EncryptedEntryEntity(id: (entry as? OrderedEntry)?.id ?? entry.id,
+        return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     remoteId: remoteId,
                                     keyId: encryptionKeyId,
                                     order: entry.order,
                                     syncState: entry.syncState,
-                                    creationDate: (entry as? OrderedEntry)?.creationDate ?? Date.currentTimestamp,
-                                    modifiedTime: (entry as? OrderedEntry)?.modifiedTime ?? Date.currentTimestamp,
-                                    flags: (entry as? OrderedEntry)?.flags ?? 0,
-                                    contentFormatVersion: (entry as? OrderedEntry)?
-                                        .contentFormatVersion ?? entryContentFormatVersion,
-                                    revision: (entry as? OrderedEntry)?.revision ?? 0)
+                                    creationDate: entry.creationDate,
+                                    modifiedTime: entry.modifiedTime,
+                                    flags: entry.flags,
+                                    contentFormatVersion: entry.contentFormatVersion,
+                                    revision: entry.revision)
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
