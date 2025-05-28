@@ -71,19 +71,27 @@ public final class QAService: QAServicing {
     public func mockedEntries() {
         let count = max(5, numberOfMockEntries)
 
-        var entries = [Entry]()
+        var entries = [OrderedEntry]()
         for index in 0..<count {
-            entries.append(.init(id: UUID().uuidString,
-                                 name: "Test #\(index)",
-                                 uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
-                                 period: 30,
-                                 issuer: "Proton",
-                                 secret: "aaaa",
-                                 type: .totp,
-                                 note: "Note #\(index)"))
+            let entry = Entry(id: UUID().uuidString,
+                              name: "Test #\(index)",
+                              uri: "otpauth://totp/SimpleLogin:john.doe\(index)%40example.com?secret=CKTQQJVWT5IXTGD\(index)&amp;issuer=SimpleLogin",
+                              period: 30,
+                              issuer: "Proton",
+                              secret: "aaaa",
+                              type: .totp,
+                              note: "Note #\(index)")
+            let orderEntry = OrderedEntry(entry: entry,
+                                          keyId: nil,
+                                          remoteId: nil,
+                                          order: index,
+                                          modifiedTime: Date.currentTimestamp,
+                                          revision: 1,
+                                          contentFormatVersion: 1)
+            entries.append(orderEntry)
         }
 
-        let codes = try? repository.generateCodes(entries: entries)
+        let codes = try? repository.generateCodes(entries: entries.map(\.entry))
         guard let codes else {
             return
         }
@@ -92,11 +100,8 @@ public final class QAService: QAServicing {
             guard let entry = entries[safeIndex: index] else {
                 return
             }
-            results.append(.init(entry: entry,
+            results.append(.init(orderedEntry: entry,
                                  code: code,
-                                 order: index,
-                                 syncState: .unsynced,
-                                 remoteId: nil,
                                  issuerInfo: nil))
         }
         dataState = .loaded(results)

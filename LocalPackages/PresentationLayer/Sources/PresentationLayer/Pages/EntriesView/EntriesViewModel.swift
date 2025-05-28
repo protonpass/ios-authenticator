@@ -39,8 +39,8 @@ final class EntriesViewModel: ObservableObject {
         }
 
         let newResults = entryDataService.dataState.data?.filter {
-            $0.entry.name.lowercased().contains(lastestQuery) ||
-                $0.entry.issuer.lowercased().contains(lastestQuery)
+            $0.orderedEntry.entry.name.lowercased().contains(lastestQuery) ||
+                $0.orderedEntry.entry.issuer.lowercased().contains(lastestQuery)
         } ?? []
 
         return newResults

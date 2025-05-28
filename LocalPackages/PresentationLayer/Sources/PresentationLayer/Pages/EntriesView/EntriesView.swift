@@ -236,7 +236,7 @@ private extension EntriesView {
     }
 
     func cell(for entry: EntryUiModel) -> some View {
-        EntryCell(entry: entry.entry,
+        EntryCell(entry: entry.orderedEntry.entry,
                   code: entry.code,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,

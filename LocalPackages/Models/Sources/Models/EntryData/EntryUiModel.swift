@@ -22,47 +22,32 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable,
-    IdentifiableOrderedEntry {
-    public let entry: Entry
-    public var remoteId: String?
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable,
+    Codable {
+    public var orderedEntry: OrderedEntry
     public let code: Code
-    public let order: Int
     public let issuerInfo: AuthIssuerInfo?
-    public var syncState: EntrySyncState
 
     public var id: String {
-        entry.id
+        orderedEntry.id
     }
 
-    public init(entry: Entry,
-                code: Code,
-                order: Int,
-                syncState: EntrySyncState,
-                remoteId: String?,
-                issuerInfo: AuthIssuerInfo?) {
-        self.entry = entry
+    public init(orderedEntry: OrderedEntry, code: Code, issuerInfo: AuthIssuerInfo?) {
+        self.orderedEntry = orderedEntry
         self.code = code
-        self.order = order
         self.issuerInfo = issuerInfo
-        self.remoteId = remoteId
-        self.syncState = syncState
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry,
+        EntryUiModel(orderedEntry: orderedEntry.updateEntry(newEntry),
                      code: code,
-                     order: order,
-                     syncState: syncState,
-                     remoteId: remoteId,
                      issuerInfo: issuerInfo)
     }
 
     public func updateRemoteInfos(_ remoteId: String) -> EntryUiModel {
-        var entryUiModel = self
-        entryUiModel.remoteId = remoteId
-        entryUiModel.syncState = .synced
-        return entryUiModel
+        EntryUiModel(orderedEntry: orderedEntry.updateRemoteInfos(remoteId),
+                     code: code,
+                     issuerInfo: issuerInfo)
     }
 
     public static var transferRepresentation: some TransferRepresentation {
@@ -76,20 +61,14 @@ public extension UTType {
 
 public extension EntryUiModel {
     func updateCode(_ code: Code) -> EntryUiModel {
-        EntryUiModel(entry: entry,
+        EntryUiModel(orderedEntry: orderedEntry,
                      code: code,
-                     order: order,
-                     syncState: syncState,
-                     remoteId: remoteId,
                      issuerInfo: issuerInfo)
     }
 
     func updateOrder(_ order: Int) -> EntryUiModel {
-        EntryUiModel(entry: entry,
+        EntryUiModel(orderedEntry: orderedEntry.updateOrder(order),
                      code: code,
-                     order: order,
-                     syncState: syncState,
-                     remoteId: remoteId,
                      issuerInfo: issuerInfo)
     }
 }
