@@ -305,7 +305,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Missing generated codes: %1$lld instead of %2$lld"
           }
         }
@@ -395,7 +395,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Unmatch key rotation %1$lld - %2$lld"
           }
         }
