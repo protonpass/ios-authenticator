@@ -2,7 +2,14 @@
   "sourceLanguage" : "en",
   "strings" : {
     "2Fas file" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2Fas file"
+          }
+        }
+      }
     },
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
