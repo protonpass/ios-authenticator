@@ -202,7 +202,7 @@ extension SettingsViewModel {
             }
             do {
                 let reason = #localized("Please authenticate", bundle: .module)
-                if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
+                if try await authenticateBiometrically(policy: .deviceOwnerAuthentication,
                                                        reason: reason) {
                     biometricLock.toggle()
                     try authenticationService
