@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models

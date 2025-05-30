@@ -20,7 +20,7 @@
 
 import CommonUtilities
 import DataLayer
-import Factory
+import FactoryKit
 import SwiftUI
 
 public final class ServiceContainer: SharedContainer, AutoRegistering {

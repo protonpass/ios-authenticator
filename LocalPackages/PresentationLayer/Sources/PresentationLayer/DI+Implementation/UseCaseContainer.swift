@@ -20,7 +20,7 @@
 
 import DataLayer
 import DomainLayer
-import Factory
+import FactoryKit
 
 public final class UseCaseContainer: SharedContainer, AutoRegistering {
     public static let shared = UseCaseContainer()

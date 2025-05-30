@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B5879F82DDC7A4800CF7BF4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5879F72DDC7A4800CF7BF4 /* Factory */; };
 		5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C982D5618E500E7BCD4 /* Macro */; };
 		5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */; };
 		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
@@ -15,6 +14,7 @@
 		5B5E0D5E2D5A38DD00E7BCD4 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */; };
 		5B5E0D692D5A38DD00E7BCD4 /* Autofill.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5B5E0F7A2D6F6D5A00E7BCD4 /* CommonUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0F792D6F6D5A00E7BCD4 /* CommonUtilities */; };
+		5B710DE02DE9DEEA00389C0B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5B710DDF2DE9DEEA00389C0B /* FactoryKit */; };
 		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
 		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
@@ -87,6 +87,9 @@
 		5B87653D2D52539E00B4CC30 /* Exceptions for "Authenticator" folder in "Authenticator" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				App/BuildConfigs/Debug.xcconfig,
+				"App/BuildConfigs/Release-QA.xcconfig",
+				App/BuildConfigs/Release.xcconfig,
 				App/Info.plist,
 				"App/Settings Bundles/QA/Settings.bundle",
 				"App/Settings Bundles/Regular/Settings.bundle",
@@ -150,9 +153,9 @@
 				5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */,
 				5BF607E12D79FDB900904FC8 /* CloudKit.framework in Frameworks */,
 				5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */,
+				5B710DE02DE9DEEA00389C0B /* FactoryKit in Frameworks */,
 				5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */,
 				5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */,
-				5B5879F82DDC7A4800CF7BF4 /* Factory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,7 +270,7 @@
 				5B5E0D542D5A332D00E7BCD4 /* Sentry */,
 				5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */,
 				5B5E0F792D6F6D5A00E7BCD4 /* CommonUtilities */,
-				5B5879F72DDC7A4800CF7BF4 /* Factory */,
+				5B710DDF2DE9DEEA00389C0B /* FactoryKit */,
 			);
 			productName = Authenticator;
 			productReference = 5B8765172D52539D00B4CC30 /* Authenticator.app */;
@@ -323,7 +326,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					5B5E0D5B2D5A38DD00E7BCD4 = {
 						CreatedOnToolsVersion = 16.2;
@@ -518,6 +521,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -547,6 +551,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -582,6 +587,7 @@
 				"CODE_SIGN_IDENTITY[sdk=xros*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 2SB5Z68H26;
@@ -616,6 +622,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Proton Authenticator Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Proton Authenticator macOS Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=xros*]" = "Proton Authenticator Distribution";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -631,6 +638,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -653,6 +661,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -774,6 +783,7 @@
 				CODE_SIGN_ENTITLEMENTS = Authenticator/App/Authenticator.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -801,6 +811,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -824,6 +835,7 @@
 				"CODE_SIGN_IDENTITY[sdk=xros*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Authenticator/App/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 2SB5Z68H26;
@@ -858,6 +870,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Proton Authenticator Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Proton Authenticator macOS Distribution";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=xros*]" = "Proton Authenticator Distribution";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -872,6 +885,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -901,6 +915,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -935,6 +950,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -964,6 +980,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -991,6 +1008,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1014,6 +1032,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1036,6 +1055,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1058,6 +1078,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1150,11 +1171,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		5B5879F72DDC7A4800CF7BF4 /* Factory */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */;
-			productName = Factory;
-		};
 		5B5E0C982D5618E500E7BCD4 /* Macro */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Macro;
@@ -1176,6 +1192,11 @@
 		5B5E0F792D6F6D5A00E7BCD4 /* CommonUtilities */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUtilities;
+		};
+		5B710DDF2DE9DEEA00389C0B /* FactoryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = FactoryKit;
 		};
 		5B87656F2D527F9C00B4CC30 /* DataLayer */ = {
 			isa = XCSwiftPackageProductDependency;

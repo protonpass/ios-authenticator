@@ -26,7 +26,7 @@ import Combine
 // periphery:ignore
 import DataLayer
 import DocScanner
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models

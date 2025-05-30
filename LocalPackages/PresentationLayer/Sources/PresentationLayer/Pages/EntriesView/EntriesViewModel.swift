@@ -22,7 +22,7 @@
 import Combine
 import CoreData
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models

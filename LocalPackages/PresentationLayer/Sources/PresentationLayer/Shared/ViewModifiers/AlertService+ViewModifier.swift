@@ -20,7 +20,7 @@
 
 import CommonUtilities
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import SwiftUI
 

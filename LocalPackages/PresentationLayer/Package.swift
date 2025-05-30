@@ -41,7 +41,7 @@ let package = Package(
             name: "PresentationLayer",
             dependencies: [
                 .product(name: "DocScanner", package: "DocScanner", condition: .when(platforms: [.iOS])),
-                .product(name: "Factory", package: "Factory"),
+                .product(name: "FactoryKit", package: "Factory"),
                 .product(name: "Models", package: "Models"),
                 .product(name: "DataLayer", package: "DataLayer"),
                 .product(name: "DomainLayer", package: "DomainLayer"),
@@ -55,7 +55,10 @@ let package = Package(
             resources: [.process("Resources")]),
         .testTarget(
             name: "PresentationLayerTests",
-            dependencies: ["PresentationLayer"]
+            dependencies: ["PresentationLayer",
+                           .product(name: "FactoryTesting", package: "Factory"),
+
+                          ]
         ),
     ]
 )
