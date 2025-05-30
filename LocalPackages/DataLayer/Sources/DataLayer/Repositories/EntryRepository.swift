@@ -94,7 +94,7 @@ public actor EntryRepository: EntryRepositoryProtocol {
 
     private let entryContentFormatVersion = AppConstants.ContentFormatVersion.entry
 
-    private let currentRemoteActiveEncryptionKeyId = AppConstants.Settings.hasPushedEncryptionKey
+    private let currentRemoteActiveEncryptionKeyId = AppConstants.Settings.remoteActiveEncryptionKeyId
 
     private var isAuthenticated: Bool {
         userSessionManager.isAuthenticated.value
