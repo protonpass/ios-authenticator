@@ -84,7 +84,7 @@ struct EntryRepositoryTests {
                         note: "Note") ]
         
         let result = """
-{"version":1,"entries":[{"id":"id","content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=30","entry_type":"Totp"},"note":"Note"}]}
+{"version":1,"entries":[{"id":"id","content":{"uri":"otpauth://totp/john.doe@example.com?secret=CKTQQJVWT5IXTGD&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=30","entry_type":"Totp","name":"john.doe@example.com"},"note":"Note"}]}
 """
 
         // Act
