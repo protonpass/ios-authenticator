@@ -180,7 +180,7 @@ extension OrderedEntry {
         guard let remoteId else {
             return nil
         }
-        return RemoteEntry(remoteId: remoteId, entry: entry.toRustEntry)
+        return RemoteEntry(remoteId: remoteId, entry: entry.toRustEntry, modifyTime: Int64(modifiedTime))
     }
 }
 
@@ -193,7 +193,10 @@ extension [EntryState] {
 extension EntryState {
     var toLocalEntry: LocalEntry? {
         guard case let .decrypted(entry) = self else { return nil }
-        return LocalEntry(entry: entry.entry.toRustEntry, state: entry.syncState.toLocalEntryState)
+        return LocalEntry(entry: entry.entry.toRustEntry,
+                          state: entry.syncState.toLocalEntryState,
+                          modifyTime: Int64(entry.modifiedTime),
+                          localModifyTime: Int64(entry.modifiedTime))
     }
 }
 
