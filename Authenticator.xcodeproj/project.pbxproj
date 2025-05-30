@@ -1135,8 +1135,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hmlongco/Factory";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.13;
+				kind = exactVersion;
+				version = 2.5.3;
 			};
 		};
 		5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
