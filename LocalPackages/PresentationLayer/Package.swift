@@ -24,7 +24,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/lukacs-m/DocScanner", exact: "0.2.6"),
-        .package(url: "https://github.com/hmlongco/Factory", exact: "2.4.13"),
+        .package(url: "https://github.com/hmlongco/Factory", exact: "2.5.3"),
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", .upToNextMajor(from: "3.0.0")),
         .package(name: "Models", path: "../Models"),
@@ -32,7 +32,7 @@ let package = Package(
         .package(name: "DomainLayer", path: "../DomainLayer"),
         .package(name: "Macro", path: "../Macro"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
-        .package(url: "https://github.com/ProtonMail/protoncore_ios", exact: "32.0.5")
+        .package(url: "https://github.com/ProtonMail/protoncore_ios", .upToNextMajor(from:"32.4.0"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -41,7 +41,7 @@ let package = Package(
             name: "PresentationLayer",
             dependencies: [
                 .product(name: "DocScanner", package: "DocScanner", condition: .when(platforms: [.iOS])),
-                .product(name: "Factory", package: "Factory"),
+                .product(name: "FactoryKit", package: "Factory"),
                 .product(name: "Models", package: "Models"),
                 .product(name: "DataLayer", package: "DataLayer"),
                 .product(name: "DomainLayer", package: "DomainLayer"),
@@ -55,7 +55,10 @@ let package = Package(
             resources: [.process("Resources")]),
         .testTarget(
             name: "PresentationLayerTests",
-            dependencies: ["PresentationLayer"]
+            dependencies: ["PresentationLayer",
+                           .product(name: "FactoryTesting", package: "Factory"),
+
+                          ]
         ),
     ]
 )

@@ -24,19 +24,31 @@ import DataLayer
 #if os(iOS)
 import DocScanner
 #endif
-import Factory
+import FactoryKit
 import Foundation
 import Models
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 
+public extension View {
+    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
+        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
+    }
+}
+
+enum FocusField: Hashable {
+    case field
+}
+
 struct ImportingServiceModifier: ViewModifier {
     @State private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
     @State private var showPhotosPicker = false
     @State private var showScanner = false
+    @FocusState private var focusedField: FocusField?
 
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var showImportOptions: Bool
 
     init(showImportOptions: Binding<Bool>, mainDisplay: Bool) {
@@ -50,18 +62,7 @@ struct ImportingServiceModifier: ViewModifier {
             .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                            onSelect: handle)
             .sheet(isPresented: $viewModel.showPasswordSheet) {
-                VStack {
-                    Text("Your import file is password protected. Please enter the password to proceed.",
-                         bundle: .module)
-                    TextField("Password", text: $viewModel.password)
-
-                    CapsuleButton(title: "Import",
-                                  textColor: .white,
-                                  style: .borderedFilled) {
-                        viewModel.encryptedImport()
-                    }.disabled(viewModel.password.isEmpty)
-                }
-                .mainBackground()
+                passwordView()
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
@@ -69,6 +70,18 @@ struct ImportingServiceModifier: ViewModifier {
                             startScanning: $viewModel.scanning,
                             automaticDismiss: true) { results in
                     viewModel.processPayload(results: results)
+                }.overlay(alignment: .topTrailing) {
+                    Button {
+                        showScanner = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm)
+                    }
+                    .adaptiveButtonStyle()
+                    .padding()
                 }
             }
         #endif
@@ -101,6 +114,83 @@ struct ImportingServiceModifier: ViewModifier {
             viewModel.importEntries(from: .googleAuthenticator)
         }
     }
+
+    func passwordView() -> some View {
+        VStack {
+            HStack(alignment: .top) {
+                Spacer()
+                Button {
+                    viewModel.showPasswordSheet = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm.opacity(0.7))
+                }
+                .adaptiveButtonStyle()
+            }
+            .frame(height: 60)
+            .padding(.trailing, 16)
+            VStack(alignment: .center, spacing: 30) {
+                VStack(spacing: 8) {
+                    Text("Protected file",
+                         bundle: .module)
+                        .font(.system(size: 28))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textNorm)
+                        .fontWeight(.bold)
+                    Text("Your import file is protected by a password. Please enter the password to proceed.",
+                         bundle: .module)
+                        .font(.system(size: 20))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.textWeak)
+                }
+
+                TextField("Password", text: $viewModel.password)
+                    .font(.system(size: 20))
+                    .focused($focusedField, equals: .field)
+                    .autocorrectionDisabled(true)
+                #if os(iOS)
+                    .textInputAutocapitalization(.never)
+                #endif
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .foregroundStyle(.clear)
+                            .frame(height: 1)
+                            .background(colorScheme == .light ? .black.opacity(0.08) : Color.white
+                                .opacity(0.12))
+                    }
+
+                CapsuleButton(title: "Import",
+                              textColor: .white,
+                              style: .borderedFilled) {
+                    viewModel.encryptedImport()
+                }.disabled(viewModel.password.isEmpty)
+                Spacer()
+            }
+            .padding(.horizontal, 36)
+        }
+        .defaultFocus($focusedField, .field)
+        .fullScreenMainBackground()
+        .onChange(of: viewModel.showPasswordSheet) {
+            if viewModel.showPasswordSheet {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                    focusedField = .field
+                }
+            }
+        }
+        .alert("Wrong password",
+               isPresented: $viewModel.showWrongPasswordAlert,
+               actions: {
+                   Button("Cancel", role: .cancel) {
+                       viewModel.showPasswordSheet = false
+                   }
+                   Button("Retry") {
+                       viewModel.password = ""
+                   }
+               })
+    }
 }
 
 private extension View {
@@ -132,18 +222,13 @@ private extension View {
     }
 }
 
-public extension View {
-    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
-        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
-    }
-}
-
 @Observable @MainActor
 final class ImportViewModel {
     var showImporter: ImportOption?
     var password: String = ""
     var showPasswordSheet = false
     var scanning = true
+    var showWrongPasswordAlert = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -204,8 +289,16 @@ final class ImportViewModel {
         case let .success(urls):
             guard let url = urls.first,
                   let type = url.mimeType,
-                  let currentSelected,
-                  currentSelected.autorizedFileExtensions.contains(type) else { return }
+                  let currentSelected else {
+                return
+            }
+
+            guard currentSelected.autorizedFileExtensions.contains(type) else {
+                alertService.showError("Forbidden file type for this provenance",
+                                       mainDisplay: mainDisplay,
+                                       action: nil)
+                return
+            }
             Task { [weak self] in
                 guard let self else { return }
                 if url.startAccessingSecurityScopedResource() {
@@ -241,7 +334,8 @@ final class ImportViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: updatedProvenance)
                 showCompletion(numberOfImportedEntries)
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                password = ""
+                showWrongPasswordAlert = true
             }
         }
     }
@@ -250,6 +344,9 @@ final class ImportViewModel {
         Task { [weak self] in
             guard let self else {
                 return
+            }
+            defer {
+                self.imageSelection = nil
             }
             do {
                 let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
@@ -350,9 +447,9 @@ private extension ImportOption {
         case .lastPassAuthenticator:
             [.json]
         case .enteAuth, .protonAuthenticator, .twoFas:
-            [.text, .plainText]
+            [.text, .plainText, .twoFAS]
         case .googleAuthenticator:
-            [.image]
+            [.image, .jpeg, .png]
         }
     }
 
@@ -387,4 +484,8 @@ private extension GoogleImportType {
             "Import from Files"
         }
     }
+}
+
+extension UTType {
+    static let twoFAS = UTType(exportedAs: "me.proton.2fas")
 }

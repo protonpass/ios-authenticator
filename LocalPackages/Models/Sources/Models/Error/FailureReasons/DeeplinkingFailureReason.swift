@@ -26,7 +26,7 @@ public enum DeeplinkingFailureReason: Sendable, CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
         case .couldNotDecodeURL:
-            "Failed to decode URL"
+            String(localized: "Failed to decode URL", bundle: .module)
         }
     }
 }

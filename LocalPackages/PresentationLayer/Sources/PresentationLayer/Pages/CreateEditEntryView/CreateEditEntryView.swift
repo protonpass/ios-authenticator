@@ -216,14 +216,16 @@ private extension CreateEditEntryView {
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
-            Picker(title, selection: binding) {
-                ForEach(data, id: \.self) { element in
-                    Text(description(element)) // ignore:missing_bundle
-                        .tag(element)
-                }
-            }
-            .accentColor(.textNorm)
-            .pickerStyle(pickerStyle)
+            Picker(selection: binding,
+                   content: {
+                       ForEach(data, id: \.self) { element in
+                           Text(description(element)) // ignore:missing_bundle
+                               .tag(element)
+                       }
+                   },
+                   label: { Text(verbatim: "") })
+                .accentColor(.textNorm)
+                .pickerStyle(pickerStyle)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
@@ -268,7 +270,7 @@ private extension CreateEditEntryView {
         #if os(iOS)
         return .topBarTrailing
         #else
-        return .automatic
+        return .confirmationAction
         #endif
     }
 
@@ -276,7 +278,7 @@ private extension CreateEditEntryView {
         #if os(iOS)
         return .topBarLeading
         #else
-        return .automatic
+        return .confirmationAction
         #endif
     }
 
@@ -311,6 +313,34 @@ private extension CreateEditEntryView {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        #if os(macOS)
+        ToolbarItemGroup(placement: toolbarItemTrailingPlacement) {
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Close", bundle: .module)
+                        .foregroundStyle(.accent)
+                        .padding(10)
+                }
+                .adaptiveButtonStyle()
+                .keyboardShortcut(.escape)
+
+                Button {
+                    viewModel.save()
+                } label: {
+                    Text("Save", bundle: .module)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.accent)
+                        .padding(10)
+                }
+                .adaptiveButtonStyle()
+                .disabled(!viewModel.canSave)
+                .opacity(viewModel.canSave ? 1 : 0.4)
+                .keyboardShortcut("s")
+            }
+        }
+        #else
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
             Button {
                 dismiss()
@@ -335,6 +365,7 @@ private extension CreateEditEntryView {
             .disabled(!viewModel.canSave)
             .opacity(viewModel.canSave ? 1 : 0.4)
         }
+        #endif
     }
 }
 

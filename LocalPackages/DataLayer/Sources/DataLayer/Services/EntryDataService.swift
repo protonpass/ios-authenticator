@@ -102,7 +102,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
     }
 
     private func setUp() {
-        totpGenerator.currentCode
+        totpGenerator.currentCodes
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
             .sink { [weak self] codes in
@@ -203,8 +203,8 @@ public extension EntryDataService {
 
     func updateData(_ entries: [EntryUiModel]) {
         log(.debug, "Updating data with \(entries.count) entries")
+        startUpdatingTotpCode(entries.map(\.orderedEntry.entry))
         dataState = .loaded(entries)
-        totpUpdate(entries.map(\.orderedEntry.entry))
     }
 
     func fullRefresh() async throws {
@@ -289,30 +289,25 @@ public extension EntryDataService {
     }
 
     func startTotpGenerator() {
-        entryUpdateTask?.cancel()
+        guard let entries = dataState.data?.map(\.orderedEntry.entry) else { return }
+
         log(.info, "Starting TOTP generator")
-        entryUpdateTask = Task { [weak self] in
-            guard let self, let data = dataState.data?.map(\.orderedEntry.entry) else { return }
-            do {
-                try await totpGenerator.totpUpdate(data)
-                log(.debug, "TOTP generator started for \(data.count) entries")
-            } catch {
-                log(.error, "Failed to start TOTP generator: \(error)")
-            }
-        }
+        startUpdatingTotpCode(entries)
     }
 }
 
 private extension EntryDataService {
-    func totpUpdate(_ entries: [Entry]) {
+    func startUpdatingTotpCode(_ entries: [Entry]) {
+        log(.debug, "Starting Updating TOTP codes for \(entries.count) entries")
+
         entryUpdateTask?.cancel()
-        log(.debug, "Updating TOTP for \(entries.count) entries")
         entryUpdateTask = Task { [weak self] in
             guard let self else { return }
             do {
-                try await totpGenerator.totpUpdate(entries)
+                try await totpGenerator.startTotpCodeUpdate(entries)
+                log(.debug, "TOTP code generator started for \(entries.count) entries")
             } catch {
-                log(.error, "Failed TOTP update: \(error)")
+                log(.error, "Failed to start TOTP generator: \(error)")
             }
         }
     }
@@ -363,7 +358,9 @@ private extension EntryDataService {
 
     func generateUIEntries(from entries: [OrderedEntry]) async throws -> [EntryUiModel] {
         log(.debug, "Generating UI entries from \(entries.count) entries")
-        let codes = try repository.generateCodes(entries: entries.map(\.entry))
+        let entriesData = entries.map(\.entry)
+        let codes = try repository.generateCodes(entries: entriesData)
+        try await totpGenerator.startTotpCodeUpdate(entriesData)
         guard codes.count == entries.count else {
             log(.warning, "Mismatch between codes and entries: \(codes.count) codes, \(entries.count) entries")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,

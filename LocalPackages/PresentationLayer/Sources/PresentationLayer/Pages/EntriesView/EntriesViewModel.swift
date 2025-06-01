@@ -22,7 +22,7 @@
 import Combine
 import CoreData
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -163,6 +163,9 @@ final class EntriesViewModel: ObservableObject {
         // Adjust the destination if moving downward in the list
         if offset < destination {
             targetIndex -= 1
+        }
+        guard offset != targetIndex else {
+            return
         }
         Task { [weak self] in
             guard let self else { return }

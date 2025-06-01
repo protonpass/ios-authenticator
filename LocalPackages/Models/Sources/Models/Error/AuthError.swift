@@ -21,7 +21,7 @@
 import Foundation
 
 /// Proton Authenticator errors
-public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable {
+public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable, LocalizedError {
     case importing(ImportingFailureReason)
     case imageParsing(ImageParsingFailureReason)
     case encryption(EncryptionFailureReason)
@@ -31,6 +31,25 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
     case crypto(CryptoFailureReason)
 
     public var debugDescription: String {
+        switch self {
+        case let .importing(reason):
+            reason.debugDescription
+        case let .imageParsing(reason):
+            reason.debugDescription
+        case let .encryption(reason):
+            reason.debugDescription
+        case let .generic(reason):
+            reason.debugDescription
+        case let .deeplinking(reason):
+            reason.debugDescription
+        case let .symmetricCrypto(reason):
+            reason.debugDescription
+        case let .crypto(reason):
+            reason.debugDescription
+        }
+    }
+
+    public var errorDescription: String? {
         switch self {
         case let .importing(reason):
             reason.debugDescription
