@@ -82,7 +82,7 @@ public enum AppConstants {
 
     // periphery:ignore
     @MainActor
-    public static var isModile: Bool {
+    public static var isMobile: Bool {
         #if canImport(UIKit)
         true
         #else
