@@ -13,7 +13,6 @@ var platforms: [SupportedPlatform] = [
 
 let package = Package(
     name: "Models",
-    defaultLocalization: "en",
     platforms: platforms,
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -26,7 +25,6 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Models",
-            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "ModelsTests",

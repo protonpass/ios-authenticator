@@ -492,38 +492,47 @@ public extension EntryRepository {
         log(.debug, "Fetching entries from remote")
 
         do {
-            let encryptedEntries = try await apiClient.getEntries()
-            log(.debug, "Retrieved \(encryptedEntries.count) encrypted entries from remote")
+            var sinceLastToken: String?
 
             var entries: [OrderedEntry] = []
-            for (index, encryptedEntry) in encryptedEntries.enumerated() {
-                if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
-                    log(.debug,
-                        "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
-                    await fetchRemoteEncryptionKeyOrPushLocalKey()
-                }
-                let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
 
-                var syncState = EntrySyncState.unsynced
-                let entityId = decryptedEntry.id
-                if await (try? persistentStorage
-                    .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId })) != nil {
-                    syncState = .synced
+            while true {
+                let encryptedEntries = try await apiClient.getEntries(lastId: sinceLastToken)
+                log(.debug, "Retrieved \(encryptedEntries.entries.count) encrypted entries from remote")
+
+                if encryptedEntries.entries.isEmpty {
+                    break
                 }
-                let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                                keyId: encryptedEntry.authenticatorKeyID,
-                                                remoteId: encryptedEntry.entryID,
-                                                order: index,
-                                                syncState: syncState,
-                                                creationDate: Double(encryptedEntry.createTime),
-                                                modifiedTime: Double(encryptedEntry.modifyTime),
-                                                flags: encryptedEntry.flags,
-                                                revision: encryptedEntry.revision,
-                                                contentFormatVersion: encryptedEntry.contentFormatVersion)
-                entries.append(orderedEntry)
+
+                for (index, encryptedEntry) in encryptedEntries.entries.enumerated() {
+                    if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
+                        log(.debug,
+                            "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
+                        await fetchRemoteEncryptionKeyOrPushLocalKey()
+                    }
+                    let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
+
+                    var syncState = EntrySyncState.unsynced
+                    let entityId = decryptedEntry.id
+                    if await (try? persistentStorage
+                        .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId })) != nil {
+                        syncState = .synced
+                    }
+                    let orderedEntry = OrderedEntry(entry: decryptedEntry,
+                                                    keyId: encryptedEntry.authenticatorKeyID,
+                                                    remoteId: encryptedEntry.entryID,
+                                                    order: index,
+                                                    syncState: syncState,
+                                                    creationDate: Double(encryptedEntry.createTime),
+                                                    modifiedTime: Double(encryptedEntry.modifyTime),
+                                                    flags: encryptedEntry.flags,
+                                                    revision: encryptedEntry.revision,
+                                                    contentFormatVersion: encryptedEntry.contentFormatVersion)
+                    entries.append(orderedEntry)
+                }
+                sinceLastToken = encryptedEntries.lastID
+                log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")
             }
-            log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")
-
             return entries
         } catch {
             log(.error, "Failed to fetch entries from remote: \(error.localizedDescription)")
@@ -596,7 +605,8 @@ extension EntryRepository {
                 where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
-                let keyDecrypted: Data = try userSessionManager.userKeyDecrypt(key: encryptedKeyData)
+                let keyDecrypted: Data = try userSessionManager
+                    .userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
                 try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
                 newKeysAdded += 1
             }

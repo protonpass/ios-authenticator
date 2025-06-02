@@ -27,6 +27,12 @@ extension RemoteEncryptedKey {
     }
 }
 
+extension PaginatedEntries {
+    static var mock: PaginatedEntries {
+        .init(entries: [], total: 0, lastID: nil)
+    }
+}
+
 extension RemoteEncryptedEntry {
     static var mock: RemoteEncryptedEntry {
         .init(entryID: "id",
@@ -47,7 +53,7 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
     public var getKeysResult: Result<[RemoteEncryptedKey], Error> = .success([])
     public var storeKeyResult: Result<RemoteEncryptedKey, Error> = .success(RemoteEncryptedKey.mock)
 
-    public var getEntriesResult: Result<[RemoteEncryptedEntry], Error> = .success([])
+    public var getEntriesResult: Result<PaginatedEntries, Error> = .success(PaginatedEntries.mock)
     public var storeEntryResult: Result<RemoteEncryptedEntry, Error> = .success(RemoteEncryptedEntry.mock)
     public var storeEntriesResult: Result<[RemoteEncryptedEntry], Error> = .success([])
     public var updateResult: Result<RemoteEncryptedEntry, Error> = .success(RemoteEncryptedEntry.mock)
@@ -74,7 +80,7 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
 
     // MARK: - RemoteEntriesDataSource
 
-    public func getEntries(lastId: String? = nil) async throws -> [RemoteEncryptedEntry] {
+    public func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
         calledMethods.append(#function)
         return try getEntriesResult.get()
     }

@@ -27,9 +27,9 @@ public enum ImportingFailureReason: Sendable, CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
         case .wrongFormat:
-            String(localized: "Is not the correct file format", bundle: .module)
+            "Is not the correct file format"
         case .contentIsEmpty:
-            String(localized: "No entries detected to import", bundle: .module)
+            "No entries detected to import"
         }
     }
 }

@@ -148,7 +148,7 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
-        userSessionManager.isAuthenticated
+        userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] authenticated in

@@ -26,6 +26,7 @@ import DocScanner
 #endif
 import FactoryKit
 import Foundation
+import Macro
 import Models
 import PhotosUI
 import SwiftUI
@@ -134,21 +135,20 @@ struct ImportingServiceModifier: ViewModifier {
             .padding(.trailing, 16)
             VStack(alignment: .center, spacing: 30) {
                 VStack(spacing: 8) {
-                    Text("Protected file",
-                         bundle: .module)
-                        .font(.system(size: 28))
+                    Text("Protected file", bundle: .module)
+                        .font(.title)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textNorm)
                         .fontWeight(.bold)
                     Text("Your import file is protected by a password. Please enter the password to proceed.",
                          bundle: .module)
-                        .font(.system(size: 20))
+                        .font(.title3)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textWeak)
                 }
 
-                TextField("Password", text: $viewModel.password)
-                    .font(.system(size: 20))
+                SecureField("Password", text: $viewModel.password)
+                    .font(.title3)
                     .focused($focusedField, equals: .field)
                     .autocorrectionDisabled(true)
                 #if os(iOS)
@@ -294,7 +294,7 @@ final class ImportViewModel {
             }
 
             guard currentSelected.autorizedFileExtensions.contains(type) else {
-                alertService.showError("Forbidden file type for this provenance",
+                alertService.showError(#localized("Forbidden file type for this provenance", bundle: .module),
                                        mainDisplay: mainDisplay,
                                        action: nil)
                 return

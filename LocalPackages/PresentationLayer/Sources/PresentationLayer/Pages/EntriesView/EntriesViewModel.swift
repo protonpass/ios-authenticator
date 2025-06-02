@@ -143,7 +143,7 @@ final class EntriesViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        userSessionManager.isAuthenticated
+        userSessionManager.isAuthenticatedWithUserData
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in

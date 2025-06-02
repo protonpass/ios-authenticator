@@ -47,49 +47,49 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
     public var debugDescription: String {
         switch self {
         case .failedToSplitPGPMessage:
-            String(localized: "Failed to split PGP message", bundle: .module)
+            "Failed to split PGP message"
         case let .failedToUnarmor(string):
-            String(localized: "Failed to unarmor \(string)", bundle: .module)
+            "Failed to unarmor \(string)"
         case let .failedToArmor(string):
-            String(localized: "Failed to armor \(string)", bundle: .module)
+            "Failed to armor \(string)"
         case .failedToBase64Decode:
-            String(localized: "Failed to base 64 decode", bundle: .module)
+            "Failed to base 64 decode"
         case .failedToGetFingerprint:
-            String(localized: "Failed to get fingerprint", bundle: .module)
+            "Failed to get fingerprint"
         case .failedToGenerateKeyRing:
-            String(localized: "Failed to generate key ring", bundle: .module)
+            "Failed to generate key ring"
         case .failedToEncrypt:
-            String(localized: "Failed to encrypt", bundle: .module)
+            "Failed to encrypt"
         case .failedToVerifyVault:
-            String(localized: "Failed to verify vault", bundle: .module)
+            "Failed to verify vault"
         case .failedToDecryptContent:
-            String(localized: "Failed to decrypt content", bundle: .module)
+            "Failed to decrypt content"
         case .failedToVerifySignature:
-            String(localized: "Failed to verify signature", bundle: .module)
+            "Failed to verify signature"
         case .failedToGenerateSessionKey:
-            String(localized: "Failed to generate session key", bundle: .module)
+            "Failed to generate session key"
         case .failedToDecode:
-            String(localized: "Failed to decode", bundle: .module)
+            "Failed to decode"
         case let .failedToEncode(string):
-            String(localized: "Failed to encode \"\(string)\"", bundle: .module)
+            "Failed to encode \"\(string)\""
         case .failedToAESEncrypt:
-            String(localized: "Failed to AES encrypt", bundle: .module)
+            "Failed to AES encrypt"
         case let .inactiveUserKey(userKeyId):
-            String(localized: "Inactive user key \(userKeyId)", bundle: .module)
+            "Inactive user key \(userKeyId)"
         case let .addressNotFound(addressID):
-            String(localized: "Address not found \"\(addressID)\"", bundle: .module)
+            "Address not found \"\(addressID)\""
         case let .corruptedContent(contentID):
-            String(localized: "Corrupted content id \"\(contentID)\"", bundle: .module)
+            "Corrupted content id \"\(contentID)\""
         case let .missingUserKey(userID):
-            String(localized: "Missing user key \"\(userID)\"", bundle: .module)
+            "Missing user key \"\(userID)\""
         case let .missingPassphrase(keyID):
-            String(localized: "Missing passphrase \"\(keyID)\"", bundle: .module)
+            "Missing passphrase \"\(keyID)\""
         case .missingKeys:
-            String(localized: "Missing keys", bundle: .module)
+            "Missing keys"
         case let .unmatchedKeyRotation(lhsKey, rhsKey):
-            String(localized: "Unmatch key rotation \(lhsKey) - \(rhsKey)", bundle: .module)
+            "Unmatch key rotation \(lhsKey) - \(rhsKey)"
         case .missingRemoteEncryptionKey:
-            String(localized: "Missing remote encryption key", bundle: .module)
+            "Missing remote encryption key"
         }
     }
 }

@@ -37,7 +37,11 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var revision: Int = 0
 
     public var isSynced: Bool {
-        syncState == EntrySyncState.synced.rawValue && !remoteId.isEmpty
+        entrySyncState == .synced && !remoteId.isEmpty
+    }
+
+    public var entrySyncState: EntrySyncState {
+        .init(rawValue: syncState) ?? .unsynced
     }
 
     public init(id: String,

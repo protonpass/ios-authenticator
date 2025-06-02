@@ -12,6 +12,7 @@
       }
     },
     "Account: %@" : {
+      "comment" : "Placeholder is the user's email address",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -447,6 +448,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Focus search on launch"
+          }
+        }
+      }
+    },
+    "Forbidden file type for this provenance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forbidden file type for this provenance"
           }
         }
       }

@@ -53,6 +53,8 @@ public struct APIManagerConfiguration: Sendable {
 
 public protocol APIManagerProtocol: Sendable {
     var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
+    var isAuthenticatedWithUserData: CurrentValueSubject<Bool, Never> { get }
+
     var apiService: APIService { get }
 
     func logout() async throws
@@ -64,7 +66,7 @@ public protocol UserInfoProviding: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     func userKeyEncrypt(object: some Codable) throws -> String
-    func userKeyDecrypt(key: RemoteEncryptedKey) throws -> Data
+    func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data
     func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
         -> RemoteEncryptedKey?
 }
@@ -95,6 +97,10 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
 
     public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
+    private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
+    private var cancellables = Set<AnyCancellable>()
+
     public private(set) var apiService: APIService
 
     // swiftlint:disable:next identifier_name
@@ -181,6 +187,13 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         Task {
             _ = try? await getUserData()
         }
+        Publishers.CombineLatest(isAuthenticated, userDataLoaded)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] authenticated, userDataLoaded in
+                guard let self else { return }
+                isAuthenticatedWithUserData.send(authenticated && userDataLoaded)
+            }
+            .store(in: &cancellables)
     }
 
     public func logout() async throws {
@@ -188,10 +201,13 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         cachedCredentials.modify {
             $0 = nil
         }
+        cachedUserData.modify { $0 = nil }
         removeCachedCredentials()
         createApiService(credential: nil)
         try await userDataProvider.removeAllUsers()
         isAuthenticated.send(false)
+        isAuthenticatedWithUserData.send(false)
+        userDataLoaded.send(false)
     }
 }
 
@@ -435,17 +451,19 @@ extension UserSessionManager: APIServiceLoggingDelegate {
 public extension UserSessionManager {
     func getUserData() async throws -> UserData? {
         if let userData = cachedUserData.value {
+            userDataLoaded.send(true)
             return userData
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
-
+        userDataLoaded.send(true)
         return userData
     }
 
     func save(_ userData: UserData) async throws {
         try await userDataProvider.save(userData)
         cachedUserData.modify { $0 = userData }
+        userDataLoaded.send(true)
     }
 
     func userKeyEncrypt(object: some Codable) throws -> String {
@@ -480,20 +498,20 @@ public extension UserSessionManager {
         return try encryptedData.unArmor().value.base64EncodedString()
     }
 
-    func userKeyDecrypt(key: RemoteEncryptedKey) throws -> Data {
+    func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data {
         log(.info, "Decrypting with user key")
         guard let userData else {
             log(.info, "Missing user data")
             throw AuthError.generic(.missingUserData)
         }
 
-        guard let userKey = userData.user.keys.first(where: { $0.keyID == key.userKeyID }),
+        guard let userKey = userData.user.keys.first(where: { $0.keyID == remoteEncryptedKey.userKeyID }),
               userKey.active == 1 else {
-            throw AuthError.crypto(.inactiveUserKey(userKeyId: key.userKeyID))
+            throw AuthError.crypto(.inactiveUserKey(userKeyId: remoteEncryptedKey.userKeyID))
         }
 
-        guard let encryptedData = try key.key.base64Decode() else {
-            log(.info, "Failed to base 64 decode encripted string")
+        guard let encryptedData = try remoteEncryptedKey.key.base64Decode() else {
+            log(.info, "Failed to base 64 decode encrypted string")
             throw AuthError.crypto(.failedToBase64Decode)
         }
 

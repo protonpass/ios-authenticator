@@ -27,9 +27,9 @@ public enum EncryptionFailureReason: CustomDebugStringConvertible, Equatable, Se
     public var debugDescription: String {
         switch self {
         case .failedToDecrypt:
-            String(localized: "Failed to decrypt", bundle: .module)
+            "Failed to decrypt"
         case .failedToEncrypt:
-            String(localized: "Failed to encrypt", bundle: .module)
+            "Failed to encrypt"
         }
     }
 }

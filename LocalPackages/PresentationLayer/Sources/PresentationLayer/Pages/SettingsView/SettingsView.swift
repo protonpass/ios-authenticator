@@ -92,6 +92,8 @@ public struct SettingsView: View {
                         .adaptiveButtonStyle()
                     }
                 }
+                .listSectionSpacing(DesignConstant.padding * 2)
+                .navigationBarTitleDisplayMode(.inline)
             #endif
                 .scrollContentBackground(.hidden)
                 .routingProvided
@@ -99,10 +101,6 @@ public struct SettingsView: View {
                 .task {
                     await viewModel.setUp()
                 }
-            #if os(iOS)
-                .listSectionSpacing(DesignConstant.padding * 2)
-                .navigationBarTitleDisplayMode(.inline)
-            #endif
                 .toastDisplay()
                 .fullScreenMainBackground()
                 .sheetAlertService()

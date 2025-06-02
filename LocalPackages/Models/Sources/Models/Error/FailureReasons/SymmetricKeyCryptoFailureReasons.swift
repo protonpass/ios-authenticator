@@ -27,9 +27,9 @@ public enum SymmetricKeyCryptoFailureReasons: CustomDebugStringConvertible, Equa
     public var debugDescription: String {
         switch self {
         case let .failedToConvertUtf8ToData(string):
-            String(localized: "Failed to UTF8 convert to data \"\(string)\"", bundle: .module)
+            "Failed to UTF8 convert to data \"\(string)\""
         case let .failedToBase64Decode(string):
-            String(localized: "Failed to base 64 decode \"\(string)\"", bundle: .module)
+            "Failed to base 64 decode \"\(string)\""
         }
     }
 }

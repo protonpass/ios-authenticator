@@ -29,13 +29,13 @@ public enum ImageParsingFailureReason: CustomDebugStringConvertible, Equatable, 
     public var debugDescription: String {
         switch self {
         case .errorProcessingImage:
-            String(localized: "Error processing image", bundle: .module)
+            "Error processing image"
         case .importFailed:
-            String(localized: "Error importing image", bundle: .module)
+            "Error importing image"
         case .failedDetectingQRCode:
-            String(localized: "Error detecting QR code", bundle: .module)
+            "Error detecting QR code"
         case .qrCodeEmpty:
-            String(localized: "Empty QR code", bundle: .module)
+            "Empty QR code"
         }
     }
 }

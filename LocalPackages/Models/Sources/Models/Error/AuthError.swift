@@ -50,22 +50,7 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable,
     }
 
     public var errorDescription: String? {
-        switch self {
-        case let .importing(reason):
-            reason.debugDescription
-        case let .imageParsing(reason):
-            reason.debugDescription
-        case let .encryption(reason):
-            reason.debugDescription
-        case let .generic(reason):
-            reason.debugDescription
-        case let .deeplinking(reason):
-            reason.debugDescription
-        case let .symmetricCrypto(reason):
-            reason.debugDescription
-        case let .crypto(reason):
-            reason.debugDescription
-        }
+        debugDescription
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {

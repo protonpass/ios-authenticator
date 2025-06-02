@@ -25,6 +25,8 @@ import ProtonCoreServices
 import Models
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
+    public var isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
+    
     // MARK: - APIManagerProtocol
 
     public var isAuthenticated = CurrentValueSubject<Bool, Never>(false)
@@ -75,7 +77,7 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
     public var decryptObjectResult: Result<any Codable, Error> = .success("encrypted")
     public var decryptObjectCalled = false
     
-    public func userKeyDecrypt<T: Codable>(key: RemoteEncryptedKey) throws -> T {
+    public func userKeyDecrypt<T: Codable>(remoteEncryptedKey: RemoteEncryptedKey) throws -> T {
         decryptObjectCalled = true
         return try decryptObjectResult.get() as! T
     }

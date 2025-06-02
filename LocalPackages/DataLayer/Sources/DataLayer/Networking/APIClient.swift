@@ -31,7 +31,7 @@ public protocol RemoteKeysDataSource: Sendable {
 // MARK: - Entries
 
 public protocol RemoteEntriesDataSource: Sendable {
-    func getEntries(lastId: String?) async throws -> [RemoteEncryptedEntry]
+    func getEntries(lastId: String?) async throws -> PaginatedEntries
     func storeEntry(request: StoreEntryRequest) async throws -> RemoteEncryptedEntry
     func storeEntries(request: StoreEntriesRequest) async throws -> [RemoteEncryptedEntry]
     func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry
@@ -88,17 +88,17 @@ public extension APIClient {
 }
 
 public extension RemoteEntriesDataSource {
-    func getEntries(lastId: String? = nil) async throws -> [RemoteEncryptedEntry] {
+    func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
         try await getEntries(lastId: lastId)
     }
 }
 
 public extension APIClient {
-    func getEntries(lastId: String? = nil) async throws -> [RemoteEncryptedEntry] {
+    func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
         log(.debug, "Fetching entries with lastId: \(lastId ?? "nil")")
         let endpoint = GetEntries(lastId: lastId)
         let response = try await exec(endpoint: endpoint)
-        return response.entries.entries
+        return response.entries
     }
 
     func storeEntry(request: StoreEntryRequest) async throws -> RemoteEncryptedEntry {

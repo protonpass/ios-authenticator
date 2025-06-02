@@ -26,10 +26,16 @@ struct GetEntriesResponse: Decodable, Sendable, Equatable {
     let entries: PaginatedEntries
 }
 
-struct PaginatedEntries: Decodable, Sendable, Equatable {
-    let entries: [RemoteEncryptedEntry]
-    let total: Int
-    let lastID: String?
+public struct PaginatedEntries: Decodable, Sendable, Equatable {
+    public let entries: [RemoteEncryptedEntry]
+    public let total: Int
+    public let lastID: String?
+
+    public init(entries: [RemoteEncryptedEntry], total: Int, lastID: String?) {
+        self.entries = entries
+        self.total = total
+        self.lastID = lastID
+    }
 }
 
 struct GetEntries: Endpoint, @unchecked Sendable {
