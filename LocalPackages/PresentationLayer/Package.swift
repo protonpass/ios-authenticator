@@ -57,7 +57,6 @@ let package = Package(
             name: "PresentationLayerTests",
             dependencies: ["PresentationLayer",
                            .product(name: "FactoryTesting", package: "Factory"),
-
                           ]
         ),
     ]

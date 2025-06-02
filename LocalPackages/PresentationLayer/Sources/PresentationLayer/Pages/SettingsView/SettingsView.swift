@@ -198,7 +198,7 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Theme", .module),
-                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                           trailingMode: AppConstants.isModile ?
                                .detailChevronUpDown(.localized(viewModel.theme.title,
                                                                .module)) :
                                nil)
@@ -221,7 +221,7 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Search bar position", .module),
-                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                           trailingMode: AppConstants.isModile ?
                                .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
                                                                .module)) :
                                nil)
@@ -243,7 +243,7 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Digit style", .module),
-                           trailingMode: (AppConstants.isPhone || AppConstants.isIpad) ?
+                           trailingMode: AppConstants.isModile ?
                                .detailChevronUpDown(.localized(viewModel.digitStyle.title,
                                                                .module)) :
                                nil)

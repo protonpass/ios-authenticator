@@ -80,6 +80,16 @@ public enum AppConstants {
         #endif
     }
 
+    // periphery:ignore
+    @MainActor
+    public static var isModile: Bool {
+        #if canImport(UIKit)
+        true
+        #else
+        false
+        #endif
+    }
+
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }
