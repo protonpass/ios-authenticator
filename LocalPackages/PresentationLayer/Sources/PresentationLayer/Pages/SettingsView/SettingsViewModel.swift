@@ -135,6 +135,10 @@ final class SettingsViewModel {
         settingsService.displayBESync
     }
 
+    var emailAddress: String {
+        userSessionManager.userData?.email ?? ""
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in

@@ -11,6 +11,16 @@
         }
       }
     },
+    "Account: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account: %@"
+          }
+        }
+      }
+    },
     "Add an extra layer of security with Face ID." : {
       "localizations" : {
         "en" : {

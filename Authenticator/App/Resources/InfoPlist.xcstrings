@@ -1,12 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "2Fas file" : {
+    "2Fas files" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2Fas file"
+            "value" : "2Fas files"
           }
         }
       }

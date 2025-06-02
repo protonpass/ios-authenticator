@@ -146,7 +146,8 @@ private extension SettingsView {
         section("SECURITY") {
             if viewModel.displayICloudBackUp {
                 SettingRow(title: .localized("Backup", .module),
-                           subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
+                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                .module),
                            trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                                  onToggle: viewModel.toggleBackUp))
 
@@ -155,6 +156,9 @@ private extension SettingsView {
             #if os(iOS)
             if viewModel.displayBESync {
                 SettingRow(title: .localized("Sync between devices", .module),
+                           subtitle: !viewModel.emailAddress
+                               .isEmpty ? .localized("Account: \(viewModel.emailAddress)",
+                                                     .module) : nil,
                            trailingMode: .toggle(isOn: viewModel.syncEnabled,
                                                  onToggle: {
                                                      viewModel.toggleSync()
@@ -303,7 +307,7 @@ private extension SettingsView {
             ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
-                           subtitle: product.description,
+                           subtitle: .localized(product.description, .module),
                            onTap: { open(urlString: product.finalUrl) })
 
                 if product != ProtonProduct.allCases.last {
