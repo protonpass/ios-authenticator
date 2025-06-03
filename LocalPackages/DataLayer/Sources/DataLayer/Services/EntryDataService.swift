@@ -149,10 +149,7 @@ public extension EntryDataService {
         }
         data[index] = data[index].copy(newEntry: entry)
         try await repository.completeUpdate(entry: data[index].orderedEntry)
-//        var data: [EntryUiModel] = dataState.data ?? []
-//        if let index = data.firstIndex(where: { $0.id == entry.id }) {
-//            data[index] = data[index].copy(newEntry: entry)
-//        }
+
         updateData(data)
     }
 

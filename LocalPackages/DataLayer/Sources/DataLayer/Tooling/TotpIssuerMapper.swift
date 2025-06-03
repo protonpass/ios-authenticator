@@ -43,9 +43,10 @@ public final class TOTPIssuerMapper: TOTPIssuerMapperServicing {
     /// - Parameter issuer: The issuer name from the TOTP
     /// - Returns: IssuerInfo containing the domain and icon name if available
     public func lookup(issuer: String) -> AuthIssuerInfo? {
-        if cacheProtected.value[issuer] != nil {
-            return cacheProtected.value[issuer]
+        if let authIssuerInfo = cacheProtected.value[issuer] {
+            return authIssuerInfo
         }
+
         let result = mapper.lookup(issuer: issuer)?.toAuthIssuerInfo
         if let result {
             cacheProtected.modify {
@@ -62,7 +63,7 @@ private extension IssuerInfo {
         // Randomising the host to be sure not to be rate limited
         let iconUrl = iconUrl
             .replacingOccurrences(of: "t0.gstatic.com",
-                                  with: IconHostEndpoints.randomHost)
+                                  with: IconHostEndpoints.randomHost.rawValue)
         return AuthIssuerInfo(domain: domain, iconUrl: iconUrl)
     }
 }
@@ -72,7 +73,7 @@ private enum IconHostEndpoints: String, CaseIterable, Equatable {
     case two = "t2.gstatic.com"
     case three = "t3.gstatic.com"
 
-    static var randomHost: String {
-        allCases.randomElement()?.rawValue ?? "t1.gstatic.com"
+    static var randomHost: Self {
+        allCases.randomElement() ?? .one
     }
 }

@@ -80,6 +80,6 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Authenticator_backup_\(currentDate).txt"
+        return "Proton_Authenticator_backup_\(currentDate).txt"
     }
 }

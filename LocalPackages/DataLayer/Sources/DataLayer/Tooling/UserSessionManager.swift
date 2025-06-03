@@ -52,7 +52,6 @@ public struct APIManagerConfiguration: Sendable {
 }
 
 public protocol APIManagerProtocol: Sendable {
-    var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
     var isAuthenticatedWithUserData: CurrentValueSubject<Bool, Never> { get }
 
     var apiService: APIService { get }
@@ -62,8 +61,7 @@ public protocol APIManagerProtocol: Sendable {
 
 public protocol UserInfoProviding: Sendable {
     var userData: UserData? { get }
-    // periphery:ignore
-    func getUserData() async throws -> UserData?
+
     func save(_ userData: UserData) async throws
     func userKeyEncrypt(object: some Codable) throws -> String
     func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data
@@ -96,7 +94,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let cachedCredentials: any MutexProtected<Credentials?> = SafeMutex.create(nil)
     private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
 
-    public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    private nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
     public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
     private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
     private var cancellables = Set<AnyCancellable>()
@@ -185,7 +183,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         (apiService as? PMAPIService)?.loggingDelegate = self
         updateTools()
         Task {
-            _ = try? await getUserData()
+            try? await loadAndCacheUserData()
         }
         Publishers.CombineLatest(isAuthenticated, userDataLoaded)
             .receive(on: DispatchQueue.main)
@@ -449,15 +447,14 @@ extension UserSessionManager: APIServiceLoggingDelegate {
 // MARK: - User data
 
 public extension UserSessionManager {
-    func getUserData() async throws -> UserData? {
-        if let userData = cachedUserData.value {
+    func loadAndCacheUserData() async throws {
+        if cachedUserData.value != nil {
             userDataLoaded.send(true)
-            return userData
+            return
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
         userDataLoaded.send(true)
-        return userData
     }
 
     func save(_ userData: UserData) async throws {

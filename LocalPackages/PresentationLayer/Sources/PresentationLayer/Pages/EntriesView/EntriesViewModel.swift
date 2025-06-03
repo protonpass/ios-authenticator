@@ -112,7 +112,7 @@ final class EntriesViewModel: ObservableObject {
     private var fullSyncTask: Task<Void, Never>?
 
     var isAuthenticated: Bool {
-        userSessionManager.isAuthenticated.value
+        userSessionManager.isAuthenticatedWithUserData.value
     }
 
     init() {

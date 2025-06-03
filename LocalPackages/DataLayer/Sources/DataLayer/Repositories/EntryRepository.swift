@@ -96,7 +96,7 @@ public actor EntryRepository: EntryRepositoryProtocol {
     private let currentRemoteEncryptionKeyId = AppConstants.Settings.remoteEncryptionKeyId
 
     private var isAuthenticated: Bool {
-        userSessionManager.isAuthenticated.value
+        userSessionManager.isAuthenticatedWithUserData.value
     }
 
     private var remoteEncryptionKeyId: String? {
@@ -182,7 +182,7 @@ public extension EntryRepository {
             } catch {
                 let entryID = entry.id
                 let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryID }
-                guard let entity = try? await persistentStorage.fetchOne(predicate: predicate) else {
+                guard let entity = try await persistentStorage.fetchOne(predicate: predicate) else {
                     log(.warning, "Cannot find local entry with ID: \(entry.id)")
                     return
                 }
@@ -243,8 +243,7 @@ public extension EntryRepository {
                 idsToFetch.contains(entity.id)
             }
 
-            let encryptedEntries: [EncryptedEntryEntity] = await (try? persistentStorage
-                .fetch(predicate: predicate)) ?? []
+            let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate)
             let currentLocalIds = encryptedEntries.map(\.id)
             log(.debug, "Found \(encryptedEntries.count) existing entries")
 
@@ -513,8 +512,8 @@ public extension EntryRepository {
 
                     var syncState = EntrySyncState.unsynced
                     let entityId = decryptedEntry.id
-                    if await (try? persistentStorage
-                        .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId })) != nil {
+                    if try await persistentStorage
+                        .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
                         syncState = .synced
                     }
                     let orderedEntry = OrderedEntry(entry: decryptedEntry,
@@ -569,7 +568,7 @@ extension EntryRepository {
     private func sendLocalEncryptionKey() async throws -> RemoteEncryptedKey? {
         log(.debug, "Sending local encryption key to remote")
 
-        guard userSessionManager.isAuthenticated.value else {
+        guard userSessionManager.isAuthenticatedWithUserData.value else {
             log(.warning, "Cannot send local encryption key: user not authenticated")
             return nil
         }
