@@ -148,6 +148,8 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
+        backUpEnabled = settingsService.displayICloudBackUp
+
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -168,7 +170,10 @@ extension SettingsViewModel {
         settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
 
-    func toggleBackUp() {
+    func toggleBackICloudUp() {
+        // TODO: reload container
+        settingsService.toggleICloudBackUpDisplay(!backUpEnabled)
+
         backUpEnabled.toggle()
     }
 

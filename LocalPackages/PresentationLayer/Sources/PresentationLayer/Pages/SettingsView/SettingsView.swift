@@ -142,7 +142,7 @@ private extension SettingsView {
                            subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
                                                 .module),
                            trailingMode: .toggle(isOn: viewModel.backUpEnabled,
-                                                 onToggle: viewModel.toggleBackUp))
+                                                 onToggle: viewModel.toggleBackICloudUp))
 
                 SettingDivider()
             }
