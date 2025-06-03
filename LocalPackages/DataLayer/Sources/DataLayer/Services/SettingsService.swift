@@ -72,7 +72,8 @@ public final class SettingsService: SettingsServicing {
         self.store = store
         store.register(defaults: [
             AppConstants.Settings.isFirstRun: true,
-            AppConstants.Settings.hapticFeedbackEnabled: true
+            AppConstants.Settings.hapticFeedbackEnabled: true,
+            AppConstants.Settings.displayBESync: true
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)

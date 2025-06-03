@@ -105,11 +105,6 @@ public struct SettingsView: View {
                 .fullScreenMainBackground()
                 .sheetAlertService()
                 .importingService($showImportOptions, onMainDisplay: false)
-//            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-//                          document: viewModel.exportedDocument,
-//                          contentType: .text,
-//                          defaultFilename: viewModel.generateExportFileName(),
-//                          onCompletion: viewModel.handleExportResult)
                 .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
                     viewModel.settingSheet?.destination
                 }
@@ -152,7 +147,7 @@ private extension SettingsView {
                 SettingDivider()
             }
             #if os(iOS)
-            if viewModel.displayBESync {
+            if viewModel.displayBESync, AppConstants.isMobile {
                 SettingRow(title: .localized("Sync between devices", .module),
                            subtitle: !viewModel.emailAddress
                                .isEmpty ? .localized("Account: \(viewModel.emailAddress)",
