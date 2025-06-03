@@ -27,6 +27,7 @@ import ProtonCoreDataModel
 import ProtonCoreLogin
 import ProtonCoreNetworking
 
+@Suite(.tags(.localDatasource))
 struct UserDataSourceTests {
     let sut: any UserDataProvider
     

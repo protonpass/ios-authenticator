@@ -25,6 +25,7 @@ import CommonUtilities
 import Foundation
 import Models
 import ProtonCoreChallenge
+import ProtonCoreCrypto
 import ProtonCoreCryptoGoImplementation
 @preconcurrency import ProtonCoreCryptoGoInterface
 import ProtonCoreDataModel
@@ -33,6 +34,7 @@ import ProtonCoreDoh
 @preconcurrency import ProtonCoreForceUpgrade
 @preconcurrency import ProtonCoreFoundations
 import ProtonCoreHumanVerification
+import ProtonCoreKeyManager
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 @preconcurrency import ProtonCoreObservability
@@ -50,22 +52,21 @@ public struct APIManagerConfiguration: Sendable {
 }
 
 public protocol APIManagerProtocol: Sendable {
-    var isAuthenticated: CurrentValueSubject<Bool, Never> { get }
+    var isAuthenticatedWithUserData: CurrentValueSubject<Bool, Never> { get }
+
     var apiService: APIService { get }
 
     func logout() async throws
 }
 
 public protocol UserInfoProviding: Sendable {
-    // periphery:ignore
-    func getUserData() async throws -> UserData?
-    func save(_ userData: UserData) async throws
-}
+    var userData: UserData? { get }
 
-final class ForceUpgradeControllerImpl: ForceUpgradeController {
-    func performForceUpgrade(message: String,
-                             config: ForceUpgradeConfig,
-                             responseDelegate: ForceUpgradeResponseDelegate?) {}
+    func save(_ userData: UserData) async throws
+    func userKeyEncrypt(object: some Codable) throws -> String
+    func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data
+    func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
+        -> RemoteEncryptedKey?
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -90,15 +91,23 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
                                                                 provideParametersForSessionFetching: { [] })
     #endif
 
-    private let cachedCredentials: LegacyMutex<Credentials?> = .init(nil)
-    private let cachedUserData: LegacyMutex<UserData?> = .init(nil)
+    private let cachedCredentials: any MutexProtected<Credentials?> = SafeMutex.create(nil)
+    private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
 
-    public nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    private nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
+    private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
+    private var cancellables = Set<AnyCancellable>()
+
     public private(set) var apiService: APIService
 
     // swiftlint:disable:next identifier_name
     public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
         .AuthSessionInvalidatedDelegate)?
+
+    public var userData: UserData? {
+        cachedUserData.value
+    }
 
     public init(configuration: APIManagerConfiguration,
                 keychain: any KeychainServicing,
@@ -137,7 +146,9 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         let newApiService: PMAPIService
 
         do {
-            let encryptedContent: Data = try keychain.get(key: credentialsKey, ofType: .generic, shouldSync: false)
+            let encryptedContent: Data = try keychain.get(key: credentialsKey,
+                                                          ofType: .generic,
+                                                          isSyncedKey: false)
             let credentials: Credentials = try encryptionService.symmetricDecrypt(encryptedData: encryptedContent)
 
             cachedCredentials.modify {
@@ -149,7 +160,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
                                                           challengeParametersProvider: challengeProvider)
             isAuthenticated.send(!credentials.credential.isForUnauthenticatedSession)
         } catch {
-            logger.log(.error, category: .network, "Couldn't get credentials from keychain: \(error)")
+            logger.log(.warning, category: .network, "Couldn't get credentials from keychain: \(error)")
             newApiService = PMAPIService.createAPIServiceWithoutSession(doh: configuration.doh,
                                                                         challengeParametersProvider: challengeProvider)
         }
@@ -171,6 +182,16 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         apiService.serviceDelegate = self
         (apiService as? PMAPIService)?.loggingDelegate = self
         updateTools()
+        Task {
+            try? await loadAndCacheUserData()
+        }
+        Publishers.CombineLatest(isAuthenticated, userDataLoaded)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] authenticated, userDataLoaded in
+                guard let self else { return }
+                isAuthenticatedWithUserData.send(authenticated && userDataLoaded)
+            }
+            .store(in: &cancellables)
     }
 
     public func logout() async throws {
@@ -178,10 +199,13 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         cachedCredentials.modify {
             $0 = nil
         }
+        cachedUserData.modify { $0 = nil }
         removeCachedCredentials()
         createApiService(credential: nil)
         try await userDataProvider.removeAllUsers()
         isAuthenticated.send(false)
+        isAuthenticatedWithUserData.send(false)
+        userDataLoaded.send(false)
     }
 }
 
@@ -389,8 +413,6 @@ extension UserSessionManager: APIServiceDelegate {
     }
 
     public func isReachable() -> Bool {
-        // swiftlint:disable:next todo
-        // TODO: Handle this
         true
     }
 }
@@ -425,18 +447,102 @@ extension UserSessionManager: APIServiceLoggingDelegate {
 // MARK: - User data
 
 public extension UserSessionManager {
-    func getUserData() async throws -> UserData? {
-        if let userData = cachedUserData.value {
-            return userData
+    func loadAndCacheUserData() async throws {
+        if cachedUserData.value != nil {
+            userDataLoaded.send(true)
+            return
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
-        return userData
+        userDataLoaded.send(true)
     }
 
     func save(_ userData: UserData) async throws {
         try await userDataProvider.save(userData)
         cachedUserData.modify { $0 = userData }
+        userDataLoaded.send(true)
+    }
+
+    func userKeyEncrypt(object: some Codable) throws -> String {
+        log(.info, "Encrypting with user key")
+
+        guard let userData else {
+            throw AuthError.generic(.missingUserData)
+        }
+
+        guard let userKey = userData.user.keys.first(where: { $0.active == 1 }) else {
+            throw AuthError.crypto(.missingUserKey(userID: userData.user.ID))
+        }
+
+        guard let passphrase = userData.passphrases[userKey.keyID] else {
+            throw AuthError.crypto(.missingPassphrase(keyID: userKey.keyID))
+        }
+
+        let publicKey = ArmoredKey(value: userKey.publicKey)
+        let privateKey = ArmoredKey(value: userKey.privateKey)
+        let signerKey = SigningKey(privateKey: privateKey,
+                                   passphrase: .init(value: passphrase))
+
+        let data: Data = if let dataObject = object as? Data {
+            dataObject
+        } else {
+            try JSONEncoder().encode(object)
+        }
+
+        let encryptedData = try Encryptor.encrypt(publicKey: publicKey,
+                                                  clearData: data,
+                                                  signerKey: signerKey)
+        return try encryptedData.unArmor().value.base64EncodedString()
+    }
+
+    func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data {
+        log(.info, "Decrypting with user key")
+        guard let userData else {
+            log(.info, "Missing user data")
+            throw AuthError.generic(.missingUserData)
+        }
+
+        guard let userKey = userData.user.keys.first(where: { $0.keyID == remoteEncryptedKey.userKeyID }),
+              userKey.active == 1 else {
+            throw AuthError.crypto(.inactiveUserKey(userKeyId: remoteEncryptedKey.userKeyID))
+        }
+
+        guard let encryptedData = try remoteEncryptedKey.key.base64Decode() else {
+            log(.info, "Failed to base 64 decode encrypted string")
+            throw AuthError.crypto(.failedToBase64Decode)
+        }
+
+        let armoredEncryptedData = try armorMessage(encryptedData)
+
+        let decryptionKeys = userData.user.keys.map {
+            DecryptionKey(privateKey: .init(value: $0.privateKey),
+                          passphrase: .init(value: userData.passphrases[$0.keyID] ?? ""))
+        }
+
+        let verificationKeys = userData.user.keys.map(\.publicKey).map { ArmoredKey(value: $0) }
+        let decryptedData: VerifiedData = try Decryptor.decryptAndVerify(decryptionKeys: decryptionKeys,
+                                                                         value: .init(value: armoredEncryptedData),
+                                                                         verificationKeys: verificationKeys)
+
+        return decryptedData.content
+    }
+
+    func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
+        -> RemoteEncryptedKey? {
+        guard let userData else {
+            throw AuthError.generic(.missingUserData)
+        }
+
+        return remoteKeys.first { remoteKey in
+            userData.user.keys.contains(where: { $0.keyID == remoteKey.userKeyID && $0.active == 1 })
+        }
+    }
+
+    private func armorMessage(_ message: Data) throws -> String {
+        var error: NSError?
+        let result = CryptoGo.ArmorArmorWithType(message, "MESSAGE", &error)
+        if let error { throw error }
+        return result
     }
 }
 
@@ -489,60 +595,12 @@ public final class AuthDoH: DoH, ServerConfig {
     }
 }
 
-// MARK: - Keychain codable wrappers for credential elements & extensions
-
-struct Credentials: Hashable, Sendable, Codable {
-    let credential: Credential
-    let authCredential: AuthCredential
+final class ForceUpgradeControllerImpl: ForceUpgradeController {
+    func performForceUpgrade(message: String,
+                             config: ForceUpgradeConfig,
+                             responseDelegate: ForceUpgradeResponseDelegate?) {}
 }
 
-extension Credential: Codable, @retroactive Hashable {
-    private enum CodingKeys: String, CodingKey {
-        case UID
-        case accessToken
-        case refreshToken
-        case userName
-        case userID
-        case scopes
-        case mailboxPassword
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(UID)
-        hasher.combine(accessToken)
-        hasher.combine(refreshToken)
-        hasher.combine(userName)
-        hasher.combine(userID)
-        hasher.combine(scopes)
-        hasher.combine(mailboxPassword)
-    }
-
-    public init(from decoder: any Decoder) throws {
-        self.init(UID: "",
-                  accessToken: "",
-                  refreshToken: "",
-                  userName: "",
-                  userID: "",
-                  scopes: [],
-                  mailboxPassword: "")
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        UID = try values.decode(String.self, forKey: .UID)
-        accessToken = try values.decode(String.self, forKey: .accessToken)
-        refreshToken = try values.decode(String.self, forKey: .refreshToken)
-        userName = try values.decode(String.self, forKey: .userName)
-        userID = try values.decode(String.self, forKey: .userID)
-        scopes = try values.decode([String].self, forKey: .scopes)
-        mailboxPassword = try values.decode(String.self, forKey: .mailboxPassword)
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(UID, forKey: .UID)
-        try container.encode(accessToken, forKey: .accessToken)
-        try container.encode(refreshToken, forKey: .refreshToken)
-        try container.encode(userName, forKey: .userName)
-        try container.encode(userID, forKey: .userID)
-        try container.encode(scopes, forKey: .scopes)
-        try container.encode(mailboxPassword, forKey: .mailboxPassword)
-    }
+public extension UserData {
+    var email: String { user.email ?? "" }
 }

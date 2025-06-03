@@ -1,6 +1,6 @@
 //
-// LegacyMutex.swift
-// Proton Authenticator - Created on 26/03/2025.
+// GetKeys.swift
+// Proton Authenticator - Created on 06/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,31 +18,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-// periphery:ignore:all
 import Foundation
-import os
+import Models
 
-public final class LegacyMutex<Value: Sendable>: Sendable {
-    private let lock: OSAllocatedUnfairLock<Value>
+struct PaginatedKeys: Decodable, Equatable, Sendable {
+    let keys: [RemoteEncryptedKey]
+}
 
-    public init(_ value: Value) {
-        lock = .init(uncheckedState: value)
-    }
+struct GetKeysResponse: Decodable, Equatable, Sendable {
+    let keys: PaginatedKeys
+}
 
-    public var value: Value {
-        lock.withLock { $0 }
-    }
+struct GetKeys: Endpoint {
+    typealias Body = EmptyRequest
+    typealias Response = GetKeysResponse
 
-    public func withLock<T: Sendable>(_ block: @Sendable (Value) throws -> T) rethrows -> T {
-        try lock.withLock { value in
-            try block(value)
-        }
-    }
+    var debugDescription: String
+    var path: String
 
-    @discardableResult
-    public func modify<T: Sendable>(_ block: @Sendable (inout Value) throws -> T) rethrows -> T {
-        try lock.withLock { value in
-            try block(&value)
-        }
+    init() {
+        debugDescription = "Get the proton authenticator Keys"
+        path = "/authenticator/v1/key"
     }
 }

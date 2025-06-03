@@ -22,6 +22,7 @@ import Testing
 import Models
 import DataLayer
 
+@Suite(.tags(.service))
 struct ImportingServiceTests {
     let sut: ImportingService
 
@@ -148,14 +149,9 @@ struct ImportingServiceTests {
     
     @Test("Test import wrong csv from bitwarden")
     func failImportCsvEntriesFromBitwarden() throws {
-        // Act
-        let result = try sut.importEntries(from: .bitwarden(contents:.csv("plop, plop\nplop")))
-
-        // Assert
-        #expect(result.entries.count == 0)
-        #expect(result.errors.count == 2)
-        #expect(result.entries.first?.name == nil)
-        #expect(result.entries.last?.name == nil)
+        #expect(throws: AuthenticatorImportException.BadContent(message: "BadContent")) {
+            try sut.importEntries(from: .bitwarden(contents: .csv("plop, plop\nplop")))
+        }
     }
     
     @Test("Test import txt from ente")
@@ -248,6 +244,9 @@ enum MockImporterData {
      "appOrigin": "android"
    }
 """
+    
+    
+    
     static let encrypted2fas: String = """
   {
     "services": [],
@@ -262,6 +261,7 @@ enum MockImporterData {
   }
 """
     
+
     static let decryptedAegisJson: String = """
 {
     "version": 1,

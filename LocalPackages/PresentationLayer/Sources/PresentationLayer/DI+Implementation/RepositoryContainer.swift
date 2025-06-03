@@ -18,8 +18,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import DataLayer
-import Factory
+import FactoryKit
 
 final class RepositoryContainer: SharedContainer, AutoRegistering {
     static let shared = RepositoryContainer()
@@ -31,7 +32,11 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
         self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
-                               encryptionService: ServiceContainer.shared.encryptionService()) }
+                               encryptionService: ServiceContainer.shared.encryptionService(),
+                               apiClient: ToolsContainer.shared.apiClient(),
+                               userSessionManager: ServiceContainer.shared.userSessionManager(),
+                               store: kSharedUserDefaults,
+                               logger: ToolsContainer.shared.logManager()) }
     }
 
     // MARK: - Data sources

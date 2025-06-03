@@ -19,7 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -55,6 +55,10 @@ final class OnboardingViewModel {
     private var laEnablingPolicy
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private var logger
+
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService)
     private var appSettings
 
@@ -70,13 +74,9 @@ final class OnboardingViewModel {
     func getSupportedBiometric() {
         switch getBiometricStatus(with: laContext) {
         case .notAvailable:
-            // swiftlint:disable:next todo
-            // TODO: Add log here
-            print("Biometric not available")
-
+            logger.log(.warning, category: .ui, "Biometric not available")
         case let .available(biometric):
             supportedBiometric = biometric
-
         case let .error(error):
             handle(error.value)
         }
@@ -117,10 +117,8 @@ final class OnboardingViewModel {
         }
     }
 
-    func handle(_ error: any Error) {
-        // swiftlint:disable:next todo
-        // TODO: Log error
-        print(error.localizedDescription)
+    func handle(_ error: any Error, function: String = #function, line: Int = #line) {
+        logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
     }
 
     func finishOnboarding() {

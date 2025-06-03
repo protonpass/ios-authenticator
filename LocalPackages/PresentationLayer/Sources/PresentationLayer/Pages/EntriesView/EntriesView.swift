@@ -22,7 +22,7 @@
 import AVFoundation
 import CommonUtilities
 import DataLayer
-import Factory
+import FactoryKit
 import Models
 import SimpleToast
 import SwiftUI
@@ -78,6 +78,8 @@ public struct EntriesView: View {
                     viewModel?.reloadData()
                 }
                 .onAppear {
+                    viewModel.reloadData()
+
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
                     }
@@ -86,6 +88,9 @@ public struct EntriesView: View {
                     if newValue == .active {
                         withAnimation {
                             searchFieldFocus = viewModel.focusSearchOnLaunch
+                        }
+                        if viewModel.isAuthenticated {
+                            viewModel.fullSync()
                         }
                     }
                 }
@@ -137,6 +142,7 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry)
+                    .contentShape(.dragPreview, Rectangle())
                     .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
@@ -233,7 +239,7 @@ private extension EntriesView {
     }
 
     func cell(for entry: EntryUiModel) -> some View {
-        EntryCell(entry: entry.entry,
+        EntryCell(entry: entry.orderedEntry.entry,
                   code: entry.code,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
@@ -268,7 +274,6 @@ private extension EntriesView {
         HStack(alignment: .bottom, spacing: 10) {
             searchBar
             addButton(size: 44)
-                .padding(10)
         }
         .padding(.horizontal, 22)
         .padding(.top, 8)
@@ -379,7 +384,7 @@ private extension EntriesView {
                         .padding(.bottom, 16)
                 } description: {
                     VStack(spacing: 16) {
-                        Text("No codes", bundle: .module)
+                        Text("No codes yet", bundle: .module)
                             .font(.title3)
                             .monospaced()
                             .multilineTextAlignment(.center)

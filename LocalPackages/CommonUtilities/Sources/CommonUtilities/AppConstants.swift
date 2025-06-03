@@ -58,6 +58,7 @@ public enum AppConstants {
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
         public static let displayICloudBackUp = "DisplayICloudBackUp"
         public static let displayBESync = "DisplayBESync"
+        public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
     }
 
     @MainActor
@@ -79,6 +80,16 @@ public enum AppConstants {
         #endif
     }
 
+    // periphery:ignore
+    @MainActor
+    public static var isMobile: Bool {
+        #if canImport(UIKit)
+        true
+        #else
+        false
+        #endif
+    }
+
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }
@@ -90,5 +101,10 @@ public enum AppConstants {
 
     public enum CommonUrls {
         public static let feedbackUrl = "https://proton.me/support/contact"
+    }
+
+    public enum ContentFormatVersion {
+        public static let entry = 1
+        public static let key = 1
     }
 }

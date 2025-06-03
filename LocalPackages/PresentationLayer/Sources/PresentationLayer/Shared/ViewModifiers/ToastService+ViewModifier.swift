@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Factory
+import FactoryKit
 import SimpleToast
 import SwiftUI
 

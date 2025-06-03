@@ -168,3 +168,47 @@ extension [AuthenticatorImportError] {
         map(\.toImportError)
     }
 }
+
+extension [OrderedEntry] {
+    var toRemoteEntries: [RemoteEntry] {
+        compactMap(\.toRemoteEntry)
+    }
+}
+
+extension OrderedEntry {
+    var toRemoteEntry: RemoteEntry? {
+        guard let remoteId else {
+            return nil
+        }
+        return RemoteEntry(remoteId: remoteId, entry: entry.toRustEntry, modifyTime: Int64(modifiedTime))
+    }
+}
+
+extension [EntryState] {
+    var toLocalEntries: [LocalEntry] {
+        compactMap(\.toLocalEntry)
+    }
+}
+
+extension EntryState {
+    var toLocalEntry: LocalEntry? {
+        guard case let .decrypted(entry) = self else { return nil }
+        return LocalEntry(entry: entry.entry.toRustEntry,
+                          state: entry.syncState.toLocalEntryState,
+                          modifyTime: Int64(entry.modifiedTime),
+                          localModifyTime: Int64(entry.modifiedTime))
+    }
+}
+
+extension EntrySyncState {
+    var toLocalEntryState: LocalEntryState {
+        switch self {
+        case .synced:
+            .synced
+        case .unsynced:
+            .pendingSync
+        case .toDelete:
+            .pendingToDelete
+        }
+    }
+}

@@ -20,8 +20,9 @@
 //
 
 import Combine
+import CoreData
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -38,8 +39,8 @@ final class EntriesViewModel: ObservableObject {
         }
 
         let newResults = entryDataService.dataState.data?.filter {
-            $0.entry.name.lowercased().contains(lastestQuery) ||
-                $0.entry.issuer.lowercased().contains(lastestQuery)
+            $0.orderedEntry.entry.name.lowercased().contains(lastestQuery) ||
+                $0.orderedEntry.entry.issuer.lowercased().contains(lastestQuery)
         } ?? []
 
         return newResults
@@ -82,6 +83,14 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.userSessionManager)
+    private(set) var userSessionManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private(set) var logger
+
     #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
@@ -97,7 +106,32 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
+    @ObservationIgnored
+    private var loadLocalTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var fullSyncTask: Task<Void, Never>?
+
+    var isAuthenticated: Bool {
+        userSessionManager.isAuthenticatedWithUserData.value
+    }
+
     init() {
+        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                guard let self,
+                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
+                      event.endDate != nil, event.type == .import else { return }
+                logger.log(.debug,
+                           category: .ui,
+                           "Received notification of updates from iCloud Database",
+                           function: #function,
+                           line: #line)
+                loadEntries()
+            }
+            .store(in: &cancellables)
+
         searchTextStream
             .dropFirst()
             .removeDuplicates()
@@ -106,6 +140,15 @@ final class EntriesViewModel: ObservableObject {
             .sink { [weak self] newSearch in
                 guard let self else { return }
                 lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            }
+            .store(in: &cancellables)
+
+        userSessionManager.isAuthenticatedWithUserData
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self, status else { return }
+                fullSync()
             }
             .store(in: &cancellables)
     }
@@ -121,6 +164,9 @@ final class EntriesViewModel: ObservableObject {
         if offset < destination {
             targetIndex -= 1
         }
+        guard offset != targetIndex else {
+            return
+        }
         Task { [weak self] in
             guard let self else { return }
             do {
@@ -130,11 +176,42 @@ final class EntriesViewModel: ObservableObject {
             }
         }
     }
+
+    func loadEntries() {
+        loadLocalTask?.cancel()
+        loadLocalTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await entryDataService.loadEntries()
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
+    func fullSync() {
+        guard fullSyncTask == nil else {
+            return
+        }
+        fullSyncTask = Task { [weak self] in
+            guard let self else { return }
+            defer { fullSyncTask = nil }
+            do {
+                await loadLocalTask?.value
+                try await entryDataService.fullRefresh()
+            } catch {
+                handle(error)
+            }
+        }
+    }
 }
 
 extension EntriesViewModel {
     func reloadData() {
-        entryDataService.loadEntries()
+        loadEntries()
+        if isAuthenticated {
+            fullSync()
+        }
     }
 
     func copyTokenToClipboard(_ entry: EntryUiModel) {
@@ -182,9 +259,8 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
-    func handle(_ error: any Error) {
-        // swiftlint:disable:next todo
-        // TODO: Log
+    func handle(_ error: any Error, function: String = #function, line: Int = #line) {
+        logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
         alertService.showError(error, mainDisplay: true, action: nil)
     }
 }

@@ -72,6 +72,10 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
             && period == other.period
             && secret == other.secret)
     }
+
+    public var capitalLetter: String {
+        issuer.first?.uppercased() ?? name.first?.uppercased() ?? ""
+    }
 }
 
 // MARK: - Hashable

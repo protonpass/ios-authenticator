@@ -26,13 +26,13 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(Entry, EntrySyncState)
+    case decrypted(OrderedEntry)
     case nonDecryptable
 
-    public var entryAndSyncState: (Entry, EntrySyncState)? {
+    public var entry: OrderedEntry? {
         switch self {
-        case let .decrypted(entry, state):
-            (entry, state)
+        case let .decrypted(entry):
+            entry
         default:
             nil
         }
@@ -40,24 +40,33 @@ public enum EntryState: Sendable {
 }
 
 public protocol EncryptionServicing: Sendable {
-    var keyId: String { get }
+    var localEncryptionKeyId: String { get }
+    var localEncryptionKey: Data { get throws }
 
-    func encrypt(entry: Entry) throws -> Data
+//    func encrypt(entry: Entry, keyId: String) throws -> Data
+    func encrypt(entry: Entry, keyId: String, locally: Bool) throws -> Data
     // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
     // periphery:ignore
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 
-    func symmetricEncrypt<T: Codable>(object: T) throws -> Data
+    func symmetricEncrypt(object: some Codable) throws -> Data
     func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
+
+    // MARK: - Proton BE
+
+    func saveUserRemoteKey(keyId: String, remoteKey: Data) throws
+    func contains(keyId: String) -> Bool
+    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry
+    func getEncryptionKey(for keyId: String, isSyncedKey: Bool) throws -> Data
 }
 
 // swiftlint:disable:next todo
 // TODO: take into account user settings for backup sync of keychain
 
 public final class EncryptionService: EncryptionServicing {
-    public let keyId: String
+    public let localEncryptionKeyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
     private let keychain: any KeychainServicing
     private let keysProvider: any KeysProvider
@@ -71,80 +80,136 @@ public final class EncryptionService: EncryptionServicing {
         self.keychain = keychain
         self.logger = logger
         self.keysProvider = keysProvider
-        keyId = "encryptionKey-\(deviceIdentifier)"
+        localEncryptionKeyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
+        _ = try? localEncryptionKey
     }
 
-    private var localEncryptionKey: Data {
+    public var localEncryptionKey: Data {
         get throws {
-            if let key: Data = try? keychain.get(key: keyId, shouldSync: true) {
+            if let key: Data = try? keychain.get(key: localEncryptionKeyId, isSyncedKey: true) {
                 return key
             }
             log(.info, "Generating a new local encryption key")
             let newKey = authenticatorCrypto.generateKey()
-            try keychain.set(newKey, for: keyId, shouldSync: true)
+            try keychain.set(newKey, for: localEncryptionKeyId, shouldSync: true)
             return newKey
         }
     }
 
-    private func getEncryptionKey(for keyId: String) throws -> Data {
+    public func getEncryptionKey(for keyId: String, isSyncedKey: Bool) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keychain.get(key: keyId, shouldSync: true)
+        let key: Data = try keychain.get(key: keyId, isSyncedKey: isSyncedKey)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
 }
 
 public extension EncryptionService {
+    // check ou cést utilisé
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
-        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
+        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId, isSyncedKey: true) else {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
-        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        return .decrypted(rustEntry.toEntry, entry.syncState)
+        guard let data = try entry.encryptedData.base64Decode() else {
+            return .nonDecryptable
+        }
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: data, key: encryptionKey)
+        let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
+                                        keyId: entry.keyId,
+                                        remoteId: entry.remoteId.nilIfEmpty,
+                                        order: entry.order,
+                                        syncState: EntrySyncState(rawValue: entry.syncState) ?? .unsynced,
+                                        creationDate: entry.creationDate,
+                                        modifiedTime: entry.modifiedTime,
+                                        flags: entry.flags,
+                                        revision: entry.revision,
+                                        contentFormatVersion: entry.contentFormatVersion)
+        return .decrypted(orderedEntry)
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
         log(.info, "Decrypting entries")
         return try entries.map { entry in
-            guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-                log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
-                return .nonDecryptable
-            }
-            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
-                                                                 key: encryptionKey)
-            return .decrypted(rustEntry.toEntry, entry.syncState)
+            try decrypt(entry: entry)
         }
     }
 
-    func encrypt(entry: Entry) throws -> Data {
-        let localKey = try localEncryptionKey
+    func encrypt(entry: Entry, keyId: String, locally: Bool) throws -> Data {
+        let encryptionKey = try getEncryptionKey(for: keyId, isSyncedKey: locally)
         log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
-                                                    key: localKey)
+                                                    key: encryptionKey)
     }
 
     func encrypt(entries: [Entry]) throws -> [Data] {
         let localKey = try localEncryptionKey
-        log(.info, "Encrypting \(entries.count) entries with local encryption key ")
+        log(.info, "Encrypting \(entries.count) entries with local encryption key")
 
         return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
                                                           key: localKey)
     }
 
     func symmetricEncrypt(object: some Codable) throws -> Data {
+        log(.info, "Encrypting entry with symmetric encryption key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try JSONEncoder().encode(object)
         return try symmetricKey.encrypt(data)
     }
 
     func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T {
+        log(.info, "Decrypting entry with symmetric encryption key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try symmetricKey.decrypt(encryptedData)
         return try JSONDecoder().decode(T.self, from: data)
+    }
+}
+
+// MARK: - Proton BE
+
+public extension EncryptionService {
+    func saveUserRemoteKey(keyId: String, remoteKey: Data) throws {
+        log(.info, "Saving remote proton key with id \(keyId)")
+        try keychain.set(remoteKey, for: keyId, shouldSync: false)
+    }
+
+    func contains(keyId: String) -> Bool {
+        guard (try? keychain.get(key: keyId, isSyncedKey: false) as Data) != nil else {
+            return false
+        }
+
+        return true
+    }
+
+    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
+        log(.info, "Decrypting proton entry with remote key id \(encryptedData.authenticatorKeyID)")
+        let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: false)
+
+        guard !protonKey.isEmpty else {
+            log(.warning, "Proton key not found for \(encryptedData.authenticatorKeyID)")
+            throw AuthError.crypto(.missingKeys)
+        }
+
+        guard let contentData = try encryptedData.content.base64Decode() else {
+            log(.warning, "Could not base64 decode content data")
+            throw AuthError.crypto(.failedToBase64Decode)
+        }
+
+        guard contentData.count > 12 else {
+            log(.warning, "Data is too short to be a valid encrypted entry")
+            throw AuthError.crypto(.corruptedContent(encryptedData.entryID))
+        }
+
+        do {
+            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: contentData, key: protonKey)
+            return rustEntry.toEntry
+        } catch {
+            log(.error, "Rust decryption service failed to decrypt entry with remote id: \(encryptedData.entryID)")
+            throw error
+        }
     }
 }
 

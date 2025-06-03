@@ -22,32 +22,32 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable, Codable,
-    IdentifiableOrderedEntry {
-    public let entry: Entry
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable,
+    Codable {
+    public var orderedEntry: OrderedEntry
     public let code: Code
-    public let order: Int
     public let issuerInfo: AuthIssuerInfo?
-    public let syncState: EntrySyncState
 
     public var id: String {
-        entry.id
+        orderedEntry.id
     }
 
-    public init(entry: Entry,
-                code: Code,
-                order: Int,
-                syncState: EntrySyncState,
-                issuerInfo: AuthIssuerInfo?) {
-        self.entry = entry
+    public init(orderedEntry: OrderedEntry, code: Code, issuerInfo: AuthIssuerInfo?) {
+        self.orderedEntry = orderedEntry
         self.code = code
-        self.order = order
         self.issuerInfo = issuerInfo
-        self.syncState = syncState
     }
 
     public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(entry: newEntry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(orderedEntry: orderedEntry.updateEntry(newEntry),
+                     code: code,
+                     issuerInfo: issuerInfo)
+    }
+
+    public func updateRemoteInfos(_ remoteId: String) -> EntryUiModel {
+        EntryUiModel(orderedEntry: orderedEntry.updateRemoteInfos(remoteId),
+                     code: code,
+                     issuerInfo: issuerInfo)
     }
 
     public static var transferRepresentation: some TransferRepresentation {
@@ -61,10 +61,14 @@ public extension UTType {
 
 public extension EntryUiModel {
     func updateCode(_ code: Code) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(orderedEntry: orderedEntry,
+                     code: code,
+                     issuerInfo: issuerInfo)
     }
 
     func updateOrder(_ order: Int) -> EntryUiModel {
-        EntryUiModel(entry: entry, code: code, order: order, syncState: syncState, issuerInfo: issuerInfo)
+        EntryUiModel(orderedEntry: orderedEntry.updateOrder(order),
+                     code: code,
+                     issuerInfo: issuerInfo)
     }
 }

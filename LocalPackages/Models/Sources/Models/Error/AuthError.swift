@@ -21,13 +21,14 @@
 import Foundation
 
 /// Proton Authenticator errors
-public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable {
+public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable, LocalizedError {
     case importing(ImportingFailureReason)
     case imageParsing(ImageParsingFailureReason)
     case encryption(EncryptionFailureReason)
     case deeplinking(DeeplinkingFailureReason)
     case generic(GenericEntryFailureReason)
     case symmetricCrypto(SymmetricKeyCryptoFailureReasons)
+    case crypto(CryptoFailureReason)
 
     public var debugDescription: String {
         switch self {
@@ -43,7 +44,13 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
             reason.debugDescription
         case let .symmetricCrypto(reason):
             reason.debugDescription
+        case let .crypto(reason):
+            reason.debugDescription
         }
+    }
+
+    public var errorDescription: String? {
+        debugDescription
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {

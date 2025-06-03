@@ -26,7 +26,7 @@ import Combine
 // periphery:ignore
 import DataLayer
 import DocScanner
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -73,6 +73,9 @@ final class ScannerViewModel {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
+    @ObservationIgnored
+    let scanResponsePublisher: PassthroughSubject<Result<ScanResult, Error>, Never> = .init()
+
     init() {
         setUp()
     }
@@ -82,7 +85,9 @@ final class ScannerViewModel {
         task = nil
     }
 
-    func processPayload(results: Result<ScanResult?, Error>) {
+    func processPayload(results: Result<ScanResult, Error>) {
+        if Task.isCancelled { return }
+
         task?.cancel()
         task = Task { [weak self] in
             guard let self else { return }
@@ -98,6 +103,7 @@ final class ScannerViewModel {
                     if Task.isCancelled { return }
                     let config = AlertConfiguration.noCameraAccess { [weak self] in
                         guard let self else { return }
+                        task?.cancel()
                         shouldEnterManually = true
                     }
                     alertService.showAlert(.sheet(config))
@@ -113,6 +119,7 @@ final class ScannerViewModel {
         hasPayload = false
         task?.cancel()
         task = nil
+        cancellables.removeAll()
     }
 }
 
@@ -126,15 +133,19 @@ private extension ScannerViewModel {
                 parseImage(imageSelection)
             }
             .store(in: &cancellables)
+
+        scanResponsePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] scanResult in
+                guard let self else { return }
+                processPayload(results: scanResult)
+            }
+            .store(in: &cancellables)
     }
 
     func handleError(_ error: String) {
-        alertService.showError(error, mainDisplay: false) { [weak self] in
-            guard let self else {
-                return
-            }
-            clean()
-        }
+        if Task.isCancelled { return }
+        alertService.showError(error, mainDisplay: false)
 
         #if os(iOS)
         hapticsManager(.notify(.error))
@@ -151,7 +162,6 @@ private extension ScannerViewModel {
                 await generateEntry(from: content)
             } catch {
                 if Task.isCancelled { return }
-
                 handleError(#localized("Could not process the image", bundle: .module))
             }
         }

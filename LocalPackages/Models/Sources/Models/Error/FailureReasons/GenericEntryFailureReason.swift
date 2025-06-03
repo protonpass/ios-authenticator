@@ -28,6 +28,8 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case exportEmptyData
     case mainKeyNotFound
     case failedToRandomizeData
+    case missingUserData
+    case missingRemoteId
 
     public var debugDescription: String {
         switch self {
@@ -45,6 +47,10 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "Main key not found"
         case .failedToRandomizeData:
             "Failed to randomize data"
+        case .missingUserData:
+            "Missing user data"
+        case .missingRemoteId:
+            "Missing remote id for entity"
         }
     }
 }

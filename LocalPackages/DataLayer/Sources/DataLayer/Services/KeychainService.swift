@@ -45,11 +45,11 @@ public struct KeychainQueryConfig {
 public protocol KeychainServicing: Sendable {
     func get<T: Decodable & Sendable>(key: String,
                                       ofType itemClassType: ItemClassType,
-                                      shouldSync: Bool?) throws -> T
-    func set<T: Encodable & Sendable>(_ item: T,
-                                      for key: String,
-                                      config: KeychainQueryConfig,
-                                      shouldSync: Bool?) throws
+                                      isSyncedKey: Bool?) throws -> T
+    func set(_ item: some Encodable & Sendable,
+             for key: String,
+             config: KeychainQueryConfig,
+             shouldSync: Bool?) throws
     func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
     func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws
     func clear(key: String, shouldSync: Bool?) throws
@@ -59,8 +59,8 @@ public protocol KeychainServicing: Sendable {
 extension KeychainServicing {
     func get<T: Decodable & Sendable>(key: String,
                                       ofType itemClassType: ItemClassType = .generic,
-                                      shouldSync: Bool? = nil) throws -> T {
-        try get(key: key, ofType: itemClassType, shouldSync: shouldSync)
+                                      isSyncedKey: Bool? = nil) throws -> T {
+        try get(key: key, ofType: itemClassType, isSyncedKey: isSyncedKey)
     }
 
     func set(_ item: some Encodable & Sendable,
@@ -87,7 +87,7 @@ public final class KeychainService: KeychainServicing {
     private let accessGroup: String?
     private let logger: LoggerProtocol
 
-    private let serviceSyncState: LegacyMutex<Bool> = .init(false)
+    private let serviceSyncState: any MutexProtected<Bool> = SafeMutex.create(false)
 
     public init(service: String? = nil, accessGroup: String? = nil, logger: LoggerProtocol) {
         self.service = service
@@ -97,10 +97,10 @@ public final class KeychainService: KeychainServicing {
 
     public func get<T: Decodable & Sendable>(key: String,
                                              ofType itemClassType: ItemClassType = .generic,
-                                             shouldSync: Bool?) throws -> T {
+                                             isSyncedKey: Bool?) throws -> T {
         log(.debug, "Getting key '\(key)' from keychain")
 
-        let shouldSyncData = shouldSync ?? serviceSyncState.value
+        let shouldSyncData = isSyncedKey ?? serviceSyncState.value
 
         var query = createQuery(for: key, ofType: itemClassType, remoteSync: shouldSyncData)
         query[kSecMatchLimit] = kSecMatchLimitOne
@@ -243,7 +243,7 @@ private extension KeychainService {
 
         let result = SecItemAdd(query as CFDictionary, nil)
         if result != errSecSuccess {
-            log(.error, "Failed to add key '\(key)': \(result.toKeychainError)")
+            log(.warning, "Failed to add key '\(key)': \(result.toKeychainError)")
             throw result.toKeychainError
         }
     }

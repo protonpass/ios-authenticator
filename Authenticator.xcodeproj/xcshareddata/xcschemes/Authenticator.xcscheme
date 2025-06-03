@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
+   LastUpgradeVersion = "1630"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -239,6 +239,11 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "me.proton.Authenticator.SentryDebug"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "me.proton.Authenticator.NetworkDebug"
             value = "1"
             isEnabled = "NO">
          </EnvironmentVariable>

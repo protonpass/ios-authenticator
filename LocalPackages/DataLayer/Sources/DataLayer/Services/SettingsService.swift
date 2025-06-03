@@ -72,7 +72,8 @@ public final class SettingsService: SettingsServicing {
         self.store = store
         store.register(defaults: [
             AppConstants.Settings.isFirstRun: true,
-            AppConstants.Settings.hapticFeedbackEnabled: true
+            AppConstants.Settings.hapticFeedbackEnabled: true,
+            AppConstants.Settings.displayBESync: true
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
@@ -189,6 +190,9 @@ private extension SettingsService {
 
 private extension UserDefaults {
     func value<T: IntegerDefaulting>(for key: String) -> T {
-        T(rawValue: integer(forKey: key)) ?? .default
+        guard let number = object(forKey: key) as? Int else {
+            return .default
+        }
+        return T(rawValue: number) ?? .default
     }
 }

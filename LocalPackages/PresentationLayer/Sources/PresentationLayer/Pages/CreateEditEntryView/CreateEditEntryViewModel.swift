@@ -21,7 +21,7 @@
 
 import AuthenticatorRustCore
 import CommonUtilities
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -124,15 +124,15 @@ final class CreateEditEntryViewModel {
 
 private extension CreateEditEntryViewModel {
     func setUp(entry: EntryUiModel?) {
-        guard let entry else { return }
+        guard let uiEntry = entry else { return }
 
-        switch entry.entry.type {
+        switch uiEntry.orderedEntry.entry.type {
         case .steam:
-            name = entry.entry.name
-            secret = entry.entry.secret
+            name = uiEntry.orderedEntry.entry.name
+            secret = uiEntry.orderedEntry.entry.secret
             type = .steam
         case .totp:
-            if let params = try? entryDataService.getTotpParams(entry: entry.entry) {
+            if let params = try? entryDataService.getTotpParams(entry: uiEntry.orderedEntry.entry) {
                 name = params.name
                 secret = params.secret
                 issuer = params.issuer

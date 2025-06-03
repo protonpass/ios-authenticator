@@ -24,7 +24,7 @@ import SwiftUI
 struct SettingRow: View {
     var icon: ImageResource?
     let title: TextContent
-    var subtitle: LocalizedStringKey?
+    var subtitle: TextContent?
     var trailingMode: TrailingMode?
     var onTap: (() -> Void)?
 
@@ -51,7 +51,7 @@ struct SettingRow: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 if let subtitle {
-                    Text(subtitle, bundle: .module)
+                    Text(subtitle) // ignore:missing_bundle
                         .font(.system(size: 15, weight: .regular))
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

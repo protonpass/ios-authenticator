@@ -20,7 +20,7 @@
 
 import AuthenticatorRustCore
 import DataLayer
-import Factory
+import FactoryKit
 import LocalAuthentication
 import SimplyPersist
 import SwiftData
@@ -35,6 +35,8 @@ final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
 }
 
 extension ToolsContainer {
+    // swiftlint:disable:next todo
+    // TODO: make it can so we can toggle icluod sync for EncryptedEntryEntity
     var persistenceService: Factory<any PersistenceServicing> {
         self {
             do {
@@ -114,4 +116,8 @@ extension ToolsContainer {
         .shared
     }
     #endif
+
+    var apiClient: Factory<any APIClientProtocol> {
+        self { APIClient(manager: ServiceContainer.shared.userSessionManager(), logger: self.logManager()) }
+    }
 }

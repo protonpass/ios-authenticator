@@ -20,6 +20,7 @@
 
 import AuthenticatorRustCore
 import Combine
+import CommonUtilities
 import CoreData
 import Foundation
 import Models
@@ -34,9 +35,11 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func insertAndRefreshEntry(from params: EntryParameters) async throws
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws
     func insertAndRefresh(entry: Entry) async throws
-    func loadEntries()
+    func loadEntries() async throws
     func delete(_ entry: EntryUiModel) async throws
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
+
+    func fullRefresh() async throws
 
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
@@ -67,8 +70,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     @ObservationIgnored
     private let importService: any ImportingServicing
     @ObservationIgnored
-    private var task: Task<Void, Never>?
-    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
     private var totpGenerator: any TotpGeneratorProtocol
@@ -76,6 +77,9 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
+
+    @ObservationIgnored
+    private let syncOperation: any SyncOperationCheckerProtocol
 
     @ObservationIgnored
     private let logger: LoggerProtocol
@@ -86,31 +90,19 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 importService: any ImportingServicing,
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
-                logger: any LoggerProtocol) {
+                logger: any LoggerProtocol,
+                syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
+        self.syncOperation = syncOperation
         setUp()
     }
 
     private func setUp() {
-        loadEntries()
-
-        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-                guard let self,
-                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import else { return }
-                log(.debug, "Received notification of updates from iCloud Database")
-                loadEntries()
-            }
-            .store(in: &cancellables)
-
-        totpGenerator.currentCode
+        totpGenerator.currentCodes
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
             .sink { [weak self] codes in
@@ -133,6 +125,7 @@ public extension EntryDataService {
 
     // periphery:ignore
     func insertAndRefreshEntry(from uri: String) async throws {
+        if Task.isCancelled { return }
         log(.info, "Inserting entry from URI: \(uri)")
         let entry = try await repository.entry(for: uri)
         try await save(entry)
@@ -150,68 +143,85 @@ public extension EntryDataService {
 
         var entry = try createEntry(with: params)
         entry.id = entryId
-        try await repository.update(entry)
-
         var data: [EntryUiModel] = dataState.data ?? []
-        if let index = data.firstIndex(where: { $0.id == entryId }) {
-            data[index] = data[index].copy(newEntry: entry)
+        guard let index = data.firstIndex(where: { $0.id == entry.id }) else {
+            return
         }
+        data[index] = data[index].copy(newEntry: entry)
+        try await repository.completeUpdate(entry: data[index].orderedEntry)
+
         updateData(data)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
-        log(.debug, "Deleting entry with ID: \(entry.id)")
         guard var data = dataState.data else {
             return
         }
-        log(.info, "Deleting entry with ID: \(entry.id)")
-        try await repository.remove(entry.entry.id)
-        data = data.filter { $0.entry.id != entry.entry.id }
-        data = updateOrder(data: data)
-        try await repository.updateOrder(data)
+        log(.debug, "Deleting entry with ID: \(entry.id)")
+
+        try await repository.completeRemove(entry: entry.orderedEntry)
+
+        data = data.filter { $0.orderedEntry.id != entry.id }
+        data = updateOrder(uiEntries: data)
+        try await repository.localReorder(data.map(\.orderedEntry))
         updateData(data)
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
         log(.debug, "Reordering item from position \(currentPosition) to \(newPosition)")
-        guard let entry = dataState.data?[currentPosition] else {
+        guard currentPosition != newPosition else {
             return
         }
-        guard var data = dataState.data else {
+        guard var entryUiModels = dataState.data else {
             return
         }
-        data.remove(at: currentPosition)
-        data.insert(entry, at: newPosition)
-        data = updateOrder(data: data)
-        try await repository.updateOrder(data)
-        updateData(data)
+        entryUiModels.move(from: currentPosition, to: newPosition)
+        entryUiModels = updateOrder(uiEntries: entryUiModels)
+        try await repository.completeReorder(entries: entryUiModels.map(\.orderedEntry))
+        updateData(entryUiModels)
     }
 
-    func loadEntries() {
+    func loadEntries() async throws {
         log(.debug, "Loading entries")
-        task?.cancel()
-        task = Task { [weak self] in
-            guard let self else { return }
-            do {
-                if Task.isCancelled { return }
-                let entriesStates = try await repository.getAllEntries()
-                if Task.isCancelled { return }
-                let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
-                log(.debug, "Loaded \(entries.count) entries.")
-                updateData(entries)
-            } catch {
-                if let data = dataState.data, !data.isEmpty { return }
-                log(.error, "Failed to load entries: \(error)")
-                dataState = .failed(error)
-            }
+        do {
+            if Task.isCancelled { return }
+            let entriesStates = try await repository.getAllLocalEntries()
+            if Task.isCancelled { return }
+            let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            log(.debug, "Loaded \(entries.count) entries.")
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to load entries: \(error)")
+            if let data = dataState.data, !data.isEmpty { return }
+            dataState = .failed(error)
         }
     }
 
     func updateData(_ entries: [EntryUiModel]) {
         log(.debug, "Updating data with \(entries.count) entries")
+        startUpdatingTotpCode(entries.map(\.orderedEntry.entry))
         dataState = .loaded(entries)
-        totpUpdate(entries.map(\.entry))
+    }
+
+    func fullRefresh() async throws {
+        log(.debug, "Full BE refresh")
+        do {
+            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
+
+            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
+            if Task.isCancelled { return }
+            let entriesStates = try await repository.getAllLocalEntries()
+
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
+
+            let newOrderedItems = try await reorderItems()
+            let entries = try await generateUIEntries(from: newOrderedItems)
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
+            throw error
+        }
     }
 }
 
@@ -228,8 +238,8 @@ public extension EntryDataService {
         guard let data = dataState.data else {
             throw AuthError.generic(.exportEmptyData)
         }
-        let entries = data.map(\.entry)
-        return try repository.export(entries: entries)
+        let entries = data.map(\.orderedEntry)
+        return try repository.export(entries: entries.map(\.entry))
     }
 
     nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
@@ -237,23 +247,27 @@ public extension EntryDataService {
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
-            .filter { entry in !data.contains(where: { $0.entry.isDuplicate(of: entry) }) }
+            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
         let codes = try repository.generateCodes(entries: filteredResults)
 
         var index = data.count
         var uiEntries: [EntryUiModel] = []
         for code in codes {
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            // swiftlint:disable:next todo
-            // TODO: change state to sync if connection to BE
-            uiEntries.append(EntryUiModel(entry: code.entry,
-                                          code: code,
+            let orderEntry = OrderedEntry(entry: code.entry,
+                                          keyId: nil,
+                                          remoteId: nil,
                                           order: index,
-                                          syncState: .unsynced,
+                                          modifiedTime: Date.currentTimestamp,
+                                          revision: 0,
+                                          contentFormatVersion: AppConstants.ContentFormatVersion.entry)
+            uiEntries.append(EntryUiModel(orderedEntry: orderEntry,
+                                          code: code,
                                           issuerInfo: issuerInfo))
             index += 1
         }
-        try await repository.save(uiEntries)
+
+        _ = try await repository.completeSave(entries: uiEntries.map(\.orderedEntry))
 
         data.append(contentsOf: uiEntries)
         await MainActor.run {
@@ -272,41 +286,32 @@ public extension EntryDataService {
     }
 
     func startTotpGenerator() {
-        entryUpdateTask?.cancel()
+        guard let entries = dataState.data?.map(\.orderedEntry.entry) else { return }
+
         log(.info, "Starting TOTP generator")
+        startUpdatingTotpCode(entries)
+    }
+}
+
+private extension EntryDataService {
+    func startUpdatingTotpCode(_ entries: [Entry]) {
+        log(.debug, "Starting Updating TOTP codes for \(entries.count) entries")
+
+        entryUpdateTask?.cancel()
         entryUpdateTask = Task { [weak self] in
-            guard let self, let data = dataState.data?.map(\.entry) else { return }
+            guard let self else { return }
             do {
-                try await totpGenerator.totpUpdate(data)
-                log(.debug, "TOTP generator started for \(data.count) entries")
+                try await totpGenerator.startTotpCodeUpdate(entries)
+                log(.debug, "TOTP code generator started for \(entries.count) entries")
             } catch {
                 log(.error, "Failed to start TOTP generator: \(error)")
             }
         }
     }
-}
 
-private extension EntryDataService {
-    func totpUpdate(_ entries: [Entry]) {
-        entryUpdateTask?.cancel()
-        log(.debug, "Updating TOTP for \(entries.count) entries")
-        entryUpdateTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await totpGenerator.totpUpdate(entries)
-            } catch {
-                log(.error, "Failed TOTP update: \(error)")
-            }
-        }
-    }
-
-    func save(_ entry: Entry) async throws {
+    func save(_ entry: Entry,
+              remoteId: String? = nil) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
-
-        guard !data.contains(where: { $0.entry.isDuplicate(of: entry) }) else {
-            log(.warning, "Attempted to save duplicate entry")
-            throw AuthError.generic(.duplicatedEntry)
-        }
 
         let codes = try repository.generateCodes(entries: [entry])
         guard let code = codes.first else {
@@ -316,14 +321,21 @@ private extension EntryDataService {
         }
         let order = data.count
         let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-        // swiftlint:disable:next todo
-        // TODO: change state to sync if connection to BE
-        let entryUI = EntryUiModel(entry: code.entry,
+        let orderEntry = OrderedEntry(entry: code.entry,
+                                      keyId: nil,
+                                      remoteId: remoteId,
+                                      order: order,
+                                      modifiedTime: Date.currentTimestamp,
+                                      revision: 0,
+                                      contentFormatVersion: AppConstants.ContentFormatVersion.entry)
+        var entryUI = EntryUiModel(orderedEntry: orderEntry,
                                    code: code,
-                                   order: order,
-                                   syncState: .unsynced,
                                    issuerInfo: issuerInfo)
-        try await repository.save(entryUI)
+        let remoteResults = try await repository.completeSave(entries: [entryUI.orderedEntry])
+
+        if let remoteResult = remoteResults?.first {
+            entryUI = entryUI.updateRemoteInfos(remoteResult.entryID)
+        }
 
         data.append(entryUI)
         updateData(data)
@@ -341,9 +353,11 @@ private extension EntryDataService {
         }
     }
 
-    func generateUIEntries(from entries: [(Entry, EntrySyncState)]) async throws -> [EntryUiModel] {
+    func generateUIEntries(from entries: [OrderedEntry]) async throws -> [EntryUiModel] {
         log(.debug, "Generating UI entries from \(entries.count) entries")
-        let codes = try repository.generateCodes(entries: entries.map(\.0))
+        let entriesData = entries.map(\.entry)
+        let codes = try repository.generateCodes(entries: entriesData)
+        try await totpGenerator.startTotpCodeUpdate(entriesData)
         guard codes.count == entries.count else {
             log(.warning, "Mismatch between codes and entries: \(codes.count) codes, \(entries.count) entries")
             throw AuthError.generic(.missingGeneratedCodes(codeCount: codes.count,
@@ -357,27 +371,25 @@ private extension EntryDataService {
                 throw AuthError.generic(.missingEntryForGeneratedCode)
             }
             let issuerInfo = totpIssuerMapper.lookup(issuer: code.entry.issuer)
-            results.append(.init(entry: entry.0,
+            results.append(.init(orderedEntry: entry,
                                  code: code,
-                                 order: index,
-                                 syncState: entry.1,
                                  issuerInfo: issuerInfo))
         }
 
         return results
     }
 
-    func updateOrder(data: [EntryUiModel]?) -> [EntryUiModel] {
+    func updateOrder(uiEntries: [EntryUiModel]?) -> [EntryUiModel] {
         log(.debug, "Updating entry order")
-        guard var data else {
+        guard var uiEntries else {
             log(.warning, "No data available to update order")
             return []
         }
 
-        for (index, entry) in data.enumerated() where entry.order != index {
-            data[index] = entry.updateOrder(index)
+        for (index, uiEntry) in uiEntries.enumerated() where uiEntry.orderedEntry.order != index {
+            uiEntries[index] = uiEntry.updateOrder(index)
         }
-        return data
+        return uiEntries
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -393,10 +405,103 @@ private extension EntryDataService {
 
         dataState = .loaded(entryUiModels)
     }
+
+    // swiftlint:disable:next cyclomatic_complexity
+    func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws -> Bool {
+        let operations = try syncOperation
+            .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
+                                 local: entriesStates.toLocalEntries)
+
+        for operation in operations {
+            switch operation.operation {
+            case .upsert:
+                if let orderedEntry = remoteOrderedEntries
+                    .getFirstOrderedEntry(for: operation.entry.id) {
+                    let syncedEntry = orderedEntry.updateSyncState(.synced)
+                    try await repository.localUpsert(syncedEntry)
+                }
+            case .deleteLocal:
+                try await repository.localRemove(operation.entry.id)
+            case .deleteLocalAndRemote:
+                if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    try await repository.completeRemove(entry: orderedEntry)
+                }
+            case .push:
+                if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    _ = try await repository.remoteSave(entries: [orderedEntry])
+                }
+            case .conflict:
+                if let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
+                   let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
+                    if remoteEntry.modifiedTime > localEntry.modifiedTime {
+                        _ = try await repository.localUpdate(remoteEntry)
+                    } else {
+                        let updatedRevision = localEntry.updateRevision(latestRevision)
+                        _ = try await repository.remoteUpdate(entry: updatedRevision)
+                    }
+                }
+            }
+        }
+
+        return !operations.isEmpty
+    }
+
+    func reorderItems() async throws -> [OrderedEntry] {
+        async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
+        async let localEntriesFetch = repository.getAllLocalEntries()
+
+        let (remoteEntries, localEntries) = try await (remoteOrderedEntries, localEntriesFetch)
+
+        guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
+            return localEntries.decodedEntries
+        }
+
+        // Step 1: Merge items by `id` with conflict resolution
+        var currentItems = [String: OrderedEntry]()
+        for item in localEntries.decodedEntries + remoteEntries {
+            if let existing = currentItems[item.id], item.order != existing.order {
+                // Resolve by most recently modified
+                currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
+            } else {
+                currentItems[item.id] = item
+            }
+        }
+
+        // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
+        let mergedAndOrderedItems = currentItems.values
+            .sorted {
+                if $0.order != $1.order {
+                    return $0.order < $1.order
+                }
+                return $0.modifiedTime > $1.modifiedTime
+            }
+            .enumerated()
+            .map { index, item in
+                item.updateOrder(index)
+            }
+
+        try await repository.completeReorder(entries: mergedAndOrderedItems)
+        return mergedAndOrderedItems
+    }
+
+    func getLatestRevision(for lhs: OrderedEntry, and rhs: OrderedEntry) -> Int {
+        max(lhs.revision, rhs.revision)
+    }
 }
 
-public extension [EntryState] {
-    var decodedEntries: [(Entry, EntrySyncState)] {
-        compactMap(\.entryAndSyncState)
+extension [EntryState] {
+    var decodedEntries: [OrderedEntry] {
+        compactMap(\.entry)
+    }
+
+    func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
+        decodedEntries.getFirstOrderedEntry(for: entryId)
+    }
+}
+
+extension [OrderedEntry] {
+    func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
+        self.first { $0.entry.id == entryId }
     }
 }

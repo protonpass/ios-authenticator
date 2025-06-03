@@ -33,7 +33,7 @@ final class MockKeychainService: @unchecked Sendable, KeychainServicing {
     
     // MARK: - KeychainServicing Implementation
     
-    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws -> T {
+    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType, isSyncedKey: Bool?) throws -> T {
         guard let value = storage[key] as? T else {
             throw MockKeychainError.itemNotFound
         }

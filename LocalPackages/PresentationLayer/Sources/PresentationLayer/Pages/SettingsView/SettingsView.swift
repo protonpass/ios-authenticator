@@ -80,45 +80,43 @@ public struct SettingsView: View {
             }
             .animation(.default, value: viewModel.showPassBanner)
             .listStyle(.plain)
-            .toolbar {
-                ToolbarItem(placement: toolbarItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Close", bundle: .module)
-                            .foregroundStyle(.purpleInteraction)
-                    }
-                    .adaptiveButtonStyle()
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .routingProvided
-            .navigationTitle(Text("Settings", bundle: .module))
-            .task {
-                await viewModel.setUp()
-            }
             #if os(iOS)
-            .listSectionSpacing(DesignConstant.padding * 2)
-            .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: toolbarItemPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Close", bundle: .module)
+                                .foregroundStyle(.purpleInteraction)
+                        }
+                        .adaptiveButtonStyle()
+                    }
+                }
+                .listSectionSpacing(DesignConstant.padding * 2)
+                .navigationBarTitleDisplayMode(.inline)
             #endif
-            .toastDisplay()
-            .fullScreenMainBackground()
-            .sheetAlertService()
-            .importingService($showImportOptions, onMainDisplay: false)
-            .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                          document: viewModel.exportedDocument,
-                          contentType: .text,
-                          defaultFilename: viewModel.generateExportFileName(),
-                          onCompletion: viewModel.handleExportResult)
-            .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
-                viewModel.settingSheet?.destination
-            }
+                .scrollContentBackground(.hidden)
+                .routingProvided
+                .navigationTitle(Text("Settings", bundle: .module))
+                .task {
+                    await viewModel.setUp()
+                }
+                .toastDisplay()
+                .fullScreenMainBackground()
+                .sheetAlertService()
+                .importingService($showImportOptions, onMainDisplay: false)
+                .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                    viewModel.settingSheet?.destination
+                }
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
         #if os(macOS)
             .frame(minWidth: 800, minHeight: 600)
         #endif
+            .onAppear {
+                viewModel.exportData()
+            }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -141,15 +139,19 @@ private extension SettingsView {
         section("SECURITY") {
             if viewModel.displayICloudBackUp {
                 SettingRow(title: .localized("Backup", .module),
-                           subtitle: "Proton Authenticator will periodically save all the data to iCloud.",
+                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                .module),
                            trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                                  onToggle: viewModel.toggleBackUp))
 
                 SettingDivider()
             }
             #if os(iOS)
-            if viewModel.displayBESync {
+            if viewModel.displayBESync, AppConstants.isMobile {
                 SettingRow(title: .localized("Sync between devices", .module),
+                           subtitle: !viewModel.emailAddress
+                               .isEmpty ? .localized("Account: \(viewModel.emailAddress)",
+                                                     .module) : nil,
                            trailingMode: .toggle(isOn: viewModel.syncEnabled,
                                                  onToggle: {
                                                      viewModel.toggleSync()
@@ -189,7 +191,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Theme", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.theme.title, .module)))
+                           trailingMode: AppConstants.isMobile ?
+                               .detailChevronUpDown(.localized(viewModel.theme.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
 
@@ -209,8 +214,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Search bar position", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
-                                                                         .module)))
+                           trailingMode: AppConstants.isMobile ?
+                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
 
@@ -229,7 +236,10 @@ private extension SettingsView {
                 }
             }, label: {
                 SettingRow(title: .localized("Digit style", .module),
-                           trailingMode: .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)))
+                           trailingMode: AppConstants.isMobile ?
+                               .detailChevronUpDown(.localized(viewModel.digitStyle.title,
+                                                               .module)) :
+                               nil)
             })
             .adaptiveMenuStyle()
             SettingDivider()
@@ -257,7 +267,15 @@ private extension SettingsView {
 
             SettingDivider()
 
-            SettingRow(title: .localized("Export", .module), onTap: viewModel.exportData)
+            if let exportedDocument = viewModel.exportedDocument {
+                ShareLink(item: exportedDocument, preview: SharePreview(exportedDocument.title,
+                                                                        image: Image(systemName: "text.document"))) {
+                    SettingRow(title: .localized("Export", .module))
+                }
+                #if os(macOS)
+                .offset(x: -7)
+                #endif
+            }
         }
     }
 
@@ -282,7 +300,7 @@ private extension SettingsView {
             ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
-                           subtitle: product.description,
+                           subtitle: .localized(product.description, .module),
                            onTap: { open(urlString: product.finalUrl) })
 
                 if product != ProtonProduct.allCases.last {

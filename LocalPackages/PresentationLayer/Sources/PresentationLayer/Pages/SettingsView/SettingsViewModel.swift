@@ -22,7 +22,7 @@
 
 import Combine
 import DataLayer
-import Factory
+import FactoryKit
 import Foundation
 import Macro
 import Models
@@ -59,10 +59,6 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.toastService)
-    private var toastService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -135,6 +131,10 @@ final class SettingsViewModel {
         settingsService.displayBESync
     }
 
+    var emailAddress: String {
+        userSessionManager.userData?.email ?? ""
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
@@ -148,7 +148,7 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
-        userSessionManager.isAuthenticated
+        userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] authenticated in
@@ -202,7 +202,7 @@ extension SettingsViewModel {
             }
             do {
                 let reason = #localized("Please authenticate", bundle: .module)
-                if try await authenticateBiometrically(policy: .deviceOwnerAuthenticationWithBiometrics,
+                if try await authenticateBiometrically(policy: .deviceOwnerAuthentication,
                                                        reason: reason) {
                     biometricLock.toggle()
                     try authenticationService
@@ -250,30 +250,12 @@ extension SettingsViewModel {
         haptic()
     }
 
-    func generateExportFileName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let currentDate = dateFormatter.string(from: .now)
-
-        return "Authenticator_backup_\(currentDate).txt"
-    }
-
     func exportData() {
         do {
             let data = try entryDataService.exportEntries()
             exportedDocument = TextDocument(data)
         } catch {
             alertService.showError(error, mainDisplay: false, action: nil)
-        }
-    }
-
-    func handleExportResult(_ result: Result<URL, any Error>) {
-        switch result {
-        case .success:
-            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
-                                         title: #localized("Successfully exported", bundle: .module)))
-        case let .failure(error):
-            handle(error)
         }
     }
 }

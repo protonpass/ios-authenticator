@@ -56,7 +56,7 @@ public final class UserDataSource: UserDataProvider {
 
 public extension UserDataSource {
     func getUserData() async throws -> UserData? {
-        log(.info, "Fetching user data")
+        log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
         log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
