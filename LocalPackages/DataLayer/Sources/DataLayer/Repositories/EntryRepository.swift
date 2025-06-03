@@ -93,15 +93,14 @@ public actor EntryRepository: EntryRepositoryProtocol {
     private let logger: any LoggerProtocol
 
     private let entryContentFormatVersion = AppConstants.ContentFormatVersion.entry
-
-    private let currentRemoteActiveEncryptionKeyId = AppConstants.Settings.remoteActiveEncryptionKeyId
+    private let currentRemoteEncryptionKeyId = AppConstants.Settings.remoteEncryptionKeyId
 
     private var isAuthenticated: Bool {
         userSessionManager.isAuthenticated.value
     }
 
     private var remoteEncryptionKeyId: String? {
-        store.string(forKey: currentRemoteActiveEncryptionKeyId)
+        store.string(forKey: currentRemoteEncryptionKeyId)
     }
 
     public init(persistentStorage: any PersistenceServicing,
@@ -560,9 +559,8 @@ extension EntryRepository {
                 currentEncryptionKey = try await sendLocalEncryptionKey()
             }
 
-            store.set(currentEncryptionKey?.keyID, forKey: currentRemoteActiveEncryptionKeyId)
-            log(.info,
-                "Stored remote key ID: \(currentEncryptionKey?.keyID ?? "unknown")")
+            store.set(currentEncryptionKey?.keyID, forKey: currentRemoteEncryptionKeyId)
+            log(.info, "Stored remote key ID: \(currentEncryptionKey?.keyID ?? "unknown")")
         } catch {
             log(.error, "Failed in fetchOrPushLocalKey: \(error.localizedDescription)")
         }
