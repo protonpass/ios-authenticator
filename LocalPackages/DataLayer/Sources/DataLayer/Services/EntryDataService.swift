@@ -207,7 +207,7 @@ public extension EntryDataService {
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
         do {
-            await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
+            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
             if Task.isCancelled { return }

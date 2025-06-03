@@ -61,7 +61,7 @@ public protocol EntryRepositoryProtocol: Sendable {
     func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws
     func batchRemoteReordering(entries: [OrderedEntry]) async throws
     func fetchAllRemoteEntries() async throws -> [OrderedEntry]
-    func fetchRemoteEncryptionKeyOrPushLocalKey() async
+    func fetchRemoteEncryptionKeyOrPushLocalKey() async throws
 
     // MARK: - Full CRUD
 
@@ -506,7 +506,7 @@ public extension EntryRepository {
                     if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
                         log(.debug,
                             "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
-                        await fetchRemoteEncryptionKeyOrPushLocalKey()
+                        try await fetchRemoteEncryptionKeyOrPushLocalKey()
                     }
                     let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
 
@@ -545,24 +545,20 @@ extension EntryRepository {
     // This function fetches check if a remtoe encryption key exists for the user.
     // If a key exists it saves it's id in the store and return.
     // Otherwise it tries and push the local encryption key to the BE
-    public func fetchRemoteEncryptionKeyOrPushLocalKey() async {
-        do {
-            log(.info, "Initiating fetch or push of encryption keys")
-            let currentEncryptionKey: RemoteEncryptedKey?
+    public func fetchRemoteEncryptionKeyOrPushLocalKey() async throws {
+        log(.info, "Initiating fetch or push of encryption keys")
+        let currentEncryptionKey: RemoteEncryptedKey?
 
-            if let remoteEncryptionKey = try await fetchAndSaveRemoteKeys() {
-                log(.info, "Remote key already exists, with id: \(remoteEncryptionKey.keyID)")
-                currentEncryptionKey = remoteEncryptionKey
-            } else {
-                log(.debug, "No remote key found, sending local encryption key")
-                currentEncryptionKey = try await sendLocalEncryptionKey()
-            }
-
-            store.set(currentEncryptionKey?.keyID, forKey: currentRemoteEncryptionKeyId)
-            log(.info, "Stored remote key ID: \(currentEncryptionKey?.keyID ?? "unknown")")
-        } catch {
-            log(.error, "Failed in fetchOrPushLocalKey: \(error.localizedDescription)")
+        if let remoteEncryptionKey = try await fetchAndSaveRemoteKeys() {
+            log(.info, "Remote key already exists, with id: \(remoteEncryptionKey.keyID)")
+            currentEncryptionKey = remoteEncryptionKey
+        } else {
+            log(.debug, "No remote key found, sending local encryption key")
+            currentEncryptionKey = try await sendLocalEncryptionKey()
         }
+
+        store.set(currentEncryptionKey?.keyID, forKey: currentRemoteEncryptionKeyId)
+        log(.info, "Stored remote key ID: \(currentEncryptionKey?.keyID ?? "unknown")")
     }
 
     private func sendLocalEncryptionKey() async throws -> RemoteEncryptedKey? {
@@ -602,7 +598,7 @@ extension EntryRepository {
                 where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
-                let keyDecrypted: Data = try userSessionManager
+                let keyDecrypted = try userSessionManager
                     .userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
                 try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
                 newKeysAdded += 1
