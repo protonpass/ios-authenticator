@@ -4,21 +4,6 @@
 <dict>
 	<key>APP_VERSION_IDENTIFIER =
 	<string>$(APP_VERSION_IDENTIFIER =
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string></string>
-			<key>CFBundleTypeRole</key>
-			<string>None</string>
-			<key>LSHandlerRank</key>
-			<string>Default</string>
-			<key>LSItemContentTypes</key>
-			<array/>
-			<key>NSDocumentClass</key>
-			<string>NSDocument</string>
-		</dict>
-	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
