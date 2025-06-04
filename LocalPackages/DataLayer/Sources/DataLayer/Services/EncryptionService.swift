@@ -186,6 +186,10 @@ public extension EncryptionService {
 
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
         log(.info, "Decrypting proton entry with remote key id \(encryptedData.authenticatorKeyID)")
+        // We're getting key from keychain constantly, it's better to have the keys cached
+        // Like what we do for Pass in PassKeyManagerProtocol
+        // swiftlint:disable:next todo
+        // TODO: Make a keymanager for this
         let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: false)
 
         guard !protonKey.isEmpty else {
