@@ -324,6 +324,7 @@ private extension EntriesView {
                     .animation(.default, value: viewModel.query.isEmpty)
                     .opacity(viewModel.query.isEmpty ? 0 : 1)
             })
+            .adaptiveButtonStyle()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -351,11 +352,11 @@ private extension EntriesView {
     }
 
     func handleAddNewCode() {
-        #if os(iOS)
-        showScannerIfCameraAvailable()
-        #else
-        router.presentedSheet = .createEditEntry(nil)
-        #endif
+        if AppConstants.isMobile {
+            showScannerIfCameraAvailable()
+        } else {
+            router.presentedSheet = .createEditEntry(nil)
+        }
     }
 
     var plusIcon: some View {

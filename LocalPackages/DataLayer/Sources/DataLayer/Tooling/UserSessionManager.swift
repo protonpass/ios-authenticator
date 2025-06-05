@@ -190,17 +190,14 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
             .sink { [weak self] authenticated, userDataLoaded in
                 guard let self else { return }
                 isAuthenticatedWithUserData.send(authenticated && userDataLoaded)
-
-//                if authenticated == true, userDataLoaded == true {
-//                    isAuthenticatedWithUserData.send(true)
-//                } else {
-//                    isAuthenticatedWithUserData.send(false)
-//                }
             }
             .store(in: &cancellables)
     }
 
     public func logout() async throws {
+        guard let userData else {
+            return
+        }
         log(.info, "Logging out")
         cachedCredentials.modify {
             $0 = nil
@@ -208,7 +205,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         cachedUserData.modify { $0 = nil }
         removeCachedCredentials()
         createApiService(credential: nil)
-        try await userDataProvider.removeAllUsers()
+        try await userDataProvider.remove(userData)
         isAuthenticated.send(false)
         isAuthenticatedWithUserData.send(false)
         userDataLoaded.send(false)
