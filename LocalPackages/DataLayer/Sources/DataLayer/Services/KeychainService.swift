@@ -360,14 +360,14 @@ public enum KeychainAccessOptions: Sendable {
     }
 }
 
-public enum KeychainError: Error, Equatable {
+public enum KeychainError: Error, Equatable, CustomDebugStringConvertible {
     case invalidData
     case itemNotFound
     case duplicateItem
     case incorrectAttributeForClass
     case unexpected(OSStatus)
 
-    var localizedDescription: String {
+    public var debugDescription: String {
         switch self {
         case .invalidData:
             "Invalid data"
