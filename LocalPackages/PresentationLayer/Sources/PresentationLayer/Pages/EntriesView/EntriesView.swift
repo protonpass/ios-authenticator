@@ -352,11 +352,15 @@ private extension EntriesView {
     }
 
     func handleAddNewCode() {
-        if AppConstants.isMobile {
+        #if os(macOS)
+        router.presentedSheet = .createEditEntry(nil)
+        #else
+        if !ProcessInfo.processInfo.isiOSAppOnMac {
             showScannerIfCameraAvailable()
         } else {
             router.presentedSheet = .createEditEntry(nil)
         }
+        #endif
     }
 
     var plusIcon: some View {

@@ -26,7 +26,7 @@ let package = Package(
         .package(name: "Models", path: "../Models"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
-        .package(url: "https://github.com/lukacs-m/SimplyPersist", .upToNextMajor(from: "0.1.2")),
+        .package(url: "https://github.com/lukacs-m/SimplyPersist", exact: "0.1.3"),
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
         .package(url: "https://github.com/ProtonMail/protoncore_ios", exact: "32.4.0"),
         .package(name: "Macro", path: "../Macro"),

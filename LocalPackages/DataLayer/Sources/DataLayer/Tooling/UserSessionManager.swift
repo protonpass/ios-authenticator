@@ -195,9 +195,6 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     }
 
     public func logout() async throws {
-        guard let userData else {
-            return
-        }
         log(.info, "Logging out")
         cachedCredentials.modify {
             $0 = nil
@@ -205,7 +202,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         cachedUserData.modify { $0 = nil }
         removeCachedCredentials()
         createApiService(credential: nil)
-        try await userDataProvider.remove(userData)
+        try await userDataProvider.removeAllUsers()
         isAuthenticated.send(false)
         isAuthenticatedWithUserData.send(false)
         userDataLoaded.send(false)

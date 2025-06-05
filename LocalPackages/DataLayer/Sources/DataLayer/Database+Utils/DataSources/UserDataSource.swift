@@ -101,7 +101,7 @@ public extension UserDataSource {
     func removeAllUsers() async throws {
         log(.info, "Removing all user data")
         do {
-            try await persistentStorage.deleteAll(dataTypes: [EncryptedUserDataEntity.self])
+            try await persistentStorage.delete(EncryptedUserDataEntity.self)
             log(.info, "Successfully removed all user data")
         } catch {
             log(.error, "Failed to remove all user data: \(error.localizedDescription)")
