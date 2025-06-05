@@ -144,8 +144,8 @@ final class EntriesViewModel: ObservableObject {
             .store(in: &cancellables)
 
         userSessionManager.isAuthenticatedWithUserData
-            .removeDuplicates()
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] status in
                 guard let self, status else { return }
                 fullSync()

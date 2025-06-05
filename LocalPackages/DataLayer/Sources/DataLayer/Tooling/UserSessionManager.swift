@@ -190,6 +190,12 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
             .sink { [weak self] authenticated, userDataLoaded in
                 guard let self else { return }
                 isAuthenticatedWithUserData.send(authenticated && userDataLoaded)
+
+//                if authenticated == true, userDataLoaded == true {
+//                    isAuthenticatedWithUserData.send(true)
+//                } else {
+//                    isAuthenticatedWithUserData.send(false)
+//                }
             }
             .store(in: &cancellables)
     }
@@ -454,7 +460,9 @@ public extension UserSessionManager {
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
-        userDataLoaded.send(true)
+        if userData != nil {
+            userDataLoaded.send(true)
+        }
     }
 
     func save(_ userData: UserData) async throws {

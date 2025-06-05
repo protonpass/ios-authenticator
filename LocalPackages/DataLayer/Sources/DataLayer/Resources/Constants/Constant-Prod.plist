@@ -7,13 +7,13 @@
 	<key>DEFAULT_PATH</key>
 	<string></string>
 	<key>API_HOST</key>
-	<string>pass-api.proton.me</string>
+	<string>authenticator-api.proton.me</string>
 	<key>DEFAULT_HOST</key>
-	<string>https://pass-api.proton.me</string>
+	<string>https://authenticator-api.proton.me</string>
 	<key>ACCOUNT_HOST</key>
 	<string>https://account.proton.me</string>
 	<key>CAPTCHA_HOST</key>
-	<string>https://pass-api.proton.me</string>
+	<string>https://authenticator-api.proton.me</string>
 	<key>HUMAN_VERIFICATION_HOST</key>
 	<string>https://verify.proton.me</string>
 	<key>SIGNUP_DOMAIN</key>

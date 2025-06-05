@@ -98,7 +98,7 @@ public extension ServiceContainer {
         self {
             UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
                                    .appVersion(),
-                doh: AuthDoH(userDefaults: kSharedUserDefaults)),
+                doh: AuthDoH(userDefaults: .standard)),
             keychain: self.keychainService(),
             encryptionService: self.encryptionService(),
             userDataProvider: RepositoryContainer.shared.userDataSource(),
