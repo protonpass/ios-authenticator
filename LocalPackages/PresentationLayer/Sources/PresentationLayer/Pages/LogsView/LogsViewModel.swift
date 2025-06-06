@@ -31,6 +31,8 @@ final class LogsViewModel {
     private(set) var logs: [LogEntry] = []
     var exportedDocument: TextDocument?
 
+    var logsUrl: URL?
+
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
@@ -43,28 +45,16 @@ final class LogsViewModel {
     @LazyInjected(\ServiceContainer.toastService)
     private var toastService
 
-    init() {
-        setUp()
-    }
-
-    func exportLogs() {
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                let logsContent = try await logManager.logsContent()
-                exportedDocument = TextDocument(logsContent)
-            } catch {
-                alertService.showError(error, mainDisplay: false, action: nil)
-            }
-        }
-    }
-
-    func generateExportFileName() -> String {
+    private var exportFileName: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Authenticator_logs_\(currentDate).txt"
+        return "Authenticator_logs_\(currentDate)"
+    }
+
+    init() {
+        setUp()
     }
 
     func handleExportResult(_ result: Result<URL, any Error>) {
@@ -84,9 +74,19 @@ private extension LogsViewModel {
             guard let self else { return }
             do {
                 logs = try await logManager.fetchLogs()
+                logsUrl = await exportLogs()
             } catch {
                 alertService.showError(error, mainDisplay: false, action: nil)
             }
+        }
+    }
+
+    func exportLogs() async -> URL? {
+        do {
+            return try await logManager.exportLogs(fileName: exportFileName)
+        } catch {
+            logManager.log(.error, category: .ui, error.localizedDescription)
+            return nil
         }
     }
 }

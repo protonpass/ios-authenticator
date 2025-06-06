@@ -119,23 +119,18 @@ public extension LoggerProtocol {
 
     // MARK: - Export Logs (Per Category)
 
-    func exportLogs(category: LogCategory? = nil) async -> URL? {
-        do {
-            let logContent = try await logsContent(category: category)
+    func exportLogs(fileName: String, category: LogCategory? = nil) async throws -> URL? {
+        let logContent = try await logsContent(category: category)
 
-            let filename = if let category {
-                "logs_\(category.rawValue).txt"
-            } else {
-                "logs.txt"
-            }
-            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-
-            try logContent.write(to: fileURL, atomically: true, encoding: .utf8)
-            return fileURL
-        } catch {
-            print("Failed to export logs: \(error.localizedDescription)")
-            return nil
+        let filename = if let category {
+            "\(fileName)_\(category.rawValue).logs"
+        } else {
+            "\(fileName).logs"
         }
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+
+        try logContent.write(to: fileURL, atomically: true, encoding: .utf8)
+        return fileURL
     }
 }
 
