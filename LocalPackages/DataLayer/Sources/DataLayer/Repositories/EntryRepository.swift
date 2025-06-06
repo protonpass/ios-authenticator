@@ -223,10 +223,7 @@ public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
         do {
-            let state = EntrySyncState.toDelete
-            let predicate = #Predicate<EncryptedEntryEntity> { $0.syncState != state.rawValue }
-
-            let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: predicate,
+            let encryptedEntries: [EncryptedEntryEntity] = try await persistentStorage.fetch(predicate: nil,
                                                                                              sortingDescriptor: [
                                                                                                  SortDescriptor(\.order)
                                                                                              ])
@@ -281,7 +278,6 @@ public extension EntryRepository {
                 let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
                                                                   keyId: keyId,
                                                                   locally: true)
-                    .encodeBase64()
                 encryptedEntry.updateEncryptedData(encryptedData,
                                                    with: keyId,
                                                    remoteModifiedTime: orderedEntry.modifiedTime)
@@ -327,7 +323,6 @@ public extension EntryRepository {
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                               keyId: entity.keyId,
                                                               locally: true)
-                .encodeBase64()
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
                                        remoteModifiedTime: entry.modifiedTime)
@@ -382,7 +377,7 @@ public extension EntryRepository {
             let encryptedEntriesRequest = try entries.map { entry in
                 let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
                 return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                         content: encryptedEntry.encryptedData,
+                                         content: encryptedEntry.encryptedData.encodeBase64(),
                                          contentFormatVersion: entryContentFormatVersion)
             }
             let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
@@ -420,7 +415,7 @@ public extension EntryRepository {
         do {
             let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
             let request = UpdateEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                             content: encryptedEntry.encryptedData,
+                                             content: encryptedEntry.encryptedData.encodeBase64(),
                                              contentFormatVersion: entryContentFormatVersion,
                                              lastRevision: entry.revision)
 
@@ -642,7 +637,6 @@ private extension EntryRepository {
         let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                           keyId: encryptionKeyId,
                                                           locally: shouldEncryptWithLocalKey)
-            .encodeBase64()
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     remoteId: remoteId,
