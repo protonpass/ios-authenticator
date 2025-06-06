@@ -20,7 +20,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import CommonUtilities
 import Models
 import SwiftUI
 

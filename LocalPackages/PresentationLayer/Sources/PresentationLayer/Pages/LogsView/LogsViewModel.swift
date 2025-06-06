@@ -41,10 +41,6 @@ final class LogsViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.toastService)
-    private var toastService
-
     private var exportFileName: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
@@ -55,16 +51,6 @@ final class LogsViewModel {
 
     init() {
         setUp()
-    }
-
-    func handleExportResult(_ result: Result<URL, any Error>) {
-        switch result {
-        case .success:
-            toastService.showToast(.init(configuration: .init(style: .init(shape: .capsule, offsetY: -30)),
-                                         title: #localized("Successfully exported", bundle: .module)))
-        case let .failure(error):
-            alertService.showError(error, mainDisplay: false, action: nil)
-        }
     }
 }
 
