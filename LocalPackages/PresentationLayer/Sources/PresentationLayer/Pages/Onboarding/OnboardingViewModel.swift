@@ -50,7 +50,7 @@ final class OnboardingViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.laContext)
     private var laContext
-    
+
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private var logger
@@ -105,7 +105,7 @@ final class OnboardingViewModel {
             do {
                 let reason = #localized("Please authenticate", bundle: .module)
                 if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
-                    reason: reason) {
+                                                       reason: reason) {
                     try authenticationService.setAuthenticationState(.active(authenticated: true))
                     biometricEnabled = true
                 }

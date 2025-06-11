@@ -281,7 +281,7 @@ private extension SettingsViewModel {
         hapticsManager(.defaultImpact)
         #endif
     }
-    
+
     func exportFileName() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
