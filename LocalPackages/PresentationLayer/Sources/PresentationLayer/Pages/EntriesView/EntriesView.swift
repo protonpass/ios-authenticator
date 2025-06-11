@@ -344,10 +344,10 @@ private extension EntriesView {
     func addButton(size: CGFloat) -> some View {
         Button(action: handleAddNewCode) {
             plusIcon
+                .frame(width: size, height: size, alignment: .center)
+                .coloredBackgroundButton(.circle)
         }
         .adaptiveButtonStyle()
-        .frame(width: size, height: size, alignment: .center)
-        .coloredBackgroundButton(.circle)
         .impactHaptic()
     }
 
