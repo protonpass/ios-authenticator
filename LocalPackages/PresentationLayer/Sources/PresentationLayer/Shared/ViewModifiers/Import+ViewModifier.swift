@@ -225,9 +225,8 @@ private extension View {
 
     func displayGoogleImportOption(_ option: GoogleImportType) -> Bool {
         #if os(iOS)
-        if !ProcessInfo.processInfo
-            .isiOSAppOnMac || (ProcessInfo.processInfo
-                .isiOSAppOnMac && option != .scanQrCode) {
+        if !ProcessInfo.processInfo.isiOSAppOnMac
+            || (ProcessInfo.processInfo.isiOSAppOnMac && option != .scanQrCode) {
             return true
         } else {
             return false
