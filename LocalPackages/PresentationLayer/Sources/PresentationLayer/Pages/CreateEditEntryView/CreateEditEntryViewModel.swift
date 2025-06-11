@@ -38,6 +38,7 @@ final class CreateEditEntryViewModel {
     var note = ""
     var shouldDismiss = false
     var errorMessage: String?
+    var saving = false
 
     var supportedDigits: [Int] = AppConstants.EntryOptions.supportedDigits
     var supportedPeriod: [Int] = AppConstants.EntryOptions.supportedPeriod
@@ -98,7 +99,9 @@ final class CreateEditEntryViewModel {
         Task { [weak self] in
             guard let self else { return }
 
+            defer { saving = false }
             do {
+                saving = true
                 if let entry {
                     try await entryDataService.updateAndRefreshEntry(for: entry.id, with: params)
                 } else {

@@ -177,7 +177,11 @@ public extension EntryRepository {
     func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]? {
         try await localUpsert(entries)
         if isAuthenticated {
-            return try await remoteSave(entries: entries)
+            do {
+                return try await remoteSave(entries: entries)
+            } catch {
+                log(.error, "Failed to remote save: \(error.localizedDescription)")
+            }
         }
         return nil
     }
@@ -205,14 +209,22 @@ public extension EntryRepository {
     func completeUpdate(entry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
-            _ = try await remoteUpdate(entry: orderedEntity)
+            do {
+                _ = try await remoteUpdate(entry: orderedEntity)
+            } catch {
+                log(.error, "Failed to remote update: \(error.localizedDescription)")
+            }
         }
     }
 
     func completeReorder(entries: [OrderedEntry]) async throws {
         try await localReorder(entries)
         if isAuthenticated {
-            try await batchRemoteReordering(entries: entries)
+            do {
+                try await batchRemoteReordering(entries: entries)
+            } catch {
+                log(.error, "Failed to remote reorder: \(error.localizedDescription)")
+            }
         }
     }
 }
@@ -496,43 +508,43 @@ public extension EntryRepository {
 
             var entries: [OrderedEntry] = []
 
-//            while true {
-            let encryptedEntries = try await apiClient.getEntries(lastId: sinceLastToken)
-            log(.debug, "Retrieved \(encryptedEntries.entries.count) encrypted entries from remote")
+            while true {
+                let encryptedEntries = try await apiClient.getEntries(lastId: sinceLastToken)
+                log(.debug, "Retrieved \(encryptedEntries.entries.count) encrypted entries from remote")
 
-//                if encryptedEntries.entries.isEmpty {
-//                    break
-//                }
-
-            for (index, encryptedEntry) in encryptedEntries.entries.enumerated() {
-                if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
-                    log(.debug,
-                        "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
-                    try await fetchRemoteEncryptionKeyOrPushLocalKey()
+                if encryptedEntries.entries.isEmpty {
+                    break
                 }
-                let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
 
-                var syncState = EntrySyncState.unsynced
-                let entityId = decryptedEntry.id
-                if try await persistentStorage
-                    .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
-                    syncState = .synced
+                for (index, encryptedEntry) in encryptedEntries.entries.enumerated() {
+                    if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
+                        log(.debug,
+                            "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
+                        try await fetchRemoteEncryptionKeyOrPushLocalKey()
+                    }
+                    let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
+
+                    var syncState = EntrySyncState.unsynced
+                    let entityId = decryptedEntry.id
+                    if try await persistentStorage
+                        .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
+                        syncState = .synced
+                    }
+                    let orderedEntry = OrderedEntry(entry: decryptedEntry,
+                                                    keyId: encryptedEntry.authenticatorKeyID,
+                                                    remoteId: encryptedEntry.entryID,
+                                                    order: index,
+                                                    syncState: syncState,
+                                                    creationDate: Double(encryptedEntry.createTime),
+                                                    modifiedTime: Double(encryptedEntry.modifyTime),
+                                                    flags: encryptedEntry.flags,
+                                                    revision: encryptedEntry.revision,
+                                                    contentFormatVersion: encryptedEntry.contentFormatVersion)
+                    entries.append(orderedEntry)
                 }
-                let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                                keyId: encryptedEntry.authenticatorKeyID,
-                                                remoteId: encryptedEntry.entryID,
-                                                order: index,
-                                                syncState: syncState,
-                                                creationDate: Double(encryptedEntry.createTime),
-                                                modifiedTime: Double(encryptedEntry.modifyTime),
-                                                flags: encryptedEntry.flags,
-                                                revision: encryptedEntry.revision,
-                                                contentFormatVersion: encryptedEntry.contentFormatVersion)
-                entries.append(orderedEntry)
+                sinceLastToken = encryptedEntries.lastID
+                log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")
             }
-            sinceLastToken = encryptedEntries.lastID
-            log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")
-//            }
             return entries
         } catch {
             log(.error, "Failed to fetch entries from remote: \(error.localizedDescription)")

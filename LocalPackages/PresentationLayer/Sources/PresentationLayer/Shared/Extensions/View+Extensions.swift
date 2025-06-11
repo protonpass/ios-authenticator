@@ -119,4 +119,25 @@ extension View {
             .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 12, x: 0, y: 1)
             .overlay(shape.stroke(Color.buttonShadowBorder, lineWidth: 0.5))
     }
+
+    /// Dim the background and show a spinner in the middle of the view
+    /// - Parameters:
+    ///   - isShowing: Whether to show the spinner or not
+    ///   - disableWhenShowing: Whether to disable the view while showing the spinner or not
+    ///   - size: The size of the spinner
+    func showSpinner(_ isShowing: Bool,
+                     disableWhenShowing: Bool = true,
+                     size: ControlSize = .large) -> some View {
+        overlay {
+            if isShowing {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .controlSize(size)
+            }
+        }
+        .disabled(disableWhenShowing && isShowing)
+        .animation(.default, value: isShowing)
+    }
 }

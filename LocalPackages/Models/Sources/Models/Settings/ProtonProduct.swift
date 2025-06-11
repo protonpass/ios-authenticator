@@ -47,7 +47,9 @@ public extension ProtonProduct {
 
     var iOSAppUrl: String {
         switch self {
-        case .pass: "itms-apps://itunes.apple.com/app/id6443490629"
+        case .pass: ProcessInfo.processInfo
+            .isiOSAppOnMac ? "https://proton.me/download/PassDesktop/darwin/universal/ProtonPass.dmg" :
+            "itms-apps://itunes.apple.com/app/id6443490629"
         case .vpn: "itms-apps://itunes.apple.com/app/id1437005085"
         case .mail: "itms-apps://itunes.apple.com/app/id979659905"
         case .drive: "itms-apps://itunes.apple.com/app/id1509667851"
