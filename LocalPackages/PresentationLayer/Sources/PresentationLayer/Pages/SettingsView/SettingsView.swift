@@ -267,9 +267,8 @@ private extension SettingsView {
 
             SettingDivider()
 
-            if let exportedDocument = viewModel.exportedDocument {
-                ShareLink(item: exportedDocument, preview: SharePreview(exportedDocument.title,
-                                                                        image: Image(systemName: "text.document"))) {
+            if let exportedDocument = viewModel.shareURL {
+                ShareLink(item: exportedDocument) {
                     SettingRow(title: .localized("Export", .module))
                 }
                 #if os(macOS)

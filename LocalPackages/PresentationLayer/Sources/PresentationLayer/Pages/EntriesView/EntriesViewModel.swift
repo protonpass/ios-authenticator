@@ -118,11 +118,13 @@ final class EntriesViewModel: ObservableObject {
     init() {
         NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-                guard let self,
-                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import else { return }
+            .sink { [weak self] _ in
+//                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                guard let self
+//                        ,
+//                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
+//                      event.endDate != nil, event.type == .import
+                else { return }
                 logger.log(.debug,
                            category: .ui,
                            "Received notification of updates from iCloud Database",
@@ -203,6 +205,10 @@ final class EntriesViewModel: ObservableObject {
                 handle(error)
             }
         }
+    }
+
+    func cleanSearch() {
+        query = ""
     }
 }
 
