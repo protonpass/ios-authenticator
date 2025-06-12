@@ -297,6 +297,6 @@ private extension SettingsViewModel {
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Proton_Authenticator_backup_\(currentDate).txt"
+        return "Proton_Authenticator_backup_\(currentDate).json"
     }
 }

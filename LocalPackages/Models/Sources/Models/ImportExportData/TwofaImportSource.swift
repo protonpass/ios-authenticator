@@ -38,8 +38,10 @@ public enum TwofaImportSource: Sendable, Equatable {
             [.json, .commaSeparatedText]
         case .lastpass:
             [.json]
-        case .ente, .protonAuthenticator, .twofas:
+        case .ente, .twofas:
             [.text, .plainText]
+        case .protonAuthenticator:
+            [.text, .plainText, .json]
         default:
             []
         }

@@ -465,8 +465,10 @@ private extension ImportOption {
             [.json, .commaSeparatedText]
         case .lastPassAuthenticator:
             [.json]
-        case .enteAuth, .protonAuthenticator, .twoFas:
+        case .enteAuth, .twoFas:
             [.text, .plainText, .twoFAS]
+        case .protonAuthenticator:
+            [.text, .plainText, .json]
         case .googleAuthenticator:
             [.image, .jpeg, .png]
         }
