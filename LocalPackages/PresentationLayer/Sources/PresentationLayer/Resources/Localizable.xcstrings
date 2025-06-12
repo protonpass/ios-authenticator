@@ -523,16 +523,6 @@
         }
       }
     },
-    "How to use Proton Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How to use Proton Authenticator"
-          }
-        }
-      }
-    },
     "Import" : {
       "localizations" : {
         "en" : {
@@ -563,12 +553,12 @@
         }
       }
     },
-    "Invalid secret" : {
+    "Invalid secret: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invalid secret"
+            "value" : "Invalid secret: %@"
           }
         }
       }
@@ -649,6 +639,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Next"
+          }
+        }
+      }
+    },
+    "No codes imported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No codes imported"
           }
         }
       }
@@ -1102,6 +1102,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "We did find any new codes to import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We did find any new codes to import"
           }
         }
       }

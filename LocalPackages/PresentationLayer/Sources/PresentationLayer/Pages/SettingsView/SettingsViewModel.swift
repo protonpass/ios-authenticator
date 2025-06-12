@@ -131,10 +131,6 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
-//    var displayICloudBackUp: Bool {
-//        settingsService.displayICloudBackUp
-//    }
-
     var displayBESync: Bool {
         settingsService.displayBESync
     }
@@ -206,6 +202,7 @@ extension SettingsViewModel {
         }
     }
     #endif
+    
     func toggleBioLock() {
         guard toggleBioLockTask == nil else {
             return

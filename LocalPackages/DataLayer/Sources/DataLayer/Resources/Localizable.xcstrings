@@ -61,6 +61,16 @@
         }
       }
     },
+    "Unlock" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock"
+          }
+        }
+      }
+    },
     "Warning" : {
       "localizations" : {
         "en" : {

@@ -279,9 +279,9 @@ private extension SettingsView {
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator", .module))
-
-            SettingDivider()
+//            SettingRow(title: .localized("How to use Proton Authenticator", .module))
+//
+//            SettingDivider()
 
             SettingRow(title: .localized("Feedback", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)

@@ -396,10 +396,14 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
-        let config = AlertConfiguration(title: "Codes imported",
+        let hasNewEntries = numberOfEntries > 0
+
+        let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
                                         titleBundle: .module,
-                                        message: .localized("Successfully imported \(numberOfEntries) items",
-                                                            .module),
+                                        message: .localized(hasNewEntries ?
+                                            "Successfully imported \(numberOfEntries) items" :
+                                            "We did find any new codes to import",
+                                            .module),
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
