@@ -113,15 +113,13 @@ public extension EncryptionService {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
-        guard let data = try entry.encryptedData.base64Decode() else {
-            return .nonDecryptable
-        }
-        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: data, key: encryptionKey)
+
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
         let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
                                         keyId: entry.keyId,
                                         remoteId: entry.remoteId.nilIfEmpty,
                                         order: entry.order,
-                                        syncState: EntrySyncState(rawValue: entry.syncState) ?? .unsynced,
+                                        syncState: entry.syncState,
                                         creationDate: entry.creationDate,
                                         modifiedTime: entry.modifiedTime,
                                         flags: entry.flags,

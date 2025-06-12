@@ -214,11 +214,26 @@ private extension View {
                            isPresented: isPresented,
                            titleVisibility: .hidden) {
             ForEach(GoogleImportType.allCases, id: \.self) { option in
-                Button(action: { onSelect(option) }, label: {
-                    Text(option.title, bundle: .module)
-                })
+                if displayGoogleImportOption(option) {
+                    Button(action: { onSelect(option) }, label: {
+                        Text(option.title, bundle: .module)
+                    })
+                }
             }
         }
+    }
+
+    func displayGoogleImportOption(_ option: GoogleImportType) -> Bool {
+        #if os(iOS)
+        if !ProcessInfo.processInfo.isiOSAppOnMac
+            || (ProcessInfo.processInfo.isiOSAppOnMac && option != .scanQrCode) {
+            return true
+        } else {
+            return false
+        }
+        #else
+        option == .scanQrCode ? false : true
+        #endif
     }
 }
 

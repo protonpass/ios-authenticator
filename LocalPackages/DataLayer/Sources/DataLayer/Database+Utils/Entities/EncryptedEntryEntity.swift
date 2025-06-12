@@ -26,10 +26,10 @@ import SwiftData
 public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
     public private(set) var id: String = UUID().uuidString
     public private(set) var remoteId: String = ""
-    public private(set) var encryptedData = ""
+    public private(set) var encryptedData = Data()
     public private(set) var keyId: String = ""
     public private(set) var order: Int = 0
-    public private(set) var syncState: Int = EntrySyncState.unsynced.rawValue
+    public private(set) var syncState = EntrySyncState.unsynced
     public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
     public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
     public private(set) var flags: Int = 0
@@ -37,15 +37,11 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     public private(set) var revision: Int = 0
 
     public var isSynced: Bool {
-        entrySyncState == .synced && !remoteId.isEmpty
-    }
-
-    public var entrySyncState: EntrySyncState {
-        .init(rawValue: syncState) ?? .unsynced
+        syncState == .synced && !remoteId.isEmpty
     }
 
     public init(id: String,
-                encryptedData: String,
+                encryptedData: Data,
                 remoteId: String,
                 keyId: String,
                 order: Int,
@@ -59,7 +55,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.encryptedData = encryptedData
         self.keyId = keyId
         self.order = order
-        self.syncState = syncState.rawValue
+        self.syncState = syncState
         self.creationDate = creationDate
         self.modifiedTime = modifiedTime
         self.flags = flags
@@ -68,7 +64,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.revision = revision
     }
 
-    func updateEncryptedData(_ encryptedData: String,
+    func updateEncryptedData(_ encryptedData: Data,
                              with keyId: String,
                              remoteModifiedTime: TimeInterval? = nil) {
         self.encryptedData = encryptedData
@@ -83,19 +79,19 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
 
     // periphery:ignore
     func updateSyncState(newState: EntrySyncState) {
-        syncState = newState.rawValue
+        syncState = newState
     }
 
     func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
         remoteId = remoteEncryptedEntry.entryID
-        syncState = EntrySyncState.synced.rawValue
+        syncState = EntrySyncState.synced
         modifiedTime = Double(remoteEncryptedEntry.modifyTime)
         flags = remoteEncryptedEntry.flags
         revision = remoteEncryptedEntry.revision
     }
 
     func update(with orderedEntry: OrderedEntry) {
-        syncState = orderedEntry.syncState.rawValue
+        syncState = orderedEntry.syncState
         modifiedTime = orderedEntry.modifiedTime
         flags = orderedEntry.flags
         revision = orderedEntry.revision

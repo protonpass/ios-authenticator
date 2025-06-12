@@ -310,20 +310,24 @@ private extension EntriesView {
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
                       .focused($searchFieldFocus)
+                      .autocorrectionDisabled(true)
                       .onSubmit {
                           searchFieldFocus = false
                       }
                       .impactHaptic()
 
-            Button(action: {
-                viewModel.query = ""
-            }, label: {
-                Image(systemName: "xmark.circle.fill")
-                    .fontWeight(.medium)
-                    .foregroundStyle(.textWeak)
-                    .animation(.default, value: viewModel.query.isEmpty)
-                    .opacity(viewModel.query.isEmpty ? 0 : 1)
-            })
+            if !ProcessInfo.processInfo.isiOSAppOnMac {
+                Button(action: {
+                    viewModel.cleanSearch()
+                }, label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .fontWeight(.medium)
+                        .foregroundStyle(.textWeak)
+                        .animation(.default, value: viewModel.query.isEmpty)
+                        .opacity(viewModel.query.isEmpty ? 0 : 1)
+                })
+                .adaptiveButtonStyle()
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -343,18 +347,22 @@ private extension EntriesView {
     func addButton(size: CGFloat) -> some View {
         Button(action: handleAddNewCode) {
             plusIcon
+                .frame(width: size, height: size, alignment: .center)
+                .coloredBackgroundButton(.circle)
         }
         .adaptiveButtonStyle()
-        .frame(width: size, height: size, alignment: .center)
-        .coloredBackgroundButton(.circle)
         .impactHaptic()
     }
 
     func handleAddNewCode() {
-        #if os(iOS)
-        showScannerIfCameraAvailable()
-        #else
+        #if os(macOS)
         router.presentedSheet = .createEditEntry(nil)
+        #else
+        if !ProcessInfo.processInfo.isiOSAppOnMac {
+            showScannerIfCameraAvailable()
+        } else {
+            router.presentedSheet = .createEditEntry(nil)
+        }
         #endif
     }
 

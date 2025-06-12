@@ -52,7 +52,7 @@ extension Endpoint {
     public var isAuth: Bool { true }
     var method: HTTPMethod { .get }
     var body: Body? { nil }
-    public var nonDefaultTimeout: TimeInterval? { nil }
+    public var nonDefaultTimeout: TimeInterval? { 2 }
     var queries: [String: Any]? { nil }
     public var parameters: [String: Any]? {
         var finalParams: [String: Any] = [:]
