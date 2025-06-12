@@ -202,7 +202,7 @@ extension SettingsViewModel {
         }
     }
     #endif
-    
+
     func toggleBioLock() {
         guard toggleBioLockTask == nil else {
             return
