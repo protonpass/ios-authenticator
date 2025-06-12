@@ -74,11 +74,6 @@ private extension AuthenticatorApp {
                         }
                 } else {
                     BioLockView()
-                        .onChange(of: scenePhase) { _, newPhase in
-                            if newPhase == .active {
-                                viewModel.checkBiometrics()
-                            }
-                        }
                 }
             } else {
                 OnboardingView()
@@ -89,6 +84,19 @@ private extension AuthenticatorApp {
         .onAppear {
             viewModel.updateWindowUserInterfaceStyle()
             viewModel.setWindowTintColor()
+            if !viewModel.showEntries {
+                viewModel.checkBiometrics()
+            }
+        }
+        .onDisappear {
+            viewModel.resetBiometricCheck()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                if !viewModel.showEntries {
+                    viewModel.checkBiometrics()
+                }
+            }
         }
         .mainAlertService()
     }
@@ -168,6 +176,7 @@ private final class AuthenticatorAppViewModel {
     }
 
     func checkBiometrics() {
+        guard authenticationService.biometricEnabled else { return }
         Task { [weak self] in
             guard let self else { return }
             do {

@@ -82,6 +82,7 @@ struct CreateEditEntryView: View {
                 }
                 .onSubmit(focusNextField)
             }
+            .showSpinner(viewModel.saving)
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
             .errorMessageAlert($viewModel.errorMessage)

@@ -12,7 +12,6 @@
 		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
 		5B5E0D572D5A332D00E7BCD4 /* SentrySwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D562D5A332D00E7BCD4 /* SentrySwiftUI */; };
 		5B5E0D5E2D5A38DD00E7BCD4 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */; };
-		5B5E0D692D5A38DD00E7BCD4 /* Autofill.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5B5E0F7A2D6F6D5A00E7BCD4 /* CommonUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0F792D6F6D5A00E7BCD4 /* CommonUtilities */; };
 		5B710DE02DE9DEEA00389C0B /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5B710DDF2DE9DEEA00389C0B /* FactoryKit */; };
 		5B8765702D527F9C00B4CC30 /* DataLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B87656F2D527F9C00B4CC30 /* DataLayer */; };
@@ -23,13 +22,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5B5E0D672D5A38DD00E7BCD4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5B5E0D5B2D5A38DD00E7BCD4;
-			remoteInfo = Autofill;
-		};
 		5B87652C2D52539E00B4CC30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
@@ -45,20 +37,6 @@
 			remoteInfo = Authenticator;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		5B5E0D6F2D5A38DD00E7BCD4 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				5B5E0D692D5A38DD00E7BCD4 /* Autofill.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5B5E0C5C2D5612D400E7BCD4 /* Macro */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Macro; path = LocalPackages/Macro; sourceTree = "<group>"; };
@@ -248,13 +226,11 @@
 				5B8765142D52539D00B4CC30 /* Frameworks */,
 				5B8765152D52539D00B4CC30 /* Resources */,
 				5B87655E2D527A4600B4CC30 /* Swiftlint */,
-				5B5E0D6F2D5A38DD00E7BCD4 /* Embed Foundation Extensions */,
 				53D16E4E2D8D720500B33441 /* Copy appropriate Settings.bundle base on configuration */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				5B5E0D682D5A38DD00E7BCD4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5B8765192D52539D00B4CC30 /* Authenticator */,
@@ -494,15 +470,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		5B5E0D682D5A38DD00E7BCD4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-				xros,
-			);
-			target = 5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */;
-			targetProxy = 5B5E0D672D5A38DD00E7BCD4 /* PBXContainerItemProxy */;
-		};
 		5B87652D2D52539E00B4CC30 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5B8765162D52539D00B4CC30 /* Authenticator */;

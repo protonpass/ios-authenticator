@@ -26,7 +26,7 @@ import SwiftData
 public protocol LocalDataManagerProtocol: Sendable, Actor {
     var persistentStorage: any PersistenceServicing { get }
 
-    func refreshLocalStorage() async throws
+    func refreshLocalStorage() async
 }
 
 public actor LocalDataManager: LocalDataManagerProtocol {
@@ -48,7 +48,7 @@ public actor LocalDataManager: LocalDataManagerProtocol {
             .createPersistenceService(iCloudSyncEnabled: settingsService.iCloudBackUp)
     }
 
-    public func refreshLocalStorage() async throws {
+    public func refreshLocalStorage() async {
         let iCloudSyncEnabled = await settingsService.iCloudBackUp
         persistentStorage = LocalDataManager.createPersistenceService(iCloudSyncEnabled: iCloudSyncEnabled)
     }

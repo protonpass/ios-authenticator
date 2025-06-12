@@ -113,15 +113,13 @@ public extension EncryptionService {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
-        guard let data = try entry.encryptedData.base64Decode() else {
-            return .nonDecryptable
-        }
-        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: data, key: encryptionKey)
+
+        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
         let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
                                         keyId: entry.keyId,
                                         remoteId: entry.remoteId.nilIfEmpty,
                                         order: entry.order,
-                                        syncState: EntrySyncState(rawValue: entry.syncState) ?? .unsynced,
+                                        syncState: entry.syncState,
                                         creationDate: entry.creationDate,
                                         modifiedTime: entry.modifiedTime,
                                         flags: entry.flags,
@@ -186,6 +184,10 @@ public extension EncryptionService {
 
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
         log(.info, "Decrypting proton entry with remote key id \(encryptedData.authenticatorKeyID)")
+        // We're getting key from keychain constantly, it's better to have the keys cached
+        // Like what we do for Pass in PassKeyManagerProtocol
+        // swiftlint:disable:next todo
+        // TODO: Make a keymanager for this
         let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: false)
 
         guard !protonKey.isEmpty else {

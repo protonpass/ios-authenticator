@@ -21,12 +21,14 @@
 //
 
 import Combine
+import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
 import Macro
 import Models
 #if canImport(UIKit)
+import LocalAuthentication
 import UIKit
 #endif
 
@@ -40,7 +42,7 @@ final class SettingsViewModel {
 
     var settingSheet: SettingsSheet?
 
-    var exportedDocument: TextDocument?
+    var shareURL: URL?
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -85,6 +87,9 @@ final class SettingsViewModel {
 
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var toggleBackICloudUpTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables: Set<AnyCancellable> = []
@@ -174,10 +179,12 @@ extension SettingsViewModel {
     }
 
     func toggleBackICloudUp() {
-        // TODO: reload container
         settingsService.toggleICloudBackUp(!backUpEnabled)
         backUpEnabled.toggle()
-        localDataManager.refreshLocalStorage()
+        toggleBackICloudUpTask?.cancel()
+        toggleBackICloudUpTask = Task {
+            await localDataManager.refreshLocalStorage()
+        }
     }
 
     #if os(iOS)
@@ -210,14 +217,18 @@ extension SettingsViewModel {
             }
             do {
                 let reason = #localized("Please authenticate", bundle: .module)
-                if try await authenticateBiometrically(policy: .deviceOwnerAuthentication,
+                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
                                                        reason: reason) {
                     biometricLock.toggle()
                     try authenticationService
                         .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
                 }
             } catch {
-                handle(error)
+                if let laError = error as? LAError, laError.code == .userCancel {
+                    logManager.log(.error, category: .ui, error.localizedDescription)
+                } else {
+                    handle(error)
+                }
             }
         }
     }
@@ -260,8 +271,12 @@ extension SettingsViewModel {
 
     func exportData() {
         do {
-            let data = try entryDataService.exportEntries()
-            exportedDocument = TextDocument(data)
+            let fileName = exportFileName()
+            let content = try entryDataService.exportEntries()
+
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            try content.write(to: tempURL, atomically: true, encoding: .utf8)
+            shareURL = tempURL
         } catch {
             alertService.showError(error, mainDisplay: false, action: nil)
         }
@@ -278,5 +293,13 @@ private extension SettingsViewModel {
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif
+    }
+
+    func exportFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let currentDate = dateFormatter.string(from: .now)
+
+        return "Proton_Authenticator_backup_\(currentDate).txt"
     }
 }

@@ -20,6 +20,7 @@
 
 import Foundation
 #if canImport(UIKit)
+import LocalAuthentication
 import UIKit
 #endif
 
@@ -106,5 +107,10 @@ public enum AppConstants {
     public enum ContentFormatVersion {
         public static let entry = 1
         public static let key = 1
+    }
+
+    public static var laEnablingPolicy: LAPolicy {
+        ProcessInfo.processInfo
+            .isiOSAppOnMac ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
     }
 }

@@ -43,14 +43,21 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     // MARK: - local CRUD
 
+    @MainActor
     func getAllLocalEntries() async throws -> [EntryState]
+    @MainActor
     func localUpsert(_ entries: [OrderedEntry]) async throws
     // periphery:ignore
+    @MainActor
     func localRemove(_ entry: Entry) async throws
+    @MainActor
     func localRemove(_ entryId: String) async throws
     // periphery:ignore
+    @MainActor
     func localRemoveAll() async throws
+    @MainActor
     func localUpdate(_ entry: OrderedEntry) async throws -> OrderedEntry?
+    @MainActor
     func localReorder(_ entries: [OrderedEntry]) async throws
 
     // MARK: - Remote Proton BE CRUD
@@ -170,7 +177,11 @@ public extension EntryRepository {
     func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]? {
         try await localUpsert(entries)
         if isAuthenticated {
-            return try await remoteSave(entries: entries)
+            do {
+                return try await remoteSave(entries: entries)
+            } catch {
+                log(.error, "Failed to remote save: \(error.localizedDescription)")
+            }
         }
         return nil
     }
@@ -199,14 +210,22 @@ public extension EntryRepository {
     func completeUpdate(entry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
-            _ = try await remoteUpdate(entry: orderedEntity)
+            do {
+                _ = try await remoteUpdate(entry: orderedEntity)
+            } catch {
+                log(.error, "Failed to remote update: \(error.localizedDescription)")
+            }
         }
     }
 
     func completeReorder(entries: [OrderedEntry]) async throws {
         try await localReorder(entries)
         if isAuthenticated {
-            try await batchRemoteReordering(entries: entries)
+            do {
+                try await batchRemoteReordering(entries: entries)
+            } catch {
+                log(.error, "Failed to remote reorder: \(error.localizedDescription)")
+            }
         }
     }
 }
@@ -217,11 +236,8 @@ public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
         do {
-            let state = EntrySyncState.toDelete
-            let predicate = #Predicate<EncryptedEntryEntity> { $0.syncState != state.rawValue }
-
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
-                .fetch(predicate: predicate,
+                .fetch(predicate: nil,
                        sortingDescriptor: [
                            SortDescriptor(\.order)
                        ])
@@ -277,7 +293,6 @@ public extension EntryRepository {
                 let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
                                                                   keyId: keyId,
                                                                   locally: true)
-                    .encodeBase64()
                 encryptedEntry.updateEncryptedData(encryptedData,
                                                    with: keyId,
                                                    remoteModifiedTime: orderedEntry.modifiedTime)
@@ -323,7 +338,6 @@ public extension EntryRepository {
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                               keyId: entity.keyId,
                                                               locally: true)
-                .encodeBase64()
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
                                        remoteModifiedTime: entry.modifiedTime)
@@ -378,7 +392,7 @@ public extension EntryRepository {
             let encryptedEntriesRequest = try entries.map { entry in
                 let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
                 return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                         content: encryptedEntry.encryptedData,
+                                         content: encryptedEntry.encryptedData.encodeBase64(),
                                          contentFormatVersion: entryContentFormatVersion)
             }
             let request = StoreEntriesRequest(entries: encryptedEntriesRequest)
@@ -416,7 +430,7 @@ public extension EntryRepository {
         do {
             let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
             let request = UpdateEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                             content: encryptedEntry.encryptedData,
+                                             content: encryptedEntry.encryptedData.encodeBase64(),
                                              contentFormatVersion: entryContentFormatVersion,
                                              lastRevision: entry.revision)
 
@@ -638,7 +652,6 @@ private extension EntryRepository {
         let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                           keyId: encryptionKeyId,
                                                           locally: shouldEncryptWithLocalKey)
-            .encodeBase64()
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     remoteId: remoteId,

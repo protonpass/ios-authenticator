@@ -20,7 +20,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-import CommonUtilities
 import Models
 import SwiftUI
 
@@ -49,13 +48,12 @@ struct LogsView: View {
                 }
 
                 ToolbarItem(placement: toolbarTrailingItemPlacement) {
-                    Button {
-                        viewModel.exportLogs()
-                    } label: {
-                        Text("Share", bundle: .module)
-                            .foregroundStyle(.purpleInteraction)
+                    if let logsUrl = viewModel.logsUrl {
+                        ShareLink(item: logsUrl) {
+                            Text("Share", bundle: .module)
+                                .foregroundStyle(.purpleInteraction)
+                        }
                     }
-                    .adaptiveButtonStyle()
                 }
             }
             .scrollContentBackground(.hidden)
@@ -67,11 +65,6 @@ struct LogsView: View {
                 .toastDisplay()
                 .fullScreenMainBackground()
                 .sheetAlertService()
-                .fileExporter(isPresented: $viewModel.exportedDocument.mappedToBool(),
-                              document: viewModel.exportedDocument,
-                              contentType: .text,
-                              defaultFilename: viewModel.generateExportFileName(),
-                              onCompletion: viewModel.handleExportResult)
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)

@@ -454,7 +454,9 @@ public extension UserSessionManager {
         }
         let userData = try await userDataProvider.getUserData()
         cachedUserData.modify { $0 = userData }
-        userDataLoaded.send(true)
+        if userData != nil {
+            userDataLoaded.send(true)
+        }
     }
 
     func save(_ userData: UserData) async throws {

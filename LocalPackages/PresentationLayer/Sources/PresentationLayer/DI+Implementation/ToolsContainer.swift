@@ -89,11 +89,6 @@ extension ToolsContainer {
         self { LAContext() }
     }
 
-    /// Used when users enable biometric authentication. Always fallback to device passcode in this case.
-    var laEnablingPolicy: Factory<LAPolicy> {
-        self { .deviceOwnerAuthentication }
-    }
-
     var totpIssuerMapper: Factory<any TOTPIssuerMapperServicing> {
         self { TOTPIssuerMapper() }
     }

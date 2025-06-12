@@ -30,7 +30,7 @@ actor MockLocalDataManager: LocalDataManagerProtocol {
                                                                                                            isStoredInMemoryOnly: true))
     }
     
-    func refreshLocalStorage() async throws {
+    func refreshLocalStorage() async {
         
     }
 }

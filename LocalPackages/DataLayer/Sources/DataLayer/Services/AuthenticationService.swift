@@ -85,10 +85,12 @@ public final class AuthenticationService: AuthenticationServicing {
         let context = LAContext()
         var error: NSError?
 
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+        let policy = AppConstants.laEnablingPolicy
+
+        if context.canEvaluatePolicy(policy, error: &error) {
             let reason = #localized("Please authenticate", bundle: .module)
             do {
-                let bioCheckValue = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                let bioCheckValue = try await context.evaluatePolicy(policy,
                                                                      localizedReason: reason)
                 currentState = .active(authenticated: bioCheckValue)
             } catch {

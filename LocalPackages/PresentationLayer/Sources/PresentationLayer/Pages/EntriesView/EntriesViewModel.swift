@@ -122,7 +122,8 @@ final class EntriesViewModel: ObservableObject {
                 let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
                 guard let self,
                       let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import else { return }
+                      event.endDate != nil, event.type == .import
+                else { return }
                 logger.log(.debug,
                            category: .ui,
                            "Received notification of updates from iCloud Database",
@@ -144,8 +145,8 @@ final class EntriesViewModel: ObservableObject {
             .store(in: &cancellables)
 
         userSessionManager.isAuthenticatedWithUserData
-            .removeDuplicates()
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] status in
                 guard let self, status else { return }
                 fullSync()
@@ -203,6 +204,10 @@ final class EntriesViewModel: ObservableObject {
                 handle(error)
             }
         }
+    }
+
+    func cleanSearch() {
+        query = ""
     }
 }
 
