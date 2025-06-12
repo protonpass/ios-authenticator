@@ -74,7 +74,7 @@ public final class SettingsService: SettingsServicing {
             AppConstants.Settings.isFirstRun: true,
             AppConstants.Settings.hapticFeedbackEnabled: true,
             AppConstants.Settings.displayBESync: true,
-            AppConstants.Settings.iCloudBackUp: true
+            AppConstants.Settings.iCloudBackUp: false
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)

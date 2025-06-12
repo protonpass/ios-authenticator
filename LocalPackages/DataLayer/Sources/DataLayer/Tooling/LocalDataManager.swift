@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import CommonUtilities
 import Foundation
 import SimplyPersist
 import SwiftData
@@ -31,13 +30,6 @@ public protocol LocalDataManagerProtocol: Sendable, Actor {
 
 public actor LocalDataManager: LocalDataManagerProtocol {
     private let settingsService: any SettingsServicing
-
-//    public var persistentStorage: any PersistenceServicing {
-//        safePersistentStorage.value
-//    }
-
-//    private let safePersistentStorage: any MutexProtected<PersistenceService> = SafeMutex
-//        .create(LocalDataManager.createPersistenceService(iCloudSyncEnabled: true))
 
     public private(set) var persistentStorage: any PersistenceServicing
 
@@ -55,14 +47,6 @@ public actor LocalDataManager: LocalDataManagerProtocol {
 }
 
 private extension LocalDataManager {
-//    func setUp() {
-//        if !settingsService.iCloudBackUp {
-//            safePersistentStorage.modify {
-//                $0 = LocalDataManager.createPersistenceService(iCloudSyncEnabled: settingsService.iCloudBackUp)
-//            }
-//        }
-//    }
-
     static func createPersistenceService(iCloudSyncEnabled: Bool) -> PersistenceService {
         let cloudKitDatabase: ModelConfiguration
             .CloudKitDatabase = iCloudSyncEnabled ? .private("iCloud.me.proton.authenticator") : .none
