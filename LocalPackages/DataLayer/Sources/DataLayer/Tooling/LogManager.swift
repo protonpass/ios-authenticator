@@ -142,7 +142,7 @@ public extension LoggerProtocol {
 public final actor LogManager: LoggerProtocol {
     private let configuration: LogManagerConfiguration
     private let loggers: [LogCategory: Logger]
-    private let persistentStorage: any PersistenceServicing
+    private let localDataManager: any LocalDataManagerProtocol
     private let subsystem: String
 
     private var logBuffer: [LogEntry] = []
@@ -152,9 +152,9 @@ public final actor LogManager: LoggerProtocol {
 
     public init(subsystem: String = AppConstants.service,
                 configuration: LogManagerConfiguration = .default,
-                persistentStorage: any PersistenceServicing) {
+                localDataManager: any LocalDataManagerProtocol) {
         self.subsystem = subsystem
-        self.persistentStorage = persistentStorage
+        self.localDataManager = localDataManager
         self.configuration = configuration
 
         loggers = LogCategory.allCases.reduce(into: [LogCategory: Logger]()) { result, category in
@@ -194,7 +194,7 @@ public final actor LogManager: LoggerProtocol {
         } else {
             FetchDescriptor<LogEntryEntity>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         }
-        return try await persistentStorage.fetch(fetchDescriptor: descriptor).toLogEntries
+        return try await localDataManager.persistentStorage.fetch(fetchDescriptor: descriptor).toLogEntries
     }
 
     public func logsContent(category: LogCategory? = nil) async throws -> String {
@@ -233,7 +233,7 @@ private extension LogManager {
             defer { saveLogsTask = nil }
             do {
                 let entities = logBuffer.toEntities
-                try await persistentStorage.batchSave(content: entities)
+                try await localDataManager.persistentStorage.batchSave(content: entities)
                 logBuffer.removeAll()
                 try await cleanupOldLogs()
             } catch {
@@ -259,15 +259,15 @@ private extension LogManager {
     // MARK: - Cleanup Old Logs
 
     func cleanupOldLogs() async throws {
-        let totalCount = try await persistentStorage.count(LogEntryEntity.self)
+        let totalCount = try await localDataManager.persistentStorage.count(LogEntryEntity.self)
         if totalCount > configuration.maxLogEntries {
             var excessLogsDescriptor =
                 FetchDescriptor<LogEntryEntity>(sortBy: [SortDescriptor(\.timestamp, order: .forward)])
             excessLogsDescriptor.fetchLimit = totalCount - configuration.maxLogEntries
 
-            let excessLogs: [LogEntryEntity] = try await persistentStorage
+            let excessLogs: [LogEntryEntity] = try await localDataManager.persistentStorage
                 .fetch(fetchDescriptor: excessLogsDescriptor)
-            try await persistentStorage.delete(datas: excessLogs)
+            try await localDataManager.persistentStorage.delete(datas: excessLogs)
         }
     }
 
@@ -279,8 +279,8 @@ private extension LogManager {
         } else {
             FetchDescriptor<LogEntryEntity>()
         }
-        let logs = try await persistentStorage.fetch(fetchDescriptor: fetchDescriptor)
-        try await persistentStorage.delete(datas: logs)
+        let logs = try await localDataManager.persistentStorage.fetch(fetchDescriptor: fetchDescriptor)
+        try await localDataManager.persistentStorage.delete(datas: logs)
     }
 }
 

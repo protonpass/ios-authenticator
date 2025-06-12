@@ -71,6 +71,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager) private var localDataManager
+
     #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
@@ -123,9 +126,9 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
-    var displayICloudBackUp: Bool {
-        settingsService.displayICloudBackUp
-    }
+//    var displayICloudBackUp: Bool {
+//        settingsService.displayICloudBackUp
+//    }
 
     var displayBESync: Bool {
         settingsService.displayBESync
@@ -148,7 +151,7 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
-        backUpEnabled = settingsService.displayICloudBackUp
+        backUpEnabled = settingsService.iCloudBackUp
 
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
@@ -172,9 +175,9 @@ extension SettingsViewModel {
 
     func toggleBackICloudUp() {
         // TODO: reload container
-        settingsService.toggleICloudBackUpDisplay(!backUpEnabled)
-
+        settingsService.toggleICloudBackUp(!backUpEnabled)
         backUpEnabled.toggle()
+        localDataManager.refreshLocalStorage()
     }
 
     #if os(iOS)

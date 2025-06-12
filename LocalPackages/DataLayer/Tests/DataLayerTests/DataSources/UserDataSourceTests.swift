@@ -27,6 +27,8 @@ import ProtonCoreDataModel
 import ProtonCoreLogin
 import ProtonCoreNetworking
 
+
+
 @Suite(.tags(.localDatasource))
 struct UserDataSourceTests {
     let sut: any UserDataProvider
@@ -36,9 +38,10 @@ struct UserDataSourceTests {
         let encryptionService = EncryptionService(keychain: MockKeychainService(),
                                                  keysProvider: MockKeyProvider(),
                                                  logger: MockLogger())
-        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
-                                                                                 isStoredInMemoryOnly: true))
-        sut = UserDataSource(logger: logger, persistentStorage: persistenceService, encryptionService: encryptionService)
+        let localDataManager = MockLocalDataManager()
+//        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
+//                                                                                 isStoredInMemoryOnly: true))
+        sut = UserDataSource(logger: logger, localDataManager: localDataManager, encryptionService: encryptionService)
 
     }
     

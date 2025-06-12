@@ -111,4 +111,8 @@ public extension ServiceContainer {
             KeyManager(keychain: self.keychainService())
         }
     }
+
+    var localDataManager: Factory<any LocalDataManagerProtocol> {
+        self { @MainActor in LocalDataManager(settingsService: self.settingsService()) }
+    }
 }

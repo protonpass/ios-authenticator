@@ -23,28 +23,46 @@ import Foundation
 import SimplyPersist
 import SwiftData
 
-public protocol LocalDataManagerProtocol: Sendable {}
+public protocol LocalDataManagerProtocol: Sendable, Actor {
+    var persistentStorage: any PersistenceServicing { get }
 
-final class LocalDataManager: LocalDataManagerProtocol {
+    func refreshLocalStorage() async throws
+}
+
+public actor LocalDataManager: LocalDataManagerProtocol {
     private let settingsService: any SettingsServicing
 
-    public var persistantStorage: any PersistenceServicing {
-        safePersistantStorage.value
-    }
+//    public var persistentStorage: any PersistenceServicing {
+//        safePersistentStorage.value
+//    }
 
-    private let safePersistantStorage: any MutexProtected<PersistenceService> = SafeMutex
-        .create(LocalDataManager.createPersistenceService(iCloudSyncEnabled: true))
+//    private let safePersistentStorage: any MutexProtected<PersistenceService> = SafeMutex
+//        .create(LocalDataManager.createPersistenceService(iCloudSyncEnabled: true))
 
-    init(settingsService: any SettingsServicing) {
+    public private(set) var persistentStorage: any PersistenceServicing
+
+    @MainActor
+    public init(settingsService: any SettingsServicing) {
         self.settingsService = settingsService
+        persistentStorage = LocalDataManager
+            .createPersistenceService(iCloudSyncEnabled: settingsService.iCloudBackUp)
     }
 
-    func refreshLocalStorage() async throws {}
-
-//    func getPersistantStorage
+    public func refreshLocalStorage() async throws {
+        let iCloudSyncEnabled = await settingsService.iCloudBackUp
+        persistentStorage = LocalDataManager.createPersistenceService(iCloudSyncEnabled: iCloudSyncEnabled)
+    }
 }
 
 private extension LocalDataManager {
+//    func setUp() {
+//        if !settingsService.iCloudBackUp {
+//            safePersistentStorage.modify {
+//                $0 = LocalDataManager.createPersistenceService(iCloudSyncEnabled: settingsService.iCloudBackUp)
+//            }
+//        }
+//    }
+
     static func createPersistenceService(iCloudSyncEnabled: Bool) -> PersistenceService {
         let cloudKitDatabase: ModelConfiguration
             .CloudKitDatabase = iCloudSyncEnabled ? .private("iCloud.me.proton.authenticator") : .none
@@ -69,30 +87,3 @@ private extension LocalDataManager {
         }
     }
 }
-
-//
-//// swiftlint:disable:next todo
-//// TODO: make it can so we can toggle icluod sync for EncryptedEntryEntity
-// var persistenceService: Factory<any PersistenceServicing> {
-//    self {
-//        do {
-//            let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
-//                                                 isStoredInMemoryOnly: false,
-//                                                 cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-//            let localDataConfig = ModelConfiguration("localData",
-//                                                     schema: Schema([
-//                                                         LogEntryEntity.self,
-//                                                         EncryptedUserDataEntity.self
-//                                                     ]),
-//                                                     isStoredInMemoryOnly: false,
-//                                                     cloudKitDatabase: .none)
-//            return try PersistenceService(for: EncryptedEntryEntity.self,
-//                                          LogEntryEntity.self,
-//                                          EncryptedUserDataEntity.self,
-//                                          configurations: entryConfig,
-//                                          localDataConfig)
-//        } catch {
-//            fatalError("Should have persistence storage \(error)")
-//        }
-//    }
-// }

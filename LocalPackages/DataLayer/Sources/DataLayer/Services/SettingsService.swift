@@ -33,7 +33,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var showPassBanner: Bool { get }
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
-    var displayICloudBackUp: Bool { get }
+    var iCloudBackUp: Bool { get }
     var displayBESync: Bool { get }
 
     func setFirstRun(_ value: Bool)
@@ -47,7 +47,7 @@ public protocol SettingsServicing: Sendable, Observable {
     // periphery:ignore
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
-    func toggleICloudBackUpDisplay(_ value: Bool)
+    func toggleICloudBackUp(_ value: Bool)
     func toggleBESyncDisplay(_ value: Bool)
 }
 
@@ -65,7 +65,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var showPassBanner: Bool
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
-    public private(set) var displayICloudBackUp: Bool
+    public private(set) var iCloudBackUp: Bool
     public private(set) var displayBESync: Bool
 
     public init(store: UserDefaults) {
@@ -73,7 +73,8 @@ public final class SettingsService: SettingsServicing {
         store.register(defaults: [
             AppConstants.Settings.isFirstRun: true,
             AppConstants.Settings.hapticFeedbackEnabled: true,
-            AppConstants.Settings.displayBESync: true
+            AppConstants.Settings.displayBESync: true,
+            AppConstants.Settings.iCloudBackUp: true
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
@@ -89,7 +90,7 @@ public final class SettingsService: SettingsServicing {
         showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
         hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
-        displayICloudBackUp = store.bool(forKey: AppConstants.Settings.displayICloudBackUp)
+        iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
         displayBESync = store.bool(forKey: AppConstants.Settings.displayBESync)
     }
 }
@@ -159,10 +160,10 @@ public extension SettingsService {
                key: AppConstants.Settings.focusSearchOnLaunchEnabled)
     }
 
-    func toggleICloudBackUpDisplay(_ value: Bool) {
-        update(currentValue: &displayICloudBackUp,
+    func toggleICloudBackUp(_ value: Bool) {
+        update(currentValue: &iCloudBackUp,
                newValue: value,
-               key: AppConstants.Settings.displayICloudBackUp)
+               key: AppConstants.Settings.iCloudBackUp)
     }
 
     func toggleBESyncDisplay(_ value: Bool) {
