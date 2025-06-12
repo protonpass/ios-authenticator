@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Foundation
 import LocalAuthentication
 import Models
@@ -57,7 +58,7 @@ public final class GetBiometricStatus: GetBiometricStatusUseCase {
     public func execute(with context: LAContext) -> BiometricStatus {
         var error: NSError?
 
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+        if context.canEvaluatePolicy(AppConstants.laEnablingPolicy, error: &error) {
             return switch context.biometryType {
             case .none: .notAvailable
             case .faceID: .available(.faceID)

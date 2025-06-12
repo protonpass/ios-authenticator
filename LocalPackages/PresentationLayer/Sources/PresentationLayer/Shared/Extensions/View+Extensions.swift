@@ -140,4 +140,14 @@ extension View {
         .disabled(disableWhenShowing && isShowing)
         .animation(.default, value: isShowing)
     }
+    
+    /// Applies `.searchFocused` modifier only on iOS 18+
+    @ViewBuilder
+    func searchFocusable(_ isFocused: FocusState<Bool>.Binding) -> some View {
+        if #available(iOS 18, macOS 15.0, visionOS 2.0, *) {
+            self.searchFocused(isFocused)
+        } else {
+            self
+        }
+    }
 }

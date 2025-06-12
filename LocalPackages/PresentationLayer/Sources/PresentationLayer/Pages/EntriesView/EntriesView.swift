@@ -73,6 +73,7 @@ public struct EntriesView: View {
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
                     view
                         .searchable(text: $viewModel.query)
+                        .searchFocusable($searchFieldFocus)
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
