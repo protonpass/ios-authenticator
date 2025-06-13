@@ -85,7 +85,7 @@ public enum AppConstants {
     @MainActor
     public static var isMobile: Bool {
         #if canImport(UIKit)
-        !ProcessInfo.processInfo.isiOSAppOnMac ? true : false
+        !ProcessInfo.processInfo.isiOSAppOnMac
         #else
         false
         #endif
