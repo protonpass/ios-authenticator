@@ -38,11 +38,11 @@ struct UserDataSourceTests {
         let encryptionService = EncryptionService(keychain: MockKeychainService(),
                                                  keysProvider: MockKeyProvider(),
                                                  logger: MockLogger())
-        let localDataManager = MockLocalDataManager()
-//        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
-//                                                                                 isStoredInMemoryOnly: true))
-        sut = UserDataSource(logger: logger, localDataManager: localDataManager, encryptionService: encryptionService)
+        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
+                                                                                 isStoredInMemoryOnly: true))
+        let localDataManager = MockLocalDataManager(persistentStorage: persistenceService)
 
+        sut = UserDataSource(logger: logger, localDataManager: localDataManager, encryptionService: encryptionService)
     }
     
     @Test("Return nil if no user data exists")

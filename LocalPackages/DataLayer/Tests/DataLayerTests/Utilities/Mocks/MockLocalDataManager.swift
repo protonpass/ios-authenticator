@@ -25,9 +25,8 @@ import SwiftData
 actor MockLocalDataManager: LocalDataManagerProtocol {
     let persistentStorage: any PersistenceServicing
 
-    init() {
-        persistentStorage = try! PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
-                                                                                                           isStoredInMemoryOnly: true))
+    init(persistentStorage: any PersistenceServicing) {
+        self.persistentStorage = persistentStorage
     }
     
     func refreshLocalStorage() async {

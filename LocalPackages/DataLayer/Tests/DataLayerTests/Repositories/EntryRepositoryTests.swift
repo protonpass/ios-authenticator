@@ -36,12 +36,12 @@ struct EntryRepositoryTests {
     let encryptionService: any EncryptionServicing
     
     init() throws {
-//        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
-//                                                                                 isStoredInMemoryOnly: true))
-        let localDataManager = MockLocalDataManager()
+        let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
+                                                                                 isStoredInMemoryOnly: true))
+        let localDataManager = MockLocalDataManager(persistentStorage: persistenceService)
         encryptionService = EncryptionService(keychain: MockKeychainService(),
-                                                                                  keysProvider: MockKeyProvider(),
-                                                                                    logger: MockLogger())
+                                              keysProvider: MockKeyProvider(),
+                                              logger: MockLogger())
         sut = EntryRepository(localDataManager: localDataManager,
                               encryptionService: encryptionService,
                               apiClient: MockAPIClient(),
