@@ -225,7 +225,7 @@ private extension View {
 
     func displayGoogleImportOption(_ option: GoogleImportType) -> Bool {
         #if os(iOS)
-        if !ProcessInfo.processInfo.isiOSAppOnMac
+        if AppConstants.isMobile
             || (ProcessInfo.processInfo.isiOSAppOnMac && option != .scanQrCode) {
             return true
         } else {
@@ -396,10 +396,14 @@ final class ImportViewModel {
     #endif
 
     func showCompletion(_ numberOfEntries: Int) {
-        let config = AlertConfiguration(title: "Codes imported",
+        let hasNewEntries = numberOfEntries > 0
+
+        let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
                                         titleBundle: .module,
-                                        message: .localized("Successfully imported \(numberOfEntries) items",
-                                                            .module),
+                                        message: .localized(hasNewEntries ?
+                                            "Successfully imported \(numberOfEntries) items" :
+                                            "No new codes detected",
+                                            .module),
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
@@ -461,8 +465,10 @@ private extension ImportOption {
             [.json, .commaSeparatedText]
         case .lastPassAuthenticator:
             [.json]
-        case .enteAuth, .protonAuthenticator, .twoFas:
+        case .enteAuth, .twoFas:
             [.text, .plainText, .twoFAS]
+        case .protonAuthenticator:
+            [.text, .plainText, .json]
         case .googleAuthenticator:
             [.image, .jpeg, .png]
         }

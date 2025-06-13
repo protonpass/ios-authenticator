@@ -43,13 +43,13 @@ public extension UserDataProvider {
 public final class UserDataSource: UserDataProvider {
     private let logger: any LoggerProtocol
     private let encryptionService: any EncryptionServicing
-    private let persistentStorage: any PersistenceServicing
+    private let localDataManager: any LocalDataManagerProtocol
 
     public init(logger: any LoggerProtocol,
-                persistentStorage: any PersistenceServicing,
+                localDataManager: any LocalDataManagerProtocol,
                 encryptionService: any EncryptionServicing) {
         self.logger = logger
-        self.persistentStorage = persistentStorage
+        self.localDataManager = localDataManager
         self.encryptionService = encryptionService
     }
 }
@@ -57,7 +57,7 @@ public final class UserDataSource: UserDataProvider {
 public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data", function: #function, line: #line)
-        let encryptedUsersData: [EncryptedUserDataEntity] = try await persistentStorage.fetchAll()
+        let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage.fetchAll()
         log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
             log(.info, "No user data found")
@@ -77,7 +77,7 @@ public extension UserDataSource {
         log(.info, "Saving user data for ID: \(userData.user.ID)")
         do {
             let encryptedUserData = try encrypt(userData: userData)
-            try await persistentStorage.save(data: encryptedUserData)
+            try await localDataManager.persistentStorage.save(data: encryptedUserData)
             log(.info, "Successfully saved encrypted user data")
         } catch {
             log(.error, "Failed to save user data: \(error.localizedDescription)")
@@ -90,7 +90,7 @@ public extension UserDataSource {
         log(.info, "Removing user data by ID: \(userId)")
         do {
             let predicate = #Predicate<EncryptedUserDataEntity> { $0.id == userId }
-            try await persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
+            try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
             log(.info, "Successfully removed user data with ID: \(userId)")
         } catch {
             log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription)")
@@ -101,7 +101,7 @@ public extension UserDataSource {
     func removeAllUsers() async throws {
         log(.info, "Removing all user data")
         do {
-            try await persistentStorage.delete(EncryptedUserDataEntity.self)
+            try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self)
             log(.info, "Successfully removed all user data")
         } catch {
             log(.error, "Failed to remove all user data: \(error.localizedDescription)")
@@ -113,14 +113,14 @@ public extension UserDataSource {
     func update(_ userData: UserData) async throws {
         log(.info, "Updating user data for ID: \(userData.user.ID)")
         do {
-            guard let entity = try await persistentStorage
+            guard let entity = try await localDataManager.persistentStorage
                 .fetchOne(predicate: #Predicate<EncryptedUserDataEntity> { $0.id == userData.user.ID }) else {
                 log(.warning, "User data not found for update, ID: \(userData.user.ID)")
                 return
             }
             let encryptedData = try encrypt(userData: userData)
             entity.updateEncryptedData(encryptedData.encryptedData)
-            try await persistentStorage.save(data: entity)
+            try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated user data for ID: \(userData.user.ID)")
         } catch {
             log(.error, "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription)")

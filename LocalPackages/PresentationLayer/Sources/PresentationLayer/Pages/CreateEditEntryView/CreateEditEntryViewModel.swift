@@ -110,12 +110,11 @@ final class CreateEditEntryViewModel {
                 shouldDismiss = true
             } catch {
                 if let error = error as? AuthenticatorRustCore.AuthenticatorError {
-                    let errorMessage = error.message()
-                    switch error.message() {
-                    case "Unknown(\"InvalidData(Secret)\")":
-                        self.errorMessage = #localized("Invalid secret", bundle: .module)
+                    switch error {
+                    case .InvalidSecret:
+                        errorMessage = #localized("Invalid secret: %@", bundle: .module, error.message)
                     default:
-                        self.errorMessage = errorMessage
+                        errorMessage = error.message
                     }
                 } else {
                     handle(error)
@@ -158,5 +157,25 @@ private extension CreateEditEntryViewModel {
 
     func handle(_ error: Error) {
         alertService.showError(error, mainDisplay: false, action: nil)
+    }
+}
+
+extension AuthenticatorError {
+    var message: String {
+        switch self {
+        case let .CodeGenerationError(msg),
+             let .ImportBadContent(msg),
+             let .ImportBadPassword(msg),
+             let .ImportDecryptionFailed(msg),
+             let .ImportMissingPassword(msg),
+             let .InvalidName(msg),
+             let .InvalidSecret(msg),
+             let .NoEntries(msg),
+             let .ParseError(msg),
+             let .SerializationError(msg),
+             let .Unknown(msg),
+             let .UnsupportedUri(msg):
+            msg
+        }
     }
 }

@@ -62,9 +62,6 @@ public protocol EncryptionServicing: Sendable {
     func getEncryptionKey(for keyId: String, isSyncedKey: Bool) throws -> Data
 }
 
-// swiftlint:disable:next todo
-// TODO: take into account user settings for backup sync of keychain
-
 public final class EncryptionService: EncryptionServicing {
     public let localEncryptionKeyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol

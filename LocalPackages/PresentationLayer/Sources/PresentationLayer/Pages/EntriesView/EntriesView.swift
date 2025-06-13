@@ -73,6 +73,7 @@ public struct EntriesView: View {
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
                     view
                         .searchable(text: $viewModel.query)
+                        .searchFocusable($searchFieldFocus)
                 }
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
@@ -316,7 +317,7 @@ private extension EntriesView {
                       }
                       .impactHaptic()
 
-            if !ProcessInfo.processInfo.isiOSAppOnMac {
+            if AppConstants.isMobile {
                 Button(action: {
                     viewModel.cleanSearch()
                 }, label: {
@@ -358,7 +359,7 @@ private extension EntriesView {
         #if os(macOS)
         router.presentedSheet = .createEditEntry(nil)
         #else
-        if !ProcessInfo.processInfo.isiOSAppOnMac {
+        if AppConstants.isMobile {
             showScannerIfCameraAvailable()
         } else {
             router.presentedSheet = .createEditEntry(nil)

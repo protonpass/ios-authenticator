@@ -35,32 +35,6 @@ final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
 }
 
 extension ToolsContainer {
-    // swiftlint:disable:next todo
-    // TODO: make it can so we can toggle icluod sync for EncryptedEntryEntity
-    var persistenceService: Factory<any PersistenceServicing> {
-        self {
-            do {
-                let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
-                                                     isStoredInMemoryOnly: false,
-                                                     cloudKitDatabase: .private("iCloud.me.proton.authenticator"))
-                let localDataConfig = ModelConfiguration("localData",
-                                                         schema: Schema([
-                                                             LogEntryEntity.self,
-                                                             EncryptedUserDataEntity.self
-                                                         ]),
-                                                         isStoredInMemoryOnly: false,
-                                                         cloudKitDatabase: .none)
-                return try PersistenceService(for: EncryptedEntryEntity.self,
-                                              LogEntryEntity.self,
-                                              EncryptedUserDataEntity.self,
-                                              configurations: entryConfig,
-                                              localDataConfig)
-            } catch {
-                fatalError("Should have persistence storage \(error)")
-            }
-        }
-    }
-
     var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
         self {
             do {
@@ -81,7 +55,7 @@ extension ToolsContainer {
 
     var logManager: Factory<any LoggerProtocol> {
         self {
-            LogManager(persistentStorage: self.persistenceService())
+            LogManager(localDataManager: ServiceContainer.shared.localDataManager())
         }
     }
 

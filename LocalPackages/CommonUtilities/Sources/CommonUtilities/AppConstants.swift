@@ -57,7 +57,7 @@ public enum AppConstants {
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
-        public static let displayICloudBackUp = "DisplayICloudBackUp"
+        public static let iCloudBackUp = "ICloudBackUp"
         public static let displayBESync = "DisplayBESync"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
     }
@@ -85,7 +85,7 @@ public enum AppConstants {
     @MainActor
     public static var isMobile: Bool {
         #if canImport(UIKit)
-        true
+        !ProcessInfo.processInfo.isiOSAppOnMac
         #else
         false
         #endif

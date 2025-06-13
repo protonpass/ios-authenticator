@@ -31,7 +31,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
     }
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository(persistentStorage: ToolsContainer.shared.persistenceService(),
+        self { EntryRepository(localDataManager: ServiceContainer.shared.localDataManager(),
                                encryptionService: ServiceContainer.shared.encryptionService(),
                                apiClient: ToolsContainer.shared.apiClient(),
                                userSessionManager: ServiceContainer.shared.userSessionManager(),
@@ -43,7 +43,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
 
     var userDataSource: Factory<any UserDataProvider> {
         self { UserDataSource(logger: ToolsContainer.shared.logManager(),
-                              persistentStorage: ToolsContainer.shared.persistenceService(),
+                              localDataManager: ServiceContainer.shared.localDataManager(),
                               encryptionService: ServiceContainer.shared.encryptionService()) }
     }
 }

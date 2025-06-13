@@ -37,12 +37,6 @@ final class QAMenuViewModel {
         }
     }
 
-    var displayICloudBackUp: Bool {
-        didSet {
-            appSettings.toggleICloudBackUpDisplay(displayICloudBackUp)
-        }
-    }
-
     var displayBESync: Bool {
         didSet {
             appSettings.toggleBESyncDisplay(displayBESync)
@@ -61,7 +55,6 @@ final class QAMenuViewModel {
     init() {
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
-        displayICloudBackUp = appSettings.displayICloudBackUp
         displayBESync = appSettings.displayBESync
     }
 }

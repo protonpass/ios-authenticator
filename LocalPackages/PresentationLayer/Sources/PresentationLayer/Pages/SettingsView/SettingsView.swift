@@ -137,15 +137,14 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            if viewModel.displayICloudBackUp {
-                SettingRow(title: .localized("Backup", .module),
-                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                                .module),
-                           trailingMode: .toggle(isOn: viewModel.backUpEnabled,
-                                                 onToggle: viewModel.toggleBackUp))
+            SettingRow(title: .localized("Backup", .module),
+                       subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                            .module),
+                       trailingMode: .toggle(isOn: viewModel.backUpEnabled,
+                                             onToggle: viewModel.toggleBackICloudUp))
 
-                SettingDivider()
-            }
+            SettingDivider()
+
             #if os(iOS)
             if viewModel.displayBESync, AppConstants.isMobile {
                 SettingRow(title: .localized("Sync between devices", .module),
@@ -280,9 +279,9 @@ private extension SettingsView {
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("How to use Proton Authenticator", .module))
-
-            SettingDivider()
+//            SettingRow(title: .localized("How to use Proton Authenticator", .module))
+//
+//            SettingDivider()
 
             SettingRow(title: .localized("Feedback", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)

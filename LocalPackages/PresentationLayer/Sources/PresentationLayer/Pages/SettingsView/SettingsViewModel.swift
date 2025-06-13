@@ -73,6 +73,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager) private var localDataManager
+
     #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
@@ -84,6 +87,9 @@ final class SettingsViewModel {
 
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var toggleBackICloudUpTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables: Set<AnyCancellable> = []
@@ -125,10 +131,6 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
-    var displayICloudBackUp: Bool {
-        settingsService.displayICloudBackUp
-    }
-
     var displayBESync: Bool {
         settingsService.displayBESync
     }
@@ -150,6 +152,8 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
+        backUpEnabled = settingsService.iCloudBackUp
+
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -170,8 +174,13 @@ extension SettingsViewModel {
         settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
 
-    func toggleBackUp() {
+    func toggleBackICloudUp() {
+        settingsService.toggleICloudBackUp(!backUpEnabled)
         backUpEnabled.toggle()
+        toggleBackICloudUpTask?.cancel()
+        toggleBackICloudUpTask = Task {
+            await localDataManager.refreshLocalStorage()
+        }
     }
 
     #if os(iOS)
@@ -193,6 +202,7 @@ extension SettingsViewModel {
         }
     }
     #endif
+
     func toggleBioLock() {
         guard toggleBioLockTask == nil else {
             return
@@ -287,6 +297,6 @@ private extension SettingsViewModel {
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Proton_Authenticator_backup_\(currentDate).txt"
+        return "Proton_Authenticator_backup_\(currentDate).json"
     }
 }
