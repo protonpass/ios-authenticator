@@ -95,9 +95,6 @@ private extension QAMenuView {
 
     var syncSection: some View {
         Section(content: {
-//            Toggle(isOn: $viewModel.displayICloudBackUp,
-//                   label: { Text(verbatim: "Display iCloud backup") })
-
             Toggle(isOn: $viewModel.displayBESync, label: { Text(verbatim: "Display BE sync") })
         }, header: {
             Text(verbatim: "Syncs")
