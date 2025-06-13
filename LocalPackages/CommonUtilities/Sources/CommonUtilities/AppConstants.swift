@@ -110,7 +110,6 @@ public enum AppConstants {
     }
 
     public static var laEnablingPolicy: LAPolicy {
-        ProcessInfo.processInfo
-            .isiOSAppOnMac ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
+        .deviceOwnerAuthentication
     }
 }

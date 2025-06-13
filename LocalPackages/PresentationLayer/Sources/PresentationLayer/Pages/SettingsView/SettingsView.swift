@@ -146,7 +146,7 @@ private extension SettingsView {
             SettingDivider()
 
             #if os(iOS)
-            if viewModel.displayBESync, AppConstants.isMobile {
+            if viewModel.displayBESync {
                 SettingRow(title: .localized("Sync between devices", .module),
                            subtitle: !viewModel.emailAddress
                                .isEmpty ? .localized("Account: \(viewModel.emailAddress)",

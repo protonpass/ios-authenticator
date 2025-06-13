@@ -64,6 +64,10 @@ final class OnboardingViewModel {
     private var authenticationService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private var alertService
+
+    @ObservationIgnored
     private var enablingBiometric = false
 
     init() {}
@@ -98,6 +102,30 @@ final class OnboardingViewModel {
 
     func enableBiometric() {
         guard !enablingBiometric else { return }
+        guard authenticationService.canUseBiometricAuthentication() else {
+            let alert = AlertDisplay.main(AlertConfiguration(title: "Enable biometrics",
+                                                             titleBundle: .module,
+                                                             // swiftlint:disable:next line_length
+                                                             message: .localized("To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings.",
+                                                                                 .module),
+                                                             actions: [
+                                                                 .init(title: "Go to Settings",
+                                                                       titleBundle: .module,
+                                                                       action: {
+                                                                           if let settingsURL =
+                                                                               URL(string: UIApplication
+                                                                                   .openSettingsURLString) {
+                                                                               UIApplication.shared
+                                                                                   .open(settingsURL,
+                                                                                         options: [:],
+                                                                                         completionHandler: nil)
+                                                                           }
+                                                                       }),
+                                                                 .cancel
+                                                             ]))
+            alertService.showAlert(alert)
+            return
+        }
         Task { [weak self] in
             guard let self else { return }
             defer { enablingBiometric = false }
