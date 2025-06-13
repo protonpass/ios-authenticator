@@ -163,18 +163,18 @@ private extension CreateEditEntryViewModel {
 extension AuthenticatorError {
     var message: String {
         switch self {
-        case let .CodeGenerationError(message: msg),
-             let .ImportBadContent(message: msg),
-             let .ImportBadPassword(message: msg),
-             let .ImportDecryptionFailed(message: msg),
-             let .ImportMissingPassword(message: msg),
-             let .InvalidName(message: msg),
-             let .InvalidSecret(message: msg),
-             let .NoEntries(message: msg),
-             let .ParseError(message: msg),
-             let .SerializationError(message: msg),
-             let .Unknown(message: msg),
-             let .UnsupportedUri(message: msg):
+        case let .CodeGenerationError(msg),
+             let .ImportBadContent(msg),
+             let .ImportBadPassword(msg),
+             let .ImportDecryptionFailed(msg),
+             let .ImportMissingPassword(msg),
+             let .InvalidName(msg),
+             let .InvalidSecret(msg),
+             let .NoEntries(msg),
+             let .ParseError(msg),
+             let .SerializationError(msg),
+             let .Unknown(msg),
+             let .UnsupportedUri(msg):
             msg
         }
     }

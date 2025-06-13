@@ -61,12 +61,12 @@
         }
       }
     },
-    "Unlock" : {
+    "unlock" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unlock"
+            "value" : "unlock"
           }
         }
       }
