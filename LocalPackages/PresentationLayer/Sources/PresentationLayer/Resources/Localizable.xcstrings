@@ -669,6 +669,16 @@
         }
       }
     },
+    "No new codes detected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No new codes detected"
+          }
+        }
+      }
+    },
     "Open Settings" : {
       "localizations" : {
         "en" : {
@@ -1111,16 +1121,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version %@"
-          }
-        }
-      }
-    },
-    "We did find any new codes to import" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "We did find any new codes to import"
           }
         }
       }

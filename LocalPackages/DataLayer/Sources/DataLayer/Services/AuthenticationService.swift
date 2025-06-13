@@ -90,7 +90,7 @@ public final class AuthenticationService: AuthenticationServicing {
         if context.canEvaluatePolicy(policy, error: &error) {
             let reason: String = AppConstants
                 .isMobile ? #localized("Please authenticate", bundle: .module) :
-                #localized("Unlock", bundle: .module)
+                #localized("unlock", bundle: .module)
             do {
                 let bioCheckValue = try await context.evaluatePolicy(policy,
                                                                      localizedReason: reason)

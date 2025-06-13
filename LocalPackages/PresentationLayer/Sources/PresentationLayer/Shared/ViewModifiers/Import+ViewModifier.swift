@@ -225,7 +225,7 @@ private extension View {
 
     func displayGoogleImportOption(_ option: GoogleImportType) -> Bool {
         #if os(iOS)
-        if !ProcessInfo.processInfo.isiOSAppOnMac
+        if AppConstants.isMobile
             || (ProcessInfo.processInfo.isiOSAppOnMac && option != .scanQrCode) {
             return true
         } else {
@@ -402,7 +402,7 @@ final class ImportViewModel {
                                         titleBundle: .module,
                                         message: .localized(hasNewEntries ?
                                             "Successfully imported \(numberOfEntries) items" :
-                                            "We did find any new codes to import",
+                                            "No new codes detected",
                                             .module),
                                         actions: [.ok])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)

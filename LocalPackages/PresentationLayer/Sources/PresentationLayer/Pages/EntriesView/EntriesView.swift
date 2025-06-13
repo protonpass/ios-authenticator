@@ -317,7 +317,7 @@ private extension EntriesView {
                       }
                       .impactHaptic()
 
-            if !ProcessInfo.processInfo.isiOSAppOnMac {
+            if AppConstants.isMobile {
                 Button(action: {
                     viewModel.cleanSearch()
                 }, label: {
@@ -359,7 +359,7 @@ private extension EntriesView {
         #if os(macOS)
         router.presentedSheet = .createEditEntry(nil)
         #else
-        if !ProcessInfo.processInfo.isiOSAppOnMac {
+        if AppConstants.isMobile {
             showScannerIfCameraAvailable()
         } else {
             router.presentedSheet = .createEditEntry(nil)
