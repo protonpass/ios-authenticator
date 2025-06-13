@@ -382,6 +382,9 @@
         }
       }
     },
+    "Enable biometrics" : {
+
+    },
     "Enable Face ID" : {
       "localizations" : {
         "en" : {
@@ -502,6 +505,9 @@
           }
         }
       }
+    },
+    "Go to Settings" : {
+
     },
     "Haptic feedback" : {
       "localizations" : {
@@ -1045,6 +1051,9 @@
           }
         }
       }
+    },
+    "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings." : {
+
     },
     "Top" : {
       "localizations" : {

@@ -36,6 +36,7 @@ public protocol AuthenticationServicing: Sendable, Observable {
 
     func setAuthenticationState(_ newState: AuthenticationState) throws
     func checkBiometrics() async throws
+    func canUseBiometricAuthentication() -> Bool
 }
 
 public extension AuthenticationServicing {
@@ -54,6 +55,7 @@ public final class AuthenticationService: AuthenticationServicing {
     @ObservationIgnored
     private let keychain: any KeychainServicing
     private let logger: any LoggerProtocol
+    let policy = AppConstants.laEnablingPolicy
 
     public private(set) var currentState: AuthenticationState = .inactive
 
@@ -85,8 +87,6 @@ public final class AuthenticationService: AuthenticationServicing {
         let context = LAContext()
         var error: NSError?
 
-        let policy = AppConstants.laEnablingPolicy
-
         if context.canEvaluatePolicy(policy, error: &error) {
             let reason: String = AppConstants
                 .isMobile ? #localized("Please authenticate", bundle: .module) :
@@ -105,5 +105,11 @@ public final class AuthenticationService: AuthenticationServicing {
             logger.log(.error, category: .data, error.localizedDescription)
             throw error
         }
+    }
+
+    public func canUseBiometricAuthentication() -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(policy, error: &error)
     }
 }
