@@ -383,7 +383,14 @@
       }
     },
     "Enable biometrics" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable biometrics"
+          }
+        }
+      }
     },
     "Enable Face ID" : {
       "localizations" : {
@@ -507,7 +514,14 @@
       }
     },
     "Go to Settings" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Settings"
+          }
+        }
+      }
     },
     "Haptic feedback" : {
       "localizations" : {
@@ -1063,7 +1077,14 @@
       }
     },
     "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings."
+          }
+        }
+      }
     },
     "Top" : {
       "localizations" : {
