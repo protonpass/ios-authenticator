@@ -1,5 +1,5 @@
 //
-//  
+//
 // OpenAppSettings.swift
 // Proton Authenticator - Created on 16/06/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -20,19 +20,67 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-protocol OpenAppSettingsUseCase: Sendable {
-   // func execute() async throws
+import CommonUtilities
+import Foundation
+#if canImport(AppKit)
+import AppKit
+#endif
+
+#if canImport(UIKit)
+import UIKit
+#endif
+
+public protocol OpenAppSettingsUseCase: Sendable {
+    @MainActor
+    func execute()
 }
 
-extension OpenAppSettingsUseCase {
+public extension OpenAppSettingsUseCase {
+    @MainActor
     func callAsFunction() {
-      // execute()
+        execute()
     }
 }
 
-final class OpenAppSettings: OpenAppSettingsUseCase {
-        
-    init() {}
-    
-    // func execute() async throws
+public final class OpenAppSettings: OpenAppSettingsUseCase {
+    public init() {}
+
+    @MainActor
+    public func execute() {
+        #if os(iOS)
+        if AppConstants.isMobile {
+            iosSettings()
+        } else {
+            if let url = URL(string: "x-apple.systempreferences:") {
+                UIApplication.shared.open(url)
+            }
+        }
+        #else
+        macSettings()
+        #endif
+    }
+}
+
+private extension OpenAppSettings {
+    #if os(macOS)
+    @MainActor
+    func macSettings() {
+        if let url = URL(string: "x-apple.systempreferences:") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    #endif
+
+    #if os(iOS)
+    @MainActor
+    func iosSettings() {
+        if let settingsURL =
+            URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared
+                .open(settingsURL,
+                      options: [:],
+                      completionHandler: nil)
+        }
+    }
+    #endif
 }
