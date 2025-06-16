@@ -60,6 +60,9 @@ public struct EntriesView: View {
                     searchFieldFocus = false
                 }
                 .toastDisplay()
+                .refreshable { [weak viewModel] in
+                    viewModel?.reloadData()
+                }
                 .safeAreaInset(edge: .top) {
                     if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         Color.clear.frame(height: 10)
@@ -72,11 +75,8 @@ public struct EntriesView: View {
                 }
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
                     view
-                        .searchable(text: $viewModel.query)
+                        .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always))
                         .searchFocusable($searchFieldFocus)
-                }
-                .refreshable { [weak viewModel] in
-                    viewModel?.reloadData()
                 }
                 .onAppear {
                     viewModel.reloadData()
