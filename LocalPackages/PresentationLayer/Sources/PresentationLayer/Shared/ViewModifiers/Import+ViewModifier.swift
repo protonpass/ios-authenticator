@@ -88,6 +88,7 @@ struct ImportingServiceModifier: ViewModifier {
         #endif
             .photosPicker(isPresented: $showPhotosPicker,
                           selection: $viewModel.imageSelection,
+                          maxSelectionCount: 10,
                           matching: .images,
                           photoLibrary: .shared())
             .fileImporter(isPresented: $viewModel.showImporter.mappedToBool(),
@@ -268,7 +269,7 @@ final class ImportViewModel {
     @ObservationIgnored
     private var provenance: TwofaImportSource?
 
-    @ObservationIgnored var imageSelection: PhotosPickerItem? {
+    @ObservationIgnored var imageSelection: [PhotosPickerItem] = [] {
         didSet {
             imageSelectionStream.send(imageSelection)
         }
@@ -277,7 +278,7 @@ final class ImportViewModel {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
     @ObservationIgnored
-    private let imageSelectionStream: CurrentValueSubject<PhotosPickerItem?, Never> = .init(nil)
+    private let imageSelectionStream: CurrentValueSubject<[PhotosPickerItem], Never> = .init([])
 
     private let mainDisplay: Bool
 
@@ -286,9 +287,9 @@ final class ImportViewModel {
         imageSelectionStream
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
-            .sink { [weak self] imageSelection in
-                guard let self else { return }
-                parseImage(imageSelection)
+            .sink { [weak self] newImageSelection in
+                guard let self, !newImageSelection.isEmpty else { return }
+                parseImage(newImageSelection)
             }
             .store(in: &cancellables)
     }
@@ -355,18 +356,21 @@ final class ImportViewModel {
         }
     }
 
-    func parseImage(_ imageSelection: PhotosPickerItem) {
+    func parseImage(_ imageSelection: [PhotosPickerItem]) {
         Task { [weak self] in
             guard let self else {
                 return
             }
             defer {
-                self.imageSelection = nil
+                self.imageSelection = []
             }
+            var numberOfImportedEntries = 0
             do {
-                let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
-                let numberOfImportedEntries = try await entryDataService
-                    .importEntries(from: .googleQr(contents: content))
+                for selection in imageSelection {
+                    let content = try await parseImageQRCodeContent(imageSelection: selection)
+                    numberOfImportedEntries += try await entryDataService
+                        .importEntries(from: .googleQr(contents: content))
+                }
                 showCompletion(numberOfImportedEntries)
             } catch {
                 alertService.showError(error, mainDisplay: mainDisplay, action: nil)
