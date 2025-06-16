@@ -19,8 +19,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-#if canImport(UIKit)
 import LocalAuthentication
+#if canImport(UIKit)
 import UIKit
 #endif
 

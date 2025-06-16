@@ -25,10 +25,10 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
+import LocalAuthentication
 import Macro
 import Models
 #if canImport(UIKit)
-import LocalAuthentication
 import UIKit
 #endif
 
@@ -84,6 +84,9 @@ final class SettingsViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.mobileLoginCoordinator) private(set) var mobileLoginCoordinator
     #endif
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.openAppSettings) private var openAppSettings
 
     @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
@@ -225,15 +228,11 @@ extension SettingsViewModel {
                                                               actions: [
                                                                   .init(title: "Go to Settings",
                                                                         titleBundle: .module,
-                                                                        action: {
-                                                                            if let settingsURL =
-                                                                                URL(string: UIApplication
-                                                                                    .openSettingsURLString) {
-                                                                                UIApplication.shared
-                                                                                    .open(settingsURL,
-                                                                                          options: [:],
-                                                                                          completionHandler: nil)
+                                                                        action: { [weak self] in
+                                                                            guard let self else {
+                                                                                return
                                                                             }
+                                                                            openAppSettings()
                                                                         }),
 
                                                                   .cancel

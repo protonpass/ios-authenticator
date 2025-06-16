@@ -69,4 +69,8 @@ public extension UseCaseContainer {
     var setUpSentry: Factory<any SetUpSentryUseCase> {
         self { SetUpSentry() }
     }
+
+    var openAppSettings: Factory<any OpenAppSettingsUseCase> {
+        self { OpenAppSettings() }
+    }
 }

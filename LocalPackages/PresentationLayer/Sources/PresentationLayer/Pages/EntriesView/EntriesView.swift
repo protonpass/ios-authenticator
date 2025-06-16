@@ -77,6 +77,8 @@ public struct EntriesView: View {
                     view
                         .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always))
                         .searchFocusable($searchFieldFocus)
+                        .keyboardSetup()
+                        .autocorrectionDisabled(true)
                 }
                 .onAppear {
                     viewModel.reloadData()
@@ -87,8 +89,10 @@ public struct EntriesView: View {
                 }
                 .onChange(of: scenePhase) { _, newValue in
                     if newValue == .active {
-                        withAnimation {
-                            searchFieldFocus = viewModel.focusSearchOnLaunch
+                        if isVisible {
+                            withAnimation {
+                                searchFieldFocus = viewModel.focusSearchOnLaunch
+                            }
                         }
                         if viewModel.isAuthenticated {
                             viewModel.fullSync()
@@ -110,11 +114,22 @@ public struct EntriesView: View {
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
+                .onChange(of: isVisible) { _, newValue in
+                    guard newValue, viewModel.focusSearchOnLaunch else {
+                        return
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        searchFieldFocus = true
+                    }
+                }
                 .fullScreenMainBackground()
-                .animation(.default, value: viewModel.entries)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
+    }
+
+    private var isVisible: Bool {
+        router.presentedSheet == nil && router.presentedFullscreenSheet == nil
     }
 }
 
@@ -311,6 +326,7 @@ private extension EntriesView {
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
                       .focused($searchFieldFocus)
+                      .keyboardSetup()
                       .autocorrectionDisabled(true)
                       .onSubmit {
                           searchFieldFocus = false
@@ -525,4 +541,19 @@ private extension EntriesView {
 
 #Preview {
     EntriesView()
+}
+
+extension View {
+    @ViewBuilder
+    func keyboardSetup() -> some View {
+        #if os(iOS)
+        if AppConstants.isMobile {
+            keyboardType(.asciiCapable)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
 }
