@@ -66,11 +66,11 @@ struct EntryCell: View {
                 icon
 
                 VStack(alignment: .leading) {
-                    HighlightedText(text: entry.name, highlighted: searchTerm)
+                    HighlightedText(text: entry.issuer, highlighted: searchTerm)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(.textNorm)
                         .textShadow()
-                    HighlightedText(text: entry.issuer, highlighted: searchTerm)
+                    HighlightedText(text: entry.name, highlighted: searchTerm)
                         .font(.system(size: 14, weight: .regular))
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
