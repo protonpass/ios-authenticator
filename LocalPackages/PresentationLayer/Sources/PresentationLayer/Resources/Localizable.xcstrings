@@ -697,7 +697,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "issuer %1$@, item name: %2$@"
           }
         }
