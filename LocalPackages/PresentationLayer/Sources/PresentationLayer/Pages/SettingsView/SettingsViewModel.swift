@@ -206,18 +206,6 @@ extension SettingsViewModel {
     }
     #endif
 
-//    public func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
-//        let config = AlertConfiguration(title: "An error occurred",
-//                                        titleBundle: .module,
-//                                        message: .verbatim(error),
-//                                        actions: [.init(title: "OK",
-//                                                        titleBundle: .module,
-//                                                        role: .cancel,
-//                                                        action: action)])
-//        alert = mainDisplay ? .main(config) : .sheet(config)
-//    }
-    // }
-
     func toggleBioLock() {
         guard authenticationService.canUseBiometricAuthentication() else {
             let alert = AlertDisplay.sheet(AlertConfiguration(title: "Enable biometrics",
