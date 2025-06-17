@@ -267,7 +267,8 @@ private extension EntriesView {
             .accessibilityElement(children: .ignore)
             // swiftlint:disable:next line_length
             .accessibilityLabel("issuer \(entry.orderedEntry.entry.issuer), item name: \(entry.orderedEntry.entry.name)")
-            .accessibilityHint(Text("Tap cell to copy token to clipboard. Swipe left to delete and right to edit"))
+            .accessibilityHint(Text("Tap cell to copy token to clipboard. Swipe left to delete and right to edit",
+                                    bundle: .module))
         #if os(macOS)
             .contextMenu {
                 Button {

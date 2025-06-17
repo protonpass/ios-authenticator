@@ -460,7 +460,8 @@ private extension Theme {
 
 private extension View {
     func toggleAccessibilityLabel(_ label: String) -> some View {
-        accessibilityHint(Text("You can toggle this option by clicking on the toggle button to the right of the row."))
+        accessibilityHint(Text("You can toggle this option by clicking on the toggle button to the right of the row.",
+                               bundle: .module))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(label)
     }
