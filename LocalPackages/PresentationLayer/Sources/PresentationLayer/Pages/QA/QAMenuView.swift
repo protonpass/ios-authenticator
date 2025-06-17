@@ -31,6 +31,7 @@ struct QAMenuView: View {
                 mockEntriesSection
                 onboardingSection
                 passBannerSection
+                installationDateSection
             }
             .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -89,6 +90,18 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.displayPassBanner, label: { Text(verbatim: "Display Pass Banner") })
         }, header: {
             Text(verbatim: "Pass Banner")
+        })
+    }
+
+    var installationDateSection: some View {
+        Section(content: {
+            DatePicker(selection: $viewModel.installationDate,
+                       in: ...Date.now,
+                       displayedComponents: .date) {
+                Text(verbatim: "Installation date")
+            }
+        }, header: {
+            Text(verbatim: "Installation date")
         })
     }
 }
