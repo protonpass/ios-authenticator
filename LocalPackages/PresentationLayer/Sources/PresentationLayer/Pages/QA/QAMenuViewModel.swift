@@ -37,12 +37,6 @@ final class QAMenuViewModel {
         }
     }
 
-    var displayBESync: Bool {
-        didSet {
-            appSettings.toggleBESyncDisplay(displayBESync)
-        }
-    }
-
     @ObservationIgnored
     let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
 
@@ -55,6 +49,5 @@ final class QAMenuViewModel {
     init() {
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
-        displayBESync = appSettings.displayBESync
     }
 }

@@ -134,10 +134,6 @@ final class SettingsViewModel {
         !products.contains(.pass) && settingsService.showPassBanner
     }
 
-    var displayBESync: Bool {
-        settingsService.displayBESync
-    }
-
     var emailAddress: String {
         userSessionManager.userData?.email ?? ""
     }

@@ -151,10 +151,9 @@ private extension SettingsView {
             SettingDivider()
 
             #if os(iOS)
-            if viewModel.displayBESync {
-                SettingRow(title: .localized("Sync between devices", .module),
-                           subtitle: !viewModel.emailAddress
-                               .isEmpty ? .localized("Account: \(viewModel.emailAddress)",
+            SettingRow(title: .localized("Sync between devices", .module),
+                        subtitle: !viewModel.emailAddress.isEmpty ? 
+                            .localized("Account: \(viewModel.emailAddress)",
                                                      .module) : nil,
                            trailingMode: .toggle(isOn: viewModel.syncEnabled,
                                                  onToggle: {
@@ -165,8 +164,7 @@ private extension SettingsView {
                                                                                       bundle: .module),
                                                                            activateStatus(viewModel.syncEnabled))
 
-                SettingDivider()
-            }
+            SettingDivider()
             #endif
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,

@@ -34,7 +34,6 @@ public protocol SettingsServicing: Sendable, Observable {
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
     var iCloudBackUp: Bool { get }
-    var displayBESync: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -48,10 +47,8 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
     func toggleICloudBackUp(_ value: Bool)
-    func toggleBESyncDisplay(_ value: Bool)
 }
 
-@MainActor
 @Observable
 public final class SettingsService: SettingsServicing {
     @ObservationIgnored
@@ -66,7 +63,6 @@ public final class SettingsService: SettingsServicing {
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
     public private(set) var iCloudBackUp: Bool
-    public private(set) var displayBESync: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -91,7 +87,6 @@ public final class SettingsService: SettingsServicing {
         hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
         iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
-        displayBESync = store.bool(forKey: AppConstants.Settings.displayBESync)
     }
 }
 
@@ -164,12 +159,6 @@ public extension SettingsService {
         update(currentValue: &iCloudBackUp,
                newValue: value,
                key: AppConstants.Settings.iCloudBackUp)
-    }
-
-    func toggleBESyncDisplay(_ value: Bool) {
-        update(currentValue: &displayBESync,
-               newValue: value,
-               key: AppConstants.Settings.displayBESync)
     }
 }
 
