@@ -88,7 +88,7 @@ public extension UseCaseContainer {
     var openAppSettings: Factory<any OpenAppSettingsUseCase> {
         self { OpenAppSettings() }
     }
-    
+
     var askForReviewEventStream: Factory<AskForReviewEventStream> {
         self { AskForReviewEventStream() }
     }

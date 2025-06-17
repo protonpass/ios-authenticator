@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import FactoryKit
 import Models
 import SwiftUI
 
@@ -48,6 +49,8 @@ struct CreateEditEntryView: View {
     @State private var viewModel: CreateEditEntryViewModel
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
+
+    private let requestToAskForReview = resolve(\UseCaseContainer.requestToAskForReview)
 
     init(entry: EntryUiModel?) {
         _viewModel = .init(wrappedValue: CreateEditEntryViewModel(entry: entry))
@@ -105,6 +108,9 @@ struct CreateEditEntryView: View {
                 .onChange(of: viewModel.shouldDismiss) {
                     if viewModel.shouldDismiss {
                         dismiss()
+                        Task {
+                            await requestToAskForReview()
+                        }
                     }
                 }
                 .onChange(of: focusedField) { _, _ in

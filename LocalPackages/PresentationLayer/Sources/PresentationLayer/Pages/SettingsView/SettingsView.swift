@@ -158,17 +158,13 @@ private extension SettingsView {
 
             #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
-                        subtitle: !viewModel.emailAddress.isEmpty ? 
-                            .localized("Account: \(viewModel.emailAddress)",
-                                                     .module) : nil,
-                           trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                                 onToggle: {
-                                                     viewModel.toggleSync()
-                                                 }))
-                                                 // swiftlint:disable:next line_length
-                                                 .toggleAccessibilityLabel(#localized("Sync between devices with Proton account",
-                                                                                      bundle: .module),
-                                                                           activateStatus(viewModel.syncEnabled))
+                       subtitle: !viewModel.emailAddress.isEmpty ?
+                           .localized("Account: \(viewModel.emailAddress)", .module) : nil,
+                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                             onToggle: viewModel.toggleSync))
+                .toggleAccessibilityLabel(#localized("Sync between devices with Proton account",
+                                                     bundle: .module),
+                                          activateStatus(viewModel.syncEnabled))
 
             SettingDivider()
             #endif
