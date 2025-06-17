@@ -52,7 +52,7 @@ public final class OpenAppSettings: OpenAppSettingsUseCase {
             iosSettings()
         } else {
             if let url = URL(string: "x-apple.systempreferences:") {
-                UIApplication.shared.open(url)
+                open(url: url)
             }
         }
         #else
@@ -66,7 +66,7 @@ private extension OpenAppSettings {
     @MainActor
     func macSettings() {
         if let url = URL(string: "x-apple.systempreferences:") {
-            NSWorkspace.shared.open(url)
+            open(url: url)
         }
     }
     #endif
@@ -76,11 +76,17 @@ private extension OpenAppSettings {
     func iosSettings() {
         if let settingsURL =
             URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared
-                .open(settingsURL,
-                      options: [:],
-                      completionHandler: nil)
+            open(url: settingsURL)
         }
     }
     #endif
+
+    @MainActor
+    func open(url: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(url)
+        #else
+        NSWorkspace.shared.open(url)
+        #endif
+    }
 }

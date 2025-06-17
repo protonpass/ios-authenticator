@@ -50,6 +50,10 @@ final class Router {
     var presentedSheet: SheetDestination?
     var presentedFullscreenSheet: FullScreenDestination?
 
+    var noSheetDisplayed: Bool {
+        presentedSheet == nil && presentedFullscreenSheet == nil
+    }
+
     func navigate(to: RouterDestination) {
         path.append(to)
     }
