@@ -35,6 +35,10 @@ private extension UseCaseContainer {
     var logger: any LoggerProtocol {
         ToolsContainer.shared.logManager()
     }
+
+    var settingsService: any SettingsServicing {
+        ServiceContainer.shared.settingsService()
+    }
 }
 
 extension UseCaseContainer {
@@ -53,6 +57,12 @@ extension UseCaseContainer {
     var authenticateBiometrically: Factory<any AuthenticateBiometricallyUseCase> {
         self { AuthenticateBiometrically() }
     }
+
+    var checkAskForReview: Factory<any CheckAskForReviewUseCase> {
+        self { CheckAskForReview(settingsService: self.settingsService,
+                                 entryDataService: ServiceContainer.shared.entryDataService(),
+                                 logger: ToolsContainer.shared.logManager()) }
+    }
 }
 
 public extension UseCaseContainer {
@@ -61,7 +71,7 @@ public extension UseCaseContainer {
     }
 
     var setUpFirstRun: Factory<any SetUpFirstRunUseCase> {
-        self { @MainActor in SetUpFirstRun(settingsService: ServiceContainer.shared.settingsService(),
+        self { @MainActor in SetUpFirstRun(settingsService: self.settingsService,
                                            authenticationService: ServiceContainer.shared.authenticationService(),
                                            logger: self.logger) }
     }

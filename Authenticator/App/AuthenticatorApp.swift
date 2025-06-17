@@ -24,6 +24,7 @@ import FactoryKit
 import Foundation
 import Models
 import PresentationLayer
+import StoreKit
 import SwiftData
 import SwiftUI
 #if canImport(UIKit)
@@ -34,6 +35,7 @@ import UIKit
 struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
 
     var body: some Scene {
         WindowGroup {
