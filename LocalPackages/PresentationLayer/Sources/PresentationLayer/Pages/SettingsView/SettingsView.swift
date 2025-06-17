@@ -20,6 +20,7 @@
 //
 
 import CommonUtilities
+import Macro
 import Models
 import SwiftUI
 
@@ -142,7 +143,9 @@ private extension SettingsView {
                                             .module),
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackICloudUp))
-
+                // swiftlint:disable:next line_length
+                .toggleAccessibilityLabel(#localized("Backup, Proton Authenticator will periodically save all the data to iCloud. %@",
+                                                     activateStatus(viewModel.backUpEnabled)))
             SettingDivider()
 
             #if os(iOS)
@@ -155,6 +158,10 @@ private extension SettingsView {
                                                  onToggle: {
                                                      viewModel.toggleSync()
                                                  }))
+                                                 // swiftlint:disable:next line_length
+                                                 .toggleAccessibilityLabel(#localized("Sync between devices with proton account, %@",
+                                                                                      activateStatus(viewModel
+                                                                                          .syncEnabled)))
 
                 SettingDivider()
             }
@@ -162,12 +169,16 @@ private extension SettingsView {
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
+                .toggleAccessibilityLabel(#localized("Biometric lock, %@",
+                                                     activateStatus(viewModel.biometricLock)))
 
             SettingDivider()
 
             SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
+                .toggleAccessibilityLabel(#localized("Hide codes, %@",
+                                                     activateStatus(viewModel.shouldHideCode)))
         }
         .onChange(of: viewModel.syncEnabled) {
             viewModel.settingSheet = nil
@@ -245,18 +256,25 @@ private extension SettingsView {
             SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
+                .toggleAccessibilityLabel(#localized("Animate code change, %@",
+                                                     activateStatus(viewModel.animateCodeChange)))
+
             #if os(iOS)
             if AppConstants.isPhone {
                 SettingDivider()
                 SettingRow(title: .localized("Haptic feedback", .module),
                            trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
                                                  onToggle: viewModel.toggleHapticFeedback))
+                    .toggleAccessibilityLabel(#localized("Haptic feedback, %@",
+                                                         activateStatus(viewModel.hapticFeedbackEnabled)))
             }
             #endif
             SettingDivider()
             SettingRow(title: .localized("Focus search on launch", .module),
                        trailingMode: .toggle(isOn: viewModel.focusSearchOnLaunch,
                                              onToggle: viewModel.toggleFocusSearchOnLaunch))
+                .toggleAccessibilityLabel(#localized("Focus search on launch, %@",
+                                                     activateStatus(viewModel.focusSearchOnLaunch)))
         }
     }
 
@@ -279,9 +297,9 @@ private extension SettingsView {
 
     var supportSection: some View {
         section("SUPPORT") {
-//            SettingRow(title: .localized("How to use Proton Authenticator", .module))
-//
-//            SettingDivider()
+            //            SettingRow(title: .localized("How to use Proton Authenticator", .module))
+            //
+            //            SettingDivider()
 
             SettingRow(title: .localized("Feedback", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)
@@ -326,6 +344,10 @@ private extension SettingsView {
 
     var settingsBorder: Color {
         (isDarkMode ? Color.white : .black).opacity(0.12)
+    }
+
+    func activateStatus(_ active: Bool) -> String {
+        active ? #localized("Enabled") : #localized("Disabled")
     }
 }
 
@@ -426,5 +448,13 @@ private extension Theme {
         case .system:
             "Match system"
         }
+    }
+}
+
+private extension View {
+    func toggleAccessibilityLabel(_ label: String) -> some View {
+        accessibilityHint(Text("You can toggle this option by clicking on the toggle button to the right of the row."))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label)
     }
 }

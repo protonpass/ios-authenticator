@@ -52,6 +52,16 @@
         }
       }
     },
+    "Add new item" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add new item"
+          }
+        }
+      }
+    },
     "Advanced options" : {
       "localizations" : {
         "en" : {
@@ -88,6 +98,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Animate code change"
+          }
+        }
+      }
+    },
+    "Animate code change, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animate code change, %@"
           }
         }
       }
@@ -132,12 +152,32 @@
         }
       }
     },
+    "Backup, Proton Authenticator will periodically save all the data to iCloud. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup, Proton Authenticator will periodically save all the data to iCloud. %@"
+          }
+        }
+      }
+    },
     "Biometric lock" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Biometric lock"
+          }
+        }
+      }
+    },
+    "Biometric lock, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometric lock, %@"
           }
         }
       }
@@ -352,6 +392,16 @@
         }
       }
     },
+    "Disabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabled"
+          }
+        }
+      }
+    },
     "DISCOVER PROTON" : {
       "localizations" : {
         "en" : {
@@ -422,6 +472,16 @@
         }
       }
     },
+    "Enabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enabled"
+          }
+        }
+      }
+    },
     "Enter manually" : {
       "localizations" : {
         "en" : {
@@ -458,6 +518,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Focus search on launch"
+          }
+        }
+      }
+    },
+    "Focus search on launch, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus search on launch, %@"
           }
         }
       }
@@ -533,12 +603,32 @@
         }
       }
     },
+    "Haptic feedback, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptic feedback, %@"
+          }
+        }
+      }
+    },
     "Hide codes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hide codes"
+          }
+        }
+      }
+    },
+    "Hide codes, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide codes, %@"
           }
         }
       }
@@ -599,6 +689,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Issuer (Required)"
+          }
+        }
+      }
+    },
+    "issuer %@, item name: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "issuer %1$@, item name: %2$@"
           }
         }
       }
@@ -1026,6 +1126,26 @@
         }
       }
     },
+    "Sync between devices with proton account, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync between devices with proton account, %@"
+          }
+        }
+      }
+    },
+    "Tap cell to copy token to clipboard. Swipe left to delete and right to edit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap cell to copy token to clipboard. Swipe left to delete and right to edit"
+          }
+        }
+      }
+    },
     "Theme" : {
       "localizations" : {
         "en" : {
@@ -1162,6 +1282,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yes"
+          }
+        }
+      }
+    },
+    "You can toggle this option by clicking on the toggle button to the right of the row." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can toggle this option by clicking on the toggle button to the right of the row."
           }
         }
       }

@@ -263,6 +263,11 @@ private extension EntriesView {
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+            .accessibility(addTraits: .isButton)
+            .accessibilityElement(children: .ignore)
+            // swiftlint:disable:next line_length
+            .accessibilityLabel("issuer \(entry.orderedEntry.entry.issuer), item name: \(entry.orderedEntry.entry.name)")
+            .accessibilityHint(Text("Tap cell to copy token to clipboard. Swipe left to delete and right to edit"))
         #if os(macOS)
             .contextMenu {
                 Button {
@@ -368,6 +373,7 @@ private extension EntriesView {
         }
         .adaptiveButtonStyle()
         .impactHaptic()
+        .accessibilityLabel("Add new item")
     }
 
     func handleAddNewCode() {
@@ -511,6 +517,7 @@ private extension EntriesView {
             }
             .adaptiveButtonStyle()
             .impactHaptic()
+            .accessibilityLabel("Settings")
         }
     }
 
