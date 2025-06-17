@@ -25,11 +25,7 @@ import Foundation
 @MainActor
 @Observable
 final class QAMenuViewModel {
-    var installationDate: Date {
-        didSet {
-            appSettings.setInstallationTimestamp(installationDate.timeIntervalSince1970)
-        }
-    }
+    var installationDate: Date
 
     var onboarded: Bool {
         didSet {
@@ -56,5 +52,9 @@ final class QAMenuViewModel {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
+    }
+
+    func updateInstallationTimestamp(_ date: Date) {
+        appSettings.setInstallationTimestamp(date.timeIntervalSince1970)
     }
 }

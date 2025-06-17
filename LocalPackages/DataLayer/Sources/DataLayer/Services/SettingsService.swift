@@ -168,6 +168,7 @@ public extension SettingsService {
     }
 
     func setInstallationTimestamp(_ value: TimeInterval) {
+        installationTimestamp = value
         store.set(value, forKey: AppConstants.Settings.installationTimestamp)
     }
 }

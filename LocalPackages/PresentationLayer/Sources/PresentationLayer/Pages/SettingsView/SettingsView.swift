@@ -20,6 +20,7 @@
 //
 
 import CommonUtilities
+import FactoryKit
 import Macro
 import Models
 import SwiftUI
@@ -54,6 +55,8 @@ public struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showImportOptions = false
+
+    private let requestToAskForReview = resolve(\UseCaseContainer.requestToAskForReview)
 
     public init() {}
 
@@ -117,6 +120,9 @@ public struct SettingsView: View {
         #endif
             .onAppear {
                 viewModel.exportData()
+            }
+            .task {
+                await requestToAskForReview()
             }
     }
 

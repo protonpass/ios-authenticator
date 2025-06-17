@@ -103,5 +103,8 @@ private extension QAMenuView {
         }, header: {
             Text(verbatim: "Installation date")
         })
+        .onChange(of: viewModel.installationDate) { _, newDate in
+            viewModel.updateInstallationTimestamp(newDate)
+        }
     }
 }

@@ -27,6 +27,12 @@ public protocol CheckAskForReviewUseCase: Sendable {
     func execute() async -> Bool
 }
 
+public extension CheckAskForReviewUseCase {
+    func callAsFunction() async -> Bool {
+        await execute()
+    }
+}
+
 public final class CheckAskForReview: CheckAskForReviewUseCase {
     private let settingsService: any SettingsServicing
     private let entryDataService: any EntryDataServiceProtocol
