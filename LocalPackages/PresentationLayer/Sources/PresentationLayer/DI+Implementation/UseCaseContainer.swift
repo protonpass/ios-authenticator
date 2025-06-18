@@ -64,9 +64,9 @@ extension UseCaseContainer {
                                  logger: ToolsContainer.shared.logManager()) }
     }
 
-    var requestToAskForReview: Factory<any RequestToAskForReviewUseCase> {
-        self { RequestToAskForReview(eventStream: self.askForReviewEventStream(),
-                                     checkAskForReview: self.checkAskForReview()) }
+    var requestForReview: Factory<any RequestForReviewUseCase> {
+        self { RequestForReview(reviewService: ServiceContainer.shared.reviewService(),
+                                checkAskForReview: self.checkAskForReview()) }
     }
 }
 
@@ -87,9 +87,5 @@ public extension UseCaseContainer {
 
     var openAppSettings: Factory<any OpenAppSettingsUseCase> {
         self { OpenAppSettings() }
-    }
-
-    var askForReviewEventStream: Factory<AskForReviewEventStream> {
-        self { AskForReviewEventStream() }
     }
 }

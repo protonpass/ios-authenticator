@@ -1,5 +1,5 @@
 //
-// RequestToAskForReview.swift
+// RequestForReview.swift
 // Proton Authenticator - Created on 17/06/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -20,35 +20,31 @@
 //
 
 @preconcurrency import Combine
+import DataLayer
 
-public typealias AskForReviewEventStream = PassthroughSubject<Void, Never>
-
-public protocol RequestToAskForReviewUseCase: Sendable {
+public protocol RequestForReviewUseCase: Sendable {
     func execute() async
 }
 
-public extension RequestToAskForReviewUseCase {
+public extension RequestForReviewUseCase {
     func callAsFunction() async {
         await execute()
     }
 }
 
-public final class RequestToAskForReview: RequestToAskForReviewUseCase {
-    private let eventStream: AskForReviewEventStream
+public final class RequestForReview: RequestForReviewUseCase {
+    private let reviewService: any ReviewServicing
     private let checkAskForReview: any CheckAskForReviewUseCase
 
-    public init(eventStream: AskForReviewEventStream,
+    public init(reviewService: any ReviewServicing,
                 checkAskForReview: any CheckAskForReviewUseCase) {
-        self.eventStream = eventStream
+        self.reviewService = reviewService
         self.checkAskForReview = checkAskForReview
     }
 
     public func execute() async {
         if await checkAskForReview() {
-            // Emit event on MainActor because we ask for review on main actor
-            await MainActor.run {
-                eventStream.send(())
-            }
+            reviewService.askForReviewEventStream.send(())
         }
     }
 }

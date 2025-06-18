@@ -56,8 +56,6 @@ public struct SettingsView: View {
     @State private var router = Router()
     @State private var showImportOptions = false
 
-    private let requestToAskForReview = resolve(\UseCaseContainer.requestToAskForReview)
-
     public init() {}
 
     public var body: some View {
@@ -120,9 +118,6 @@ public struct SettingsView: View {
         #endif
             .onAppear {
                 viewModel.exportData()
-            }
-            .task {
-                await requestToAskForReview()
             }
     }
 

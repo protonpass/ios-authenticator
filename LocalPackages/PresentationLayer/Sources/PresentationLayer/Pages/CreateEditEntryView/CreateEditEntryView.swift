@@ -50,7 +50,7 @@ struct CreateEditEntryView: View {
     @State private var showAdvanceOptions = false
     @FocusState private var focusedField: FocusableField?
 
-    private let requestToAskForReview = resolve(\UseCaseContainer.requestToAskForReview)
+    private let requestForReview = resolve(\UseCaseContainer.requestForReview)
 
     init(entry: EntryUiModel?) {
         _viewModel = .init(wrappedValue: CreateEditEntryViewModel(entry: entry))
@@ -109,7 +109,7 @@ struct CreateEditEntryView: View {
                     if viewModel.shouldDismiss {
                         dismiss()
                         Task {
-                            await requestToAskForReview()
+                            await requestForReview()
                         }
                     }
                 }

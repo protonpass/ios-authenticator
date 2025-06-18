@@ -89,6 +89,10 @@ final class SettingsViewModel {
     @LazyInjected(\UseCaseContainer.openAppSettings) private var openAppSettings
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.requestForReview)
+    private var requestForReview
+
+    @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
@@ -167,6 +171,7 @@ final class SettingsViewModel {
 extension SettingsViewModel {
     func setUp() async {
         versionString = #localized("Version %@", bundle: .module, bundle.displayedAppVersion)
+        await requestForReview()
     }
 
     func togglePassBanner() {
