@@ -28,10 +28,10 @@ struct QAMenuView: View {
     var body: some View {
         NavigationStack {
             List {
-                syncSection
                 mockEntriesSection
                 onboardingSection
                 passBannerSection
+                installationDateSection
             }
             .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -93,11 +93,18 @@ private extension QAMenuView {
         })
     }
 
-    var syncSection: some View {
+    var installationDateSection: some View {
         Section(content: {
-            Toggle(isOn: $viewModel.displayBESync, label: { Text(verbatim: "Display BE sync") })
+            DatePicker(selection: $viewModel.installationDate,
+                       in: ...Date.now,
+                       displayedComponents: .date) {
+                Text(verbatim: "Installation date")
+            }
         }, header: {
-            Text(verbatim: "Syncs")
+            Text(verbatim: "Installation date")
         })
+        .onChange(of: viewModel.installationDate) { _, newDate in
+            viewModel.updateInstallationTimestamp(newDate)
+        }
     }
 }

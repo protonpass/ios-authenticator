@@ -115,4 +115,8 @@ public extension ServiceContainer {
     var localDataManager: Factory<any LocalDataManagerProtocol> {
         self { @MainActor in LocalDataManager(settingsService: self.settingsService()) }
     }
+
+    var reviewService: Factory<any ReviewServicing> {
+        self { ReviewService() }
+    }
 }

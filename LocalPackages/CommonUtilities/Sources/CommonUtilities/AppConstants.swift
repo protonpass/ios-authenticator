@@ -47,6 +47,7 @@ public enum AppConstants {
 
     public enum Settings {
         public static let isFirstRun = "IsFirstRun"
+        public static let installationTimestamp = "InstallationTimestamp"
         public static let searchBarMode = "SearchBarMode"
         public static let theme = "Theme"
         public static let displayCode = "DisplayCode"
@@ -58,7 +59,6 @@ public enum AppConstants {
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
         public static let iCloudBackUp = "ICloudBackUp"
-        public static let displayBESync = "DisplayBESync"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
     }
 

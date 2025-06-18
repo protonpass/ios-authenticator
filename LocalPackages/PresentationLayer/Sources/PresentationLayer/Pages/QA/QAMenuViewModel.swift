@@ -25,6 +25,8 @@ import Foundation
 @MainActor
 @Observable
 final class QAMenuViewModel {
+    var installationDate: Date
+
     var onboarded: Bool {
         didSet {
             appSettings.setOnboarded(onboarded)
@@ -34,12 +36,6 @@ final class QAMenuViewModel {
     var displayPassBanner: Bool {
         didSet {
             appSettings.togglePassBanner(displayPassBanner)
-        }
-    }
-
-    var displayBESync: Bool {
-        didSet {
-            appSettings.toggleBESyncDisplay(displayBESync)
         }
     }
 
@@ -53,8 +49,12 @@ final class QAMenuViewModel {
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
     init() {
+        installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
-        displayBESync = appSettings.displayBESync
+    }
+
+    func updateInstallationTimestamp(_ date: Date) {
+        appSettings.setInstallationTimestamp(date.timeIntervalSince1970)
     }
 }

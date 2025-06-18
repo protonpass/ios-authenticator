@@ -38,6 +38,7 @@ public struct OnboardingView: View {
         .task { viewModel.getSupportedBiometric() }
         .importingService($showImportOptions, onMainDisplay: true)
         .onChange(of: viewModel.biometricEnabled, goNext)
+        .onChange(of: viewModel.iCloudSyncEnabled, goNext)
     }
 }
 
@@ -71,6 +72,14 @@ private extension OnboardingView {
                         .frame(maxWidth: 160)
                     Spacer()
                         .frame(height: 60)
+
+                case .iCloudSync:
+                    Image("iCloudSync", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 250)
+                    Spacer()
+                        .frame(height: 60)
                 }
             }
             .frame(height: height)
@@ -102,9 +111,7 @@ private extension OnboardingView {
                 switch viewModel.currentStep {
                 case .intro:
                     actions(supportSkipping: false)
-                case .import:
-                    actions()
-                case .biometric:
+                case .biometric, .iCloudSync, .import:
                     actions()
                 }
             }
@@ -125,6 +132,8 @@ private extension OnboardingView {
                     showImportOptions.toggle()
                 case .biometric:
                     viewModel.enableBiometric()
+                case .iCloudSync:
+                    viewModel.enableICloudSync()
                 }
             }
             .impactHaptic()
@@ -164,6 +173,8 @@ private extension OnboardStep {
             "Import codes"
         case .biometric:
             "Protect your data"
+        case .iCloudSync:
+            "Keep your data safe"
         }
     }
 
@@ -182,6 +193,8 @@ private extension OnboardStep {
             case .opticID:
                 "Add an extra layer of security with Optic ID."
             }
+        case .iCloudSync:
+            "Back up your data securely with encrypted iCloud sync."
         }
     }
 
@@ -200,6 +213,8 @@ private extension OnboardStep {
             case .opticID:
                 "Enable Optic ID"
             }
+        case .iCloudSync:
+            "Enable iCloud sync"
         }
     }
 }

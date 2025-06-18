@@ -20,6 +20,7 @@
 //
 
 import CommonUtilities
+import FactoryKit
 import Macro
 import Models
 import SwiftUI
@@ -151,22 +152,16 @@ private extension SettingsView {
             SettingDivider()
 
             #if os(iOS)
-            if viewModel.displayBESync {
-                SettingRow(title: .localized("Sync between devices", .module),
-                           subtitle: !viewModel.emailAddress
-                               .isEmpty ? .localized("Account: \(viewModel.emailAddress)",
-                                                     .module) : nil,
-                           trailingMode: .toggle(isOn: viewModel.syncEnabled,
-                                                 onToggle: {
-                                                     viewModel.toggleSync()
-                                                 }))
-                                                 // swiftlint:disable:next line_length
-                                                 .toggleAccessibilityLabel(#localized("Sync between devices with Proton account",
-                                                                                      bundle: .module),
-                                                                           activateStatus(viewModel.syncEnabled))
+            SettingRow(title: .localized("Sync between devices", .module),
+                       subtitle: !viewModel.emailAddress.isEmpty ?
+                           .localized("Account: \(viewModel.emailAddress)", .module) : nil,
+                       trailingMode: .toggle(isOn: viewModel.syncEnabled,
+                                             onToggle: viewModel.toggleSync))
+                .toggleAccessibilityLabel(#localized("Sync between devices with Proton account",
+                                                     bundle: .module),
+                                          activateStatus(viewModel.syncEnabled))
 
-                SettingDivider()
-            }
+            SettingDivider()
             #endif
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,

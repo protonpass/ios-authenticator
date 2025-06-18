@@ -104,6 +104,10 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.toastService) var toastService
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.requestForReview)
+    private var requestForReview
+
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     @ObservationIgnored
@@ -172,6 +176,7 @@ final class EntriesViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
+                await requestForReview()
             } catch {
                 handle(error)
             }

@@ -18,12 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import Combine
 import DataLayer
 import DomainLayer
 import FactoryKit
 import Foundation
 import Models
 import PresentationLayer
+import StoreKit
 import SwiftData
 import SwiftUI
 #if canImport(UIKit)
@@ -149,10 +151,32 @@ private final class AuthenticatorAppViewModel {
     @LazyInjected(\UseCaseContainer.setUpSentry)
     private var sentry
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.reviewService)
+    private var reviewService
+
+    @ObservationIgnored
+    private var cancellables = Set<AnyCancellable>()
+
     init() {
         sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
         setUpFirstRun()
+
+        reviewService.askForReviewEventStream
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                #if os(iOS)
+                // Only ask for reviews when not in macOS because macOS doesn't respect 3 times per year limit
+                if !ProcessInfo.processInfo.isiOSAppOnMac,
+                   let scene = UIApplication.shared
+                   .connectedScenes
+                   .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                    AppStore.requestReview(in: scene)
+                }
+                #endif
+            }
+            .store(in: &cancellables)
     }
 
     func handleDeepLink(_ url: URL) {
