@@ -45,6 +45,7 @@ public final class RequestToAskForReview: RequestToAskForReviewUseCase {
 
     public func execute() async {
         if await checkAskForReview() {
+            // Emit event on MainActor because we ask for review on main actor
             await MainActor.run {
                 eventStream.send(())
             }

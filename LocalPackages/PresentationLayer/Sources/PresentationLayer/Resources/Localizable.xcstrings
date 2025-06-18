@@ -122,6 +122,16 @@
         }
       }
     },
+    "Back up your data securely with encrypted iCloud sync." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back up your data securely with encrypted iCloud sync."
+          }
+        }
+      }
+    },
     "Backup" : {
       "localizations" : {
         "en" : {
@@ -412,6 +422,16 @@
         }
       }
     },
+    "Enable iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable iCloud sync"
+          }
+        }
+      }
+    },
     "Enable Optic ID" : {
       "localizations" : {
         "en" : {
@@ -639,6 +659,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "item name: %@"
+          }
+        }
+      }
+    },
+    "Keep your data safe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep your data safe"
           }
         }
       }

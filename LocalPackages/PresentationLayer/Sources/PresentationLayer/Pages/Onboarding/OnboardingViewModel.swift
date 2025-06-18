@@ -27,7 +27,7 @@ import Models
 import SwiftUI
 
 enum OnboardStep: Sendable {
-    case intro, `import`, biometric(BiometricType)
+    case intro, `import`, biometric(BiometricType), iCloudSync
 }
 
 @MainActor
@@ -35,6 +35,7 @@ enum OnboardStep: Sendable {
 final class OnboardingViewModel {
     private(set) var currentStep: OnboardStep = .intro
     private(set) var biometricEnabled = false
+    private(set) var iCloudSyncEnabled = false
 
     @ObservationIgnored
     private var supportedBiometric: BiometricType?
@@ -99,6 +100,8 @@ final class OnboardingViewModel {
                 return false
             }
         case .biometric:
+            currentStep = .iCloudSync
+        case .iCloudSync:
             return false
         }
         return true
@@ -140,6 +143,11 @@ final class OnboardingViewModel {
                 handle(error)
             }
         }
+    }
+
+    func enableICloudSync() {
+        appSettings.toggleICloudBackUp(true)
+        iCloudSyncEnabled = true
     }
 
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {
