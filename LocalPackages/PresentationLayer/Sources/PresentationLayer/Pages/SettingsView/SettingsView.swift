@@ -143,10 +143,10 @@ private extension SettingsView {
                                             .module),
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackICloudUp))
-                // swiftlint:disable:next line_length
-                .toggleAccessibilityLabel(#localized("Backup", bundle: .module) + "," +
-                    #localized("Proton Authenticator will periodically save all the data to iCloud.",
-                               bundle: .module),
+                .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
+                    + ","
+                    + #localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                 bundle: .module),
                     activateStatus(viewModel.backUpEnabled))
             SettingDivider()
 

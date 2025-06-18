@@ -379,7 +379,8 @@ final class ImportViewModel {
             if !errors.isEmpty {
                 alertService
                     .showError(#localized("Several images could not be parsed. See logs for more details."),
-                               mainDisplay: mainDisplay, action: nil)
+                               mainDisplay: mainDisplay,
+                               action: nil)
             }
         }
     }
