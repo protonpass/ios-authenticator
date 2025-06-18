@@ -102,16 +102,6 @@
         }
       }
     },
-    "Animate code change, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Animate code change, %@"
-          }
-        }
-      }
-    },
     "APPEARANCE" : {
       "localizations" : {
         "en" : {
@@ -152,12 +142,12 @@
         }
       }
     },
-    "Backup, Proton Authenticator will periodically save all the data to iCloud. %@" : {
+    "Backup, Proton Authenticator will periodically save all the data to iCloud." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup, Proton Authenticator will periodically save all the data to iCloud. %@"
+            "value" : "Backup, Proton Authenticator will periodically save all the data to iCloud."
           }
         }
       }
@@ -168,16 +158,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Biometric lock"
-          }
-        }
-      }
-    },
-    "Biometric lock, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Biometric lock, %@"
           }
         }
       }
@@ -522,16 +502,6 @@
         }
       }
     },
-    "Focus search on launch, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Focus search on launch, %@"
-          }
-        }
-      }
-    },
     "Forbidden file type for this provenance" : {
       "localizations" : {
         "en" : {
@@ -603,32 +573,12 @@
         }
       }
     },
-    "Haptic feedback, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haptic feedback, %@"
-          }
-        }
-      }
-    },
     "Hide codes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hide codes"
-          }
-        }
-      }
-    },
-    "Hide codes, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide codes, %@"
           }
         }
       }
@@ -1126,12 +1076,12 @@
         }
       }
     },
-    "Sync between devices with proton account, %@" : {
+    "Sync between devices with proton account" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sync between devices with proton account, %@"
+            "value" : "Sync between devices with proton account"
           }
         }
       }

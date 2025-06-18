@@ -144,9 +144,8 @@ private extension SettingsView {
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackICloudUp))
                 // swiftlint:disable:next line_length
-                .toggleAccessibilityLabel(#localized("Backup, Proton Authenticator will periodically save all the data to iCloud. %@",
-                                                     bundle: .module,
-                                                     activateStatus(viewModel.backUpEnabled)))
+                .toggleAccessibilityLabel(#localized("Backup, Proton Authenticator will periodically save all the data to iCloud.",
+                                                     bundle: .module), activateStatus(viewModel.backUpEnabled))
             SettingDivider()
 
             #if os(iOS)
@@ -160,10 +159,10 @@ private extension SettingsView {
                                                      viewModel.toggleSync()
                                                  }))
                                                  // swiftlint:disable:next line_length
-                                                 .toggleAccessibilityLabel(#localized("Sync between devices with proton account, %@",
-                                                                                      bundle: .module,
-                                                                                      activateStatus(viewModel
-                                                                                          .syncEnabled)))
+                                                 .toggleAccessibilityLabel(#localized("Sync between devices with proton account",
+                                                                                      bundle: .module),
+                                                                           activateStatus(viewModel
+                                                                               .syncEnabled))
 
                 SettingDivider()
             }
@@ -171,18 +170,16 @@ private extension SettingsView {
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
-                .toggleAccessibilityLabel(#localized("Biometric lock, %@",
-                                                     bundle: .module,
-                                                     activateStatus(viewModel.biometricLock)))
+                .toggleAccessibilityLabel(#localized("Biometric lock",
+                                                     bundle: .module), activateStatus(viewModel.biometricLock))
 
             SettingDivider()
 
             SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
-                .toggleAccessibilityLabel(#localized("Hide codes, %@",
-                                                     bundle: .module,
-                                                     activateStatus(viewModel.shouldHideCode)))
+                .toggleAccessibilityLabel(#localized("Hide codes",
+                                                     bundle: .module), activateStatus(viewModel.shouldHideCode))
         }
         .onChange(of: viewModel.syncEnabled) {
             viewModel.settingSheet = nil
@@ -260,9 +257,8 @@ private extension SettingsView {
             SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
-                .toggleAccessibilityLabel(#localized("Animate code change, %@",
-                                                     bundle: .module,
-                                                     activateStatus(viewModel.animateCodeChange)))
+                .toggleAccessibilityLabel(#localized("Animate code change",
+                                                     bundle: .module), activateStatus(viewModel.animateCodeChange))
 
             #if os(iOS)
             if AppConstants.isPhone {
@@ -270,18 +266,18 @@ private extension SettingsView {
                 SettingRow(title: .localized("Haptic feedback", .module),
                            trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
                                                  onToggle: viewModel.toggleHapticFeedback))
-                    .toggleAccessibilityLabel(#localized("Haptic feedback, %@",
-                                                         bundle: .module,
-                                                         activateStatus(viewModel.hapticFeedbackEnabled)))
+                    .toggleAccessibilityLabel(#localized("Haptic feedback",
+                                                         bundle: .module),
+                                              activateStatus(viewModel.hapticFeedbackEnabled))
             }
             #endif
             SettingDivider()
             SettingRow(title: .localized("Focus search on launch", .module),
                        trailingMode: .toggle(isOn: viewModel.focusSearchOnLaunch,
                                              onToggle: viewModel.toggleFocusSearchOnLaunch))
-                .toggleAccessibilityLabel(#localized("Focus search on launch, %@",
-                                                     bundle: .module,
-                                                     activateStatus(viewModel.focusSearchOnLaunch)))
+                .toggleAccessibilityLabel(#localized("Focus search on launch",
+                                                     bundle: .module),
+                                          activateStatus(viewModel.focusSearchOnLaunch))
         }
     }
 
@@ -459,10 +455,9 @@ private extension Theme {
 }
 
 private extension View {
-    func toggleAccessibilityLabel(_ label: String) -> some View {
-        accessibilityHint(Text("You can toggle this option by clicking on the toggle button to the right of the row.",
-                               bundle: .module))
+    func toggleAccessibilityLabel(_ label: String, _ state: String) -> some View {
+        accessibilityHint("You can toggle this option by clicking on the toggle button to the right of the row.")
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(label)
+            .accessibilityLabel(label + state)
     }
 }
