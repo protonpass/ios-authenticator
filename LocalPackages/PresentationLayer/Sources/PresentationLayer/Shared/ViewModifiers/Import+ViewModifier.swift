@@ -378,7 +378,7 @@ final class ImportViewModel {
             showCompletion(numberOfImportedEntries)
             if !errors.isEmpty {
                 alertService
-                    .showError(#localized("Several images could not be processed. See logs for more details."),
+                    .showError(#localized("Several images could not be processed. See logs for more details.", bundle: .module),
                                mainDisplay: mainDisplay,
                                action: nil)
             }
