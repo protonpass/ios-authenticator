@@ -107,11 +107,12 @@ final class OnboardingViewModel {
     func enableBiometric() {
         guard !enablingBiometric else { return }
         guard authenticationService.canUseBiometricAuthentication() else {
+            let message: LocalizedStringKey =
+                // swiftlint:disable:next line_length
+                "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings."
             let alert = AlertDisplay.main(.init(title: "Enable biometrics",
                                                 titleBundle: .module,
-                                                // swiftlint:disable:next line_length
-                                                message: .localized("To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings.",
-                                                                    .module),
+                                                message: .localized(message, .module),
                                                 actions: [
                                                     .init(title: "Go to Settings",
                                                           titleBundle: .module,

@@ -365,15 +365,21 @@ final class ImportViewModel {
                 self.imageSelection = []
             }
             var numberOfImportedEntries = 0
-            do {
-                for selection in imageSelection {
+            var errors = [Error]()
+            for selection in imageSelection {
+                do {
                     let content = try await parseImageQRCodeContent(imageSelection: selection)
                     numberOfImportedEntries += try await entryDataService
                         .importEntries(from: .googleQr(contents: content))
+                } catch {
+                    errors.append(error)
                 }
-                showCompletion(numberOfImportedEntries)
-            } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            }
+            showCompletion(numberOfImportedEntries)
+            if !errors.isEmpty {
+                alertService
+                    .showError(#localized("Several images could not be parsed. See logs for more details."),
+                               mainDisplay: mainDisplay, action: nil)
             }
         }
     }

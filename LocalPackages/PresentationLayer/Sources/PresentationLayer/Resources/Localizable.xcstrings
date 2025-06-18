@@ -52,12 +52,12 @@
         }
       }
     },
-    "Add new item" : {
+    "Add new code" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add new item"
+            "value" : "Add new code"
           }
         }
       }
@@ -138,16 +138,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup"
-          }
-        }
-      }
-    },
-    "Backup, Proton Authenticator will periodically save all the data to iCloud." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup, Proton Authenticator will periodically save all the data to iCloud."
           }
         }
       }
@@ -643,12 +633,22 @@
         }
       }
     },
-    "issuer %@, item name: %@" : {
+    "issuer %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "issuer %1$@, item name: %2$@"
+            "value" : "issuer %@"
+          }
+        }
+      }
+    },
+    "item name: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "item name: %@"
           }
         }
       }
@@ -984,6 +984,16 @@
         }
       }
     },
+    "Several images could not be parsed. See logs for more details." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several images could not be parsed. See logs for more details."
+          }
+        }
+      }
+    },
     "Share" : {
       "localizations" : {
         "en" : {
@@ -1076,22 +1086,22 @@
         }
       }
     },
-    "Sync between devices with proton account" : {
+    "Sync between devices with Proton account" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sync between devices with proton account"
+            "value" : "Sync between devices with Proton account"
           }
         }
       }
     },
-    "Tap cell to copy token to clipboard. Swipe left to delete and right to edit" : {
+    "Tap to copy token to clipboard. Swipe left to delete and right to edit." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap cell to copy token to clipboard. Swipe left to delete and right to edit"
+            "value" : "Tap to copy token to clipboard. Swipe left to delete and right to edit."
           }
         }
       }

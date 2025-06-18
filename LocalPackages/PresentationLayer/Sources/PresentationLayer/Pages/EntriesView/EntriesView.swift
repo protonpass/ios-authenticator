@@ -23,6 +23,7 @@ import AVFoundation
 import CommonUtilities
 import DataLayer
 import FactoryKit
+import Macro
 import Models
 import SimpleToast
 import SwiftUI
@@ -78,7 +79,7 @@ public struct EntriesView: View {
                     view
                         .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always))
                         .searchFocusable($searchFieldFocus)
-                        .keyboardSetup()
+                        .asciiCapableKeyboard()
                         .autocorrectionDisabled(true)
                 }
                 .onAppear {
@@ -265,9 +266,10 @@ private extension EntriesView {
             .listRowSeparator(.hidden)
             .accessibility(addTraits: .isButton)
             .accessibilityElement(children: .ignore)
-            // swiftlint:disable:next line_length
-            .accessibilityLabel("issuer \(entry.orderedEntry.entry.issuer), item name: \(entry.orderedEntry.entry.name)")
-            .accessibilityHint(Text("Tap cell to copy token to clipboard. Swipe left to delete and right to edit",
+            .accessibilityLabel(#localized("issuer %@", bundle: .module, entry.orderedEntry.entry.issuer)
+                + ", "
+                + #localized("item name: %@", bundle: .module, entry.orderedEntry.entry.name))
+            .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
                                     bundle: .module))
         #if os(macOS)
             .contextMenu {
@@ -331,7 +333,7 @@ private extension EntriesView {
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
                       .focused($searchFieldFocus)
-                      .keyboardSetup()
+                      .asciiCapableKeyboard()
                       .autocorrectionDisabled(true)
                       .onSubmit {
                           searchFieldFocus = false
@@ -374,7 +376,7 @@ private extension EntriesView {
         }
         .adaptiveButtonStyle()
         .impactHaptic()
-        .accessibilityLabel("Add new item")
+        .accessibilityLabel("Add new code")
     }
 
     func handleAddNewCode() {
@@ -554,9 +556,9 @@ private extension EntriesView {
     EntriesView()
 }
 
-extension View {
+private extension View {
     @ViewBuilder
-    func keyboardSetup() -> some View {
+    func asciiCapableKeyboard() -> some View {
         #if os(iOS)
         if AppConstants.isMobile {
             keyboardType(.asciiCapable)

@@ -144,8 +144,10 @@ private extension SettingsView {
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
                                              onToggle: viewModel.toggleBackICloudUp))
                 // swiftlint:disable:next line_length
-                .toggleAccessibilityLabel(#localized("Backup, Proton Authenticator will periodically save all the data to iCloud.",
-                                                     bundle: .module), activateStatus(viewModel.backUpEnabled))
+                .toggleAccessibilityLabel(#localized("Backup", bundle: .module) + "," +
+                    #localized("Proton Authenticator will periodically save all the data to iCloud.",
+                               bundle: .module),
+                    activateStatus(viewModel.backUpEnabled))
             SettingDivider()
 
             #if os(iOS)
@@ -159,10 +161,9 @@ private extension SettingsView {
                                                      viewModel.toggleSync()
                                                  }))
                                                  // swiftlint:disable:next line_length
-                                                 .toggleAccessibilityLabel(#localized("Sync between devices with proton account",
+                                                 .toggleAccessibilityLabel(#localized("Sync between devices with Proton account",
                                                                                       bundle: .module),
-                                                                           activateStatus(viewModel
-                                                                               .syncEnabled))
+                                                                           activateStatus(viewModel.syncEnabled))
 
                 SettingDivider()
             }
@@ -170,16 +171,16 @@ private extension SettingsView {
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
-                .toggleAccessibilityLabel(#localized("Biometric lock",
-                                                     bundle: .module), activateStatus(viewModel.biometricLock))
+                .toggleAccessibilityLabel(#localized("Biometric lock", bundle: .module),
+                                          activateStatus(viewModel.biometricLock))
 
             SettingDivider()
 
             SettingRow(title: .localized("Hide codes", .module),
                        trailingMode: .toggle(isOn: viewModel.shouldHideCode,
                                              onToggle: viewModel.toggleHideCode))
-                .toggleAccessibilityLabel(#localized("Hide codes",
-                                                     bundle: .module), activateStatus(viewModel.shouldHideCode))
+                .toggleAccessibilityLabel(#localized("Hide codes", bundle: .module),
+                                          activateStatus(viewModel.shouldHideCode))
         }
         .onChange(of: viewModel.syncEnabled) {
             viewModel.settingSheet = nil
@@ -203,9 +204,7 @@ private extension SettingsView {
             }, label: {
                 SettingRow(title: .localized("Theme", .module),
                            trailingMode: AppConstants.isMobile ?
-                               .detailChevronUpDown(.localized(viewModel.theme.title,
-                                                               .module)) :
-                               nil)
+                               .detailChevronUpDown(.localized(viewModel.theme.title, .module)) : nil)
             })
             .adaptiveMenuStyle()
 
@@ -226,9 +225,7 @@ private extension SettingsView {
             }, label: {
                 SettingRow(title: .localized("Search bar position", .module),
                            trailingMode: AppConstants.isMobile ?
-                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title,
-                                                               .module)) :
-                               nil)
+                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) : nil)
             })
             .adaptiveMenuStyle()
 
@@ -248,17 +245,15 @@ private extension SettingsView {
             }, label: {
                 SettingRow(title: .localized("Digit style", .module),
                            trailingMode: AppConstants.isMobile ?
-                               .detailChevronUpDown(.localized(viewModel.digitStyle.title,
-                                                               .module)) :
-                               nil)
+                               .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)) : nil)
             })
             .adaptiveMenuStyle()
             SettingDivider()
             SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,
                                              onToggle: viewModel.toggleCodeAnimation))
-                .toggleAccessibilityLabel(#localized("Animate code change",
-                                                     bundle: .module), activateStatus(viewModel.animateCodeChange))
+                .toggleAccessibilityLabel(#localized("Animate code change", bundle: .module),
+                                          activateStatus(viewModel.animateCodeChange))
 
             #if os(iOS)
             if AppConstants.isPhone {
@@ -266,8 +261,7 @@ private extension SettingsView {
                 SettingRow(title: .localized("Haptic feedback", .module),
                            trailingMode: .toggle(isOn: viewModel.hapticFeedbackEnabled,
                                                  onToggle: viewModel.toggleHapticFeedback))
-                    .toggleAccessibilityLabel(#localized("Haptic feedback",
-                                                         bundle: .module),
+                    .toggleAccessibilityLabel(#localized("Haptic feedback", bundle: .module),
                                               activateStatus(viewModel.hapticFeedbackEnabled))
             }
             #endif
@@ -275,8 +269,7 @@ private extension SettingsView {
             SettingRow(title: .localized("Focus search on launch", .module),
                        trailingMode: .toggle(isOn: viewModel.focusSearchOnLaunch,
                                              onToggle: viewModel.toggleFocusSearchOnLaunch))
-                .toggleAccessibilityLabel(#localized("Focus search on launch",
-                                                     bundle: .module),
+                .toggleAccessibilityLabel(#localized("Focus search on launch", bundle: .module),
                                           activateStatus(viewModel.focusSearchOnLaunch))
         }
     }
