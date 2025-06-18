@@ -44,7 +44,7 @@ public protocol EncryptionServicing: Sendable {
     var localEncryptionKey: Data { get throws }
 
 //    func encrypt(entry: Entry, keyId: String) throws -> Data
-    func encrypt(entry: Entry, keyId: String, locally: Bool) throws -> Data
+    func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
     // periphery:ignore
@@ -59,7 +59,7 @@ public protocol EncryptionServicing: Sendable {
     func saveUserRemoteKey(keyId: String, remoteKey: Data) throws
     func contains(keyId: String) -> Bool
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry
-    func getEncryptionKey(for keyId: String, isSyncedKey: Bool) throws -> Data
+    func getEncryptionKey(for keyId: String) throws -> Data
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -94,9 +94,9 @@ public final class EncryptionService: EncryptionServicing {
         }
     }
 
-    public func getEncryptionKey(for keyId: String, isSyncedKey: Bool) throws -> Data {
+    public func getEncryptionKey(for keyId: String) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keychain.get(key: keyId, isSyncedKey: isSyncedKey)
+        let key: Data = try keychain.get(key: keyId, isSyncedKey: true)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
@@ -106,7 +106,7 @@ public extension EncryptionService {
     // check ou cést utilisé
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
-        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId, isSyncedKey: true) else {
+        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
             log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
             return .nonDecryptable
         }
@@ -132,8 +132,8 @@ public extension EncryptionService {
         }
     }
 
-    func encrypt(entry: Entry, keyId: String, locally: Bool) throws -> Data {
-        let encryptionKey = try getEncryptionKey(for: keyId, isSyncedKey: locally)
+    func encrypt(entry: Entry, keyId: String) throws -> Data {
+        let encryptionKey = try getEncryptionKey(for: keyId)
         log(.info, "Encrypting entry \(entry.name) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
@@ -168,11 +168,11 @@ public extension EncryptionService {
 public extension EncryptionService {
     func saveUserRemoteKey(keyId: String, remoteKey: Data) throws {
         log(.info, "Saving remote proton key with id \(keyId)")
-        try keychain.set(remoteKey, for: keyId, shouldSync: false)
+        try keychain.set(remoteKey, for: keyId, shouldSync: true)
     }
 
     func contains(keyId: String) -> Bool {
-        guard (try? keychain.get(key: keyId, isSyncedKey: false) as Data) != nil else {
+        guard (try? keychain.get(key: keyId, isSyncedKey: true) as Data) != nil else {
             return false
         }
 
@@ -185,7 +185,7 @@ public extension EncryptionService {
         // Like what we do for Pass in PassKeyManagerProtocol
         // swiftlint:disable:next todo
         // TODO: Make a keymanager for this
-        let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: false)
+        let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: true)
 
         guard !protonKey.isEmpty else {
             log(.warning, "Proton key not found for \(encryptedData.authenticatorKeyID)")

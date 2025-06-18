@@ -288,11 +288,11 @@ public extension EntryRepository {
             for orderedEntry in entriesToUpdate {
                 guard let keyId = orderedEntry.keyId,
                       let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
+
                 else { continue }
 
                 let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
-                                                                  keyId: keyId,
-                                                                  locally: true)
+                                                                  keyId: keyId)
                 encryptedEntry.updateEncryptedData(encryptedData,
                                                    with: keyId,
                                                    remoteModifiedTime: orderedEntry.modifiedTime)
@@ -336,8 +336,7 @@ public extension EntryRepository {
             log(.debug, "Found local entry, encrypting updated data")
 
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
-                                                              keyId: entity.keyId,
-                                                              locally: true)
+                                                              keyId: entity.keyId)
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
                                        remoteModifiedTime: entry.modifiedTime)
@@ -650,8 +649,7 @@ private extension EntryRepository {
         let remoteId = entry.remoteId ?? ""
 
         let encryptedData = try encryptionService.encrypt(entry: entry.entry,
-                                                          keyId: encryptionKeyId,
-                                                          locally: shouldEncryptWithLocalKey)
+                                                          keyId: encryptionKeyId)
         return EncryptedEntryEntity(id: entry.id,
                                     encryptedData: encryptedData,
                                     remoteId: remoteId,

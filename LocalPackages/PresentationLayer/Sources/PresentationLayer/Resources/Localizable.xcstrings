@@ -352,6 +352,16 @@
         }
       }
     },
+    "Disabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabled"
+          }
+        }
+      }
+    },
     "DISCOVER PROTON" : {
       "localizations" : {
         "en" : {
@@ -382,6 +392,16 @@
         }
       }
     },
+    "Enable biometrics" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable biometrics"
+          }
+        }
+      }
+    },
     "Enable Face ID" : {
       "localizations" : {
         "en" : {
@@ -408,6 +428,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enable Touch ID"
+          }
+        }
+      }
+    },
+    "Enabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enabled"
           }
         }
       }
@@ -503,6 +533,16 @@
         }
       }
     },
+    "Go to Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Settings"
+          }
+        }
+      }
+    },
     "Haptic feedback" : {
       "localizations" : {
         "en" : {
@@ -579,6 +619,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Issuer (Required)"
+          }
+        }
+      }
+    },
+    "issuer %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "issuer %@"
+          }
+        }
+      }
+    },
+    "item name: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "item name: %@"
           }
         }
       }
@@ -914,6 +974,16 @@
         }
       }
     },
+    "Several images could not be processed. See logs for more details." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several images could not be processed. See logs for more details."
+          }
+        }
+      }
+    },
     "Share" : {
       "localizations" : {
         "en" : {
@@ -1006,6 +1076,26 @@
         }
       }
     },
+    "Sync between devices with Proton account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync between devices with Proton account"
+          }
+        }
+      }
+    },
+    "Tap to copy token to clipboard. Swipe left to delete and right to edit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to copy token to clipboard. Swipe left to delete and right to edit."
+          }
+        }
+      }
+    },
     "Theme" : {
       "localizations" : {
         "en" : {
@@ -1052,6 +1142,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title (Required)"
+          }
+        }
+      }
+    },
+    "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To use biometric authentication, you need to enable Face ID/Touch ID for this app in your device settings."
           }
         }
       }
@@ -1132,6 +1232,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yes"
+          }
+        }
+      }
+    },
+    "You can toggle this option by clicking on the toggle button to the right of the row." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can toggle this option by clicking on the toggle button to the right of the row."
           }
         }
       }

@@ -19,8 +19,8 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-#if canImport(UIKit)
 import LocalAuthentication
+#if canImport(UIKit)
 import UIKit
 #endif
 
@@ -110,7 +110,6 @@ public enum AppConstants {
     }
 
     public static var laEnablingPolicy: LAPolicy {
-        ProcessInfo.processInfo
-            .isiOSAppOnMac ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
+        .deviceOwnerAuthentication
     }
 }

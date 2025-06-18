@@ -23,6 +23,7 @@ import AVFoundation
 import CommonUtilities
 import DataLayer
 import FactoryKit
+import Macro
 import Models
 import SimpleToast
 import SwiftUI
@@ -35,6 +36,7 @@ public struct EntriesView: View {
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
+    @State private var showImportOptions = false
 
     @FocusState private var searchFieldFocus: Bool
 
@@ -60,6 +62,9 @@ public struct EntriesView: View {
                     searchFieldFocus = false
                 }
                 .toastDisplay()
+                .refreshable { [weak viewModel] in
+                    viewModel?.reloadData()
+                }
                 .safeAreaInset(edge: .top) {
                     if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         Color.clear.frame(height: 10)
@@ -72,11 +77,10 @@ public struct EntriesView: View {
                 }
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
                     view
-                        .searchable(text: $viewModel.query)
+                        .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always))
                         .searchFocusable($searchFieldFocus)
-                }
-                .refreshable { [weak viewModel] in
-                    viewModel?.reloadData()
+                        .asciiCapableKeyboard()
+                        .autocorrectionDisabled(true)
                 }
                 .onAppear {
                     viewModel.reloadData()
@@ -87,8 +91,10 @@ public struct EntriesView: View {
                 }
                 .onChange(of: scenePhase) { _, newValue in
                     if newValue == .active {
-                        withAnimation {
-                            searchFieldFocus = viewModel.focusSearchOnLaunch
+                        if router.noSheetDisplayed {
+                            withAnimation {
+                                searchFieldFocus = viewModel.focusSearchOnLaunch
+                            }
                         }
                         if viewModel.isAuthenticated {
                             viewModel.fullSync()
@@ -110,7 +116,16 @@ public struct EntriesView: View {
                 .onChange(of: router.presentedSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
+                .onChange(of: router.noSheetDisplayed) { _, newValue in
+                    guard newValue, viewModel.focusSearchOnLaunch else {
+                        return
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        searchFieldFocus = true
+                    }
+                }
                 .fullScreenMainBackground()
+                .importingService($showImportOptions, onMainDisplay: true)
                 .animation(.default, value: viewModel.entries)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
@@ -128,7 +143,7 @@ private extension EntriesView {
                 grid
             }
 
-            if searchBarAlignment == .top {
+            if searchBarAlignment == .top, !viewModel.entries.isEmpty {
                 addButton(size: 52)
                     .padding([.trailing, .bottom], DesignConstant.padding * 2)
             }
@@ -249,6 +264,13 @@ private extension EntriesView {
                   pauseCountDown: $viewModel.pauseCountDown)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+            .accessibility(addTraits: .isButton)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(#localized("issuer %@", bundle: .module, entry.orderedEntry.entry.issuer)
+                + ", "
+                + #localized("item name: %@", bundle: .module, entry.orderedEntry.entry.name))
+            .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
+                                    bundle: .module))
         #if os(macOS)
             .contextMenu {
                 Button {
@@ -311,6 +333,7 @@ private extension EntriesView {
                       .foregroundStyle(.textNorm)
                       .submitLabel(.done)
                       .focused($searchFieldFocus)
+                      .asciiCapableKeyboard()
                       .autocorrectionDisabled(true)
                       .onSubmit {
                           searchFieldFocus = false
@@ -353,6 +376,7 @@ private extension EntriesView {
         }
         .adaptiveButtonStyle()
         .impactHaptic()
+        .accessibilityLabel("Create new code")
     }
 
     func handleAddNewCode() {
@@ -392,35 +416,39 @@ private extension EntriesView {
                         .frame(width: 210, height: 120)
                         .padding(.bottom, 16)
                 } description: {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 8) {
                         Text("No codes yet", bundle: .module)
                             .font(.title3)
+                            .fontWeight(.semibold)
                             .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .font(.headline)
                             .monospaced()
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .padding(.horizontal, 16)
+                            .padding(.bottom, 32)
+
+                        VStack(spacing: 16) {
+                            CapsuleButton(title: "Create new code",
+                                          textColor: .textNorm,
+                                          style: .filled,
+                                          action: handleAddNewCode)
+                                .impactHaptic()
+                            CapsuleButton(title: "Import codes",
+                                          textColor: .textNorm,
+                                          style: .bordered,
+                                          action: { showImportOptions.toggle() })
+                                .impactHaptic()
+                        }
+                        .frame(minWidth: 262, maxWidth: .infinity)
                     }
-                } actions: {
-                    Button(action: handleAddNewCode) {
-                        Text("Create new code", bundle: .module)
-                            .foregroundStyle(.white)
-                            .fontWeight(.semibold)
-                    }
-                    .adaptiveButtonStyle()
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 14)
-                    .coloredBackgroundButton(.capsule)
-                    .impactHaptic()
-                }
-                .foregroundStyle(.textNorm)
+                    .padding(.horizontal, 16)
+                } actions: {}
             } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()
@@ -492,6 +520,7 @@ private extension EntriesView {
             }
             .adaptiveButtonStyle()
             .impactHaptic()
+            .accessibilityLabel("Settings")
         }
     }
 
@@ -525,4 +554,19 @@ private extension EntriesView {
 
 #Preview {
     EntriesView()
+}
+
+private extension View {
+    @ViewBuilder
+    func asciiCapableKeyboard() -> some View {
+        #if os(iOS)
+        if AppConstants.isMobile {
+            keyboardType(.asciiCapable)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
 }
