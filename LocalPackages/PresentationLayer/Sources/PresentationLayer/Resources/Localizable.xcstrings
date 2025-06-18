@@ -52,16 +52,6 @@
         }
       }
     },
-    "Add new code" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add new code"
-          }
-        }
-      }
-    },
     "Advanced options" : {
       "localizations" : {
         "en" : {
@@ -984,12 +974,12 @@
         }
       }
     },
-    "Several images could not be parsed. See logs for more details." : {
+    "Several images could not be processed. See logs for more details." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Several images could not be parsed. See logs for more details."
+            "value" : "Several images could not be processed. See logs for more details."
           }
         }
       }

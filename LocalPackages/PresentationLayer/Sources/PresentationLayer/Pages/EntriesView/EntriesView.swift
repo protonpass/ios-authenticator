@@ -376,7 +376,7 @@ private extension EntriesView {
         }
         .adaptiveButtonStyle()
         .impactHaptic()
-        .accessibilityLabel("Add new code")
+        .accessibilityLabel("Create new code")
     }
 
     func handleAddNewCode() {
