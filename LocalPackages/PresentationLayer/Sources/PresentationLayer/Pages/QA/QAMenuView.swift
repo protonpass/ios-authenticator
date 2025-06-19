@@ -28,12 +28,10 @@ struct QAMenuView: View {
     var body: some View {
         NavigationStack {
             List {
-                mockEntriesSection
                 onboardingSection
                 passBannerSection
                 installationDateSection
             }
-            .animation(.default, value: viewModel.qaService.showMockEntries)
             .navigationTitle(Text(verbatim: "QA menu"))
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
@@ -56,27 +54,6 @@ struct QAMenuView: View {
 }
 
 private extension QAMenuView {
-    var mockEntriesSection: some View {
-        Section(content: {
-            Toggle(isOn: $viewModel.qaService.showMockEntries,
-                   label: { Text(verbatim: "Display mocked entries") })
-
-            if viewModel.qaService.showMockEntries {
-                Picker(selection: $viewModel.qaService.numberOfMockEntries,
-                       content: {
-                           ForEach(viewModel.allowedEntriesCount, id: \.self) { count in
-                               Text(verbatim: "\(count)")
-                           }
-                       },
-                       label: {
-                           Text(verbatim: "Mock entries count")
-                       })
-            }
-        }, header: {
-            Text(verbatim: "Mock entries")
-        })
-    }
-
     var onboardingSection: some View {
         Section(content: {
             Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })

@@ -35,7 +35,7 @@ import SimpleToast
 final class EntriesViewModel: ObservableObject {
     var entries: [EntryUiModel] {
         guard !lastestQuery.isEmpty else {
-            return (qaService.showMockEntries ? qaService.dataState.data : entryDataService.dataState.data) ?? []
+            return entryDataService.dataState.data ?? []
         }
 
         let newResults = entryDataService.dataState.data?.filter {
@@ -47,7 +47,7 @@ final class EntriesViewModel: ObservableObject {
     }
 
     var dataState: DataState<[EntryUiModel]> {
-        qaService.showMockEntries ? qaService.dataState : entryDataService.dataState
+        entryDataService.dataState
     }
 
     var pauseCountDown = false
@@ -66,10 +66,6 @@ final class EntriesViewModel: ObservableObject {
 
     @ObservationIgnored
     private let searchTextStream: CurrentValueSubject<String, Never> = .init("")
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.qaService)
-    private var qaService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
