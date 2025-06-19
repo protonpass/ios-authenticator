@@ -435,12 +435,12 @@ private extension EntriesView {
 
                         VStack(spacing: 16) {
                             CapsuleButton(title: "Create new code",
-                                          textColor: .textNorm,
+                                          textColor: .white,
                                           style: .filled,
                                           action: handleAddNewCode)
                                 .impactHaptic()
                             CapsuleButton(title: "Import codes",
-                                          textColor: .textNorm,
+                                          textColor: .white,
                                           style: .bordered,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()

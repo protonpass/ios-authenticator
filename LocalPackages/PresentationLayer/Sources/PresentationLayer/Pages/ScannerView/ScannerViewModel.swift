@@ -93,6 +93,7 @@ final class ScannerViewModel {
         task?.cancel()
         task = Task { [weak self] in
             guard let self else { return }
+            defer { hasPayload = false }
             switch results {
             case let .success(result):
                 guard let barcode = result as? Barcode, !hasPayload else { return }
