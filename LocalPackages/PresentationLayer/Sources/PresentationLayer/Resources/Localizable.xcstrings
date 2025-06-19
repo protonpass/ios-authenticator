@@ -1126,6 +1126,16 @@
         }
       }
     },
+    "The QR code is not valid. Please try scanning a different one." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The QR code is not valid. Please try scanning a different one."
+          }
+        }
+      }
+    },
     "Theme" : {
       "localizations" : {
         "en" : {

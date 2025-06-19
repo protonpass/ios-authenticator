@@ -47,11 +47,6 @@ public extension ServiceContainer {
         self { @MainActor in SettingsService(store: kSharedUserDefaults) }
     }
 
-    var qaService: Factory<any QAServicing> {
-        self { @MainActor in QAService(store: kSharedUserDefaults,
-                                       repository: self.entryRepository) }
-    }
-
     var entryDataService: Factory<any EntryDataServiceProtocol> {
         self { @MainActor in EntryDataService(repository: self.entryRepository,
                                               importService: self.importService(),

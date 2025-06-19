@@ -23,6 +23,8 @@
 #if os(iOS)
 import Combine
 
+import AuthenticatorRustCore
+
 // periphery:ignore
 import DataLayer
 import DocScanner
@@ -178,6 +180,10 @@ private extension ScannerViewModel {
         } catch AuthError.generic(.duplicatedEntry) {
             if Task.isCancelled { return }
             handleError(#localized("This item already exists", bundle: .module))
+        } catch AuthenticatorError.Unknown {
+            if Task.isCancelled { return }
+            handleError(#localized("The QR code is not valid. Please try scanning a different one.",
+                                   bundle: .module))
         } catch {
             if Task.isCancelled { return }
             handleError(error.localizedDescription)

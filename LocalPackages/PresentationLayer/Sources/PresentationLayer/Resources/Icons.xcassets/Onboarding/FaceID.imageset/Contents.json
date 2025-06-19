@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "FaceID.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "FaceID@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "FaceID@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "FaceID.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {

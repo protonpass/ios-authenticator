@@ -73,6 +73,9 @@ final class OnboardingViewModel {
     private var openAppSettings
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager) private var localDataManager
+
+    @ObservationIgnored
     private var enablingBiometric = false
 
     init() {}
@@ -148,6 +151,9 @@ final class OnboardingViewModel {
     func enableICloudSync() {
         appSettings.toggleICloudBackUp(true)
         iCloudSyncEnabled = true
+        Task {
+            await localDataManager.refreshLocalStorage()
+        }
     }
 
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {

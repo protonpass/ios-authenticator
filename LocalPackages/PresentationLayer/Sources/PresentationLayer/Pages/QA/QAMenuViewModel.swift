@@ -40,12 +40,6 @@ final class QAMenuViewModel {
     }
 
     @ObservationIgnored
-    let allowedEntriesCount: [Int] = [5, 10, 20, 40, 80, 100, 200, 500]
-
-    @ObservationIgnored
-    @LazyInjected(\ServiceContainer.qaService) var qaService
-
-    @ObservationIgnored
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
     init() {
