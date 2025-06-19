@@ -182,7 +182,8 @@ private extension ScannerViewModel {
             handleError(#localized("This item already exists", bundle: .module))
         } catch AuthenticatorError.Unknown {
             if Task.isCancelled { return }
-            handleError("Could not decipher the QR code, seems to be invalid.")
+            handleError(#localized("The QR code is not valid. Please try scanning a different one.",
+                                   bundle: .module))
         } catch {
             if Task.isCancelled { return }
             handleError(error.localizedDescription)
