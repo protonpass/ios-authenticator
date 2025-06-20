@@ -603,6 +603,16 @@
         }
       }
     },
+    "Import codes from" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import codes from"
+          }
+        }
+      }
+    },
     "Import from Files" : {
       "localizations" : {
         "en" : {
@@ -759,6 +769,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No new codes detected"
+          }
+        }
+      }
+    },
+    "Open 2FAS Authenticator and enter the “Settings” section.\n\nThen enter the “2FAS Backup” feature.\n\nEnter the Export tool and click the “Export to file” button." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open 2FAS Authenticator and enter the “Settings” section.\n\nThen enter the “2FAS Backup” feature.\n\nEnter the Export tool and click the “Export to file” button."
           }
         }
       }
@@ -1182,6 +1202,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title (Required)"
+          }
+        }
+      }
+    },
+    "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \n\nOpen the LastPass browser extension and log in.  Go to Account → Fix a problem yourself → Export vault items → Export data for use anywhere." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \n\nOpen the LastPass browser extension and log in.  Go to Account → Fix a problem yourself → Export vault items → Export data for use anywhere."
+          }
+        }
+      }
+    },
+    "To export codes from Aegis Authenticator, navigate to the app's Settings, find the ”Import & Export” section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export codes from Aegis Authenticator, navigate to the app's Settings, find the ”Import & Export” section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file."
+          }
+        }
+      }
+    },
+    "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device."
+          }
+        }
+      }
+    },
+    "To export codes from Proton Authenticator, navigate to the app's settings, find the “Mange your data” section, and select the export option." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export codes from Proton Authenticator, navigate to the app's settings, find the “Mange your data” section, and select the export option."
+          }
+        }
+      }
+    },
+    "To export data from Bitwarden Authenticator, open the “Settings” tab and tap the “Export” button.\n\nYou can choose to export your data as a . json or . csv file." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export data from Bitwarden Authenticator, open the “Settings” tab and tap the “Export” button.\n\nYou can choose to export your data as a . json or . csv file."
+          }
+        }
+      }
+    },
+    "To export data from Ente Auth, open the “Settings” tab and look for “Import/Export” options.\n\nTap “Export Codes” and then “Ente Encrypted export”.\n\nThis creates an encrypted backup file (usually .ente or .json) containing all your codes." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To export data from Ente Auth, open the “Settings” tab and look for “Import/Export” options.\n\nTap “Export Codes” and then “Ente Encrypted export”.\n\nThis creates an encrypted backup file (usually .ente or .json) containing all your codes."
           }
         }
       }

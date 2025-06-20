@@ -27,4 +27,23 @@ public enum ImportOption: Sendable, CaseIterable, Identifiable {
     case protonAuthenticator
 
     public var id: Self { self }
+
+    public var iconName: String {
+        switch self {
+        case .googleAuthenticator:
+            "googleAuthIcon"
+        case .twoFas:
+            "twoFAIcon"
+        case .aegisAuthenticator:
+            "aegisIcon"
+        case .bitwardenAuthenticator:
+            "bitwardenIcon"
+        case .enteAuth:
+            "enteIcon"
+        case .lastPassAuthenticator:
+            "lastpassIcon"
+        case .protonAuthenticator:
+            "protonAuthIcon"
+        }
+    }
 }

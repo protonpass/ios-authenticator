@@ -48,6 +48,7 @@ struct ImportingServiceModifier: ViewModifier {
     @State private var showPhotosPicker = false
     @State private var showScanner = false
     @FocusState private var focusedField: FocusField?
+    @State private var option: ImportOption?
 
     @Environment(\.colorScheme) private var colorScheme
     @Binding var showImportOptions: Bool
@@ -59,9 +60,12 @@ struct ImportingServiceModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .importOptionsDialog(isPresented: $showImportOptions, onSelect: handle)
+            .importOptionsDialog(isPresented: $showImportOptions, onSelect: showExplanation)
             .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                            onSelect: handle)
+            .sheet(isPresented: $option.mappedToBool()) {
+                explanationView()
+            }
             .sheet(isPresented: $viewModel.showPasswordSheet) {
                 passwordView()
             }
@@ -97,12 +101,73 @@ struct ImportingServiceModifier: ViewModifier {
                           onCompletion: viewModel.processImportedFile)
     }
 
-    func handle(_ option: ImportOption) {
-        switch option {
+    @ViewBuilder
+    func explanationView() -> some View {
+        if let option {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Spacer()
+                    Button { self.option = nil } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                    .padding(16)
+                }
+
+                HStack(spacing: 25) {
+                    Image(option.iconName, bundle: .module)
+                        .resizable()
+                        .frame(width: 74, height: 74)
+                    Image(.arrow)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32)
+
+                    Image(.authIcon)
+                        .resizable()
+                        .frame(width: 74, height: 74)
+                    Spacer()
+                }
+                .frame(height: 170)
+                .padding(.horizontal, 32)
+
+                Text(#localized("Import codes from") + " " + option.title)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 32)
+                Text(option.explanation)
+                    .font(.title3)
+                    .foregroundStyle(.textWeak)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 32)
+                Spacer()
+                CapsuleButton(title: "Import", textColor: .white, style: .borderedFilled, action: {
+                    handle(option)
+                    self.option = nil
+                })
+                .padding(.bottom, 90)
+                .padding(.horizontal, 32)
+            }
+            .fullScreenMainBackground()
+        }
+    }
+
+    func showExplanation(_ selectedOption: ImportOption) {
+        option = selectedOption
+    }
+
+    func handle(_ selectedOption: ImportOption) {
+        switch selectedOption {
         case .googleAuthenticator:
             showImportFromGoogleOptions.toggle()
         default:
-            viewModel.importEntries(from: option)
+            viewModel.importEntries(from: selectedOption)
         }
     }
 
@@ -202,9 +267,9 @@ private extension View {
                            isPresented: isPresented,
                            titleVisibility: .visible) {
             ForEach(ImportOption.allCases, id: \.self) { option in
-                Button(action: { onSelect(option) }, label: {
+                Button { onSelect(option) } label: {
                     Text(verbatim: option.title)
-                })
+                }
             }
         }
     }
@@ -216,9 +281,9 @@ private extension View {
                            titleVisibility: .hidden) {
             ForEach(GoogleImportType.allCases, id: \.self) { option in
                 if displayGoogleImportOption(option) {
-                    Button(action: { onSelect(option) }, label: {
+                    Button { onSelect(option) } label: {
                         Text(option.title, bundle: .module)
-                    })
+                    }
                 }
             }
         }
@@ -522,3 +587,27 @@ private extension GoogleImportType {
 extension UTType {
     static let twoFAS = UTType(exportedAs: "me.proton.2fas")
 }
+
+// swiftlint:disable line_length
+private extension ImportOption {
+    var explanation: LocalizedStringKey {
+        switch self {
+        case .googleAuthenticator:
+            "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device."
+        case .twoFas:
+            "Open 2FAS Authenticator and enter the “Settings” section.\n\nThen enter the “2FAS Backup” feature.\n\nEnter the Export tool and click the “Export to file” button."
+        case .aegisAuthenticator:
+            "To export codes from Aegis Authenticator, navigate to the app's Settings, find the ”Import & Export” section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file."
+        case .bitwardenAuthenticator:
+            "To export data from Bitwarden Authenticator, open the “Settings” tab and tap the “Export” button.\n\nYou can choose to export your data as a . json or . csv file."
+        case .enteAuth:
+            "To export data from Ente Auth, open the “Settings” tab and look for “Import/Export” options.\n\nTap “Export Codes” and then “Ente Encrypted export”.\n\nThis creates an encrypted backup file (usually .ente or .json) containing all your codes."
+        case .lastPassAuthenticator:
+            "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \n\nOpen the LastPass browser extension and log in.  Go to Account → Fix a problem yourself → Export vault items → Export data for use anywhere."
+        case .protonAuthenticator:
+            "To export codes from Proton Authenticator, navigate to the app's settings, find the “Mange your data” section, and select the export option."
+        }
+    }
+}
+
+// swiftlint:enable line_length
