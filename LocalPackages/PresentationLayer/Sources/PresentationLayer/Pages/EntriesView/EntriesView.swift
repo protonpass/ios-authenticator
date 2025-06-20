@@ -436,7 +436,7 @@ private extension EntriesView {
                         VStack(spacing: 16) {
                             CapsuleButton(title: "Create new code",
                                           textColor: .white,
-                                          style: .filled,
+                                          style: .borderedFilled,
                                           action: handleAddNewCode)
                                 .impactHaptic()
                             CapsuleButton(title: "Import codes",
