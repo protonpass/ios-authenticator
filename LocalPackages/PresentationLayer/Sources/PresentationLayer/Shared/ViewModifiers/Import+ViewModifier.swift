@@ -135,7 +135,8 @@ struct ImportingServiceModifier: ViewModifier {
                 .frame(height: 170)
                 .padding(.horizontal, 32)
 
-                Text(#localized("Import codes from", bundle: .module) + " " + option.title) // ignore:missing_bundle
+                Text(#localized("Import codes from", bundle: .module) + " " + option
+                    .title) // ignore:missing_bundle
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundStyle(.textNorm)
