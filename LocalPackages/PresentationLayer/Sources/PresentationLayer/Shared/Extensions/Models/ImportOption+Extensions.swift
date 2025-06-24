@@ -1,6 +1,6 @@
 //
-// ImportOption.swift
-// Proton Authenticator - Created on 21/03/2025.
+// ImportOption+Extensions.swift
+// Proton Authenticator - Created on 24/06/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,13 +18,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-import UniformTypeIdentifiers
+import Models
 
-public enum ImportOption: Sendable, CaseIterable, Identifiable {
-    case googleAuthenticator, twoFas, aegisAuthenticator
-    case bitwardenAuthenticator, enteAuth, lastPassAuthenticator
-    case protonAuthenticator
-
-    public var id: Self { self }
+extension ImportOption {
+    var iconName: String {
+        switch self {
+        case .googleAuthenticator:
+            "googleAuthIcon"
+        case .twoFas:
+            "twoFAIcon"
+        case .aegisAuthenticator:
+            "aegisIcon"
+        case .bitwardenAuthenticator:
+            "bitwardenIcon"
+        case .enteAuth:
+            "enteIcon"
+        case .lastPassAuthenticator:
+            "lastpassIcon"
+        case .protonAuthenticator:
+            "protonAuthIcon"
+        }
+    }
 }
