@@ -52,6 +52,9 @@ private struct HighlightedText: View {
 
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @State private var state: EntryState = .idle
+    @State private var copyBadgeRemainingSeconds = 0
+    @State private var copyBadgeSize: CGSize = .zero
     let entry: Entry
     let code: Code
     let configuration: EntryCellConfiguration
@@ -60,7 +63,33 @@ struct EntryCell: View {
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
 
+    private enum EntryState {
+        case idle, copyToken
+
+        var isIdle: Bool {
+            if case .idle = self {
+                true
+            } else {
+                false
+            }
+        }
+    }
+
     var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            mainContent
+            CopyMessageBadge(size: $copyBadgeSize)
+                .opacity(state.isIdle ? 0 : 1)
+                .offset(.init(width: state.isIdle ? copyBadgeSize.width : 0, height: 0))
+        }
+        .onDisappear {
+            state = .idle
+        }
+    }
+}
+
+private extension EntryCell {
+    var mainContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 icon
@@ -78,7 +107,16 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.period, pauseCountDown: $pauseCountDown)
+                TOTPCountdownView(period: entry.period,
+                                  pauseCountDown: $pauseCountDown,
+                                  onCount: {
+                                      copyBadgeRemainingSeconds -= 1
+                                      if copyBadgeRemainingSeconds <= 0, state == .copyToken {
+                                          withAnimation {
+                                              state = .idle
+                                          }
+                                      }
+                                  })
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -119,9 +157,9 @@ struct EntryCell: View {
         }
         .background(LinearGradient(stops:
             [
-                Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
-                Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
-                Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
+                .init(color: isLightMode ? .white : .white.opacity(0.11), location: 0),
+                .init(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.1),
+                .init(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
@@ -131,16 +169,18 @@ struct EntryCell: View {
         .simultaneousGesture(TapGesture()
             .onEnded {
                 onCopyToken()
+                copyBadgeRemainingSeconds = 3
+                withAnimation {
+                    state = .copyToken
+                }
             })
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
             .stroke(LinearGradient(stops:
                 [
-                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
-                                  location: 0.00),
-                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
-                                                                                        green: 0.3,
-                                                                                        blue: 0.29),
-                                  location: 1.00)
+                    .init(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
+                          location: 0),
+                    .init(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3, blue: 0.29),
+                          location: 1)
                 ],
                 startPoint: UnitPoint(x: 0.5, y: 0),
                 endPoint: UnitPoint(x: 0.5, y: 1)),
@@ -151,7 +191,7 @@ struct EntryCell: View {
                 y: isLightMode ? 3 : 2)
     }
 
-    private var isLightMode: Bool {
+    var isLightMode: Bool {
         colorScheme == .light
     }
 
@@ -166,7 +206,7 @@ struct EntryCell: View {
     }
 
     @ViewBuilder
-    private var numberView: some View {
+    var numberView: some View {
         if configuration.digitStyle == .boxed {
             HStack(alignment: .center, spacing: 6) {
                 ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
@@ -188,9 +228,7 @@ struct EntryCell: View {
                                                      x: 0,
                                                      y: isLightMode ? 1 : 2)))
                                 .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
-                                    Color(red: 0.19,
-                                          green: 0.18,
-                                          blue: 0.18)))
+                                    Color(red: 0.19, green: 0.18, blue: 0.18)))
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                             .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
                             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -262,15 +300,18 @@ private struct TOTPCountdownView: View {
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
     @Binding private var pauseCountDown: Bool
+    private let onCount: () -> Void
 
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4,
-         pauseCountDown: Binding<Bool>) {
+         pauseCountDown: Binding<Bool>,
+         onCount: @escaping () -> Void) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
         _pauseCountDown = pauseCountDown
+        self.onCount = onCount
     }
 
     @State private var timeRemaining: Double = 0
@@ -328,11 +369,11 @@ private struct TOTPCountdownView: View {
     }
 
     private func startTimer() {
-        // Using a 0.1 second timer for smoother updates
-        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { _ in
                 calculateTime()
+                onCount()
             }
     }
 

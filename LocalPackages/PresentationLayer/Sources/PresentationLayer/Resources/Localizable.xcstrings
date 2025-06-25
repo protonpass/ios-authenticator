@@ -242,12 +242,12 @@
         }
       }
     },
-    "Copied to clipboard" : {
+    "Copied" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copied to clipboard"
+            "value" : "Copied"
           }
         }
       }

@@ -224,8 +224,6 @@ extension EntriesViewModel {
         let code = entry.code.current
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
-        toastService
-            .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif
