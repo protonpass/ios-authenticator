@@ -300,96 +300,59 @@ private struct TOTPCountdownView: View {
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
     @Binding private var pauseCountDown: Bool
-    private let onCount: () -> Void
 
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4,
-         pauseCountDown: Binding<Bool>,
-         onCount: @escaping () -> Void) {
+         pauseCountDown: Binding<Bool>) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
         _pauseCountDown = pauseCountDown
-        self.onCount = onCount
     }
-
-    @State private var timeRemaining: Double = 0
-    @State private var progress: CGFloat = 0.0
-    @State private var timerCancellable: AnyCancellable?
 
     var body: some View {
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(lineWidth: 4)
-                .animation(.default, value: progress)
-                .foregroundStyle(color.opacity(0.3))
-                .padding(2)
+        TimelineView(.animation(minimumInterval: 1, paused: pauseCountDown)) { context in
+            let period = Double(period)
+            let currentTimestamp = context.date.timeIntervalSince1970
+            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
+            let progress = timeRemaining / period
 
-            // Progress circle
-            Circle()
-                .trim(from: 1 - progress, to: 1)
-                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(color)
-                .padding(2)
-                .rotationEffect(.degrees(-90))
-                .animation(.default, value: progress)
-                .transaction { transaction in
-                    transaction.disablesAnimations = timeRemaining == Double(period) - 1
-                }
-
-            // Countdown text
-            Text(verbatim: "\(Int(timeRemaining))")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.textNorm)
-        }
-        .frame(width: size, height: size)
-        .onAppear {
-            calculateTime()
-            startTimer()
-        }
-        .onDisappear {
-            stopTimer()
-        }
-        .onChange(of: pauseCountDown) {
-            if !pauseCountDown, timerCancellable == nil {
-                startTimer()
-            } else if pauseCountDown {
-                stopTimer()
+            let color: Color = switch timeRemaining {
+            case 0...5:
+                .timer1
+            case 5...10:
+                .timer2
+            default:
+                .timer3
             }
-        }
-    }
 
-    private func calculateTime() {
-        let timeInterval = Date().timeIntervalSince1970
-        let newPeriod = Double(period)
-        timeRemaining = (newPeriod - timeInterval.truncatingRemainder(dividingBy: newPeriod)).rounded(.down)
-        progress = CGFloat(timeRemaining) / CGFloat(period)
-    }
+            ZStack {
+                // Background circle
+                Circle()
+                    .stroke(lineWidth: 4)
+                    .animation(.default, value: progress)
+                    .foregroundStyle(color.opacity(0.3))
+                    .padding(2)
 
-    private func startTimer() {
-        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                calculateTime()
-                onCount()
+                // Progress circle
+                Circle()
+                    .trim(from: 1 - progress, to: 1)
+                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(color)
+                    .padding(2)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.default, value: progress)
+                    .transaction { transaction in
+                        transaction.disablesAnimations = timeRemaining == period - 1
+                    }
+
+                // Countdown text
+                Text(verbatim: "\(Int(timeRemaining))")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.textNorm)
             }
-    }
-
-    private func stopTimer() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
-    }
-
-    private var color: Color {
-        switch timeRemaining {
-        case 0...5:
-            .timer1
-        case 5...10:
-            .timer2
-        default:
-            .timer3
+            .frame(width: size, height: size)
         }
     }
 }
