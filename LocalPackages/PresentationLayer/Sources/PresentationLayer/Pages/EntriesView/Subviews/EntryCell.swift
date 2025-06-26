@@ -52,8 +52,7 @@ private struct HighlightedText: View {
 
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var state: EntryState = .idle
-    @State private var copyBadgeRemainingSeconds = 0
+    @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
     let entry: Entry
     let code: Code
@@ -62,28 +61,38 @@ struct EntryCell: View {
     let searchTerm: String
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
-
-    private enum EntryState {
-        case idle, copyToken
-
-        var isIdle: Bool {
-            if case .idle = self {
-                true
-            } else {
-                false
-            }
-        }
-    }
+    @Binding var copyBadgeRemainingSeconds: Int
+    @Binding var animatingEntry: Entry?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             mainContent
             CopyMessageBadge(size: $copyBadgeSize)
-                .opacity(state.isIdle ? 0 : 1)
-                .offset(.init(width: state.isIdle ? copyBadgeSize.width : 0, height: 0))
+                .opacity(showCopyBadge ? 1 : 0)
+                .offset(.init(width: showCopyBadge ? 0 : copyBadgeSize.width,
+                              height: 0))
+        }
+        .clipShape(.rect)
+        .onChange(of: animatingEntry) { _, newValue in
+            // Another entry is selected, we dismiss the badge of this entry
+            if newValue != entry {
+                withAnimation(.bouncy) {
+                    showCopyBadge = false
+                }
+            }
+        }
+        .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
+            if animatingEntry == entry {
+                withAnimation(.bouncy) {
+                    showCopyBadge = newValue > 0
+                }
+            }
         }
         .onDisappear {
-            state = .idle
+            // Dismiss the badge is it's still visible when the etry goes off screen
+            if animatingEntry == entry {
+                animatingEntry = nil
+            }
         }
     }
 }
@@ -108,15 +117,7 @@ private extension EntryCell {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TOTPCountdownView(period: entry.period,
-                                  pauseCountDown: $pauseCountDown,
-                                  onCount: {
-                                      copyBadgeRemainingSeconds -= 1
-                                      if copyBadgeRemainingSeconds <= 0, state == .copyToken {
-                                          withAnimation {
-                                              state = .idle
-                                          }
-                                      }
-                                  })
+                                  pauseCountDown: $pauseCountDown)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -150,6 +151,8 @@ private extension EntryCell {
                         .textShadow()
                         .privacySensitive()
                 }
+                .animation(.default, value: showCopyBadge)
+                .opacity(showCopyBadge ? 0 : 1)
             }
             .padding(.top, 8)
             .padding(.bottom, 12)
@@ -166,29 +169,37 @@ private extension EntryCell {
         .mainBackground()
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .simultaneousGesture(TapGesture()
-            .onEnded {
-                onCopyToken()
-                copyBadgeRemainingSeconds = 3
-                withAnimation {
-                    state = .copyToken
-                }
-            })
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .stroke(LinearGradient(stops:
-                [
-                    .init(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
-                          location: 0),
-                    .init(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31, green: 0.3, blue: 0.29),
-                          location: 1)
-                ],
-                startPoint: UnitPoint(x: 0.5, y: 0),
-                endPoint: UnitPoint(x: 0.5, y: 1)),
-            lineWidth: 0.5))
+        .simultaneousGesture(TapGesture().onEnded(onCopyToken))
+        .overlay(entryOverlay)
         .shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
                 radius: 4,
                 x: 0,
                 y: isLightMode ? 3 : 2)
+    }
+
+    @ViewBuilder
+    var entryOverlay: some View {
+        if showCopyBadge {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3),
+                              lineWidth: 2)
+        } else {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(LinearGradient(stops:
+                    [
+                        .init(color: isLightMode ? Color.white : Color(red: 0.44,
+                                                                       green: 0.44,
+                                                                       blue: 0.42),
+                              location: 0),
+                        .init(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
+                                                                                    green: 0.3,
+                                                                                    blue: 0.29),
+                              location: 1)
+                    ],
+                    startPoint: UnitPoint(x: 0.5, y: 0),
+                    endPoint: UnitPoint(x: 0.5, y: 1)),
+                lineWidth: 0.5)
+        }
     }
 
     var isLightMode: Bool {
@@ -207,6 +218,7 @@ private extension EntryCell {
 
     @ViewBuilder
     var numberView: some View {
+        let textColor: Color = showCopyBadge ? .copyMessage : .textNorm
         if configuration.digitStyle == .boxed {
             HStack(alignment: .center, spacing: 6) {
                 ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
@@ -214,12 +226,12 @@ private extension EntryCell {
                         Text(verbatim: " ")
                             .font(.system(size: 28, weight: .semibold))
                             .monospaced()
-                            .foregroundStyle(.textNorm)
+                            .foregroundStyle(textColor)
                     } else {
                         Text(verbatim: "\(char)")
                             .font(.system(size: 28, weight: .semibold))
                             .monospaced()
-                            .foregroundStyle(.textNorm)
+                            .foregroundStyle(textColor)
                             .contentTransition(.numericText())
                             .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
                             .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -242,7 +254,7 @@ private extension EntryCell {
                 .font(.system(size: 30, weight: .semibold))
                 .kerning(3)
                 .monospaced()
-                .foregroundStyle(.textNorm)
+                .foregroundStyle(textColor)
                 .contentTransition(.numericText())
                 .textShadow()
         }

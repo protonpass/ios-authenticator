@@ -261,7 +261,9 @@ private extension EntriesView {
                   issuerInfos: entry.issuerInfo,
                   searchTerm: viewModel.query,
                   onCopyToken: { viewModel.copyTokenToClipboard(entry) },
-                  pauseCountDown: $viewModel.pauseCountDown)
+                  pauseCountDown: $viewModel.pauseCountDown,
+                  copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
+                  animatingEntry: $viewModel.animatingEntry)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .accessibility(addTraits: .isButton)
