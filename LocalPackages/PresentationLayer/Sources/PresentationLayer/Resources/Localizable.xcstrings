@@ -1330,7 +1330,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Unfortunately, %1$@ doesn’t currently support exporting data from their app. Consider contacting %2$@ to request this feature. \n\nPlease import your data manually for now."
           }
         }
