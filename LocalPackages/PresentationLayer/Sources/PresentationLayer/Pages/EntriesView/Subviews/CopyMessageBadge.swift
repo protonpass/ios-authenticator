@@ -28,7 +28,8 @@ struct CopyMessageBadge: View {
             Image(systemName: "checkmark.circle.fill")
             Text("Code copied", bundle: .module)
         }
-        .font(.system(size: 14, weight: .medium))
+        .font(.callout)
+        .fontWeight(.medium)
         .foregroundStyle(.copyMessage)
         .padding()
         .overlay(GeometryReader { proxy in
