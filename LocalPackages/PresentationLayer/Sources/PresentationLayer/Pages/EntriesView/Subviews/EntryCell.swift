@@ -101,7 +101,8 @@ private extension EntryCell {
     var mainContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
-                icon
+                EntryThumbnail(iconUrl: issuerInfos?.iconUrl,
+                               letter: entry.capitalLetter)
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
@@ -241,10 +242,9 @@ private extension EntryCell {
                                                      y: isLightMode ? 1 : 2)))
                                 .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
                                     Color(red: 0.19, green: 0.18, blue: 0.18)))
-                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .clipShape(RoundedRectangle.continuousDefault)
                             .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .inset(by: -0.25)
+                            .overlay(RoundedRectangle.continuousInsettedDefault
                                 .stroke(.black.opacity(isLightMode ? 0.23 : 0.5), lineWidth: 0.5))
                     }
                 }
@@ -258,52 +258,6 @@ private extension EntryCell {
                 .contentTransition(.numericText())
                 .textShadow()
         }
-    }
-
-    @ViewBuilder
-    var icon: some View {
-        if let iconUrl = issuerInfos?.iconUrl, let url = URL(string: iconUrl) {
-            WebImage(url: url) { image in
-                image.resizable()
-            } placeholder: {
-                letterDisplay
-            }
-            .transition(.fade(duration: 0.5))
-            .scaledToFit()
-            .padding(4)
-            .frame(width: 34, height: 34, alignment: .center)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) :
-                    .black.opacity(0),
-                    lineWidth: 0.5))
-        } else {
-            letterDisplay
-        }
-    }
-
-    var letterDisplay: some View {
-        Text(verbatim: entry.capitalLetter)
-            .font(.system(size: 23, weight: .medium))
-            .foregroundStyle(LinearGradient(gradient:
-                Gradient(colors: [
-                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing))
-            .padding(.horizontal, 3)
-            .padding(.vertical, 4)
-            .frame(width: 34, height: 34, alignment: .center)
-            .background(isLightMode ? Color(red: 0.95, green: 0.93, blue: 0.97).opacity(0.8) : .black.opacity(0.3))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
-                        lineWidth: 0.5))
     }
 }
 
