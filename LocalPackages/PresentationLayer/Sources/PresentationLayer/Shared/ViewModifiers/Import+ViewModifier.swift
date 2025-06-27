@@ -712,12 +712,12 @@ struct ImportView: View {
 
             List {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Import codes")
+                    Text("Import codes", bundle: .module)
                         .foregroundStyle(.textNorm)
                         .fontWeight(.bold)
                         .font(.title2)
 
-                    Text("Select your current 2fas provider")
+                    Text("Select your current 2fas provider", bundle: .module)
                         .foregroundStyle(.textWeak)
                 }.listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
