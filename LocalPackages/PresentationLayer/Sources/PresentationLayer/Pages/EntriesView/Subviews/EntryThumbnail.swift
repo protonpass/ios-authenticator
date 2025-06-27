@@ -37,8 +37,9 @@ struct EntryThumbnail: View {
             .scaledToFit()
             .padding(4)
             .frame(width: 34, height: 34, alignment: .center)
-            .clipShape(RoundedRectangle.continuousDefault)
-            .overlay(RoundedRectangle.continuousInsettedDefault
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
                 .stroke(strokeColor, lineWidth: 0.5))
         } else {
             thumbnailLetter
@@ -77,8 +78,9 @@ private struct ThumbnailLetter: View {
             .frame(width: 34, height: 34, alignment: .center)
             .background(colorScheme.isLight ?
                 Color(red: 0.95, green: 0.93, blue: 0.97).opacity(0.8) : .black.opacity(0.3))
-            .clipShape(RoundedRectangle.continuousDefault)
-            .overlay(RoundedRectangle.continuousInsettedDefault
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .inset(by: -0.25)
                 .stroke(strokeColor, lineWidth: 0.5))
     }
 }

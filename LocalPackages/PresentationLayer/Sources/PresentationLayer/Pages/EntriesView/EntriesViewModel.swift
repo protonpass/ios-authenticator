@@ -233,7 +233,7 @@ extension EntriesViewModel {
 
     func copyTokenToClipboard(_ entry: EntryUiModel) {
         animatingEntry = entry.orderedEntry.entry
-        copyBadgeRemainingSeconds = 3
+        copyBadgeRemainingSeconds = 2
         let code = entry.code.current
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)

@@ -1,5 +1,5 @@
 //
-// RoundedRectangle+Extensions.swift
+// Code+Extensions.swift
 // Proton Authenticator - Created on 27/06/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -18,15 +18,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import SwiftUI
+import Models
 
-extension RoundedRectangle {
-    static var continuousDefault: Self {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
+extension Code {
+    enum CodeType {
+        case current, next
     }
 
-    static var continuousInsettedDefault: some InsettableShape {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-            .inset(by: -0.25)
+    func displayedCode(for type: CodeType,
+                       config: EntryCellConfiguration) -> String {
+        var codeValue = type == .current ? current : next
+        codeValue = config.hideEntryCode ?
+            String(repeating: "•", count: codeValue.count) : codeValue
+
+        return codeValue.count > 6 ?
+            codeValue : codeValue.separatedByGroup(3, delimiter: " ")
     }
 }

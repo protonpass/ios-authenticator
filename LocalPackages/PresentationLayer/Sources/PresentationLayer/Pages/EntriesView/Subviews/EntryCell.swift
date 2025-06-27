@@ -56,6 +56,8 @@ struct EntryCell: View {
     @State private var copyBadgeSize: CGSize = .zero
     let entry: Entry
     let code: Code
+    let currentCode: String
+    let nextCode: String
     let configuration: EntryCellConfiguration
     let issuerInfos: AuthIssuerInfo?
     let searchTerm: String
@@ -63,6 +65,28 @@ struct EntryCell: View {
     @Binding var pauseCountDown: Bool
     @Binding var copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
+
+    init(entry: Entry,
+         code: Code,
+         configuration: EntryCellConfiguration,
+         issuerInfos: AuthIssuerInfo?,
+         searchTerm: String,
+         onCopyToken: @escaping () -> Void,
+         pauseCountDown: Binding<Bool>,
+         copyBadgeRemainingSeconds: Binding<Int>,
+         animatingEntry: Binding<Entry?>) {
+        self.entry = entry
+        self.code = code
+        self.configuration = configuration
+        currentCode = code.displayedCode(for: .current, config: configuration)
+        nextCode = code.displayedCode(for: .next, config: configuration)
+        self.issuerInfos = issuerInfos
+        self.searchTerm = searchTerm
+        self.onCopyToken = onCopyToken
+        _pauseCountDown = pauseCountDown
+        _copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
+        _animatingEntry = animatingEntry
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -76,14 +100,14 @@ struct EntryCell: View {
         .onChange(of: animatingEntry) { _, newValue in
             // Another entry is selected, we dismiss the badge of this entry
             if newValue != entry {
-                withAnimation(.bouncy) {
+                withAnimation(.bouncy.speed(2)) {
                     showCopyBadge = false
                 }
             }
         }
         .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
             if animatingEntry == entry {
-                withAnimation(.bouncy) {
+                withAnimation(.bouncy.speed(2)) {
                     showCopyBadge = newValue > 0
                 }
             }
@@ -134,11 +158,11 @@ private extension EntryCell {
                         y: -0.5)
 
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
-                numberView
-                    .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
-                    .privacySensitive()
+                CurrentTokenView(code: currentCode,
+                                 configuration: configuration,
+                                 showCopyBadge: showCopyBadge)
 
-                Spacer(minLength: 0)
+                Spacer()
 
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("Next", bundle: .module)
@@ -205,59 +229,6 @@ private extension EntryCell {
 
     var isLightMode: Bool {
         colorScheme == .light
-    }
-
-    var nextCode: String {
-        let text = configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
-        return text.count > 6 ? text : text.separatedByGroup(3, delimiter: " ")
-    }
-
-    var mainCode: String {
-        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
-        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
-    }
-
-    @ViewBuilder
-    var numberView: some View {
-        let textColor: Color = showCopyBadge ? .copyMessage : .textNorm
-        if configuration.digitStyle == .boxed {
-            HStack(alignment: .center, spacing: 6) {
-                ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
-                    if char.isWhitespace {
-                        Text(verbatim: " ")
-                            .font(.system(size: 28, weight: .semibold))
-                            .monospaced()
-                            .foregroundStyle(textColor)
-                    } else {
-                        Text(verbatim: "\(char)")
-                            .font(.system(size: 28, weight: .semibold))
-                            .monospaced()
-                            .foregroundStyle(textColor)
-                            .contentTransition(.numericText())
-                            .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
-                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(.shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),
-                                                     radius: isLightMode ? 1 : 4,
-                                                     x: 0,
-                                                     y: isLightMode ? 1 : 2)))
-                                .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
-                                    Color(red: 0.19, green: 0.18, blue: 0.18)))
-                            .clipShape(RoundedRectangle.continuousDefault)
-                            .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
-                            .overlay(RoundedRectangle.continuousInsettedDefault
-                                .stroke(.black.opacity(isLightMode ? 0.23 : 0.5), lineWidth: 0.5))
-                    }
-                }
-            }
-        } else {
-            Text(verbatim: mainCode)
-                .font(.system(size: 30, weight: .semibold))
-                .kerning(3)
-                .monospaced()
-                .foregroundStyle(textColor)
-                .contentTransition(.numericText())
-                .textShadow()
-        }
     }
 }
 
