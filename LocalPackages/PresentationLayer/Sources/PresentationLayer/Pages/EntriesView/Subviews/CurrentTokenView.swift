@@ -77,14 +77,14 @@ private struct BoxedDigit: View {
                 .contentTransition(.numericText())
                 .frame(minWidth: codeCount == 7 || codeCount == 6 ? 28 : 24, minHeight: 36)
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
-//                    .fill(.shadow(.inner(color: .black.opacity(colorScheme.isLight ? 0.16 : 0.3),
-//                                         radius: colorScheme.isLight ? 1 : 4,
-//                                         x: 0,
-//                                         y: colorScheme.isLight ? 1 : 2)))
+                    .fill(.shadow(.inner(color: .black.opacity(colorScheme.isLight ? 0.16 : 0.3),
+                                         radius: colorScheme.isLight ? 1 : 4,
+                                         x: 0,
+                                         y: colorScheme.isLight ? 1 : 2)))
                     .foregroundStyle(colorScheme.isLight ? Color(red: 0.95, green: 0.94, blue: 0.94) :
                         Color(red: 0.19, green: 0.18, blue: 0.18)))
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-//                .shadow(color: .white.opacity(colorScheme.isLight ? 1 : 0.1), radius: 2, x: 0, y: 1)
+                .shadow(color: .white.opacity(colorScheme.isLight ? 1 : 0.1), radius: 2, x: 0, y: 1)
                 .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .inset(by: -0.25)
                     .stroke(.black.opacity(colorScheme.isLight ? 0.23 : 0.5), lineWidth: 0.5))
