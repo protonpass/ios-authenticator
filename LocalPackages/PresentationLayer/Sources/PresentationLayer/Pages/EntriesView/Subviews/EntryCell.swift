@@ -94,20 +94,25 @@ struct EntryCell: View {
             CopyMessageBadge(size: $copyBadgeSize)
                 .opacity(showCopyBadge ? 1 : 0)
                 .offset(.init(width: showCopyBadge ? 0 : copyBadgeSize.width,
-                              height: 0))
+                              height: -5))
         }
-        .clipShape(.rect)
         .onChange(of: animatingEntry) { _, newValue in
             // Another entry is selected, we dismiss the badge of this entry
             if newValue != entry {
-                withAnimation(.bouncy.speed(2)) {
+                withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                            stiffness: 5.5,
+                                                            damping: 0.9,
+                                                            initialVelocity: 4.8)) {
                     showCopyBadge = false
                 }
             }
         }
         .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
             if animatingEntry == entry {
-                withAnimation(.bouncy.speed(2)) {
+                withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                            stiffness: 5.5,
+                                                            damping: 0.9,
+                                                            initialVelocity: 4.8)) {
                     showCopyBadge = newValue > 0
                 }
             }
