@@ -32,6 +32,7 @@ import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 
+// swiftlint:disable file_length
 public extension View {
     func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
         modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
@@ -60,9 +61,11 @@ struct ImportingServiceModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .importOptionsDialog(isPresented: $showImportOptions, onSelect: { option = $0 })
             .importFromGoogleOptionsDialog(isPresented: $showImportFromGoogleOptions,
                                            onSelect: handle)
+            .sheet(isPresented: $showImportOptions) {
+                ImportView { option = $0 }
+            }
             .sheet(item: $option) { option in
                 ExplanationView(option: option,
                                 handle: handle)
@@ -471,6 +474,10 @@ private extension ImportOption {
             "LastPass Authenticator"
         case .protonAuthenticator:
             "Proton Authenticator"
+        case .authy:
+            "Authy"
+        case .microsoft:
+            "Microsoft Authenticator"
         }
     }
 
@@ -488,10 +495,12 @@ private extension ImportOption {
             [.text, .plainText, .json]
         case .googleAuthenticator:
             [.image, .jpeg, .png]
+        default:
+            []
         }
     }
 
-    func importDestination(content: String, type: UTType, password: String?) -> TwofaImportSource {
+    func importDestination(content: String, type: UTType, password: String?) -> TwofaImportSource? {
         switch self {
         case .twoFas:
             .twofas(contents: content, password: password)
@@ -507,6 +516,40 @@ private extension ImportOption {
             .lastpass(contents: type.toTwofaImportFileType(content: content))
         case .protonAuthenticator:
             .protonAuthenticator(contents: content)
+        case .authy, .microsoft:
+            nil
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .googleAuthenticator:
+            "googleAuthIcon"
+        case .twoFas:
+            "twoFAIcon"
+        case .aegisAuthenticator:
+            "aegisIcon"
+        case .bitwardenAuthenticator:
+            "bitwardenIcon"
+        case .enteAuth:
+            "enteIcon"
+        case .lastPassAuthenticator:
+            "lastpassIcon"
+        case .protonAuthenticator:
+            "protonAuthIcon"
+        case .authy:
+            "authyIcon"
+        case .microsoft:
+            "microsoftIcon"
+        }
+    }
+
+    var canExport: Bool {
+        switch self {
+        case .authy, .microsoft:
+            false
+        default:
+            true
         }
     }
 }
@@ -546,6 +589,8 @@ private extension ImportOption {
             "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \nOpen the LastPass browser extension and log in. Go to **Account → Fix a problem yourself → Export vault items** → Export data for use anywhere."
         case .protonAuthenticator:
             "To export codes from Proton Authenticator, navigate to the app's settings, find the **“Manage your data”** section, and select the export option."
+        case .authy, .microsoft:
+            "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }
     }
 }
@@ -555,6 +600,99 @@ private extension ImportOption {
 struct ExplanationView: View {
     @Environment(\.dismiss) private var dismiss
     let option: ImportOption
+    let handle: (ImportOption) -> Void
+
+    private var title: String {
+        if option.canExport {
+            #localized("Import codes from", bundle: .module) + " " + option.title
+        } else {
+            #localized("No export available", bundle: .module)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm.opacity(0.7))
+                }
+                .adaptiveButtonStyle()
+                .padding(16)
+            }
+
+            if option.canExport {
+                HStack(spacing: 25) {
+                    Image(option.iconName, bundle: .module)
+                        .resizable()
+                        .frame(width: 74, height: 74)
+                    Image(.arrow)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32)
+
+                    Image(.authIcon)
+                        .resizable()
+                        .frame(width: 74, height: 74)
+                    Spacer()
+                }
+                .frame(height: 170)
+                .padding(.horizontal, 32)
+            } else {
+                HStack {
+                    Spacer()
+                    ZStack {
+                        Image(option.iconName, bundle: .module)
+                            .resizable()
+                            .frame(width: 96, height: 96, alignment: .center)
+                        Image(.test2)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 400, height: 400)
+
+                        Image(.circleHoneyComb)
+                            .resizable()
+                            .frame(width: 225, height: 225)
+                    }
+                    .frame(width: 225, height: 225)
+                    Spacer()
+                }
+                .padding(.bottom, 30)
+            }
+
+            Text(title) // ignore:missing_bundle
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundStyle(.textNorm)
+                .multilineTextAlignment(option.canExport ? .leading : .center)
+                .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
+                .padding(.horizontal, 32)
+            Text(option.explanation, bundle: .module) // ignore:missing_bundle
+                .font(.title3)
+                .foregroundStyle(.textWeak)
+                .multilineTextAlignment(option.canExport ? .leading : .center)
+                .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
+                .padding(.horizontal, 32)
+            Spacer()
+            if option.canExport {
+                CapsuleButton(title: "Import", textColor: .white, style: .borderedFilled, action: {
+                    handle(option)
+                    dismiss()
+                })
+                .padding(.bottom, 45)
+                .padding(.horizontal, 32)
+            }
+        }
+        .fullScreenMainBackground()
+    }
+}
+
+struct ImportView: View {
+    @Environment(\.dismiss) private var dismiss
     let handle: (ImportOption) -> Void
 
     var body: some View {
@@ -572,43 +710,50 @@ struct ExplanationView: View {
                 .padding(16)
             }
 
-            HStack(spacing: 25) {
-                Image(option.iconName, bundle: .module)
-                    .resizable()
-                    .frame(width: 74, height: 74)
-                Image(.arrow)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32)
+            List {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Import codes")
+                        .foregroundStyle(.textNorm)
+                        .fontWeight(.bold)
+                        .font(.title2)
 
-                Image(.authIcon)
-                    .resizable()
-                    .frame(width: 74, height: 74)
-                Spacer()
+                    Text("Select your current 2fas provider")
+                        .foregroundStyle(.textWeak)
+                }.listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                ForEach(ImportOption.allCases, id: \.self) { option in
+                    Button {
+                        dismiss()
+                        handle(option)
+                    } label: {
+                        HStack {
+                            Image(option.iconName, bundle: .module)
+                                .resizable()
+                                .frame(width: 36, height: 36)
+                                .cornerRadius(8)
+                            Text(verbatim: option.title)
+                                .foregroundStyle(.textNorm)
+                            Spacer()
+                            if !option.canExport {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .resizable()
+                                    .frame(width: 22, height: 22)
+                                    .foregroundStyle(Color(red: 1, green: 0.83, blue: 0.5))
+                            }
+                        }
+                        .padding(.vertical, 24)
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                }
             }
-            .frame(height: 170)
-            .padding(.horizontal, 32)
-
-            Text(#localized("Import codes from", bundle: .module) + " " + option
-                .title) // ignore:missing_bundle
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundStyle(.textNorm)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 32)
-            Text(option.explanation, bundle: .module)
-                .font(.title3)
-                .foregroundStyle(.textWeak)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 32)
-            Spacer()
-            CapsuleButton(title: "Import", textColor: .white, style: .borderedFilled, action: {
-                handle(option)
-                dismiss()
-            })
-            .padding(.bottom, 45)
+            .scrollContentBackground(.hidden)
+            .listStyle(.plain)
             .padding(.horizontal, 32)
         }
         .fullScreenMainBackground()
     }
 }
+
+// swiftlint:enable file_length

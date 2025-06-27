@@ -20,23 +20,4 @@
 
 import Models
 
-extension ImportOption {
-    var iconName: String {
-        switch self {
-        case .googleAuthenticator:
-            "googleAuthIcon"
-        case .twoFas:
-            "twoFAIcon"
-        case .aegisAuthenticator:
-            "aegisIcon"
-        case .bitwardenAuthenticator:
-            "bitwardenIcon"
-        case .enteAuth:
-            "enteIcon"
-        case .lastPassAuthenticator:
-            "lastpassIcon"
-        case .protonAuthenticator:
-            "protonAuthIcon"
-        }
-    }
-}
+extension ImportOption {}
