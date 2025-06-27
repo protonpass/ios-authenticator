@@ -52,6 +52,9 @@ final class EntriesViewModel: ObservableObject {
 
     var pauseCountDown = false
 
+    var copyBadgeRemainingSeconds = 0
+    var animatingEntry: Entry?
+
     var focusSearchOnLaunch: Bool {
         settingsService.focusSearchOnLaunch
     }
@@ -152,6 +155,14 @@ final class EntriesViewModel: ObservableObject {
                 fullSync()
             }
             .store(in: &cancellables)
+
+        Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                copyBadgeRemainingSeconds -= 1
+            }
+            .store(in: &cancellables)
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
@@ -221,11 +232,11 @@ extension EntriesViewModel {
     }
 
     func copyTokenToClipboard(_ entry: EntryUiModel) {
+        animatingEntry = entry.orderedEntry.entry
+        copyBadgeRemainingSeconds = 2
         let code = entry.code.current
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
-        toastService
-            .showToast(SimpleToast(title: #localized("Copied to clipboard", bundle: .module)))
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif

@@ -1,0 +1,93 @@
+//
+// CurrentTokenView.swift
+// Proton Authenticator - Created on 27/06/2025.
+// Copyright (c) 2025 Proton Technologies AG
+//
+// This file is part of Proton Authenticator.
+//
+// Proton Authenticator is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Proton Authenticator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+
+import Models
+import SwiftUI
+
+struct CurrentTokenView: View {
+    let code: String
+    let configuration: EntryCellConfiguration
+    let showCopyBadge: Bool
+
+    var body: some View {
+        mainContent
+            .animation(.bouncy, value: configuration.animateCodeChange ? code : "")
+            .privacySensitive()
+    }
+}
+
+private extension CurrentTokenView {
+    @ViewBuilder
+    var mainContent: some View {
+        let textColor: Color = showCopyBadge ? .copyMessage : .textNorm
+        if configuration.digitStyle == .boxed {
+            HStack(alignment: .center, spacing: 6) {
+                ForEach(Array(code.enumerated()), id: \.offset) { _, char in
+                    BoxedDigit(char: char,
+                               codeCount: code.count,
+                               textColor: textColor)
+                }
+            }
+        } else {
+            Text(verbatim: code)
+                .font(.system(size: 30, weight: .semibold))
+                .kerning(3)
+                .monospaced()
+                .foregroundStyle(textColor)
+                .contentTransition(.numericText())
+                .textShadow()
+        }
+    }
+}
+
+private struct BoxedDigit: View {
+    @Environment(\.colorScheme) private var colorScheme
+    let char: Character
+    let codeCount: Int
+    let textColor: Color
+
+    var body: some View {
+        if char.isWhitespace {
+            Text(verbatim: " ")
+                .font(.system(size: 28, weight: .semibold))
+                .monospaced()
+                .foregroundStyle(textColor)
+        } else {
+            Text(verbatim: "\(char)")
+                .font(.system(size: 28, weight: .semibold))
+                .monospaced()
+                .foregroundStyle(textColor)
+                .contentTransition(.numericText())
+                .frame(minWidth: codeCount == 7 || codeCount == 6 ? 28 : 24, minHeight: 36)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(.shadow(.inner(color: .black.opacity(colorScheme.isLight ? 0.16 : 0.3),
+                                         radius: colorScheme.isLight ? 1 : 4,
+                                         x: 0,
+                                         y: colorScheme.isLight ? 1 : 2)))
+                    .foregroundStyle(colorScheme.isLight ? Color(red: 0.95, green: 0.94, blue: 0.94) :
+                        Color(red: 0.19, green: 0.18, blue: 0.18)))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .shadow(color: .white.opacity(colorScheme.isLight ? 1 : 0.1), radius: 2, x: 0, y: 1)
+                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .inset(by: -0.25)
+                    .stroke(.black.opacity(colorScheme.isLight ? 0.23 : 0.5), lineWidth: 0.5))
+        }
+    }
+}

@@ -52,18 +52,86 @@ private struct HighlightedText: View {
 
 struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showCopyBadge = false
+    @State private var copyBadgeSize: CGSize = .zero
     let entry: Entry
     let code: Code
+    let currentCode: String
+    let nextCode: String
     let configuration: EntryCellConfiguration
     let issuerInfos: AuthIssuerInfo?
     let searchTerm: String
     let onCopyToken: () -> Void
     @Binding var pauseCountDown: Bool
+    @Binding var copyBadgeRemainingSeconds: Int
+    @Binding var animatingEntry: Entry?
+
+    init(entry: Entry,
+         code: Code,
+         configuration: EntryCellConfiguration,
+         issuerInfos: AuthIssuerInfo?,
+         searchTerm: String,
+         onCopyToken: @escaping () -> Void,
+         pauseCountDown: Binding<Bool>,
+         copyBadgeRemainingSeconds: Binding<Int>,
+         animatingEntry: Binding<Entry?>) {
+        self.entry = entry
+        self.code = code
+        self.configuration = configuration
+        currentCode = code.displayedCode(for: .current, config: configuration)
+        nextCode = code.displayedCode(for: .next, config: configuration)
+        self.issuerInfos = issuerInfos
+        self.searchTerm = searchTerm
+        self.onCopyToken = onCopyToken
+        _pauseCountDown = pauseCountDown
+        _copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
+        _animatingEntry = animatingEntry
+    }
 
     var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            mainContent
+            CopyMessageBadge(size: $copyBadgeSize)
+                .opacity(showCopyBadge ? 1 : 0)
+                .offset(.init(width: showCopyBadge ? 0 : copyBadgeSize.width,
+                              height: -5))
+        }
+        .onChange(of: animatingEntry) { _, newValue in
+            // Another entry is selected, we dismiss the badge of this entry
+            if newValue != entry {
+                withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                            stiffness: 5.5,
+                                                            damping: 0.9,
+                                                            initialVelocity: 4.8)) {
+                    showCopyBadge = false
+                }
+            }
+        }
+        .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
+            if animatingEntry == entry {
+                withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                            stiffness: 5.5,
+                                                            damping: 0.9,
+                                                            initialVelocity: 4.8)) {
+                    showCopyBadge = newValue > 0
+                }
+            }
+        }
+        .onDisappear {
+            // Dismiss the badge is it's still visible when the etry goes off screen
+            if animatingEntry == entry {
+                animatingEntry = nil
+            }
+        }
+    }
+}
+
+private extension EntryCell {
+    var mainContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
-                icon
+                EntryThumbnail(iconUrl: issuerInfos?.iconUrl,
+                               letter: entry.capitalLetter)
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
@@ -78,7 +146,8 @@ struct EntryCell: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.period, pauseCountDown: $pauseCountDown)
+                TOTPCountdownView(period: entry.period,
+                                  pauseCountDown: $pauseCountDown)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -94,11 +163,11 @@ struct EntryCell: View {
                         y: -0.5)
 
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
-                numberView
-                    .animation(.bouncy, value: configuration.animateCodeChange ? code : .default)
-                    .privacySensitive()
+                CurrentTokenView(code: currentCode,
+                                 configuration: configuration,
+                                 showCopyBadge: showCopyBadge)
 
-                Spacer(minLength: 0)
+                Spacer()
 
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("Next", bundle: .module)
@@ -112,6 +181,8 @@ struct EntryCell: View {
                         .textShadow()
                         .privacySensitive()
                 }
+                .animation(.default, value: showCopyBadge)
+                .opacity(showCopyBadge ? 0 : 1)
             }
             .padding(.top, 8)
             .padding(.bottom, 12)
@@ -119,141 +190,50 @@ struct EntryCell: View {
         }
         .background(LinearGradient(stops:
             [
-                Gradient.Stop(color: isLightMode ? .white : .white.opacity(0.11), location: 0.00),
-                Gradient.Stop(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.10),
-                Gradient.Stop(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
+                .init(color: isLightMode ? .white : .white.opacity(0.11), location: 0),
+                .init(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.1),
+                .init(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
             ],
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
         .mainBackground()
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .simultaneousGesture(TapGesture()
-            .onEnded {
-                onCopyToken()
-            })
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .stroke(LinearGradient(stops:
-                [
-                    Gradient.Stop(color: isLightMode ? Color.white : Color(red: 0.44, green: 0.44, blue: 0.42),
-                                  location: 0.00),
-                    Gradient.Stop(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
-                                                                                        green: 0.3,
-                                                                                        blue: 0.29),
-                                  location: 1.00)
-                ],
-                startPoint: UnitPoint(x: 0.5, y: 0),
-                endPoint: UnitPoint(x: 0.5, y: 1)),
-            lineWidth: 0.5))
+        .simultaneousGesture(TapGesture().onEnded(onCopyToken))
+        .overlay(entryOverlay)
         .shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
                 radius: 4,
                 x: 0,
                 y: isLightMode ? 3 : 2)
     }
 
-    private var isLightMode: Bool {
+    @ViewBuilder
+    var entryOverlay: some View {
+        if showCopyBadge {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3),
+                              lineWidth: 2)
+        } else {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(LinearGradient(stops:
+                    [
+                        .init(color: isLightMode ? Color.white : Color(red: 0.44,
+                                                                       green: 0.44,
+                                                                       blue: 0.42),
+                              location: 0),
+                        .init(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
+                                                                                    green: 0.3,
+                                                                                    blue: 0.29),
+                              location: 1)
+                    ],
+                    startPoint: UnitPoint(x: 0.5, y: 0),
+                    endPoint: UnitPoint(x: 0.5, y: 1)),
+                lineWidth: 0.5)
+        }
+    }
+
+    var isLightMode: Bool {
         colorScheme == .light
-    }
-
-    var nextCode: String {
-        let text = configuration.hideEntryCode ? String(repeating: "•", count: code.next.count) : code.next
-        return text.count > 6 ? text : text.separatedByGroup(3, delimiter: " ")
-    }
-
-    var mainCode: String {
-        let code = configuration.hideEntryCode ? String(repeating: "•", count: code.current.count) : code.current
-        return code.count > 6 ? code : code.separatedByGroup(3, delimiter: " ")
-    }
-
-    @ViewBuilder
-    private var numberView: some View {
-        if configuration.digitStyle == .boxed {
-            HStack(alignment: .center, spacing: 6) {
-                ForEach(Array(mainCode.enumerated()), id: \.offset) { _, char in
-                    if char.isWhitespace {
-                        Text(verbatim: " ")
-                            .font(.system(size: 28, weight: .semibold))
-                            .monospaced()
-                            .foregroundStyle(.textNorm)
-                    } else {
-                        Text(verbatim: "\(char)")
-                            .font(.system(size: 28, weight: .semibold))
-                            .monospaced()
-                            .foregroundStyle(.textNorm)
-                            .contentTransition(.numericText())
-                            .frame(minWidth: mainCode.count == 7 || mainCode.count == 6 ? 28 : 24, minHeight: 36)
-                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(.shadow(.inner(color: .black.opacity(isLightMode ? 0.16 : 0.3),
-                                                     radius: isLightMode ? 1 : 4,
-                                                     x: 0,
-                                                     y: isLightMode ? 1 : 2)))
-                                .foregroundStyle(isLightMode ? Color(red: 0.95, green: 0.94, blue: 0.94) :
-                                    Color(red: 0.19,
-                                          green: 0.18,
-                                          blue: 0.18)))
-                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                            .shadow(color: .white.opacity(isLightMode ? 1 : 0.1), radius: 2, x: 0, y: 1)
-                            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .inset(by: -0.25)
-                                .stroke(.black.opacity(isLightMode ? 0.23 : 0.5), lineWidth: 0.5))
-                    }
-                }
-            }
-        } else {
-            Text(verbatim: mainCode)
-                .font(.system(size: 30, weight: .semibold))
-                .kerning(3)
-                .monospaced()
-                .foregroundStyle(.textNorm)
-                .contentTransition(.numericText())
-                .textShadow()
-        }
-    }
-
-    @ViewBuilder
-    var icon: some View {
-        if let iconUrl = issuerInfos?.iconUrl, let url = URL(string: iconUrl) {
-            WebImage(url: url) { image in
-                image.resizable()
-            } placeholder: {
-                letterDisplay
-            }
-            .transition(.fade(duration: 0.5))
-            .scaledToFit()
-            .padding(4)
-            .frame(width: 34, height: 34, alignment: .center)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) :
-                    .black.opacity(0),
-                    lineWidth: 0.5))
-        } else {
-            letterDisplay
-        }
-    }
-
-    var letterDisplay: some View {
-        Text(verbatim: entry.capitalLetter)
-            .font(.system(size: 23, weight: .medium))
-            .foregroundStyle(LinearGradient(gradient:
-                Gradient(colors: [
-                    Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
-                    Color(red: 181 / 255, green: 120 / 255, blue: 217 / 255), // #B578D9
-                    Color(red: 249 / 255, green: 175 / 255, blue: 148 / 255), // #F9AF94
-                    Color(red: 255 / 255, green: 213 / 255, blue: 128 / 255) // #FFD580
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing))
-            .padding(.horizontal, 3)
-            .padding(.vertical, 4)
-            .frame(width: 34, height: 34, alignment: .center)
-            .background(isLightMode ? Color(red: 0.95, green: 0.93, blue: 0.97).opacity(0.8) : .black.opacity(0.3))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .inset(by: -0.25)
-                .stroke(isLightMode ? Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0),
-                        lineWidth: 0.5))
     }
 }
 
@@ -273,82 +253,48 @@ private struct TOTPCountdownView: View {
         _pauseCountDown = pauseCountDown
     }
 
-    @State private var timeRemaining: Double = 0
-    @State private var progress: CGFloat = 0.0
-    @State private var timerCancellable: AnyCancellable?
-
     var body: some View {
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(lineWidth: 4)
-                .animation(.default, value: progress)
-                .foregroundStyle(color.opacity(0.3))
-                .padding(2)
+        TimelineView(.animation(minimumInterval: 1, paused: pauseCountDown)) { context in
+            let period = Double(period)
+            let currentTimestamp = context.date.timeIntervalSince1970
+            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
+            let progress = timeRemaining / period
 
-            // Progress circle
-            Circle()
-                .trim(from: 1 - progress, to: 1)
-                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(color)
-                .padding(2)
-                .rotationEffect(.degrees(-90))
-                .animation(.default, value: progress)
-                .transaction { transaction in
-                    transaction.disablesAnimations = timeRemaining == Double(period) - 1
-                }
-
-            // Countdown text
-            Text(verbatim: "\(Int(timeRemaining))")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.textNorm)
-        }
-        .frame(width: size, height: size)
-        .onAppear {
-            calculateTime()
-            startTimer()
-        }
-        .onDisappear {
-            stopTimer()
-        }
-        .onChange(of: pauseCountDown) {
-            if !pauseCountDown, timerCancellable == nil {
-                startTimer()
-            } else if pauseCountDown {
-                stopTimer()
+            let color: Color = switch timeRemaining {
+            case 0...5:
+                .timer1
+            case 5...10:
+                .timer2
+            default:
+                .timer3
             }
-        }
-    }
 
-    private func calculateTime() {
-        let timeInterval = Date().timeIntervalSince1970
-        let newPeriod = Double(period)
-        timeRemaining = (newPeriod - timeInterval.truncatingRemainder(dividingBy: newPeriod)).rounded(.down)
-        progress = CGFloat(timeRemaining) / CGFloat(period)
-    }
+            ZStack {
+                // Background circle
+                Circle()
+                    .stroke(lineWidth: 4)
+                    .animation(.default, value: progress)
+                    .foregroundStyle(color.opacity(0.3))
+                    .padding(2)
 
-    private func startTimer() {
-        // Using a 0.1 second timer for smoother updates
-        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                calculateTime()
+                // Progress circle
+                Circle()
+                    .trim(from: 1 - progress, to: 1)
+                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(color)
+                    .padding(2)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.default, value: progress)
+                    .transaction { transaction in
+                        transaction.disablesAnimations = timeRemaining == period - 1
+                    }
+
+                // Countdown text
+                Text(verbatim: "\(Int(timeRemaining))")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.textNorm)
             }
-    }
-
-    private func stopTimer() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
-    }
-
-    private var color: Color {
-        switch timeRemaining {
-        case 0...5:
-            .timer1
-        case 5...10:
-            .timer2
-        default:
-            .timer3
+            .frame(width: size, height: size)
         }
     }
 }
