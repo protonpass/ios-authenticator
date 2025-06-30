@@ -521,26 +521,26 @@ private extension ImportOption {
         }
     }
 
-    var iconName: String {
+    var icon: Image {
         switch self {
         case .googleAuthenticator:
-            "googleAuthIcon"
+            Image(.googleAuthIcon)
         case .twoFas:
-            "twoFAIcon"
+            Image(.twoFAIcon)
         case .aegisAuthenticator:
-            "aegisIcon"
+            Image(.aegisIcon)
         case .bitwardenAuthenticator:
-            "bitwardenIcon"
+            Image(.bitwardenIcon)
         case .enteAuth:
-            "enteIcon"
+            Image(.enteIcon)
         case .lastPassAuthenticator:
-            "lastpassIcon"
+            Image(.lastpassIcon)
         case .protonAuthenticator:
-            "protonAuthIcon"
+            Image(.protonAuthIcon)
         case .authy:
-            "authyIcon"
+            Image(.authyIcon)
         case .microsoft:
-            "microsoftIcon"
+            Image(.microsoftIcon)
         }
     }
 
@@ -627,7 +627,7 @@ struct ExplanationView: View {
 
             if option.canExport {
                 HStack(spacing: 25) {
-                    Image(option.iconName, bundle: .module)
+                    option.icon
                         .resizable()
                         .frame(width: 74, height: 74)
                     Image(.arrow)
@@ -646,7 +646,7 @@ struct ExplanationView: View {
                 HStack {
                     Spacer()
                     ZStack {
-                        Image(option.iconName, bundle: .module)
+                        option.icon
                             .resizable()
                             .frame(width: 96, height: 96, alignment: .center)
                         Image(.test2)
@@ -728,7 +728,7 @@ struct ImportView: View {
                         handle(option)
                     } label: {
                         HStack {
-                            Image(option.iconName, bundle: .module)
+                            option.icon
                                 .resizable()
                                 .frame(width: 36, height: 36)
                                 .cornerRadius(8)
