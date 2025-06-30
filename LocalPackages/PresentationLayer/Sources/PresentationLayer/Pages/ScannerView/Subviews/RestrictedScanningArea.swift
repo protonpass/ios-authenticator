@@ -79,22 +79,24 @@ struct RestrictedScanningArea: View {
 
                 Text("Point your camera at the QR code", bundle: .module)
                     .foregroundStyle(.white)
-                    .font(.headline)
-                    .fontWeight(.medium)
+                    .dynamicFont(size: 24, textStyle: .title2, weight: .medium)
                     .padding(.top, 20)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 36)
 
                 Spacer()
                 HStack {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
                             .resizable()
-                            .frame(width: 28, height: 28)
+                            .frame(width: 20, height: 20)
                             .foregroundStyle(.white)
                     }
 
                     Spacer()
                     Button(action: manualEntry) {
                         Text("Enter manually", bundle: .module)
+                            .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 36)
                             .padding(.vertical, 10)
@@ -104,15 +106,15 @@ struct RestrictedScanningArea: View {
                     Spacer()
 
                     Button(action: photoLibraryEntry) {
-                        Image(systemName: "rectangle.stack")
+                        Image(systemName: "photo.stack")
                             .resizable()
                             .frame(width: 28, height: 28)
                             .foregroundStyle(.white)
                     }
                 }
                 .padding(.horizontal, 32)
-                Spacer()
             }
+            .padding(.bottom, 64)
         }
         .compositingGroup()
     }

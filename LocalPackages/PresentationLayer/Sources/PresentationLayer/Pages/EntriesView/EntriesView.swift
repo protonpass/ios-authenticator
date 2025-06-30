@@ -152,8 +152,9 @@ private extension EntriesView {
             }
 
             if searchBarAlignment == .top, !viewModel.entries.isEmpty {
-                addButton(size: 52)
+                addButton(size: 64)
                     .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 20, x: 0, y: 2)
             }
         }
     }
@@ -304,9 +305,9 @@ private extension EntriesView {
 
 private extension EntriesView {
     var actionBar: some View {
-        HStack(alignment: .bottom, spacing: 10) {
+        HStack(alignment: .center, spacing: 10) {
             searchBar
-            addButton(size: 44)
+            addButton(size: 42)
         }
         .padding(.horizontal, 22)
         .padding(.top, 8)
@@ -428,15 +429,13 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 8) {
                         Text("No codes yet", bundle: .module)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .monospaced()
+                            .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .monospaced()
+                            .dynamicFont(size: 18, textStyle: .title3)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
@@ -450,7 +449,7 @@ private extension EntriesView {
                                           action: handleAddNewCode)
                                 .impactHaptic()
                             CapsuleButton(title: "Import codes",
-                                          textColor: .white,
+                                          textColor: .textNorm,
                                           style: .bordered,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
@@ -464,12 +463,14 @@ private extension EntriesView {
                     Spacer()
                     Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
                          bundle: .module)
+                        .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textNorm)
                         .frame(maxWidth: .infinity, alignment: .center)
 
                     Text("Try searching using different spelling or keywords", bundle: .module)
+                        .dynamicFont(size: 18, textStyle: .title3)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
@@ -495,8 +496,7 @@ private extension EntriesView {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
             Text(verbatim: "Authenticator")
                 .foregroundStyle(.textNorm)
-                .font(.title)
-                .fontWeight(.bold)
+                .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
@@ -526,7 +526,7 @@ private extension EntriesView {
                 Image(.settingsGear)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
             }
             .adaptiveButtonStyle()
             .impactHaptic()

@@ -47,7 +47,7 @@ private extension CurrentTokenView {
             }
         } else {
             Text(verbatim: code)
-                .font(.system(size: 30, weight: .semibold))
+                .dynamicFont(size: 30, textStyle: .title1, weight: .semibold)
                 .kerning(3)
                 .monospaced()
                 .foregroundStyle(textColor)
@@ -58,7 +58,6 @@ private extension CurrentTokenView {
 }
 
 private struct BoxedDigit: View {
-    @Environment(\.colorScheme) private var colorScheme
     let char: Character
     let codeCount: Int
     let textColor: Color
@@ -66,28 +65,21 @@ private struct BoxedDigit: View {
     var body: some View {
         if char.isWhitespace {
             Text(verbatim: " ")
-                .font(.system(size: 28, weight: .semibold))
+                .dynamicFont(size: 28, textStyle: .title1, weight: .semibold)
                 .monospaced()
                 .foregroundStyle(textColor)
         } else {
-            Text(verbatim: "\(char)")
-                .font(.system(size: 28, weight: .semibold))
-                .monospaced()
-                .foregroundStyle(textColor)
-                .contentTransition(.numericText())
-                .frame(minWidth: codeCount == 7 || codeCount == 6 ? 28 : 24, minHeight: 36)
-                .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(.shadow(.inner(color: .black.opacity(colorScheme.isLight ? 0.16 : 0.3),
-                                         radius: colorScheme.isLight ? 1 : 4,
-                                         x: 0,
-                                         y: colorScheme.isLight ? 1 : 2)))
-                    .foregroundStyle(colorScheme.isLight ? Color(red: 0.95, green: 0.94, blue: 0.94) :
-                        Color(red: 0.19, green: 0.18, blue: 0.18)))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .shadow(color: .white.opacity(colorScheme.isLight ? 1 : 0.1), radius: 2, x: 0, y: 1)
-                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .inset(by: -0.25)
-                    .stroke(.black.opacity(colorScheme.isLight ? 0.23 : 0.5), lineWidth: 0.5))
+            ZStack {
+                Image(.digitBackground)
+                    .resizable(capInsets: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+                    .padding(-3)
+                Text(verbatim: "\(char)")
+                    .dynamicFont(size: 28, textStyle: .title1, weight: .semibold)
+                    .monospaced()
+                    .foregroundStyle(textColor)
+                    .contentTransition(.numericText())
+            }
+            .frame(width: codeCount == 7 || codeCount == 6 ? 28 : 24, height: 36)
         }
     }
 }

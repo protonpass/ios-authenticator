@@ -95,13 +95,13 @@ private extension OnboardingView {
                 Spacer(minLength: illustrationHeight)
 
                 Text(viewModel.currentStep.title, bundle: .module)
-                    .font(.title)
+                    .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
                     .fontWeight(.bold)
                     .foregroundStyle(.textNorm)
                     .padding(.horizontal, 40)
 
                 Text(viewModel.currentStep.description, bundle: .module)
-                    .font(.title3)
+                    .dynamicFont(size: 20, textStyle: .title3)
                     .foregroundStyle(.textWeak)
                     .padding(.horizontal, 40)
                     .padding(.vertical, 8)

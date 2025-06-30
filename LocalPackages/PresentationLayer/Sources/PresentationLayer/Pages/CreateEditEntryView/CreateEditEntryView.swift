@@ -126,15 +126,14 @@ struct CreateEditEntryView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
-                .font(.caption)
-                .foregroundStyle(.white)
+                .dynamicFont(size: 12, textStyle: .caption1)
 
             TextField(config.placeholder, text: config.finalBinding(focusedField))
                 .adaptiveTextFieldStyle()
                 .onSubmit(focusNextField)
                 .focused($focusedField, equals: config.field)
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.textWeak)
+                .dynamicFont(size: 18, textStyle: .body)
+                .foregroundStyle(.textNorm)
                 .autocorrectionDisabled(true)
                 .frame(minHeight: 25)
             #if os(iOS)
@@ -179,6 +178,7 @@ private extension CreateEditEntryView {
         } label: {
             HStack(alignment: .center, spacing: 8) {
                 Text("Advanced options", bundle: .module)
+                    .dynamicFont(size: 18, textStyle: .body)
                     .foregroundStyle(.textNorm)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 Spacer()
@@ -220,6 +220,7 @@ private extension CreateEditEntryView {
                       binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
             Text(title, bundle: .module)
+                .dynamicFont(size: 18, textStyle: .body)
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
@@ -260,6 +261,7 @@ private extension CreateEditEntryView {
         } header: {
             HStack {
                 Text(title, bundle: .module)
+                    .dynamicFont(size: 13, textStyle: .footnote)
                     .foregroundStyle(.textNorm)
                     .opacity(0.7)
                     .padding(.leading, 16)

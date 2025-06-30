@@ -29,13 +29,13 @@ struct EntryThumbnail: View {
     var body: some View {
         if let iconUrl, let url = URL(string: iconUrl) {
             WebImage(url: url) { image in
-                image.resizable()
+                image
+                    .resizable()
+                    .background(.white)
             } placeholder: {
                 thumbnailLetter
             }
             .transition(.fade(duration: 0.5))
-            .scaledToFit()
-            .padding(4)
             .frame(width: 34, height: 34, alignment: .center)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -63,7 +63,7 @@ private struct ThumbnailLetter: View {
 
     var body: some View {
         Text(verbatim: text)
-            .font(.system(size: 23, weight: .medium))
+            .dynamicFont(size: 23, textStyle: .title2, weight: .medium)
             .foregroundStyle(LinearGradient(gradient:
                 Gradient(colors: [
                     Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
