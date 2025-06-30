@@ -232,17 +232,6 @@
         }
       }
     },
-    "Code copied" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Code copied"
-          }
-        }
-      }
-    },
     "Codes imported" : {
       "localizations" : {
         "en" : {
@@ -254,7 +243,14 @@
       }
     },
     "Copied" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied"
+          }
+        }
+      }
     },
     "Could not process the image" : {
       "localizations" : {
