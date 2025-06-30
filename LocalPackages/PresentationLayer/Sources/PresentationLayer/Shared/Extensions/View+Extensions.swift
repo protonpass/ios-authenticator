@@ -102,8 +102,8 @@ public extension View {
     }
 
     func dynamicFont(size: CGFloat = 14,
-                         textStyle: UIFont.TextStyle = .body,
-                         weight: Font.Weight = .regular) -> some View {
+                     textStyle: UIFont.TextStyle = .body,
+                     weight: Font.Weight = .regular) -> some View {
         font(.system(size: UIFontMetrics(forTextStyle: textStyle).scaledValue(for: size), weight: weight))
     }
 }
