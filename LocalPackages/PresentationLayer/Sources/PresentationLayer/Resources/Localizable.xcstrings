@@ -763,6 +763,16 @@
         }
       }
     },
+    "No export available" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No export available"
+          }
+        }
+      }
+    },
     "No new codes detected" : {
       "localizations" : {
         "en" : {
@@ -999,6 +1009,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Security in every code"
+          }
+        }
+      }
+    },
+    "Select your current 2FA provider" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select your current 2FA provider"
           }
         }
       }
@@ -1302,6 +1322,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "TYPE"
+          }
+        }
+      }
+    },
+    "Unfortunately, %@ doesn’t currently support exporting data from their app. Consider contacting %@ to request this feature. \n\nPlease import your data manually for now." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unfortunately, %1$@ doesn’t currently support exporting data from their app. Consider contacting %2$@ to request this feature. \n\nPlease import your data manually for now."
           }
         }
       }

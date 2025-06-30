@@ -100,9 +100,6 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.toastService) var toastService
-
-    @ObservationIgnored
     @LazyInjected(\UseCaseContainer.requestForReview)
     private var requestForReview
 

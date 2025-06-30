@@ -28,12 +28,4 @@ extension ColorScheme {
             false
         }
     }
-
-    var isDark: Bool {
-        if case .dark = self {
-            true
-        } else {
-            false
-        }
-    }
 }
