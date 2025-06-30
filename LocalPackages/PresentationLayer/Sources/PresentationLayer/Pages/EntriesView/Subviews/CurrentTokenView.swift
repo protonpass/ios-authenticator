@@ -58,7 +58,6 @@ private extension CurrentTokenView {
 }
 
 private struct BoxedDigit: View {
-    @Environment(\.colorScheme) private var colorScheme
     let char: Character
     let codeCount: Int
     let textColor: Color
