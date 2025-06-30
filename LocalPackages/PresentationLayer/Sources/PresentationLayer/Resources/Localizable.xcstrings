@@ -302,12 +302,12 @@
         }
       }
     },
-    "Data on this device won't be updated and changes will not be reflected on other devices.\n\n You will be logged out of your proton account." : {
+    "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your proton account." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data on this device won't be updated and changes will not be reflected on other devices.\n\n You will be logged out of your proton account."
+            "value" : "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your proton account."
           }
         }
       }
