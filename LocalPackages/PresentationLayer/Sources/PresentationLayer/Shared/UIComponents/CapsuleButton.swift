@@ -55,7 +55,7 @@ struct CapsuleButton: View {
 private extension CapsuleButton {
     var text: some View {
         Text(title, bundle: .module)
-            .passDynamicFont(size: 17, textStyle: .body, weight: weight)
+            .dynamicFont(size: 17, textStyle: .body, weight: weight)
             .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
             .padding(.vertical, DesignConstant.padding / 2)

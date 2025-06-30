@@ -429,13 +429,13 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 8) {
                         Text("No codes yet", bundle: .module)
-                            .passDynamicFont(size: 24, textStyle: .title2, weight: .semibold)
+                            .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .passDynamicFont(size: 18, textStyle: .title3)
+                            .dynamicFont(size: 18, textStyle: .title3)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
@@ -463,14 +463,14 @@ private extension EntriesView {
                     Spacer()
                     Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
                          bundle: .module)
-                        .passDynamicFont(size: 24, textStyle: .title2, weight: .semibold)
+                        .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textNorm)
                         .frame(maxWidth: .infinity, alignment: .center)
 
                     Text("Try searching using different spelling or keywords", bundle: .module)
-                        .passDynamicFont(size: 18, textStyle: .title3)
+                        .dynamicFont(size: 18, textStyle: .title3)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
@@ -496,7 +496,7 @@ private extension EntriesView {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
             Text(verbatim: "Authenticator")
                 .foregroundStyle(.textNorm)
-                .passDynamicFont(size: 28, textStyle: .title1, weight: .bold)
+                .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {

@@ -79,7 +79,7 @@ struct RestrictedScanningArea: View {
 
                 Text("Point your camera at the QR code", bundle: .module)
                     .foregroundStyle(.white)
-                    .passDynamicFont(size: 24, textStyle: .title2, weight: .medium)
+                    .dynamicFont(size: 24, textStyle: .title2, weight: .medium)
                     .padding(.top, 20)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 36)
@@ -96,7 +96,7 @@ struct RestrictedScanningArea: View {
                     Spacer()
                     Button(action: manualEntry) {
                         Text("Enter manually", bundle: .module)
-                            .passDynamicFont(size: 17, textStyle: .body, weight: .semibold)
+                            .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 36)
                             .padding(.vertical, 10)

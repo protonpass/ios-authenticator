@@ -47,12 +47,12 @@ struct SettingRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title) // ignore:missing_bundle
                     .foregroundStyle(.textNorm)
-                    .passDynamicFont(size: 17, textStyle: .body)
+                    .dynamicFont(size: 17, textStyle: .body)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 if let subtitle {
                     Text(subtitle) // ignore:missing_bundle
-                        .passDynamicFont(size: 15, textStyle: .subheadline)
+                        .dynamicFont(size: 15, textStyle: .subheadline)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 }
@@ -70,7 +70,7 @@ struct SettingRow: View {
 
                 case let .detailChevronUpDown(detail):
                     Text(detail) // ignore:missing_bundle
-                        .passDynamicFont(size: 17, textStyle: .body)
+                        .dynamicFont(size: 17, textStyle: .body)
                         .foregroundStyle(.textNorm)
                         .padding(.trailing, DesignConstant.padding / 2)
 

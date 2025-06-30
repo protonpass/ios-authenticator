@@ -27,7 +27,7 @@ struct CopyMessageBadge: View {
         HStack(spacing: 6) {
             Image(systemName: "checkmark.circle.fill")
             Text("Copied", bundle: .module)
-                .passDynamicFont(size: 13, textStyle: .footnote, weight: .medium)
+                .dynamicFont(size: 13, textStyle: .footnote, weight: .medium)
         }
         .foregroundStyle(.copyMessage)
         .padding()

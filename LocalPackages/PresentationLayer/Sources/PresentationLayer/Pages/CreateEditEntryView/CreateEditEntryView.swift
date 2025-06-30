@@ -126,13 +126,13 @@ struct CreateEditEntryView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(config.title, bundle: .module)
                 .foregroundStyle(.textNorm)
-                .passDynamicFont(size: 12, textStyle: .caption1)
+                .dynamicFont(size: 12, textStyle: .caption1)
 
             TextField(config.placeholder, text: config.finalBinding(focusedField))
                 .adaptiveTextFieldStyle()
                 .onSubmit(focusNextField)
                 .focused($focusedField, equals: config.field)
-                .passDynamicFont(size: 18, textStyle: .body)
+                .dynamicFont(size: 18, textStyle: .body)
                 .foregroundStyle(.textNorm)
                 .autocorrectionDisabled(true)
                 .frame(minHeight: 25)
@@ -178,7 +178,7 @@ private extension CreateEditEntryView {
         } label: {
             HStack(alignment: .center, spacing: 8) {
                 Text("Advanced options", bundle: .module)
-                    .passDynamicFont(size: 18, textStyle: .body)
+                    .dynamicFont(size: 18, textStyle: .body)
                     .foregroundStyle(.textNorm)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 Spacer()
@@ -220,7 +220,7 @@ private extension CreateEditEntryView {
                       binding: Binding<Int>) -> some View {
         HStack(alignment: .center, spacing: 8) {
             Text(title, bundle: .module)
-                .passDynamicFont(size: 18, textStyle: .body)
+                .dynamicFont(size: 18, textStyle: .body)
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             Spacer()
@@ -261,7 +261,7 @@ private extension CreateEditEntryView {
         } header: {
             HStack {
                 Text(title, bundle: .module)
-                    .passDynamicFont(size: 13, textStyle: .footnote)
+                    .dynamicFont(size: 13, textStyle: .footnote)
                     .foregroundStyle(.textNorm)
                     .opacity(0.7)
                     .padding(.leading, 16)

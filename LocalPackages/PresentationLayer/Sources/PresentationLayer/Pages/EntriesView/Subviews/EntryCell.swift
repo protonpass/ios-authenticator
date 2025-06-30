@@ -134,11 +134,11 @@ private extension EntryCell {
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.issuer, highlighted: searchTerm)
-                        .passDynamicFont(size: 16, textStyle: .callout, weight: .medium)
+                        .dynamicFont(size: 16, textStyle: .callout, weight: .medium)
                         .foregroundStyle(.textNorm)
                         .textShadow()
                     HighlightedText(text: entry.name, highlighted: searchTerm)
-                        .passDynamicFont(size: 14, textStyle: .footnote)
+                        .dynamicFont(size: 14, textStyle: .footnote)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
                         .textShadow()
@@ -170,11 +170,11 @@ private extension EntryCell {
 
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("Next", bundle: .module)
-                        .passDynamicFont(size: 14, textStyle: .footnote)
+                        .dynamicFont(size: 14, textStyle: .footnote)
                         .foregroundStyle(.textWeak)
                         .textShadow()
                     Text(verbatim: nextCode)
-                        .passDynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
+                        .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
                         .monospaced()
                         .foregroundStyle(.textNorm)
                         .textShadow()
@@ -290,7 +290,7 @@ private struct TOTPCountdownView: View {
 
                 // Countdown text
                 Text(verbatim: "\(Int(timeRemaining))")
-                    .passDynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
                     .foregroundStyle(.textNorm)
             }
             .frame(width: size, height: size)

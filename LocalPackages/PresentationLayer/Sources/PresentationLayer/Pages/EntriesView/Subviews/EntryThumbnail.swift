@@ -63,7 +63,7 @@ private struct ThumbnailLetter: View {
 
     var body: some View {
         Text(verbatim: text)
-            .passDynamicFont(size: 23, textStyle: .title2, weight: .medium)
+            .dynamicFont(size: 23, textStyle: .title2, weight: .medium)
             .foregroundStyle(LinearGradient(gradient:
                 Gradient(colors: [
                     Color(red: 109 / 255, green: 74 / 255, blue: 255 / 255), // #6D4AFF
