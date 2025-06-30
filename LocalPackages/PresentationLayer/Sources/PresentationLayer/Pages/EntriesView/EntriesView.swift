@@ -305,7 +305,7 @@ private extension EntriesView {
 
 private extension EntriesView {
     var actionBar: some View {
-        HStack(alignment: .bottom, spacing: 10) {
+        HStack(alignment: .center, spacing: 10) {
             searchBar
             addButton(size: 42)
         }
@@ -429,15 +429,13 @@ private extension EntriesView {
                 } description: {
                     VStack(spacing: 8) {
                         Text("No codes yet", bundle: .module)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .monospaced()
+                            .passDynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textNorm)
                             .frame(maxWidth: .infinity, alignment: .top)
                             .opacity(0.9)
                         Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .monospaced()
+                            .passDynamicFont(size: 18, textStyle: .title3)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.textWeak)
                             .frame(maxWidth: .infinity, alignment: .top)
@@ -451,7 +449,7 @@ private extension EntriesView {
                                           action: handleAddNewCode)
                                 .impactHaptic()
                             CapsuleButton(title: "Import codes",
-                                          textColor: .white,
+                                          textColor: .textNorm,
                                           style: .bordered,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
@@ -465,12 +463,14 @@ private extension EntriesView {
                     Spacer()
                     Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
                          bundle: .module)
+                        .passDynamicFont(size: 24, textStyle: .title2, weight: .semibold)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textNorm)
                         .frame(maxWidth: .infinity, alignment: .center)
 
                     Text("Try searching using different spelling or keywords", bundle: .module)
+                        .passDynamicFont(size: 18, textStyle: .title3)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
@@ -496,8 +496,7 @@ private extension EntriesView {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
             Text(verbatim: "Authenticator")
                 .foregroundStyle(.textNorm)
-                .font(.title)
-                .fontWeight(.bold)
+                .passDynamicFont(size: 28, textStyle: .title1, weight: .bold)
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
@@ -527,7 +526,7 @@ private extension EntriesView {
                 Image(.settingsGear)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
             }
             .adaptiveButtonStyle()
             .impactHaptic()

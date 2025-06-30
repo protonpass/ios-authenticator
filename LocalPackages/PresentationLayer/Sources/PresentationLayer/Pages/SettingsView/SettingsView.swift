@@ -317,7 +317,7 @@ private extension SettingsView {
     var versionLabel: some View {
         if let version = viewModel.versionString {
             Text(verbatim: version)
-                .font(.system(size: 13, weight: .regular))
+                .passDynamicFont(size: 13, textStyle: .footnote)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .plainListRow()
@@ -344,7 +344,7 @@ private extension SettingsView {
     func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         VStack(spacing: DesignConstant.padding) {
             Text(title, bundle: .module)
-                .font(.system(size: 13, weight: .regular))
+                .passDynamicFont(size: 13, textStyle: .footnote)
                 .foregroundStyle(.textWeak)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, DesignConstant.padding)

@@ -27,8 +27,8 @@ struct CopyMessageBadge: View {
         HStack(spacing: 6) {
             Image(systemName: "checkmark.circle.fill")
             Text("Copied", bundle: .module)
+                .passDynamicFont(size: 13, textStyle: .footnote, weight: .medium)
         }
-        .font(.system(size: 14, weight: .medium))
         .foregroundStyle(.copyMessage)
         .padding()
         .overlay(GeometryReader { proxy in

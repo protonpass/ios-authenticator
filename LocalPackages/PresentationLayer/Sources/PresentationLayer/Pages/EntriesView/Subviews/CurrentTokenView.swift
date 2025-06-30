@@ -47,7 +47,7 @@ private extension CurrentTokenView {
             }
         } else {
             Text(verbatim: code)
-                .font(.system(size: 30, weight: .semibold))
+                .passDynamicFont(size: 30, textStyle: .title1, weight: .semibold)
                 .kerning(3)
                 .monospaced()
                 .foregroundStyle(textColor)
@@ -65,7 +65,7 @@ private struct BoxedDigit: View {
     var body: some View {
         if char.isWhitespace {
             Text(verbatim: " ")
-                .font(.system(size: 28, weight: .semibold))
+                .passDynamicFont(size: 28, textStyle: .title1, weight: .semibold)
                 .monospaced()
                 .foregroundStyle(textColor)
         } else {
@@ -74,7 +74,7 @@ private struct BoxedDigit: View {
                     .resizable(capInsets: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
                     .padding(-3)
                 Text(verbatim: "\(char)")
-                    .font(.system(size: 28, weight: .semibold))
+                    .passDynamicFont(size: 28, textStyle: .title1, weight: .semibold)
                     .monospaced()
                     .foregroundStyle(textColor)
                     .contentTransition(.numericText())
