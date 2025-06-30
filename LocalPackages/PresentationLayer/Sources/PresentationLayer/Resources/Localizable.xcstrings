@@ -1013,12 +1013,12 @@
         }
       }
     },
-    "Select your current 2fas provider" : {
+    "Select your current 2FA provider" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select your current 2fas provider"
+            "value" : "Select your current 2FA provider"
           }
         }
       }

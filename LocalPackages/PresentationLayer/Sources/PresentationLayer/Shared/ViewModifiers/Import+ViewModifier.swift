@@ -457,7 +457,6 @@ private extension URL {
 }
 
 private extension ImportOption {
-    // periphery:ignore
     var title: String {
         switch self {
         case .googleAuthenticator:
@@ -717,12 +716,14 @@ struct ImportView: View {
                         .fontWeight(.bold)
                         .font(.title2)
 
-                    Text("Select your current 2fas provider", bundle: .module)
+                    Text("Select your current 2FA provider", bundle: .module)
                         .foregroundStyle(.textWeak)
-                }.listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                ForEach(ImportOption.allCases, id: \.self) { option in
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+
+                ForEach(ImportOption.allCasesSorted, id: \.self) { option in
                     Button {
                         dismiss()
                         handle(option)
@@ -749,10 +750,17 @@ struct ImportView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
             .listStyle(.plain)
             .padding(.horizontal, 32)
         }
         .fullScreenMainBackground()
+    }
+}
+
+private extension ImportOption {
+    static var allCasesSorted: [Self] {
+        allCases.sorted(by: { $0.title < $1.title })
     }
 }
 
