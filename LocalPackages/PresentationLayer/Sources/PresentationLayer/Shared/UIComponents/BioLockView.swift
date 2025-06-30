@@ -21,15 +21,33 @@
 import SwiftUI
 
 public struct BioLockView: View {
-    public init() {}
+    private let manualUnlock: Bool
+    private let onUnlock: () -> Void
+
+    public init(manualUnlock: Bool,
+                onUnlock: @escaping () -> Void) {
+        self.manualUnlock = manualUnlock
+        self.onUnlock = onUnlock
+    }
 
     public var body: some View {
         VStack {
             Spacer()
+
             Image(.authIcon)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 200)
+
+            if manualUnlock {
+                Button(action: onUnlock) {
+                    Text("Unlock", bundle: .module)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.accent)
+                }
+                .padding(.top)
+            }
+
             Spacer()
         }
         .padding(20)

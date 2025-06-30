@@ -37,6 +37,7 @@ public struct EntriesView: View {
     @State private var draggingEntry: EntryUiModel?
     @State private var isEditing = false
     @State private var showImportOptions = false
+    @State private var searchEnabled = false
 
     @FocusState private var searchFieldFocus: Bool
 
@@ -77,7 +78,9 @@ public struct EntriesView: View {
                 }
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
                     view
-                        .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always))
+                        .searchable(text: $viewModel.query,
+                                    isPresented: $searchEnabled,
+                                    placement: .navigationBarDrawer(displayMode: .always))
                         .searchFocusable($searchFieldFocus)
                         .asciiCapableKeyboard()
                         .autocorrectionDisabled(true)
@@ -99,6 +102,11 @@ public struct EntriesView: View {
                         if viewModel.isAuthenticated {
                             viewModel.fullSync()
                         }
+                    }
+                }
+                .onChange(of: searchFieldFocus) { _, focused in
+                    if !focused, ProcessInfo().isiOSAppOnMac {
+                        searchEnabled = false
                     }
                 }
                 .sheetDestinations($router.presentedSheet)
