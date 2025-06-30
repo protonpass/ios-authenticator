@@ -48,6 +48,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func importEntries(from source: TwofaImportSource) async throws -> Int
     func stopTotpGenerator()
     func startTotpGenerator()
+
+    func unsyncAllEntries() async throws
 }
 
 public final class CurrentTimeProviderImpl: MobileCurrentTimeProvider {
@@ -213,13 +215,32 @@ public extension EntryDataService {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
 
-            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries, entriesStates: entriesStates)
+            let filteredRemote = remoteOrderedEntries
+                .filter { entry in
+                    !entriesStates.decodedEntries.contains(where: { $0.entry.isDuplicate(of: entry.entry) })
+                }
+
+            _ = try await syncOperation(remoteOrderedEntries: filteredRemote, entriesStates: entriesStates)
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    func unsyncAllEntries() async throws {
+        log(.debug, "Unsync all entries")
+        do {
+            try await repository.unsyncAllEntries()
+            let entriesStates = try await repository.getAllLocalEntries()
+
+            let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to Unsync all entries: \(error.localizedDescription)")
             throw error
         }
     }

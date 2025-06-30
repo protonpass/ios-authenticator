@@ -60,6 +60,8 @@ public protocol EntryRepositoryProtocol: Sendable {
     @MainActor
     func localReorder(_ entries: [OrderedEntry]) async throws
 
+    func unsyncAllEntries() async throws
+
     // MARK: - Remote Proton BE CRUD
 
     func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
@@ -373,6 +375,16 @@ public extension EntryRepository {
             log(.error, "Failed to update entry order: \(error.localizedDescription)")
             throw error
         }
+    }
+
+    func unsyncAllEntries() async throws {
+        let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage.fetch()
+
+        for entry in encryptedEntries {
+            entry.updateSyncState(newState: .unsynced)
+        }
+
+        try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
     }
 }
 

@@ -23,6 +23,7 @@ import DataLayer
 import Models
 
 final class MockedEntryDataService: EntryDataServiceProtocol {
+ 
     init() {}
 
     var dataState: DataState<[EntryUiModel]> = .loading
@@ -75,4 +76,9 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
     func stopTotpGenerator() {}
     
     func startTotpGenerator() {}
+    
+    func unsyncAllEntries() async throws {
+        
+    }
+
 }
