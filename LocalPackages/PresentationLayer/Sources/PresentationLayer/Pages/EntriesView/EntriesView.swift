@@ -152,8 +152,9 @@ private extension EntriesView {
             }
 
             if searchBarAlignment == .top, !viewModel.entries.isEmpty {
-                addButton(size: 52)
+                addButton(size: 64)
                     .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 20, x: 0, y: 2)
             }
         }
     }
@@ -306,7 +307,7 @@ private extension EntriesView {
     var actionBar: some View {
         HStack(alignment: .bottom, spacing: 10) {
             searchBar
-            addButton(size: 44)
+            addButton(size: 42)
         }
         .padding(.horizontal, 22)
         .padding(.top, 8)

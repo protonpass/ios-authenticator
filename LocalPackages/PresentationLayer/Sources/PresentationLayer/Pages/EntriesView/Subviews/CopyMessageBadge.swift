@@ -26,10 +26,9 @@ struct CopyMessageBadge: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "checkmark.circle.fill")
-            Text("Code copied", bundle: .module)
+            Text("Copied", bundle: .module)
         }
-        .font(.callout)
-        .fontWeight(.medium)
+        .font(.system(size: 14, weight: .medium))
         .foregroundStyle(.copyMessage)
         .padding()
         .overlay(GeometryReader { proxy in
