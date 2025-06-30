@@ -48,7 +48,7 @@ extension AlertConfiguration {
         return .init(title: "Are you sure?",
                      titleBundle: .module,
                      // swiftlint:disable:next line_length
-                     message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.",
+                     message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your proton account.",
                                          .module),
                      actions: [logoutAction, ActionConfig.cancel])
     }
