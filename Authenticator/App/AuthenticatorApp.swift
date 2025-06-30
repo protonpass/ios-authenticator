@@ -75,7 +75,8 @@ private extension AuthenticatorApp {
                             }
                         }
                 } else {
-                    BioLockView()
+                    BioLockView(manualUnlock: viewModel.manualUnlock,
+                                onUnlock: viewModel.checkBiometrics)
                 }
             } else {
                 OnboardingView()
@@ -86,7 +87,7 @@ private extension AuthenticatorApp {
         .onAppear {
             viewModel.updateWindowUserInterfaceStyle()
             viewModel.setWindowTintColor()
-            if !viewModel.showEntries {
+            if !viewModel.manualUnlock, !viewModel.showEntries {
                 viewModel.checkBiometrics()
             }
         }
@@ -95,7 +96,7 @@ private extension AuthenticatorApp {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                if !viewModel.showEntries {
+                if !viewModel.manualUnlock, !viewModel.showEntries {
                     viewModel.checkBiometrics()
                 }
             }
@@ -122,6 +123,9 @@ private final class AuthenticatorAppViewModel {
     var theme: Theme {
         appSettings.theme
     }
+
+    @ObservationIgnored
+    let manualUnlock = ProcessInfo().isiOSAppOnMac
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.deepLinkService)

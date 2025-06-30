@@ -1336,6 +1336,16 @@
         }
       }
     },
+    "Unlock" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock"
+          }
+        }
+      }
+    },
     "Update Entry" : {
       "localizations" : {
         "en" : {
