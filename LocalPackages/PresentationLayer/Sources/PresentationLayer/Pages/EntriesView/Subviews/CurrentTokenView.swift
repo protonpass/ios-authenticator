@@ -74,7 +74,7 @@ private struct BoxedDigit: View {
                 Image(.digitBackground)
                     .resizable(capInsets: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
                     .padding(-3)
-                Text("\(char)")
+                Text(verbatim: "\(char)")
                     .font(.system(size: 28, weight: .semibold))
                     .monospaced()
                     .foregroundStyle(textColor)
