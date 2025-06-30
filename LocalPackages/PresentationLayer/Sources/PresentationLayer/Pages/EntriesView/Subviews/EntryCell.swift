@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Combine
-import CommonUtilities
 import FactoryKit
 import Models
 import SwiftUI
