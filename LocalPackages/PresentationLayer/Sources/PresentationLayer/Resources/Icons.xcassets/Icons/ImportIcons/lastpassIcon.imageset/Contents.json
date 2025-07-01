@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "lastpassIcon.pdf",
-      "idiom" : "universal"
+      "filename" : "lastpassIcon.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "lastpassIcon@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "lastpassIcon@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

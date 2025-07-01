@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "googleAuthIcon.pdf",
-      "idiom" : "universal"
+      "filename" : "googleAuthIcon.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "googleAuthIcon@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "googleAuthIcon@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
