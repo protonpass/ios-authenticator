@@ -222,9 +222,10 @@ final class EntriesViewModel: ObservableObject {
 
 extension EntriesViewModel {
     func reloadData() {
-        loadEntries()
         if isAuthenticated {
             fullSync()
+        } else {
+            loadEntries()
         }
     }
 
