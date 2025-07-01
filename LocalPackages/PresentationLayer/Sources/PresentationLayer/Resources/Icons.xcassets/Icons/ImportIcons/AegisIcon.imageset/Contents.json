@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "AegisIcon.pdf",
-      "idiom" : "universal"
+      "filename" : "aegisIcon.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "aegisIcon@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "aegisIcon@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

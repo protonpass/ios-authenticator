@@ -145,19 +145,18 @@ struct ImportingServiceModifier: ViewModifier {
             VStack(alignment: .center, spacing: 30) {
                 VStack(spacing: 8) {
                     Text("Protected file", bundle: .module)
-                        .font(.title)
+                        .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textNorm)
-                        .fontWeight(.bold)
                     Text("Your import file is protected by a password. Please enter the password to proceed.",
                          bundle: .module)
-                        .font(.title3)
+                        .dynamicFont(size: 20, textStyle: .title3)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.textWeak)
                 }
 
                 SecureField("Password", text: $viewModel.password)
-                    .font(.title3)
+                    .dynamicFont(size: 20, textStyle: .title3)
                     .focused($focusedField, equals: .field)
                     .autocorrectionDisabled(true)
                 #if os(iOS)
@@ -648,14 +647,10 @@ struct ExplanationView: View {
                         option.icon
                             .resizable()
                             .frame(width: 96, height: 96, alignment: .center)
-                        Image(.test2)
+                        Image(.importShield)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 400, height: 400)
-
-                        Image(.circleHoneyComb)
-                            .resizable()
-                            .frame(width: 225, height: 225)
+                            .frame(width: 433, height: 433)
                     }
                     .frame(width: 225, height: 225)
                     Spacer()
@@ -664,14 +659,13 @@ struct ExplanationView: View {
             }
 
             Text(title) // ignore:missing_bundle
-                .font(.title)
-                .fontWeight(.bold)
+                .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
                 .foregroundStyle(.textNorm)
                 .multilineTextAlignment(option.canExport ? .leading : .center)
                 .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
                 .padding(.horizontal, 32)
             Text(option.explanation, bundle: .module) // ignore:missing_bundle
-                .font(.title3)
+                .dynamicFont(size: 20, textStyle: .title3)
                 .foregroundStyle(.textWeak)
                 .multilineTextAlignment(option.canExport ? .leading : .center)
                 .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
@@ -713,11 +707,11 @@ struct ImportView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Import codes", bundle: .module)
                         .foregroundStyle(.textNorm)
-                        .fontWeight(.bold)
-                        .font(.title2)
+                        .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
 
                     Text("Select your current 2FA provider", bundle: .module)
                         .foregroundStyle(.textWeak)
+                        .dynamicFont(size: 20, textStyle: .title3)
                 }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -728,12 +722,13 @@ struct ImportView: View {
                         dismiss()
                         handle(option)
                     } label: {
-                        HStack {
+                        HStack(spacing: 12) {
                             option.icon
                                 .resizable()
                                 .frame(width: 36, height: 36)
                                 .cornerRadius(8)
                             Text(verbatim: option.title)
+                                .dynamicFont(size: 17, textStyle: .body)
                                 .foregroundStyle(.textNorm)
                             Spacer()
                             if !option.canExport {

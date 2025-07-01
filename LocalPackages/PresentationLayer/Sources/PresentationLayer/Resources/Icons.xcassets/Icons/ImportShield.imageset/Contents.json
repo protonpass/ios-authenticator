@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "bitwardenIcon.png",
+      "filename" : "ImportShield.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "bitwardenIcon@2x.png",
+      "filename" : "ImportShield@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "bitwardenIcon@3x.png",
+      "filename" : "ImportShield@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

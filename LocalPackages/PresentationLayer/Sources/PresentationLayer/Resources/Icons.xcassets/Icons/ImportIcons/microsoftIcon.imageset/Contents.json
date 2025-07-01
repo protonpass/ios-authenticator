@@ -1,8 +1,19 @@
 {
   "images" : [
     {
-      "filename" : "microsoftIcon.pdf",
-      "idiom" : "universal"
+      "filename" : "microsoftIcon.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "microsoftIcon@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "microsoftIcon@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
