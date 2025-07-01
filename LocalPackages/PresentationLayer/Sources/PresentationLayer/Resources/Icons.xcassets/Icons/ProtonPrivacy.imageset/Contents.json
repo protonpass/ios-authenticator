@@ -1,6 +1,16 @@
 {
   "images" : [
     {
+      "filename" : "ProtonPrivacy 1.svg",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "filename" : "ProtonPrivacy.svg",
       "idiom" : "universal"
     }
