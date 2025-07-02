@@ -428,7 +428,6 @@ private extension EntryDataService {
         dataState = .loaded(entryUiModels)
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws -> Bool {
         let operations = try syncOperation
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
@@ -438,7 +437,6 @@ private extension EntryDataService {
         var itemsToFullyDelete: [OrderedEntry] = []
         var itemsToUpsertLocally: [OrderedEntry] = []
         var itemIdsToDeleteLocally: [String] = []
-        var itemsToRemoteUpdate: [OrderedEntry] = []
 
         for operation in operations {
             switch operation.operation {
@@ -458,35 +456,15 @@ private extension EntryDataService {
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
                     itemsToPushToRemote.append(orderedEntry)
                 }
-            case .conflict:
-                if let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
-                   let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
-                    if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                        itemsToUpsertLocally.append(remoteEntry)
-                    } else {
-                        let updatedRevision = localEntry.updateRevision(latestRevision)
-                        itemsToRemoteUpdate.append(updatedRevision)
-                    }
-                }
             }
         }
-
-        print("Woot full sync\n")
-        print("Woot items to upsert itemsToUpsertLocally: \(itemsToUpsertLocally.count)\n")
-        print("Woot items to remote save: \(itemsToPushToRemote.count)\n")
-        print("Woot items to localRemove: \(itemIdsToDeleteLocally.count)\n")
-        print("Woot items to fullyRemove: \(itemsToFullyDelete.count)\n")
-        print("Woot items to remoteUpdate: \(itemsToRemoteUpdate.count)\n")
-        print("******************\n\n")
 
         async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
         async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
         async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
         async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
-        async let remoteUpdate = repository.remoteUpdates(entries: itemsToRemoteUpdate)
 
-        _ = try await (localEntriesFetch, remoteSave, localRemove, fullyRemove, remoteUpdate)
+        _ = try await (localEntriesFetch, remoteSave, localRemove, fullyRemove)
 
         return !operations.isEmpty
     }

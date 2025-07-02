@@ -26,7 +26,7 @@ import Models
 import SimplyPersist
 import SwiftData
 
-// swiftlint:disable line_length
+// swiftlint:disable line_length file_length
 public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Uri parsing and params from rust lib
 
@@ -202,7 +202,7 @@ public extension EntryRepository {
             } catch {
                 let entryIDs = entries.map((\.id))
                 let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
-                 let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
+                let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
                 guard !entities.isEmpty else {
                     log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
                     return
@@ -812,7 +812,7 @@ extension [EncryptedEntryEntity] {
             entry.update(with: remoteEntries[index])
         }
     }
-    
+
     func switchToDelete() {
         for entry in self {
             entry.updateSyncState(newState: .toDelete)
@@ -820,10 +820,10 @@ extension [EncryptedEntryEntity] {
     }
 }
 
-// swiftlint:enable line_length
-
 extension Date {
     static var currentTimestamp: TimeInterval {
         Date.now.timeIntervalSince1970
     }
 }
+
+// swiftlint:enable line_length file_length

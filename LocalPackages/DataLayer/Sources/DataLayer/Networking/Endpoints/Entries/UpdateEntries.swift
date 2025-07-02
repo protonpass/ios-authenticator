@@ -28,7 +28,10 @@ public struct BatchUpdateEntryRequest: Encodable, Sendable {
     let contentFormatVersion: Int
     let lastRevision: Int
 
-    public init(entryID: String, authenticatorKeyID: String, content: String, contentFormatVersion: Int,
+    public init(entryID: String,
+                authenticatorKeyID: String,
+                content: String,
+                contentFormatVersion: Int,
                 lastRevision: Int) {
         self.entryID = entryID
         self.authenticatorKeyID = authenticatorKeyID
