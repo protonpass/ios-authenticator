@@ -28,6 +28,13 @@ import Models
 import SimpleToast
 import SwiftUI
 
+enum EntryAction: Sendable {
+    case copyCurrentCode(EntryUiModel)
+    case copyNextCode(EntryUiModel)
+    case edit(EntryUiModel)
+    case delete(EntryUiModel)
+}
+
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
@@ -35,6 +42,7 @@ public struct EntriesView: View {
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
+    @State private var hoveringEntry: EntryUiModel?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
 
@@ -231,12 +239,11 @@ private extension EntriesView {
     }
 
     func cell(for entry: EntryUiModel) -> some View {
-        EntryCell(entry: entry.orderedEntry.entry,
-                  code: entry.code,
+        EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
-                  issuerInfos: entry.issuerInfo,
                   searchTerm: viewModel.query,
-                  onCopyToken: { viewModel.copyTokenToClipboard(entry, current: true) },
+                  isHovered: hoveringEntry == entry,
+                  onAction: handle(_:),
                   pauseCountDown: $viewModel.pauseCountDown,
                   copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
@@ -250,24 +257,30 @@ private extension EntriesView {
             .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
                                     bundle: .module))
             .contextMenu {
-                Button(action: { viewModel.copyTokenToClipboard(entry, current: true) },
-                       label: { Label("Copy current code", systemImage: "square.on.square") })
-
-                Button(action: { viewModel.copyTokenToClipboard(entry, current: false) },
-                       label: { Label("Copy next code", systemImage: "square.on.square") })
-
-                Divider()
-
-                Button(action: { router.presentedSheet = .createEditEntry(entry) },
-                       label: { Label("Edit", systemImage: "pencil") })
-                    .keyboardShortcut("E", modifiers: [.command, .shift])
-
-                Divider()
-
-                Button(role: .destructive,
-                       action: { viewModel.delete(entry) },
-                       label: { Label("Delete", systemImage: "trash.fill") })
+                EntryOptions(entry: entry, onAction: handle(_:))
             }
+            .onHover { over in
+                if ProcessInfo().isiOSAppOnMac {
+                    if over {
+                        hoveringEntry = entry
+                    } else if hoveringEntry == entry {
+                        hoveringEntry = nil
+                    }
+                }
+            }
+    }
+
+    func handle(_ action: EntryAction) {
+        switch action {
+        case let .copyCurrentCode(entry):
+            viewModel.copyTokenToClipboard(entry, current: true)
+        case let .copyNextCode(entry):
+            viewModel.copyTokenToClipboard(entry, current: false)
+        case let .edit(entry):
+            router.presentedSheet = .createEditEntry(entry)
+        case let .delete(entry):
+            viewModel.delete(entry)
+        }
     }
 }
 
