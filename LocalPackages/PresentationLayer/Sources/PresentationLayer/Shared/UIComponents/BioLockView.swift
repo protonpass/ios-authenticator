@@ -34,7 +34,7 @@ public struct BioLockView: View {
         VStack {
             Spacer()
 
-            Image(.authIcon)
+            Image(.bioLock)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 200)

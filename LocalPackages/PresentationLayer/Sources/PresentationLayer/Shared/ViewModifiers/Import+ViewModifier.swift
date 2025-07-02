@@ -633,7 +633,7 @@ struct ExplanationView: View {
                         .scaledToFit()
                         .frame(width: 32)
 
-                    Image(.authIcon)
+                    Image(.protonAuthIcon)
                         .resizable()
                         .frame(width: 74, height: 74)
                     Spacer()
@@ -653,6 +653,7 @@ struct ExplanationView: View {
                             .frame(width: 433, height: 433)
                     }
                     .frame(width: 225, height: 225)
+                    .contentShape(Circle())
                     Spacer()
                 }
                 .padding(.bottom, 30)
