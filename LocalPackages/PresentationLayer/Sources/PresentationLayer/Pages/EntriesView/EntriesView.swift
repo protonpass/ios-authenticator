@@ -269,7 +269,7 @@ private extension EntriesView {
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   issuerInfos: entry.issuerInfo,
                   searchTerm: viewModel.query,
-                  onCopyToken: { viewModel.copyTokenToClipboard(entry) },
+                  onCopyToken: { viewModel.copyTokenToClipboard(entry, current: true) },
                   pauseCountDown: $viewModel.pauseCountDown,
                   copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
@@ -282,22 +282,25 @@ private extension EntriesView {
                 + #localized("item name: %@", bundle: .module, entry.orderedEntry.entry.name))
             .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
                                     bundle: .module))
-        #if os(macOS)
             .contextMenu {
-                Button {
-                    router.presentedSheet = .createEditEntry(entry)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                }
-                .keyboardShortcut("E", modifiers: [.command, .shift])
+                Button(action: { viewModel.copyTokenToClipboard(entry, current: true) },
+                       label: { Label("Copy current code", systemImage: "square.on.square") })
 
-                Button {
-                    viewModel.delete(entry)
-                } label: {
-                    Label("Delete", systemImage: "trash.fill")
-                }
+                Button(action: { viewModel.copyTokenToClipboard(entry, current: false) },
+                       label: { Label("Copy next code", systemImage: "square.on.square") })
+
+                Divider()
+
+                Button(action: { router.presentedSheet = .createEditEntry(entry) },
+                       label: { Label("Edit", systemImage: "pencil") })
+                    .keyboardShortcut("E", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button(role: .destructive,
+                       action: { viewModel.delete(entry) },
+                       label: { Label("Delete", systemImage: "trash.fill") })
             }
-        #endif
     }
 }
 
