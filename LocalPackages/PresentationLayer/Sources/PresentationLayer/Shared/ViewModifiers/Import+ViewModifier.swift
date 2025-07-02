@@ -653,6 +653,7 @@ struct ExplanationView: View {
                             .frame(width: 433, height: 433)
                     }
                     .frame(width: 225, height: 225)
+                    .contentShape(Circle())
                     Spacer()
                 }
                 .padding(.bottom, 30)
