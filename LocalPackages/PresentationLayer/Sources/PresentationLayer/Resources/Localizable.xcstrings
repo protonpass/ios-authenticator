@@ -252,6 +252,26 @@
         }
       }
     },
+    "Copy current code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy current code"
+          }
+        }
+      }
+    },
+    "Copy next code" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy next code"
+          }
+        }
+      }
+    },
     "Could not process the image" : {
       "localizations" : {
         "en" : {
@@ -378,16 +398,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DISCOVER PROTON"
-          }
-        }
-      }
-    },
-    "Done" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
           }
         }
       }

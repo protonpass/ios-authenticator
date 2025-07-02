@@ -53,35 +53,32 @@ struct EntryCell: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
-    let entry: Entry
-    let code: Code
+    let entry: EntryUiModel
     let currentCode: String
     let nextCode: String
     let configuration: EntryCellConfiguration
-    let issuerInfos: AuthIssuerInfo?
     let searchTerm: String
-    let onCopyToken: () -> Void
+    let isHovered: Bool
+    let onAction: (EntryAction) -> Void
     @Binding var pauseCountDown: Bool
     @Binding var copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
 
-    init(entry: Entry,
-         code: Code,
+    init(entry: EntryUiModel,
          configuration: EntryCellConfiguration,
-         issuerInfos: AuthIssuerInfo?,
          searchTerm: String,
-         onCopyToken: @escaping () -> Void,
+         isHovered: Bool,
+         onAction: @escaping (EntryAction) -> Void,
          pauseCountDown: Binding<Bool>,
          copyBadgeRemainingSeconds: Binding<Int>,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
-        self.code = code
         self.configuration = configuration
-        currentCode = code.displayedCode(for: .current, config: configuration)
-        nextCode = code.displayedCode(for: .next, config: configuration)
-        self.issuerInfos = issuerInfos
+        currentCode = entry.code.displayedCode(for: .current, config: configuration)
+        nextCode = entry.code.displayedCode(for: .next, config: configuration)
         self.searchTerm = searchTerm
-        self.onCopyToken = onCopyToken
+        self.isHovered = isHovered
+        self.onAction = onAction
         _pauseCountDown = pauseCountDown
         _copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
         _animatingEntry = animatingEntry
@@ -97,7 +94,7 @@ struct EntryCell: View {
         }
         .onChange(of: animatingEntry) { _, newValue in
             // Another entry is selected, we dismiss the badge of this entry
-            if newValue != entry {
+            if newValue != entry.orderedEntry.entry {
                 withAnimation(Animation.interpolatingSpring(mass: 0.03,
                                                             stiffness: 5.5,
                                                             damping: 0.9,
@@ -107,7 +104,7 @@ struct EntryCell: View {
             }
         }
         .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
-            if animatingEntry == entry {
+            if animatingEntry == entry.orderedEntry.entry {
                 withAnimation(Animation.interpolatingSpring(mass: 0.03,
                                                             stiffness: 5.5,
                                                             damping: 0.9,
@@ -118,7 +115,7 @@ struct EntryCell: View {
         }
         .onDisappear {
             // Dismiss the badge is it's still visible when the etry goes off screen
-            if animatingEntry == entry {
+            if animatingEntry == entry.orderedEntry.entry {
                 animatingEntry = nil
             }
         }
@@ -129,15 +126,15 @@ private extension EntryCell {
     var mainContent: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
-                EntryThumbnail(iconUrl: issuerInfos?.iconUrl,
-                               letter: entry.capitalLetter)
+                EntryThumbnail(iconUrl: entry.issuerInfo?.iconUrl,
+                               letter: entry.orderedEntry.entry.capitalLetter)
 
                 VStack(alignment: .leading) {
-                    HighlightedText(text: entry.issuer, highlighted: searchTerm)
+                    HighlightedText(text: entry.orderedEntry.entry.issuer, highlighted: searchTerm)
                         .dynamicFont(size: 16, textStyle: .callout, weight: .medium)
                         .foregroundStyle(.textNorm)
                         .textShadow()
-                    HighlightedText(text: entry.name, highlighted: searchTerm)
+                    HighlightedText(text: entry.orderedEntry.entry.name, highlighted: searchTerm)
                         .dynamicFont(size: 14, textStyle: .footnote)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
@@ -145,8 +142,18 @@ private extension EntryCell {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.period,
+                TOTPCountdownView(period: entry.orderedEntry.entry.period,
                                   pauseCountDown: $pauseCountDown)
+
+                if isHovered {
+                    Menu(content: {
+                        EntryOptions(entry: entry, onAction: { onAction($0) })
+                    }, label: {
+                        Image(systemName: "ellipsis.circle")
+                            .dynamicFont(size: 18)
+                            .foregroundStyle(.textWeak)
+                    })
+                }
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
@@ -196,9 +203,10 @@ private extension EntryCell {
             startPoint: UnitPoint(x: 0.5, y: 0),
             endPoint: UnitPoint(x: 0.5, y: 1)))
         .mainBackground()
+        .animation(.linear(duration: 0.1), value: isHovered)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .simultaneousGesture(TapGesture().onEnded(onCopyToken))
+        .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
         .overlay(entryOverlay)
         .shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
                 radius: 4,
@@ -295,5 +303,29 @@ private struct TOTPCountdownView: View {
             }
             .frame(width: size, height: size)
         }
+    }
+}
+
+struct EntryOptions: View {
+    let entry: EntryUiModel
+    let onAction: (EntryAction) -> Void
+
+    var body: some View {
+        Button(action: { onAction(.copyCurrentCode(entry)) },
+               label: { Label("Copy current code", systemImage: "square.on.square") })
+
+        Button(action: { onAction(.copyNextCode(entry)) },
+               label: { Label("Copy next code", systemImage: "square.on.square") })
+
+        Divider()
+
+        Button(action: { onAction(.edit(entry)) },
+               label: { Label("Edit", systemImage: "pencil") })
+
+        Divider()
+
+        Button(role: .destructive,
+               action: { onAction(.delete(entry)) },
+               label: { Label("Delete", systemImage: "trash.fill") })
     }
 }

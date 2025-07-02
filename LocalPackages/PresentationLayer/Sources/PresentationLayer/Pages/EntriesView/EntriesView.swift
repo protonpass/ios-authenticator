@@ -28,6 +28,13 @@ import Models
 import SimpleToast
 import SwiftUI
 
+enum EntryAction: Sendable {
+    case copyCurrentCode(EntryUiModel)
+    case copyNextCode(EntryUiModel)
+    case edit(EntryUiModel)
+    case delete(EntryUiModel)
+}
+
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.colorScheme) private var colorScheme
@@ -35,7 +42,7 @@ public struct EntriesView: View {
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
-    @State private var isEditing = false
+    @State private var hoveringEntry: EntryUiModel?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
 
@@ -201,7 +208,7 @@ private extension EntriesView {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
                 ForEach(viewModel.entries) { entry in
-                    gridCellLayout(for: entry)
+                    cell(for: entry)
                         .draggable(entry) {
                             cell(for: entry).opacity(0.8)
                                 .onAppear {
@@ -231,45 +238,12 @@ private extension EntriesView {
         }
     }
 
-    func gridCellLayout(for entry: EntryUiModel) -> some View {
-        HStack(alignment: .top) {
-            cell(for: entry)
-            if isEditing {
-                VStack(spacing: 10) {
-                    Button {
-                        router.presentedSheet = .createEditEntry(entry)
-                    } label: {
-                        Image(systemName: "pencil")
-                            .foregroundStyle(.white)
-                            .padding(5)
-                            .background(.info)
-                            .clipShape(.circle)
-                    }
-
-                    Button {
-                        viewModel.delete(entry)
-                    } label: {
-                        Image(systemName: "trash.fill")
-                            .foregroundStyle(.white)
-                            .padding(5)
-                            .background(.danger)
-                            .clipShape(.circle)
-                    }
-                }
-                .padding(5)
-                .background(colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.7))
-                .clipShape(.capsule)
-            }
-        }
-    }
-
     func cell(for entry: EntryUiModel) -> some View {
-        EntryCell(entry: entry.orderedEntry.entry,
-                  code: entry.code,
+        EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
-                  issuerInfos: entry.issuerInfo,
                   searchTerm: viewModel.query,
-                  onCopyToken: { viewModel.copyTokenToClipboard(entry) },
+                  isHovered: hoveringEntry == entry,
+                  onAction: handle(_:),
                   pauseCountDown: $viewModel.pauseCountDown,
                   copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
@@ -282,22 +256,31 @@ private extension EntriesView {
                 + #localized("item name: %@", bundle: .module, entry.orderedEntry.entry.name))
             .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
                                     bundle: .module))
-        #if os(macOS)
             .contextMenu {
-                Button {
-                    router.presentedSheet = .createEditEntry(entry)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                }
-                .keyboardShortcut("E", modifiers: [.command, .shift])
-
-                Button {
-                    viewModel.delete(entry)
-                } label: {
-                    Label("Delete", systemImage: "trash.fill")
+                EntryOptions(entry: entry, onAction: handle(_:))
+            }
+            .onHover { over in
+                if ProcessInfo().isiOSAppOnMac {
+                    if over {
+                        hoveringEntry = entry
+                    } else if hoveringEntry == entry {
+                        hoveringEntry = nil
+                    }
                 }
             }
-        #endif
+    }
+
+    func handle(_ action: EntryAction) {
+        switch action {
+        case let .copyCurrentCode(entry):
+            viewModel.copyTokenToClipboard(entry, current: true)
+        case let .copyNextCode(entry):
+            viewModel.copyTokenToClipboard(entry, current: false)
+        case let .edit(entry):
+            router.presentedSheet = .createEditEntry(entry)
+        case let .delete(entry):
+            viewModel.delete(entry)
+        }
     }
 }
 
@@ -500,26 +483,6 @@ private extension EntriesView {
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
-            trailingContent
-        }
-        #endif
-    }
-
-    // periphery:ignore
-    @ViewBuilder
-    var trailingContent: some View {
-        HStack {
-            if AppConstants.isIpad {
-                Button {
-                    isEditing.toggle()
-                } label: {
-                    Text(isEditing ? "Done" : "Edit", bundle: .module)
-                        .fontWeight(.medium)
-                        .foregroundStyle(isEditing ? .textNorm : .textWeak)
-                        .disableAnimations()
-                }
-                .opacity(viewModel.entries.isEmpty ? 0 : 1)
-            }
             Button {
                 router.presentedSheet = .settings
             } label: {
@@ -532,6 +495,7 @@ private extension EntriesView {
             .impactHaptic()
             .accessibilityLabel("Settings")
         }
+        #endif
     }
 
     var toolbarItemLeadingPlacement: ToolbarItemPlacement {
