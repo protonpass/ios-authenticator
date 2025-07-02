@@ -35,7 +35,6 @@ public struct EntriesView: View {
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
-    @State private var isEditing = false
     @State private var showImportOptions = false
     @State private var searchEnabled = false
 
@@ -201,7 +200,7 @@ private extension EntriesView {
         ScrollView {
             LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
                 ForEach(viewModel.entries) { entry in
-                    gridCellLayout(for: entry)
+                    cell(for: entry)
                         .draggable(entry) {
                             cell(for: entry).opacity(0.8)
                                 .onAppear {
@@ -228,38 +227,6 @@ private extension EntriesView {
                 }
             }
             .padding()
-        }
-    }
-
-    func gridCellLayout(for entry: EntryUiModel) -> some View {
-        HStack(alignment: .top) {
-            cell(for: entry)
-            if isEditing {
-                VStack(spacing: 10) {
-                    Button {
-                        router.presentedSheet = .createEditEntry(entry)
-                    } label: {
-                        Image(systemName: "pencil")
-                            .foregroundStyle(.white)
-                            .padding(5)
-                            .background(.info)
-                            .clipShape(.circle)
-                    }
-
-                    Button {
-                        viewModel.delete(entry)
-                    } label: {
-                        Image(systemName: "trash.fill")
-                            .foregroundStyle(.white)
-                            .padding(5)
-                            .background(.danger)
-                            .clipShape(.circle)
-                    }
-                }
-                .padding(5)
-                .background(colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.7))
-                .clipShape(.capsule)
-            }
         }
     }
 
@@ -503,26 +470,6 @@ private extension EntriesView {
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
-            trailingContent
-        }
-        #endif
-    }
-
-    // periphery:ignore
-    @ViewBuilder
-    var trailingContent: some View {
-        HStack {
-            if AppConstants.isIpad {
-                Button {
-                    isEditing.toggle()
-                } label: {
-                    Text(isEditing ? "Done" : "Edit", bundle: .module)
-                        .fontWeight(.medium)
-                        .foregroundStyle(isEditing ? .textNorm : .textWeak)
-                        .disableAnimations()
-                }
-                .opacity(viewModel.entries.isEmpty ? 0 : 1)
-            }
             Button {
                 router.presentedSheet = .settings
             } label: {
@@ -535,6 +482,7 @@ private extension EntriesView {
             .impactHaptic()
             .accessibilityLabel("Settings")
         }
+        #endif
     }
 
     var toolbarItemLeadingPlacement: ToolbarItemPlacement {
