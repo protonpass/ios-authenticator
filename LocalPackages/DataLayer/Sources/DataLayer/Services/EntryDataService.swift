@@ -215,12 +215,13 @@ public extension EntryDataService {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
 
-            let filteredRemote = remoteOrderedEntries
-                .filter { entry in
-                    !entriesStates.decodedEntries.contains(where: { $0.entry.isDuplicate(of: entry.entry) })
-                }
+//            let filteredRemote = remoteOrderedEntries
+//                .filter { entry in
+//                    !entriesStates.decodedEntries.contains(where: { $0.entry.isDuplicate(of: entry.entry) })
+//                }
 
-            _ = try await syncOperation(remoteOrderedEntries: filteredRemote, entriesStates: entriesStates)
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries /* filteredRemote */,
+                                        entriesStates: entriesStates)
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
@@ -433,37 +434,59 @@ private extension EntryDataService {
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
                                  local: entriesStates.toLocalEntries)
 
+        var itemsToPushToRemote: [OrderedEntry] = []
+        var itemsToFullyDelete: [OrderedEntry] = []
+        var itemsToUpsertLocally: [OrderedEntry] = []
+        var itemIdsToDeleteLocally: [String] = []
+        var itemsToRemoteUpdate: [OrderedEntry] = []
+
         for operation in operations {
             switch operation.operation {
             case .upsert:
                 if let orderedEntry = remoteOrderedEntries
                     .getFirstOrderedEntry(for: operation.entry.id) {
                     let syncedEntry = orderedEntry.updateSyncState(.synced)
-                    try await repository.localUpsert(syncedEntry)
+                    itemsToUpsertLocally.append(syncedEntry)
                 }
             case .deleteLocal:
-                try await repository.localRemove(operation.entry.id)
+                itemIdsToDeleteLocally.append(operation.entry.id)
             case .deleteLocalAndRemote:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    try await repository.completeRemove(entry: orderedEntry)
+                    itemsToFullyDelete.append(orderedEntry)
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    _ = try await repository.remoteSave(entries: [orderedEntry])
+                    itemsToPushToRemote.append(orderedEntry)
                 }
             case .conflict:
                 if let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
                    let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
                     let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
                     if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                        _ = try await repository.localUpdate(remoteEntry)
+                        itemsToUpsertLocally.append(remoteEntry)
                     } else {
                         let updatedRevision = localEntry.updateRevision(latestRevision)
-                        _ = try await repository.remoteUpdate(entry: updatedRevision)
+                        itemsToRemoteUpdate.append(updatedRevision)
                     }
                 }
             }
         }
+
+        print("Woot full sync\n")
+        print("Woot items to upsert itemsToUpsertLocally: \(itemsToUpsertLocally.count)\n")
+        print("Woot items to remote save: \(itemsToPushToRemote.count)\n")
+        print("Woot items to localRemove: \(itemIdsToDeleteLocally.count)\n")
+        print("Woot items to fullyRemove: \(itemsToFullyDelete.count)\n")
+        print("Woot items to remoteUpdate: \(itemsToRemoteUpdate.count)\n")
+        print("******************\n\n")
+
+        async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
+        async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
+        async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
+        async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
+        async let remoteUpdate = repository.remoteUpdates(entries: itemsToRemoteUpdate)
+
+        _ = try await (localEntriesFetch, remoteSave, localRemove, fullyRemove, remoteUpdate)
 
         return !operations.isEmpty
     }

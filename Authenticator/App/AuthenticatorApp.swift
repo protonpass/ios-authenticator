@@ -160,7 +160,14 @@ private final class AuthenticatorAppViewModel {
     private var reviewService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.userSessionManager)
+    private var userSessionManager
+
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
+
+    @ObservationIgnored
+    private let defaults = UserDefaults.standard
 
     init() {
         sentry()
@@ -181,6 +188,13 @@ private final class AuthenticatorAppViewModel {
                 #endif
             }
             .store(in: &cancellables)
+
+        if !defaults.bool(forKey: "IsSubsequentRun") {
+            Task {
+                try? await userSessionManager.logout()
+                defaults.set(true, forKey: "IsSubsequentRun")
+            }
+        }
     }
 
     func handleDeepLink(_ url: URL) {
