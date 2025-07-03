@@ -30,6 +30,7 @@ struct QAMenuView: View {
             List {
                 onboardingSection
                 passBannerSection
+                actionsSection
                 installationDateSection
             }
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -64,9 +65,22 @@ private extension QAMenuView {
 
     var passBannerSection: some View {
         Section(content: {
-            Toggle(isOn: $viewModel.displayPassBanner, label: { Text(verbatim: "Display Pass Banner") })
+            Toggle(isOn: $viewModel.displayPassBanner,
+                   label: { Text(verbatim: "Display Pass Banner") })
         }, header: {
             Text(verbatim: "Pass Banner")
+        })
+    }
+
+    var actionsSection: some View {
+        Section(content: {
+            Button {
+                viewModel.deleteAllData()
+            } label: {
+                Text(verbatim: "Delete all local and remote data")
+            }
+        }, header: {
+            Text(verbatim: "Actions")
         })
     }
 

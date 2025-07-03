@@ -180,7 +180,10 @@ extension OrderedEntry {
         guard let remoteId else {
             return nil
         }
-        return RemoteEntry(remoteId: remoteId, entry: entry.toRustEntry, modifyTime: Int64(modifiedTime))
+        return RemoteEntry(remoteId: remoteId,
+                           revision: UInt32(revision),
+                           entry: entry.toRustEntry,
+                           modifyTime: Int64(modifiedTime))
     }
 }
 

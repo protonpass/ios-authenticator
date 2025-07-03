@@ -40,6 +40,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
     func fullRefresh() async throws
+    func deleteAll() async throws
 
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
@@ -240,6 +241,22 @@ public extension EntryDataService {
             throw error
         }
     }
+
+    func deleteAll() async throws {
+        log(.debug, "Deleting all entries")
+        do {
+            async let localEntriesFetch = repository.getAllLocalEntries()
+            async let remoteEntriesFetch = repository.fetchAllRemoteEntries()
+
+            let (localEntries, remoteEntries) = try await (localEntriesFetch, remoteEntriesFetch)
+
+            try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
+            try await repository.remoteDeletes(remoteEntryIds: remoteEntriesFetch.compactMap(\.remoteId))
+        } catch {
+            log(.error, "Failed to delete all entries: \(error.localizedDescription)")
+            throw error
+        }
+    }
 }
 
 // MARK: - Rust exposure
@@ -434,7 +451,7 @@ private extension EntryDataService {
         var itemsToFullyDelete: [OrderedEntry] = []
         var itemsToUpsertLocally: [OrderedEntry] = []
         var itemIdsToDeleteLocally: [String] = []
-        var itemsToUpdateRemotly: [OrderedEntry] = []
+        var itemsToUpdateRemotely: [OrderedEntry] = []
 
         for operation in operations {
             switch operation.operation {
@@ -452,8 +469,8 @@ private extension EntryDataService {
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    if operation.remoteId != nil {
-                        itemsToUpdateRemotly.append(orderedEntry)
+                    if operation.remoteId != nil, let revision = operation.revision {
+                        itemsToUpdateRemotely.append(orderedEntry.updateRevision(Int(revision)))
                     } else {
                         itemsToPushToRemote.append(orderedEntry)
                     }
@@ -463,7 +480,7 @@ private extension EntryDataService {
 
         async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
         async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
-        async let remoteUpdate = repository.remoteUpdates(entries: itemsToUpdateRemotly)
+        async let remoteUpdate = repository.remoteUpdates(entries: itemsToUpdateRemotely)
         async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
         async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
 
