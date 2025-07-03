@@ -51,10 +51,9 @@ private extension OnboardingView {
                 Spacer()
                 switch viewModel.currentStep {
                 case .intro:
-                    Image(.introPreview)
+                    Image(ProcessInfo().isiOSAppOnMac ? .introPreviewDesktop : .introPreview)
                         .resizable()
                         .scaledToFill()
-                        .padding(.top, 120)
                     Spacer()
                         .frame(height: 30)
 
