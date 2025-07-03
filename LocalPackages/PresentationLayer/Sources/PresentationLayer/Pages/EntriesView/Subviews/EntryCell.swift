@@ -60,7 +60,7 @@ struct EntryCell: View {
     let searchTerm: String
     let isHovered: Bool
     let onAction: (EntryAction) -> Void
-    @Binding var pauseCountDown: Bool
+    let pauseCountDown: Bool
     @Binding var copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
 
@@ -69,7 +69,7 @@ struct EntryCell: View {
          searchTerm: String,
          isHovered: Bool,
          onAction: @escaping (EntryAction) -> Void,
-         pauseCountDown: Binding<Bool>,
+         pauseCountDown: Bool,
          copyBadgeRemainingSeconds: Binding<Int>,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
@@ -79,7 +79,7 @@ struct EntryCell: View {
         self.searchTerm = searchTerm
         self.isHovered = isHovered
         self.onAction = onAction
-        _pauseCountDown = pauseCountDown
+        self.pauseCountDown = pauseCountDown
         _copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
         _animatingEntry = animatingEntry
     }
@@ -143,7 +143,7 @@ private extension EntryCell {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TOTPCountdownView(period: entry.orderedEntry.entry.period,
-                                  pauseCountDown: $pauseCountDown)
+                                  pauseCountDown: pauseCountDown)
 
                 if isHovered {
                     Menu(content: {
@@ -248,16 +248,16 @@ private struct TOTPCountdownView: View {
     private let period: Int // TOTP period in seconds (typically 30 or 60)
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
-    @Binding private var pauseCountDown: Bool
+    private let pauseCountDown: Bool
 
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4,
-         pauseCountDown: Binding<Bool>) {
+         pauseCountDown: Bool) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
-        _pauseCountDown = pauseCountDown
+        self.pauseCountDown = pauseCountDown
     }
 
     var body: some View {
