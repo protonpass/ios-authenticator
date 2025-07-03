@@ -526,10 +526,6 @@ private extension EntryDataService {
         try await repository.completeReorder(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems
     }
-
-    func getLatestRevision(for lhs: OrderedEntry, and rhs: OrderedEntry) -> Int {
-        max(lhs.revision, rhs.revision)
-    }
 }
 
 extension [EntryState] {
