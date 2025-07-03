@@ -158,15 +158,9 @@ private extension EntryCell {
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
 
-            Rectangle()
-                .foregroundStyle(.clear)
-                .frame(maxWidth: .infinity, maxHeight: 0.5)
-                .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
-                    .opacity(0.4))
-                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) : .black.opacity(0.9),
-                        radius: 0,
-                        x: 0,
-                        y: -0.5)
+            Image(.entrySeparator)
+                .resizable(resizingMode: .tile)
+                .frame(maxWidth: .infinity)
 
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 CurrentTokenView(code: currentCode,
