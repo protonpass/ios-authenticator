@@ -534,14 +534,15 @@ public extension EntryRepository {
             throw AuthError.crypto(.missingRemoteEncryptionKey)
         }
 
-        let encryptedRequests = try entries.map { entry in
-            try BatchUpdateEntryRequest(entryID: entry.id,
-                                        authenticatorKeyID: remoteEncryptionKeyId,
-                                        content: self.encrypt(entry, shouldEncryptWithLocalKey: false)
-                                            .encryptedData
-                                            .encodeBase64(),
-                                        contentFormatVersion: entryContentFormatVersion,
-                                        lastRevision: entry.revision)
+        let encryptedRequests = try entries.compactMap { entry -> BatchUpdateEntryRequest? in
+            guard let remoteId = entry.remoteId else { return nil }
+            return try BatchUpdateEntryRequest(entryID: remoteId,
+                                               authenticatorKeyID: remoteEncryptionKeyId,
+                                               content: self.encrypt(entry, shouldEncryptWithLocalKey: false)
+                                                   .encryptedData
+                                                   .encodeBase64(),
+                                               contentFormatVersion: entryContentFormatVersion,
+                                               lastRevision: entry.revision)
         }
 
         // Split into batches of max 100 elements

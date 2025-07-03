@@ -215,12 +215,7 @@ public extension EntryDataService {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
 
-//            let filteredRemote = remoteOrderedEntries
-//                .filter { entry in
-//                    !entriesStates.decodedEntries.contains(where: { $0.entry.isDuplicate(of: entry.entry) })
-//                }
-
-            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries /* filteredRemote */,
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
 
             let newOrderedItems = try await reorderItems()
@@ -268,9 +263,11 @@ public extension EntryDataService {
         await log(.debug, "Importing entries from source: \(source)")
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
-        let filteredResults = results.entries
-            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
-        let codes = try repository.generateCodes(entries: filteredResults)
+        // We commented this to align with other client for the time being.
+        // This filtering could maybe be reimplemented later on in parallel to other clients
+//        let filteredResults = results.entries
+//            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
+        let codes = try repository.generateCodes(entries: results.entries)
 
         var index = data.count
         var uiEntries: [EntryUiModel] = []
@@ -437,6 +434,7 @@ private extension EntryDataService {
         var itemsToFullyDelete: [OrderedEntry] = []
         var itemsToUpsertLocally: [OrderedEntry] = []
         var itemIdsToDeleteLocally: [String] = []
+        var itemsToUpdateRemotly: [OrderedEntry] = []
 
         for operation in operations {
             switch operation.operation {
@@ -454,17 +452,22 @@ private extension EntryDataService {
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    itemsToPushToRemote.append(orderedEntry)
+                    if operation.remoteId != nil {
+                        itemsToUpdateRemotly.append(orderedEntry)
+                    } else {
+                        itemsToPushToRemote.append(orderedEntry)
+                    }
                 }
             }
         }
 
         async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
         async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
+        async let remoteUpdate = repository.remoteUpdates(entries: itemsToUpdateRemotly)
         async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
         async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
 
-        _ = try await (localEntriesFetch, remoteSave, localRemove, fullyRemove)
+        _ = try await (localEntriesFetch, remoteSave, remoteUpdate, localRemove, fullyRemove)
 
         return !operations.isEmpty
     }
