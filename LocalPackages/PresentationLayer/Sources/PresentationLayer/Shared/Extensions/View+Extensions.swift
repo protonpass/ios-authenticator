@@ -68,6 +68,17 @@ public extension View {
               actions: {},
               message: { Text(verbatim: message.wrappedValue ?? "") })
     }
+
+    @ViewBuilder
+    func adaptiveSheet(isPresented: Binding<Bool>,
+                       isFullScreen: Bool,
+                       @ViewBuilder content: @escaping () -> some View) -> some View {
+        if isFullScreen {
+            fullScreenCover(isPresented: isPresented, content: content)
+        } else {
+            sheet(isPresented: isPresented, content: content)
+        }
+    }
 }
 
 // MARK: - Common UI modification tools

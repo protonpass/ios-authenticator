@@ -96,7 +96,7 @@ public enum AppConstants {
     }
 
     public enum EntryOptions {
-        public static let supportedDigits: [Int] = [6, 8]
+        public static let supportedDigits: [Int] = [6, 7, 8]
         public static let supportedPeriod: [Int] = [30, 60]
     }
 
