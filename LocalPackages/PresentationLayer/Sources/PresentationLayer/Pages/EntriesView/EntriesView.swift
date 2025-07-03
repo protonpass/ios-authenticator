@@ -172,7 +172,7 @@ private extension EntriesView {
     var list: some View {
         List {
             ForEach(viewModel.entries) { entry in
-                cell(for: entry)
+                cell(for: entry, reducedShadow: false)
                     .contentShape(.dragPreview, Rectangle())
                     .swipeActions(edge: .leading) {
                         Button {
@@ -196,6 +196,8 @@ private extension EntriesView {
             }
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
+
+            bottomSpacer
         }
         .listStyle(.plain)
         #if os(iOS)
@@ -211,9 +213,10 @@ private extension EntriesView {
         ScrollView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
                 ForEach(viewModel.entries) { entry in
-                    cell(for: entry)
+                    cell(for: entry, reducedShadow: true)
                         .draggable(entry) {
-                            cell(for: entry).opacity(0.8)
+                            cell(for: entry, reducedShadow: true)
+                                .opacity(0.8)
                                 .onAppear {
                                     draggingEntry = entry
                                 }
@@ -238,17 +241,20 @@ private extension EntriesView {
                 }
             }
             .padding()
+
+            bottomSpacer
         }
     }
 
-    func cell(for entry: EntryUiModel) -> some View {
+    func cell(for entry: EntryUiModel, reducedShadow: Bool) -> some View {
         EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   searchTerm: viewModel.query,
                   isHovered: hoveringEntry == entry,
+                  reducedShadow: reducedShadow,
                   onAction: handle(_:),
                   pauseCountDown: viewModel.pauseCountDown,
-                  copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
+                  copyBadgeRemainingSeconds: viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
@@ -271,6 +277,16 @@ private extension EntriesView {
                     }
                 }
             }
+    }
+
+    @ViewBuilder
+    var bottomSpacer: some View {
+        if !viewModel.entries.isEmpty, searchBarAlignment == .top {
+            Color.clear
+                .frame(height: 100)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        }
     }
 
     func handle(_ action: EntryAction) {
