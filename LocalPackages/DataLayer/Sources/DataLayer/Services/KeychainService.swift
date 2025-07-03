@@ -251,7 +251,7 @@ private extension KeychainService {
     func createQuery(for key: String,
                      ofType itemClassType: ItemClassType,
                      with data: Data? = nil,
-                     access: KeychainAccessOptions = .default,
+                     access: KeychainAccessOptions = KeychainAccessOptions.accessibleAfterFirstUnlock,
                      remoteSync: Bool,
                      attributes: [CFString: Any]? = nil) -> [CFString: Any] {
         var query: [CFString: Any] = [:]

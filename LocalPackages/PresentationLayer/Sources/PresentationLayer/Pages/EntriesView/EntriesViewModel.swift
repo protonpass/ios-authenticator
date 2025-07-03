@@ -189,7 +189,7 @@ final class EntriesViewModel: ObservableObject {
 
     func loadEntries() {
         loadLocalTask?.cancel()
-        loadLocalTask = Task { [weak self] in
+        loadLocalTask = Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 try await entryDataService.loadEntries()
@@ -203,14 +203,19 @@ final class EntriesViewModel: ObservableObject {
         guard fullSyncTask == nil else {
             return
         }
-        fullSyncTask = Task { [weak self] in
+        fullSyncTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            defer { fullSyncTask = nil }
+//            defer { fullSyncTask = nil }
             do {
-                await loadLocalTask?.value
+                if let loadTask = loadLocalTask {
+                    await loadTask.value
+                }
+
                 try await entryDataService.fullRefresh()
+                fullSyncTask = nil
             } catch {
                 handle(error)
+                fullSyncTask = nil
             }
         }
     }
