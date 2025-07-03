@@ -75,6 +75,16 @@ public struct EntriesView: View {
                 .safeAreaInset(edge: .bottom) {
                     if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         actionBar
+                    } else if searchBarAlignment == .top, !viewModel.entries.isEmpty {
+                        HStack {
+                            Spacer()
+                            addButton(size: 64)
+                                .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                                .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
+                                        radius: 20,
+                                        x: 0,
+                                        y: 2)
+                        }
                     }
                 }
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
@@ -145,19 +155,13 @@ public struct EntriesView: View {
 private extension EntriesView {
     @ViewBuilder
     var mainContainer: some View {
-        ZStack(alignment: .bottomTrailing) {
+        Group {
             if horizontalSizeClass == .compact {
                 list
             } else {
                 GeometryReader { proxy in
                     grid(width: proxy.size.width)
                 }
-            }
-
-            if searchBarAlignment == .top, !viewModel.entries.isEmpty {
-                addButton(size: 64)
-                    .padding([.trailing, .bottom], DesignConstant.padding * 2)
-                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 20, x: 0, y: 2)
             }
         }
         .adaptiveScrollPhraseChange { isScrolling in
@@ -196,8 +200,6 @@ private extension EntriesView {
             }
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
-
-            bottomSpacer
         }
         .listStyle(.plain)
         #if os(iOS)
@@ -241,8 +243,6 @@ private extension EntriesView {
                 }
             }
             .padding()
-
-            bottomSpacer
         }
     }
 
@@ -277,16 +277,6 @@ private extension EntriesView {
                     }
                 }
             }
-    }
-
-    @ViewBuilder
-    var bottomSpacer: some View {
-        if !viewModel.entries.isEmpty, searchBarAlignment == .top {
-            Color.clear
-                .frame(height: 100)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        }
     }
 
     func handle(_ action: EntryAction) {
