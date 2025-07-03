@@ -48,13 +48,7 @@ public struct EntriesView: View {
 
     @FocusState private var searchFieldFocus: Bool
 
-    // periphery:ignore
     private let alertService = resolve(\ServiceContainer.alertService)
-
-    // periphery:ignore
-    private var isPhone: Bool {
-        AppConstants.isPhone
-    }
 
     private var searchBarAlignment: VerticalAlignment {
         viewModel.settingsService.searchBarDisplayMode == .bottom ? .bottom : .top
@@ -81,6 +75,16 @@ public struct EntriesView: View {
                 .safeAreaInset(edge: .bottom) {
                     if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
                         actionBar
+                    } else if searchBarAlignment == .top, !viewModel.entries.isEmpty {
+                        HStack {
+                            Spacer()
+                            addButton(size: 64)
+                                .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                                .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
+                                        radius: 20,
+                                        x: 0,
+                                        y: 2)
+                        }
                     }
                 }
                 .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
@@ -151,18 +155,17 @@ public struct EntriesView: View {
 private extension EntriesView {
     @ViewBuilder
     var mainContainer: some View {
-        ZStack(alignment: .bottomTrailing) {
+        Group {
             if horizontalSizeClass == .compact {
                 list
             } else {
-                grid
+                GeometryReader { proxy in
+                    grid(width: proxy.size.width)
+                }
             }
-
-            if searchBarAlignment == .top, !viewModel.entries.isEmpty {
-                addButton(size: 64)
-                    .padding([.trailing, .bottom], DesignConstant.padding * 2)
-                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25), radius: 20, x: 0, y: 2)
-            }
+        }
+        .adaptiveScrollPhraseChange { isScrolling in
+            viewModel.pauseCountDown = isScrolling
         }
     }
 }
@@ -173,7 +176,7 @@ private extension EntriesView {
     var list: some View {
         List {
             ForEach(viewModel.entries) { entry in
-                cell(for: entry)
+                cell(for: entry, reducedShadow: false)
                     .contentShape(.dragPreview, Rectangle())
                     .swipeActions(edge: .leading) {
                         Button {
@@ -204,13 +207,18 @@ private extension EntriesView {
         #endif
     }
 
-    var grid: some View {
+    @ViewBuilder
+    func grid(width: CGFloat) -> some View {
+        let entryMinWidth: CGFloat = 650
+        let columnCount = min(Int(ceil(width / entryMinWidth)), viewModel.entries.count)
+
         ScrollView {
-            LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
+            LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
                 ForEach(viewModel.entries) { entry in
-                    cell(for: entry)
+                    cell(for: entry, reducedShadow: true)
                         .draggable(entry) {
-                            cell(for: entry).opacity(0.8)
+                            cell(for: entry, reducedShadow: true)
+                                .opacity(0.8)
                                 .onAppear {
                                     draggingEntry = entry
                                 }
@@ -238,14 +246,15 @@ private extension EntriesView {
         }
     }
 
-    func cell(for entry: EntryUiModel) -> some View {
+    func cell(for entry: EntryUiModel, reducedShadow: Bool) -> some View {
         EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   searchTerm: viewModel.query,
                   isHovered: hoveringEntry == entry,
+                  reducedShadow: reducedShadow,
                   onAction: handle(_:),
-                  pauseCountDown: $viewModel.pauseCountDown,
-                  copyBadgeRemainingSeconds: $viewModel.copyBadgeRemainingSeconds,
+                  pauseCountDown: viewModel.pauseCountDown,
+                  copyBadgeRemainingSeconds: viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
@@ -542,5 +551,16 @@ private extension View {
         #else
         self
         #endif
+    }
+
+    @ViewBuilder
+    func adaptiveScrollPhraseChange(onChange: @escaping (_ isScrolling: Bool) -> Void) -> some View {
+        if #available(iOS 18, *) {
+            self.onScrollPhaseChange { _, newPhase in
+                onChange(newPhase.isScrolling)
+            }
+        } else {
+            self
+        }
     }
 }

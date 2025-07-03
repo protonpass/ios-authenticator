@@ -59,18 +59,20 @@ struct EntryCell: View {
     let configuration: EntryCellConfiguration
     let searchTerm: String
     let isHovered: Bool
+    let reducedShadow: Bool
     let onAction: (EntryAction) -> Void
-    @Binding var pauseCountDown: Bool
-    @Binding var copyBadgeRemainingSeconds: Int
+    let pauseCountDown: Bool
+    let copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
 
     init(entry: EntryUiModel,
          configuration: EntryCellConfiguration,
          searchTerm: String,
          isHovered: Bool,
+         reducedShadow: Bool,
          onAction: @escaping (EntryAction) -> Void,
-         pauseCountDown: Binding<Bool>,
-         copyBadgeRemainingSeconds: Binding<Int>,
+         pauseCountDown: Bool,
+         copyBadgeRemainingSeconds: Int,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
         self.configuration = configuration
@@ -78,9 +80,10 @@ struct EntryCell: View {
         nextCode = entry.code.displayedCode(for: .next, config: configuration)
         self.searchTerm = searchTerm
         self.isHovered = isHovered
+        self.reducedShadow = reducedShadow
         self.onAction = onAction
-        _pauseCountDown = pauseCountDown
-        _copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
+        self.pauseCountDown = pauseCountDown
+        self.copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
         _animatingEntry = animatingEntry
     }
 
@@ -143,7 +146,7 @@ private extension EntryCell {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TOTPCountdownView(period: entry.orderedEntry.entry.period,
-                                  pauseCountDown: $pauseCountDown)
+                                  pauseCountDown: pauseCountDown)
 
                 if isHovered {
                     Menu(content: {
@@ -158,15 +161,9 @@ private extension EntryCell {
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
 
-            Rectangle()
-                .foregroundStyle(.clear)
-                .frame(maxWidth: .infinity, maxHeight: 0.5)
-                .background(isLightMode ? .white : Color(red: 0.59, green: 0.59, blue: 0.59)
-                    .opacity(0.4))
-                .shadow(color: isLightMode ? Color(red: 0.87, green: 0.87, blue: 0.82) : .black.opacity(0.9),
-                        radius: 0,
-                        x: 0,
-                        y: -0.5)
+            Image(.entrySeparator)
+                .resizable(resizingMode: .tile)
+                .frame(maxWidth: .infinity)
 
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
                 CurrentTokenView(code: currentCode,
@@ -208,10 +205,12 @@ private extension EntryCell {
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
         .overlay(entryOverlay)
-        .shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
-                radius: 4,
-                x: 0,
-                y: isLightMode ? 3 : 2)
+        .if(!reducedShadow) { view in
+            view.shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
+                        radius: 4,
+                        x: 0,
+                        y: isLightMode ? 3 : 2)
+        }
     }
 
     @ViewBuilder
@@ -228,10 +227,11 @@ private extension EntryCell {
                                                                        green: 0.44,
                                                                        blue: 0.42),
                               location: 0),
-                        .init(color: isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
-                                                                                    green: 0.3,
-                                                                                    blue: 0.29),
-                              location: 1)
+                        .init(color: reducedShadow ? .buttonShadowBorder :
+                            (isLightMode ? Color.white.opacity(0.5) : Color(red: 0.31,
+                                                                            green: 0.3,
+                                                                            blue: 0.29)),
+                            location: 1)
                     ],
                     startPoint: UnitPoint(x: 0.5, y: 0),
                     endPoint: UnitPoint(x: 0.5, y: 1)),
@@ -248,16 +248,16 @@ private struct TOTPCountdownView: View {
     private let period: Int // TOTP period in seconds (typically 30 or 60)
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
-    @Binding private var pauseCountDown: Bool
+    private let pauseCountDown: Bool
 
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4,
-         pauseCountDown: Binding<Bool>) {
+         pauseCountDown: Bool) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
-        _pauseCountDown = pauseCountDown
+        self.pauseCountDown = pauseCountDown
     }
 
     var body: some View {

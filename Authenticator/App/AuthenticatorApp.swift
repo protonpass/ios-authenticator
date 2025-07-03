@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Combine
+import CommonUtilities
 import DataLayer
 import DomainLayer
 import FactoryKit
@@ -62,8 +63,8 @@ struct AuthenticatorApp: App {
 private extension AuthenticatorApp {
     var mainContainer: some View {
         Group {
-            if viewModel.onboarded {
-                if viewModel.showEntries {
+            if viewModel.showEntries {
+                if viewModel.onboarded {
                     EntriesView()
                         .preferredColorScheme(viewModel.theme.preferredColorScheme)
                         .onOpenURL { url in
@@ -75,12 +76,18 @@ private extension AuthenticatorApp {
                             }
                         }
                 } else {
-                    BioLockView(manualUnlock: viewModel.manualUnlock,
-                                onUnlock: viewModel.checkBiometrics)
+                    EmptyView()
+                        .fullScreenMainBackground()
                 }
             } else {
-                OnboardingView()
+                BioLockView(manualUnlock: viewModel.manualUnlock,
+                            onUnlock: viewModel.checkBiometrics)
             }
+        }
+        .adaptiveSheet(isPresented: .constant(!viewModel.onboarded),
+                       isFullScreen: AppConstants.isPhone) {
+            OnboardingView()
+                .interactiveDismissDisabled()
         }
         .animation(.default, value: viewModel.onboarded)
         .animation(.default, value: viewModel.showEntries)
