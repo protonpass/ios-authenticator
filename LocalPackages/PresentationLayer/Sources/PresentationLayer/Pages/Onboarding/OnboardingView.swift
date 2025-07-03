@@ -71,12 +71,9 @@ private extension OnboardingView {
                         .frame(maxWidth: 260)
 
                 case .iCloudSync:
-                    Image("iCloudSync", bundle: .module)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 250)
-                    Spacer()
-                        .frame(height: 60)
+                    LottieView(animation: .named("iCloudSync", bundle: .module))
+                        .playing(loopMode: .playOnce)
+                        .offset(y: height / 5)
                 }
             }
             .frame(height: height)
