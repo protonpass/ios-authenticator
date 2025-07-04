@@ -49,10 +49,6 @@ public protocol EntryRepositoryProtocol: Sendable {
     func localUpsert(_ entries: [OrderedEntry]) async throws
     // periphery:ignore
     @MainActor
-    func localRemove(_ entry: Entry) async throws
-    @MainActor
-    func localRemove(_ entryId: String) async throws
-    @MainActor
     func localRemoves(_ entriesId: [String]) async throws
 
     // periphery:ignore
@@ -71,7 +67,6 @@ public protocol EntryRepositoryProtocol: Sendable {
     func remoteUpdate(entry: OrderedEntry) async throws -> RemoteEncryptedEntry
     func remoteUpdates(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
 
-    func remoteDelete(remoteEntryId: String) async throws
     func remoteDeletes(remoteEntryIds: [String]) async throws
     func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws
     func batchRemoteReordering(entries: [OrderedEntry]) async throws
@@ -82,7 +77,6 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]?
     func completeRemoves(entries: [OrderedEntry]) async throws
-    func completeRemove(entry: OrderedEntry) async throws
     func completeUpdate(entry: OrderedEntry) async throws
     func completeReorder(entries: [OrderedEntry]) async throws
 }
@@ -216,27 +210,6 @@ public extension EntryRepository {
         try await localRemoves(entries.map(\.id))
     }
 
-    func completeRemove(entry: OrderedEntry) async throws {
-        if isAuthenticated, let remoteId = entry.remoteId {
-            do {
-                try await remoteDelete(remoteEntryId: remoteId)
-            } catch {
-                let entryID = entry.id
-                let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryID }
-                guard let entity = try await localDataManager.persistentStorage.fetchOne(predicate: predicate)
-                else {
-                    log(.warning, "Cannot find local entry with ID: \(entry.id)")
-                    return
-                }
-                entity.updateSyncState(newState: .toDelete)
-                try? await localDataManager.persistentStorage.save(data: entity)
-                return
-            }
-        }
-
-        try await localRemove(entry.id)
-    }
-
     func completeUpdate(entry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
@@ -341,17 +314,6 @@ public extension EntryRepository {
             log(.error, "Failed to update entries: \(error.localizedDescription)")
             throw error
         }
-    }
-
-    func localRemove(_ entry: Entry) async throws {
-        try await localRemove(entry.id)
-    }
-
-    func localRemove(_ entryId: String) async throws {
-        log(.debug, "Deleting entry with id \(entryId) from local storage")
-        let predicate = #Predicate<EncryptedEntryEntity> { $0.id == entryId }
-        try await localDataManager.persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
-        log(.info, "Successfully deleted entry \(entryId) from local storage")
     }
 
     func localRemoves(_ entriesId: [String]) async throws {
@@ -566,18 +528,6 @@ public extension EntryRepository {
         }
 
         return combinedResults
-    }
-
-    func remoteDelete(remoteEntryId: String) async throws {
-        log(.debug, "Deleting entry \(remoteEntryId) from remote")
-        do {
-            _ = try await apiClient.delete(entryId: remoteEntryId)
-            log(.info, "Successfully deleted entry with id\(remoteEntryId) from remote")
-        } catch {
-            log(.error,
-                "Failed to delete entry with id \(remoteEntryId) from remote: \(error.localizedDescription)")
-            throw error
-        }
     }
 
     func remoteDeletes(remoteEntryIds: [String]) async throws {

@@ -162,7 +162,7 @@ public extension EntryDataService {
         }
         log(.debug, "Deleting entry with ID: \(entry.id)")
 
-        try await repository.completeRemove(entry: entry.orderedEntry)
+        try await repository.completeRemoves(entries: [entry.orderedEntry])
 
         data = data.filter { $0.orderedEntry.id != entry.id }
         data = updateOrder(uiEntries: data)
