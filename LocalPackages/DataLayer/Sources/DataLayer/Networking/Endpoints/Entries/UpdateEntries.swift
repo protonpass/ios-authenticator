@@ -71,7 +71,7 @@ struct UpdateEntries: Endpoint {
     var body: UpdateEntriesRequest?
 
     init(request: UpdateEntriesRequest) {
-        debugDescription = "Update a Proton Authenticator entry"
+        debugDescription = "Update Proton Authenticator entries"
         path = "/authenticator/v1/entry/bulk"
         method = .put
         body = request

@@ -43,7 +43,7 @@ struct DeleteEntries: Endpoint {
     var body: DeleteEntriesRequest?
 
     init(request: DeleteEntriesRequest) {
-        debugDescription = "Delete a Proton Authenticator entry"
+        debugDescription = "Delete Proton Authenticator entries"
         path = "/authenticator/v1/entry/bulk"
         method = .delete
         body = request

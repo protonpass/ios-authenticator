@@ -35,8 +35,7 @@ struct UserDataSourceTests {
     
     init() throws {
         let logger = MockLogger()
-        let encryptionService = EncryptionService(keychain: MockKeychainService(),
-                                                 keysProvider: MockKeyProvider(),
+        let encryptionService = EncryptionService(keysProvider: MockKeyProvider(),
                                                  logger: MockLogger())
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedUserDataEntity.self,
                                                                                  isStoredInMemoryOnly: true))

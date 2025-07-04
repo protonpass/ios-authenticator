@@ -37,7 +37,9 @@ public struct KeychainQueryConfig {
     }
 
     public static var `default`: KeychainQueryConfig {
-        KeychainQueryConfig(itemClassType: .generic, access: .default, attributes: nil)
+        KeychainQueryConfig(itemClassType: .generic,
+                            access: .default,
+                            attributes: nil)
     }
 }
 
@@ -251,7 +253,7 @@ private extension KeychainService {
     func createQuery(for key: String,
                      ofType itemClassType: ItemClassType,
                      with data: Data? = nil,
-                     access: KeychainAccessOptions = KeychainAccessOptions.accessibleAfterFirstUnlock,
+                     access: KeychainAccessOptions = .default,
                      remoteSync: Bool,
                      attributes: [CFString: Any]? = nil) -> [CFString: Any] {
         var query: [CFString: Any] = [:]

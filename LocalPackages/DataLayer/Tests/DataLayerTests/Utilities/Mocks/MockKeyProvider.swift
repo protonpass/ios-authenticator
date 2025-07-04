@@ -22,9 +22,11 @@ import DataLayer
 import Foundation
 import CryptoKit
 
-final class MockKeyProvider: KeysProvider {
+final class MockKeyProvider: @unchecked Sendable, KeysProvider {
     let data: Data
-    
+
+    var dataKey = [String:Data]()
+
     init() {
         self.data = try! Data.random()
     }
@@ -32,4 +34,23 @@ final class MockKeyProvider: KeysProvider {
     public func getSymmetricKey() throws -> SymmetricKey {
         return .init(data: data)
     }
+    
+    func get(keyId: String) throws -> Data {
+        guard let keyData = dataKey[keyId] else {
+            throw MockError.noKeyData
+        }
+        return keyData
+    }
+    
+    func set(_ keyData: Data, for keyId: String) throws {
+        dataKey[keyId] = keyData
+    }
+    
+    func clear(keyId: String) throws {
+        dataKey.removeValue(forKey: keyId)
+    }
+}
+
+enum MockError: Error {
+    case noKeyData
 }
