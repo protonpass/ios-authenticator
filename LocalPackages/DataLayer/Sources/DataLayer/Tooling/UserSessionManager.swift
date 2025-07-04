@@ -75,6 +75,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let logger: any LoggerProtocol
     private let configuration: APIManagerConfiguration
     private let forceUpgradeHelper: ForceUpgradeHelper
+    private let humanHelper: HumanCheckHelper
     private let keychain: any KeychainServicing
     private let encryptionService: any EncryptionServicing
     private let userDataProvider: any UserDataProvider
@@ -167,12 +168,12 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
 
         #if os(iOS)
 
-        let humanHelper =
+        humanHelper =
             HumanCheckHelper(apiService: newApiService,
                              inAppTheme: { .default },
                              clientApp: .other(named: "authenticator"))
         #elseif os(macOS)
-        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
         #endif
         newApiService.humanDelegate = humanHelper
 
