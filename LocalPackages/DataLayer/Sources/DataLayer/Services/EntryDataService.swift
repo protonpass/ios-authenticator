@@ -251,7 +251,7 @@ public extension EntryDataService {
             let (localEntries, remoteEntries) = try await (localEntriesFetch, remoteEntriesFetch)
 
             try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
-            try await repository.remoteDeletes(remoteEntryIds: remoteEntriesFetch.compactMap(\.remoteId))
+            try await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
         } catch {
             log(.error, "Failed to delete all entries: \(error.localizedDescription)")
             throw error
@@ -489,6 +489,7 @@ private extension EntryDataService {
         return !operations.isEmpty
     }
 
+    @MainActor
     func reorderItems() async throws -> [OrderedEntry] {
         async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
         async let localEntriesFetch = repository.getAllLocalEntries()

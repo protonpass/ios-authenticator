@@ -368,6 +368,11 @@ public extension EntryRepository {
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage.fetchAll()
             await log(.debug, "Found \(encryptedEntries.count) local entries for order update")
 
+            guard entries.count == encryptedEntries.count else {
+                await log(.debug, "Found discrepancy in number of entries to update")
+                return
+            }
+
             for entry in encryptedEntries {
                 guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
                 entry.updateOrder(newOrder: orderedEntry.order)
