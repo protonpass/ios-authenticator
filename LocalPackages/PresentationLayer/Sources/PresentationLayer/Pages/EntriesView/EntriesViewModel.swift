@@ -111,6 +111,8 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     private var fullSyncTask: Task<Void, Never>?
 
+    private(set) var deleteTask: Task<Void, Never>?
+
     var isAuthenticated: Bool {
         userSessionManager.isAuthenticatedWithUserData.value
     }
@@ -260,8 +262,9 @@ extension EntriesViewModel {
                                          role: .destructive,
                                          action: { [weak self] in
                                              guard let self else { return }
-                                             Task { [weak self] in
+                                             deleteTask = Task { [weak self] in
                                                  guard let self else { return }
+                                                 defer { deleteTask = nil }
                                                  do {
                                                      try await entryDataService.delete(entry)
                                                  } catch {
