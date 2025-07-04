@@ -193,6 +193,7 @@ private extension EntriesView {
                             Label("Delete", systemImage: "trash.fill")
                         }
                         .tint(Color.deleteSwipe)
+                        .disabled(viewModel.deleteTask != nil)
                     }
             }
             .onMove { source, destination in
