@@ -80,7 +80,7 @@ private extension AuthenticatorApp {
                         .fullScreenMainBackground()
                 }
             } else {
-                BioLockView(manualUnlock: viewModel.manualUnlock,
+                BioLockView(manualUnlock: viewModel.manualUnlock || !viewModel.onboarded,
                             onUnlock: viewModel.checkBiometrics)
             }
         }

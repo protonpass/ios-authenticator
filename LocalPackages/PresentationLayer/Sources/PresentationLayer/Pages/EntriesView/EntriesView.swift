@@ -486,7 +486,7 @@ private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
-            Text(verbatim: "Authenticator")
+            Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
         }

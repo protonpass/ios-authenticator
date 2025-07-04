@@ -37,7 +37,7 @@ public struct BioLockView: View {
             Image(.bioLock)
                 .resizable()
                 .scaledToFit()
-                .frame(maxWidth: 200)
+                .frame(maxWidth: 150)
 
             if manualUnlock {
                 Button(action: onUnlock) {

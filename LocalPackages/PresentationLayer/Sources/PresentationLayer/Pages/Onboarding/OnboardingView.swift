@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import Lottie
 import Models
 import SwiftUI
@@ -54,8 +55,10 @@ private extension OnboardingView {
                     Image(ProcessInfo().isiOSAppOnMac ? .introPreviewDesktop : .introPreview)
                         .resizable()
                         .scaledToFill()
-                    Spacer()
-                        .frame(height: 30)
+                        .if(!ProcessInfo().isiOSAppOnMac) { view in
+                            view
+                                .offset(y: AppConstants.isPhone ? height / 8 : (-height / 8))
+                        }
 
                 case .import:
                     LottieView(animation: .named("LockTree", bundle: .module))
@@ -68,10 +71,12 @@ private extension OnboardingView {
                     LottieView(animation: .named("FaceID", bundle: .module))
                         .playing(loopMode: .playOnce)
                         .frame(maxWidth: 260)
+                        .offset(y: AppConstants.isPhone ? height / 10 : 0)
 
                 case .iCloudSync:
                     LottieView(animation: .named("iCloudSync", bundle: .module))
                         .playing(loopMode: .playOnce)
+                        .scaleEffect(AppConstants.isPhone ? 1.2 : 1.5)
                         .offset(y: height / 5)
                 }
             }
