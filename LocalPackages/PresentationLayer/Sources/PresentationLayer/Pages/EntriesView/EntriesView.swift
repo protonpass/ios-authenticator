@@ -450,7 +450,6 @@ private extension EntriesView {
                         .frame(minWidth: 262, maxWidth: .infinity)
                     }
                     .padding(.horizontal, 16)
-
                 } actions: {}
                     .refreshable { [weak viewModel] in
                         viewModel?.reloadData()
