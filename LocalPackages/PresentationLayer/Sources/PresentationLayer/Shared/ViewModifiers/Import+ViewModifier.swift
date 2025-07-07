@@ -595,7 +595,7 @@ private extension ImportOption {
 
 // swiftlint:enable line_length
 
-struct ExplanationView: View {
+private struct ExplanationView: View {
     @Environment(\.dismiss) private var dismiss
     let option: ImportOption
     let handle: (ImportOption) -> Void
@@ -671,7 +671,19 @@ struct ExplanationView: View {
                 .multilineTextAlignment(option.canExport ? .leading : .center)
                 .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
                 .padding(.horizontal, 32)
+
+            if option.canExport {
+                if let url = URL(string: "https://proton.me/support/contact") {
+                    Link(destination: url) {
+                        Text("Need more help?", bundle: .module)
+                            .dynamicFont(size: 20, textStyle: .title3)
+                    }
+                    .padding(.horizontal, 32)
+                }
+            }
+
             Spacer()
+
             if option.canExport {
                 CapsuleButton(title: "Import", textColor: .white, style: .borderedFilled, action: {
                     handle(option)
@@ -685,7 +697,7 @@ struct ExplanationView: View {
     }
 }
 
-struct ImportView: View {
+private struct ImportView: View {
     @Environment(\.dismiss) private var dismiss
     let handle: (ImportOption) -> Void
 

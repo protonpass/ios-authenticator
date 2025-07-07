@@ -5043,6 +5043,16 @@
         }
       }
     },
+    "Need more help?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Need more help?"
+          }
+        }
+      }
+    },
     "New Entry" : {
       "localizations" : {
         "de" : {
