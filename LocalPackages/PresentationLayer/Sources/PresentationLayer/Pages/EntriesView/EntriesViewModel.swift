@@ -207,7 +207,6 @@ final class EntriesViewModel: ObservableObject {
         }
         fullSyncTask = Task { @MainActor [weak self] in
             guard let self else { return }
-//            defer { fullSyncTask = nil }
             do {
                 if let loadTask = loadLocalTask {
                     await loadTask.value
@@ -262,7 +261,7 @@ extension EntriesViewModel {
                                          role: .destructive,
                                          action: { [weak self] in
                                              guard let self else { return }
-                                             deleteTask = Task { [weak self] in
+                                             deleteTask = Task { @MainActor [weak self] in
                                                  guard let self else { return }
                                                  defer { deleteTask = nil }
                                                  do {

@@ -194,16 +194,18 @@ public extension EntryRepository {
             do {
                 try await remoteDeletes(remoteEntryIds: entries.compactMap(\.remoteId))
             } catch {
-                let entryIDs = entries.map((\.id))
-                let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
-                let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
-                guard !entities.isEmpty else {
-                    log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
+                if error.httpCode != 422 {
+                    let entryIDs = entries.map((\.id))
+                    let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
+                    let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
+                    guard !entities.isEmpty else {
+                        log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
+                        return
+                    }
+                    entities.switchToDelete()
+                    try? await localDataManager.persistentStorage.batchSave(content: entities)
                     return
                 }
-                entities.switchToDelete()
-                try? await localDataManager.persistentStorage.batchSave(content: entities)
-                return
             }
         }
 
@@ -418,25 +420,29 @@ public extension EntryRepository {
                                       contentFormatVersion: entryContentFormatVersion)
             }
 
-            // Split into batches of max 100 elements
-            let batches = encryptedRequests.chunked(into: 100)
+            let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
             var combinedResults: [RemoteEncryptedEntry] = []
 
-            // Process batches in parallel
-            try await withThrowingTaskGroup(of: [RemoteEncryptedEntry].self) { [weak self] group in
-                guard let self else {
-                    return
-                }
-                for batch in batches {
-                    group.addTask {
-                        try await self.apiClient.storeEntries(request: StoreEntriesRequest(entries: batch))
-                    }
-                }
+            combinedResults = try await withThrowingTaskGroup(of: (Int, [RemoteEncryptedEntry])
+                .self) { [weak self] group in
+                    guard let self else { return [] }
 
-                for try await batchResult in group {
-                    combinedResults.append(contentsOf: batchResult)
+                    for (index, batch) in batches.enumerated() {
+                        group.addTask {
+                            let result = try await self.apiClient
+                                .storeEntries(request: StoreEntriesRequest(entries: batch))
+                            return (index, result)
+                        }
+                    }
+
+                    var resultsByIndex = Array(repeating: [RemoteEncryptedEntry](), count: batches.count)
+
+                    for try await (index, batchResult) in group {
+                        resultsByIndex[index] = batchResult
+                    }
+
+                    return resultsByIndex.flatMap(\.self)
                 }
-            }
 
             log(.info, "Successfully stored \(combinedResults.count) entries on remote")
 
@@ -445,7 +451,7 @@ public extension EntryRepository {
                 idsToFetch.contains(entity.id)
             }
             let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
-                .fetch(predicate: predicate)) ?? []
+                .fetch(predicate: predicate, sortingDescriptor: [SortDescriptor(\.order)])) ?? []
             encryptedEntries.updateData(with: combinedResults)
             try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
             return combinedResults
@@ -512,8 +518,7 @@ public extension EntryRepository {
                                                lastRevision: entry.revision)
         }
 
-        // Split into batches of max 100 elements
-        let batches = encryptedRequests.chunked(into: 100)
+        let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
         var combinedResults: [RemoteEncryptedEntry] = []
 
         // Process batches in parallel
@@ -538,8 +543,7 @@ public extension EntryRepository {
     func remoteDeletes(remoteEntryIds: [String]) async throws {
         guard !remoteEntryIds.isEmpty else { return }
 
-        // Split into batches of max 100 elements
-        let batches = remoteEntryIds.chunked(into: 100)
+        let batches = remoteEntryIds.chunked(into: AppConstants.NetworkSettings.batchSize)
 
         // Process batches in parallel
         try await withThrowingTaskGroup(of: Void.self) { [weak self] group in

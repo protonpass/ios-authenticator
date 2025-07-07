@@ -24,6 +24,7 @@ import SwiftUI
 struct QAMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = QAMenuViewModel()
+    @State private var showWFullDeleteAlert = false
 
     var body: some View {
         NavigationStack {
@@ -41,6 +42,17 @@ struct QAMenuView: View {
                     }
                 }
             }
+            .alert(Text(verbatim: "Are you sure you want to delete all entries this cannot be undone?"),
+                   isPresented: $showWFullDeleteAlert,
+                   actions: {
+                       Button("Cancel", role: .cancel) {
+                           showWFullDeleteAlert = false
+                       }
+
+                       Button { viewModel.deleteAllData() } label: {
+                           Text(verbatim: "Delete All")
+                       }
+                   })
         }
         .tint(Color.success)
     }
@@ -75,7 +87,7 @@ private extension QAMenuView {
     var actionsSection: some View {
         Section(content: {
             Button {
-                viewModel.deleteAllData()
+                showWFullDeleteAlert = true
             } label: {
                 Text(verbatim: "Delete all local and remote data")
             }

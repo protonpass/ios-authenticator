@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import DataLayer
 import FactoryKit
 import Foundation
 
@@ -57,7 +58,8 @@ final class QAMenuViewModel {
     }
 
     func deleteAllData() {
-        Task {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             do {
                 try await entryDataService.deleteAll()
             } catch {
