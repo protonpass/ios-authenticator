@@ -64,21 +64,17 @@ private extension AuthenticatorApp {
     var mainContainer: some View {
         Group {
             if viewModel.showEntries {
-                if viewModel.onboarded {
-                    EntriesView()
-                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                        .onOpenURL { url in
-                            viewModel.handleDeepLink(url)
+                EntriesView()
+                    .blur(radius: viewModel.onboarded ? 0 : 10)
+                    .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                    .onOpenURL { url in
+                        viewModel.handleDeepLink(url)
+                    }
+                    .onChange(of: scenePhase) { _, newPhase in
+                        if newPhase == .background {
+                            viewModel.resetBiometricCheck()
                         }
-                        .onChange(of: scenePhase) { _, newPhase in
-                            if newPhase == .background {
-                                viewModel.resetBiometricCheck()
-                            }
-                        }
-                } else {
-                    EmptyView()
-                        .fullScreenMainBackground()
-                }
+                    }
             } else {
                 BioLockView(manualUnlock: viewModel.manualUnlock || !viewModel.onboarded,
                             onUnlock: viewModel.checkBiometrics)
@@ -87,6 +83,7 @@ private extension AuthenticatorApp {
         .adaptiveSheet(isPresented: .constant(!viewModel.onboarded),
                        isFullScreen: AppConstants.isPhone) {
             OnboardingView()
+                .sheetAlertService()
                 .interactiveDismissDisabled()
                 .sheetAlertService()
         }

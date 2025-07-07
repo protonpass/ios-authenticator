@@ -34,8 +34,12 @@ import UniformTypeIdentifiers
 
 // swiftlint:disable file_length
 public extension View {
-    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
-        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
+    func importingService(_ showImportOptions: Binding<Bool>,
+                          onMainDisplay: Bool,
+                          onComplete: (@MainActor () -> Void)? = nil) -> some View {
+        modifier(ImportingServiceModifier(showImportOptions: showImportOptions,
+                                          mainDisplay: onMainDisplay,
+                                          onComplete: onComplete))
     }
 }
 
@@ -54,8 +58,11 @@ struct ImportingServiceModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var showImportOptions: Bool
 
-    init(showImportOptions: Binding<Bool>, mainDisplay: Bool) {
-        _viewModel = .init(wrappedValue: ImportViewModel(mainDisplay: mainDisplay))
+    init(showImportOptions: Binding<Bool>,
+         mainDisplay: Bool,
+         onComplete: (@MainActor () -> Void)?) {
+        _viewModel = .init(wrappedValue: ImportViewModel(mainDisplay: mainDisplay,
+                                                         onComplete: onComplete))
         _showImportOptions = showImportOptions
     }
 
@@ -287,10 +294,15 @@ final class ImportViewModel {
     @ObservationIgnored
     private let imageSelectionStream: CurrentValueSubject<[PhotosPickerItem], Never> = .init([])
 
+    @ObservationIgnored
     private let mainDisplay: Bool
 
-    init(mainDisplay: Bool) {
+    @ObservationIgnored
+    private let onComplete: (@MainActor () -> Void)?
+
+    init(mainDisplay: Bool, onComplete: (@MainActor () -> Void)?) {
         self.mainDisplay = mainDisplay
+        self.onComplete = onComplete
         imageSelectionStream
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
@@ -417,13 +429,18 @@ final class ImportViewModel {
     func showCompletion(_ numberOfEntries: Int) {
         let hasNewEntries = numberOfEntries > 0
 
+        let action: ActionConfig = if let onComplete {
+            ActionConfig(title: "OK", titleBundle: .module, action: onComplete)
+        } else {
+            .ok
+        }
         let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
                                         titleBundle: .module,
                                         message: .localized(hasNewEntries ?
                                             "Successfully imported \(numberOfEntries) items" :
                                             "No new codes detected",
                                             .module),
-                                        actions: [.ok])
+                                        actions: [action])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
         #if os(iOS)
