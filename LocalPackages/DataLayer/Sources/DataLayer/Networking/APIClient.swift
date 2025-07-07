@@ -60,7 +60,9 @@ private extension APIClient {
         log(.debug, "Executing endpoint: \(E.self)")
         do {
             let response = try await manager.apiService.exec(endpoint: endpoint)
+            #if DEBUG
             log(.info, "Successfully received response: \(response) for endpoint: \(E.self)")
+            #endif
             return response
         } catch {
             log(.error, "Failed to execute endpoint: \(E.self), error: \(error.localizedDescription)")
