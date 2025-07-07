@@ -3,7 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>com.apple.developer.associated-domains</key>
-	<array/>
+	<array>
+		<string>webcredentials:account.proton.me</string>
+		<string>webcredentials:proton.me</string>
+	</array>
 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
 	<true/>
 	<key>com.apple.developer.default-data-protection</key>
@@ -27,6 +30,7 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)group.me.proton.authenticator</string>
+		<string>$(AppIdentifierPrefix)group.me.proton.protoncore.account</string>
 	</array>
 </dict>
 </plist>
