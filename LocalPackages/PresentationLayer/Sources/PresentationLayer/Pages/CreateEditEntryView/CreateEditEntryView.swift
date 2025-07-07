@@ -68,7 +68,7 @@ struct CreateEditEntryView: View {
                     textField(secretFieldConfig)
 
                     if viewModel.type == .totp {
-                        textField(TextFieldConfig(title: "Issuer (Required)",
+                        textField(TextFieldConfig(title: "Issuer",
                                                   placeholder: "Issuer",
                                                   binding: $viewModel.issuer,
                                                   field: .issuer))
