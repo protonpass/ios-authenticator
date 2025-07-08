@@ -64,7 +64,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     }
 
     public func isDuplicate(of other: Entry) -> Bool {
-        id == other.id || (uri == other.uri)
+        id == other.id
     }
 
     public var capitalLetter: String {

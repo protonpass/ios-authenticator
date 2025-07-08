@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+@_spi(QA)
 import DataLayer
 import FactoryKit
 import Foundation

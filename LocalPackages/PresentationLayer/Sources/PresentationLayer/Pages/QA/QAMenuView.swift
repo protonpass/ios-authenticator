@@ -49,12 +49,11 @@ struct QAMenuView: View {
                            showWFullDeleteAlert = false
                        }
 
-                       Button { viewModel.deleteAllData() } label: {
+                       Button(role: .destructive, action: viewModel.deleteAllData) {
                            Text(verbatim: "Delete All")
                        }
                    })
         }
-        .tint(Color.success)
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
