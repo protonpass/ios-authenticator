@@ -155,6 +155,19 @@ final class EntriesViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        userSessionManager.sessionWasInvalidated
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] status in
+                guard let self, status else { return }
+                alertService.showAlert(.main(.init(title: "Sync between your devices is paused",
+                                                   titleBundle: .module,
+                                                   message: .localized("You session has expired. Please log in again to resume syncing with the backend.",
+                                                                       .module),
+                                                   actions: [.ok])))
+            }
+            .store(in: &cancellables)
+
         Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in

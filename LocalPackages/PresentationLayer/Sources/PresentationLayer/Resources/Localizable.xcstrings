@@ -8082,6 +8082,16 @@
         }
       }
     },
+    "Sync between your devices is paused" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync between your devices is paused"
+          }
+        }
+      }
+    },
     "Tap to copy token to clipboard. Swipe left to delete and right to edit." : {
       "localizations" : {
         "de" : {
@@ -9408,6 +9418,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu seçeneği, satırın sağındaki geçiş düğmesine tıklayarak değiştirebilirsiniz."
+          }
+        }
+      }
+    },
+    "You session has expired. Please log in again to resume syncing with the backend." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You session has expired. Please log in again to resume syncing with the backend."
           }
         }
       }

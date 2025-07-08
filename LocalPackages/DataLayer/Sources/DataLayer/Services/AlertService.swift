@@ -90,6 +90,7 @@ public protocol AlertServiceProtocol: Sendable, Observable {
     var showMainAlert: Bool { get set }
     var showSheetAlert: Bool { get set }
 
+    func resetAlert()
     func showAlert(_ alertDisplay: AlertDisplay)
     func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
@@ -181,10 +182,17 @@ public final class AlertService: AlertServiceProtocol {
     public init() {}
 
     public func showAlert(_ alertDisplay: AlertDisplay) {
+        guard alert == nil else { return }
         alert = alertDisplay
     }
 
+    public func resetAlert() {
+        alert = nil
+    }
+
     public func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?) {
+        guard alert == nil else { return }
+
         let config = AlertConfiguration(title: "An error occurred",
                                         titleBundle: .module,
                                         message: .verbatim(error),

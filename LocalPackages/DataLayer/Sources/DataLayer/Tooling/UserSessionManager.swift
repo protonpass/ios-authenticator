@@ -20,7 +20,7 @@
 
 // periphery:ignore:all
 
-import Combine
+@preconcurrency import Combine
 import CommonUtilities
 import Foundation
 import Models
@@ -33,7 +33,7 @@ import ProtonCoreDoh
 @preconcurrency import ProtonCoreEnvironment
 @preconcurrency import ProtonCoreForceUpgrade
 @preconcurrency import ProtonCoreFoundations
-import ProtonCoreHumanVerification
+@preconcurrency import ProtonCoreHumanVerification
 import ProtonCoreKeyManager
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
@@ -53,6 +53,7 @@ public struct APIManagerConfiguration: Sendable {
 
 public protocol APIManagerProtocol: Sendable {
     var isAuthenticatedWithUserData: CurrentValueSubject<Bool, Never> { get }
+    var sessionWasInvalidated: PassthroughSubject<Bool, Never> { get }
 
     var apiService: APIService { get }
 
@@ -75,7 +76,6 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let logger: any LoggerProtocol
     private let configuration: APIManagerConfiguration
     private let forceUpgradeHelper: ForceUpgradeHelper
-    private let humanHelper: HumanCheckHelper
     private let keychain: any KeychainServicing
     private let encryptionService: any EncryptionServicing
     private let userDataProvider: any UserDataProvider
@@ -94,10 +94,13 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
 
     private let cachedCredentials: any MutexProtected<Credentials?> = SafeMutex.create(nil)
     private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
+    private let humanHelper: any MutexProtected<HumanCheckHelper?> = SafeMutex.create(nil)
 
     private nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
     public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
     private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
+    public nonisolated let sessionWasInvalidated = PassthroughSubject<Bool, Never>()
+
     private var cancellables = Set<AnyCancellable>()
 
     public private(set) var apiService: APIService
@@ -168,14 +171,17 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
 
         #if os(iOS)
 
-        humanHelper =
-            HumanCheckHelper(apiService: newApiService,
-                             inAppTheme: { .default },
-                             clientApp: .other(named: "authenticator"))
+        humanHelper.modify {
+            $0 = HumanCheckHelper(apiService: newApiService,
+                                  inAppTheme: { .default },
+                                  clientApp: .other(named: "authenticator"))
+        }
         #elseif os(macOS)
-        humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        humanHelper.modify {
+            $0 = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        }
         #endif
-        newApiService.humanDelegate = humanHelper
+        newApiService.humanDelegate = humanHelper.value
 
         newApiService.forceUpgradeDelegate = forceUpgradeHelper
         apiService = newApiService
@@ -205,8 +211,8 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         createApiService(credential: nil)
         try await userDataProvider.removeAllUsers()
         isAuthenticated.send(false)
-        isAuthenticatedWithUserData.send(false)
         userDataLoaded.send(false)
+        isAuthenticatedWithUserData.send(false)
     }
 }
 
@@ -234,15 +240,17 @@ private extension UserSessionManager {
         newApiService.serviceDelegate = self
 
         #if os(iOS)
-
-        let humanHelper =
-            HumanCheckHelper(apiService: newApiService,
-                             inAppTheme: { .default },
-                             clientApp: .other(named: "authenticator"))
+        humanHelper.modify {
+            $0 = HumanCheckHelper(apiService: newApiService,
+                                  inAppTheme: { .default },
+                                  clientApp: .other(named: "authenticator"))
+        }
         #elseif os(macOS)
-        let humanHelper = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        humanHelper.modify {
+            $0 = HumanCheckHelper(apiService: newApiService, clientApp: .other(named: "authenticator"))
+        }
         #endif
-        newApiService.humanDelegate = humanHelper
+        newApiService.humanDelegate = humanHelper.value
 
         newApiService.loggingDelegate = self
         newApiService.forceUpgradeDelegate = forceUpgradeHelper
@@ -372,6 +380,7 @@ extension UserSessionManager: AuthDelegate {
 
     public func onAuthenticatedSessionInvalidated(sessionUID: String) {
         log(.info, "Authenticated session invalidated for session id \(sessionUID)")
+        sessionWasInvalidated.send(true)
         cleanSession(sessionUID: sessionUID)
     }
 
