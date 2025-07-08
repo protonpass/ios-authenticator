@@ -177,7 +177,7 @@ private final class AuthenticatorAppViewModel {
         sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
         setUpFirstRun()
-        
+
         reviewService.askForReviewEventStream
             .receive(on: DispatchQueue.main)
             .sink { _ in
@@ -185,8 +185,8 @@ private final class AuthenticatorAppViewModel {
                 // Only ask for reviews when not in macOS because macOS doesn't respect 3 times per year limit
                 if !ProcessInfo.processInfo.isiOSAppOnMac,
                    let scene = UIApplication.shared
-                    .connectedScenes
-                    .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                   .connectedScenes
+                   .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
                     AppStore.requestReview(in: scene)
                 }
                 #endif
