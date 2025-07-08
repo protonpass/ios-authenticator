@@ -4273,72 +4273,12 @@
         }
       }
     },
-    "Import codes from" : {
+    "Import codes from %@" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Codes importieren von"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Import codes from"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importar códigos de"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importar códigos desde"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importer des codes depuis"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importa codici da"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Codes importeren van"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importuj kody z"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importar códigos de"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Импортировать коды из"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Şuradan kodları içe aktar"
+            "value" : "Import codes from %@"
           }
         }
       }
@@ -5483,76 +5423,6 @@
         }
       }
     },
-    "Open 2FAS Authenticator and enter the **“Settings”** section.\n\nThen enter the **“2FAS Backup”** feature.\n\nEnter the Export tool and click the **“Export to file”** button." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffne den 2FAS Authenticator und gehe zum Abschnitt **„Einstellungen“**.\n\nGehe dann zur Funktion **„2FAS Backup“**.\n\nGehe in das Export-Tool und klicke auf die Schaltfläche **„In Datei exportieren“**."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open 2FAS Authenticator and enter the **“Settings”** section.\n\nThen enter the **“2FAS Backup”** feature.\n\nEnter the Export tool and click the **“Export to file”** button."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre 2FAS Authenticator y ve a la sección **“Ajustes”**.\n\nLuego ve a la función **“Copia de seguridad de 2FAS”**.\n\nAccede a la herramienta de Exportación y haz clic en el botón **“Exportar a archivo”**."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abra 2FAS Authenticator e ingrese a la sección **“Configuración”**.\n\nLuego, ingrese a la función **“Copia de seguridad de 2FAS”**.\n\nIngrese a la herramienta de exportación y haga clic en el botón **“Exportar a archivo”** o en la opción correspondiente para guardar el archivo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrez 2FAS Authenticator et accédez à la section « Paramètres ».\n\nAccédez ensuite à la fonctionnalité « Sauvegarde 2FAS ».\n\nAccédez à l'outil d'exportation et cliquez sur le bouton « Exporter vers un fichier »."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apri 2FAS Authenticator e vai alla sezione **“Impostazioni”**.\n\nQuindi, vai alla funzione **“Backup 2FAS”**.\n\nAccedi allo strumento di esportazione e clicca sul pulsante **“Esporta su file”**."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open 2FAS Authenticator en ga naar de sectie **“Instellingen”**.\n\nGa vervolgens naar de functie **“2FAS Backup”**.\n\nGa naar de Exporttool en klik op de knop **“Exporteren naar bestand”**."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otwórz aplikację 2FAS Authenticator i przejdź do sekcji **„Ustawienia”**.\n\nNastępnie przejdź do funkcji **„Kopia zapasowa 2FAS”**.\n\nWejdź do narzędzia Eksport i kliknij przycisk **„Eksportuj do pliku”**."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abra o 2FAS Authenticator e entre na seção **“Configurações”**.\n\nDepois, entre no recurso **“Backup 2FAS”**.\n\nEntre na ferramenta de Exportação e clique no botão **“Exportar para arquivo”**."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Откройте 2FAS Authenticator и перейдите в раздел **«Настройки»**.\n\nЗатем перейдите к функции **«Резервное копирование 2FAS»**.\n\nВойдите в инструмент экспорта и нажмите кнопку **«Экспорт в файл»**."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2FAS Authenticator'ı açın ve **\"Ayarlar\"** bölümüne girin.\n\nDaha sonra **\"2FAS Yedekleme\"** özelliğine girin.\n\nDışa aktarma aracına girin ve **\"Dosyaya aktar\"** düğmesine tıklayın."
-          }
-        }
-      }
-    },
     "Open Settings" : {
       "localizations" : {
         "de" : {
@@ -5969,6 +5839,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen Ayarlar'dan kamera erişimini etkinleştirin"
+          }
+        }
+      }
+    },
+    "Please go **Settings > Export**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
           }
         }
       }
@@ -8646,426 +8586,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Başlık (Gerekli)"
-          }
-        }
-      }
-    },
-    "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \nOpen the LastPass browser extension and log in. Go to **Account → Fix a problem yourself → Export vault items** → Export data for use anywhere." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um 2FA-Codes (TOTP) aus LastPass zu exportieren, musst du deine Tresordaten als CSV-Datei exportieren.\n\nÖffne die LastPass-Browsererweiterung und melde dich an. Gehe zu **Konto → Problem selbst beheben → Tresoreinträge exportieren** → Daten zur Verwendung überall exportieren."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \nOpen the LastPass browser extension and log in. Go to **Account → Fix a problem yourself → Export vault items** → Export data for use anywhere."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos 2FA (TOTP) de LastPass, tendrás que exportar los datos de tu bóveda como un archivo CSV.\n\nAbre la extensión de navegador de LastPass e inicia sesión. Ve a **Cuenta → Solucionar un problema tú mismo → Exportar elementos de la bóveda** → Exportar datos para usar en cualquier lugar."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos 2FA (TOTP) de LastPass, deberá exportar los datos de su bóveda como un archivo CSV.\n\nAbra la extensión de navegador de LastPass e inicie sesión. Vaya a **Cuenta → Solucionar un problema usted mismo → Exportar elementos de la bóveda** → Exportar datos para usar en cualquier lugar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des codes A2F (TOTP) depuis LastPass, vous devez exporter les données de votre coffre-fort au format CSV.\n\nOuvrez l'extension de navigateur LastPass et connectez-vous. Accédez à **Compte → Résoudre un problème vous-même → Exporter les éléments du coffre-fort** → Exporter les données pour les utiliser n'importe où."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i codici 2FA (TOTP) da LastPass, dovrai esportare i dati del tuo vault come file CSV.\n\nApri l'estensione del browser LastPass ed effettua il login. Vai a **Account → Risolvi un problema da solo → Esporta elementi del vault** → Esporta dati da usare ovunque."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om 2FA-codes (TOTP) te exporteren vanuit LastPass, moet u uw kluisgegevens exporteren als een CSV-bestand.\n\nOpen de LastPass-browserextensie en log in. Ga naar **Account → Los een probleem zelf op → Kluisitems exporteren** → Gegevens exporteren voor gebruik overal."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować kody 2FA (TOTP) z LastPass, musisz wyeksportować dane swojego skarbca jako plik CSV.\n\nOtwórz rozszerzenie przeglądarki LastPass i zaloguj się. Przejdź do **Konto → Rozwiąż problem samodzielnie → Eksportuj elementy skarbca** → Eksportuj dane do użycia w dowolnym miejscu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos 2FA (TOTP) do LastPass, você precisará exportar os dados do seu cofre como um arquivo CSV.\n\nAbra a extensão do navegador LastPass e faça login. Vá para **Conta → Resolver um problema sozinho → Exportar itens do cofre** → Exportar dados para usar em qualquer lugar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать 2FA-коды (TOTP) из LastPass, вам потребуется экспортировать данные вашего хранилища в виде файла CSV.\n\nОткройте расширение LastPass для браузера и войдите. Перейдите в **Учетная запись → Исправить проблему самостоятельно → Экспортировать элементы хранилища** → Экспортировать данные для использования в любом месте."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "LastPass'tan 2FA kodlarını (TOTP) dışa aktarmak için kasa verilerinizi bir CSV dosyası olarak dışa aktarmanız gerekir.\n\nLastPass tarayıcı uzantısını açın ve oturum açın. **Hesap → Bir sorunu kendiniz çözün → Kasa öğelerini dışa aktar** → Her yerde kullanmak için verileri dışa aktar'a gidin."
-          }
-        }
-      }
-    },
-    "To export codes from Aegis Authenticator, navigate to the app's **Settings**, find the **”Import & Export”** section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Codes aus Aegis Authenticator zu exportieren, navigiere zu den **Einstellungen** der App, finde den Abschnitt **„Import & Export“** und wähle die Exportoption aus.\n\nDu kannst wählen, ob du als verschlüsselte Datenbank oder als Klartextdatei exportieren möchtest."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export codes from Aegis Authenticator, navigate to the app's **Settings**, find the **”Import & Export”** section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Aegis Authenticator, ve a los **Ajustes** de la app, busca la sección **”Importar y Exportar”** y selecciona la opción de exportación.\n\nPuedes elegir exportar como una base de datos cifrada o como un archivo de texto plano."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Aegis Authenticator, navegue a la **Configuración** de la aplicación, encuentre la sección **”Importar y Exportar”**, y seleccione la opción de exportación.\n\nPuede elegir exportar como una base de datos cifrada o como un archivo de texto sin formato."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des codes depuis Aegis Authenticator, accédez aux **Paramètres** de l'application, recherchez la section **Importer et exporter** et sélectionnez l'option d'exportation.\n\nVous pouvez choisir d'exporter vers une base de données chiffrée ou vers un fichier texte brut."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i codici da Aegis Authenticator, vai alle **Impostazioni** dell'app, trova la sezione **“Importa ed Esporta”** e seleziona l'opzione di esportazione.\n\nPuoi scegliere di esportare come database crittografato o come file di testo normale."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om codes te exporteren vanuit Aegis Authenticator, navigeert u naar de **Instellingen** van de app, zoekt u de sectie **“Importeren & Exporteren”** en selecteert u de exportoptie.\n\nU kunt kiezen om te exporteren als een versleutelde database, of als een platte tekstbestand."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować kody z Aegis Authenticator, przejdź do **Ustawień** aplikacji, znajdź sekcję **„Importuj i eksportuj”** i wybierz opcję eksportu.\n\nMożesz wyeksportować jako zaszyfrowaną bazę danych lub jako plik tekstowy."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos do Aegis Authenticator, navegue até as **Configurações** do aplicativo, encontre a seção **”Importar e Exportar”** e selecione a opção de exportação.\n\nVocê pode escolher exportar como um banco de dados criptografado ou como um arquivo de texto simples."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать коды из Aegis Authenticator, перейдите в **«Настройки»** приложения, найдите раздел **«Импорт и экспорт»** и выберите опцию экспорта.\n\nВы можете выбрать экспорт в виде зашифрованной базы данных или в виде обычного текстового файла."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aegis Authenticator'dan kodları dışa aktarmak için uygulamanın **Ayarlar** bölümüne gidin, **”İçe ve Dışa Aktar”** bölümünü bulun ve dışa aktarma seçeneğini belirleyin.\n\nŞifreli bir veritabanı olarak veya düz metin dosyası olarak dışa aktarmayı seçebilirsiniz."
-          }
-        }
-      }
-    },
-    "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Codes aus Google Authenticator zu exportieren, musst du die integrierte Funktion **„Konten übertragen“** der App verwenden, die einen QR-Code für die Übertragung von Konten auf ein neues Gerät generiert."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Google Authenticator, tendrás que usar la función integrada de la app **“Transferir cuentas”**, que genera un código QR para transferir cuentas a un nuevo dispositivo."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Google Authenticator, deberá usar la función integrada de la aplicación **“Transferir cuentas”**, que genera un código QR para transferir cuentas a un nuevo dispositivo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des codes depuis Google Authenticator, vous devrez utiliser la fonction intégrée **« Transférer vos comptes »** de l'application qui génère un QR code pour transférer des comptes vers un nouvel appareil."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i codici da Google Authenticator, dovrai usare la funzione integrata dell'app **“Trasferisci account”**, che genera un codice QR per trasferire gli account su un nuovo dispositivo."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om codes te exporteren vanuit Google Authenticator, moet u de ingebouwde functie **“Accounts overzetten”** van de app gebruiken, die een QR-code genereert voor het overzetten van accounts naar een nieuw apparaat."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować kody z Google Authenticator, musisz użyć wbudowanej funkcji aplikacji **„Przenieś konta”**, która generuje kod QR do przenoszenia kont na nowe urządzenie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos do Google Authenticator, você precisará usar o recurso **“Transferir contas”** integrado do aplicativo, que gera um código QR para transferir contas para um novo dispositivo."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать коды из Google Authenticator, вам потребуется использовать встроенную функцию приложения **«Передача аккаунтов»**, которая генерирует QR-код для переноса аккаунтов на новое устройство."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Google Authenticator'dan kodları dışa aktarmak için uygulamanın yerleşik **“Hesapları aktar”** özelliğini kullanmanız gerekir; bu özellik, hesapları yeni bir cihaza aktarmak için bir QR kodu oluşturur."
-          }
-        }
-      }
-    },
-    "To export codes from Proton Authenticator, navigate to the app's settings, find the **“Manage your data”** section, and select the export option." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Codes aus Proton Authenticator zu exportieren, navigiere zu den App-Einstellungen, finde den Abschnitt **„Daten verwalten“** und wähle die Exportoption aus."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export codes from Proton Authenticator, navigate to the app's settings, find the **“Manage your data”** section, and select the export option."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Proton Authenticator, ve a los ajustes de la app, busca la sección **“Gestionar tus datos”** y selecciona la opción de exportación."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos de Proton Authenticator, navegue a la configuración de la aplicación, encuentre la sección **“Administrar sus datos”**, y seleccione la opción de exportación."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des codes depuis Proton Authenticator, accédez aux paramètres de l'application, recherchez la section **« Gérer vos données »** et sélectionnez l'option d'exportation."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i codici da Proton Authenticator, vai alle impostazioni dell'app, trova la sezione **“Gestisci i tuoi dati”** e seleziona l'opzione di esportazione."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om codes te exporteren vanuit Proton Authenticator, navigeert u naar de instellingen van de app, zoekt u de sectie **“Uw gegevens beheren”** en selecteert u de exportoptie."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować kody z Proton Authenticator, przejdź do ustawień aplikacji, znajdź sekcję **„Zarządzaj swoimi danymi”** i wybierz opcję eksportu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar códigos do Proton Authenticator, navegue até as configurações do aplicativo, encontre a seção **“Gerenciar seus dados”** e selecione a opção de exportação."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать коды из Proton Authenticator, перейдите в настройки приложения, найдите раздел **«Управление вашими данными»** и выберите опцию экспорта."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator'dan kodları dışa aktarmak için uygulamanın ayarlarına gidin, **“Verilerinizi yönetin”** bölümünü bulun ve dışa aktarma seçeneğini belirleyin."
-          }
-        }
-      }
-    },
-    "To export data from Bitwarden Authenticator, open the **“Settings”** tab and tap the **“Export”** button.\n\nYou can choose to export your data as a .json or .csv file." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Daten aus Bitwarden Authenticator zu exportieren, öffne den Tab **„Einstellungen“** und tippe auf die Schaltfläche **„Exportieren“**.\n\nDu kannst wählen, ob du deine Daten als .json- oder .csv-Datei exportieren möchtest."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export data from Bitwarden Authenticator, open the **“Settings”** tab and tap the **“Export”** button.\n\nYou can choose to export your data as a .json or .csv file."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar datos de Bitwarden Authenticator, abre la pestaña **“Ajustes”** y toca el botón **“Exportar”**.\n\nPuedes elegir exportar tus datos como un archivo .json o .csv."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar datos de Bitwarden Authenticator, abra la pestaña **“Configuración”** y toque el botón **“Exportar”**.\n\nPuede elegir exportar sus datos como un archivo .json o .csv."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des données depuis Bitwarden Authenticator, ouvrez l'onglet « Paramètres » et appuyez sur le bouton « Exporter ».\n\nVous pouvez exporter vos données au format .json ou .csv."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i dati da Bitwarden Authenticator, apri la scheda **“Impostazioni”** e tocca il pulsante **“Esporta”**.\n\nPuoi scegliere di esportare i tuoi dati come file .json o .csv."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om gegevens te exporteren vanuit Bitwarden Authenticator, opent u het tabblad **“Instellingen”** en tikt u op de knop **“Exporteren”**.\n\nU kunt kiezen om uw gegevens te exporteren als een .json- of .csv-bestand."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować dane z Bitwarden Authenticator, otwórz kartę **„Ustawienia”** i dotknij przycisku **„Eksportuj”**.\n\nMożesz wyeksportować swoje dane jako plik .json lub .csv."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar dados do Bitwarden Authenticator, abra a aba **“Configurações”** e toque no botão **“Exportar”**.\n\nVocê pode escolher exportar seus dados como um arquivo .json ou .csv."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать данные из Bitwarden Authenticator, откройте вкладку **«Настройки»** и нажмите кнопку **«Экспорт»**.\n\nВы можете выбрать экспорт данных в виде файла .json или .csv."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitwarden Authenticator'dan verileri dışa aktarmak için **“Ayarlar”** sekmesini açın ve **“Dışa Aktar”** düğmesine dokunun.\n\nVerilerinizi .json veya .csv dosyası olarak dışa aktarmayı seçebilirsiniz."
-          }
-        }
-      }
-    },
-    "To export data from Ente Auth, open the **“Settings”** tab and look for **”Import/Export”** options.\n\nTap **“Export Codes”** and then **“Ente Plain text export”**.\n\nThis creates an backup file containing all your codes." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um Daten aus Ente Auth zu exportieren, öffne den Tab **„Einstellungen“** und suche nach den Optionen **„Import/Export“**.\n\nTippe auf **„Codes exportieren“** und dann auf **„Ente Klartext-Export“**.\n\nDies erstellt eine Sicherungsdatei, die all deine Codes enthält."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To export data from Ente Auth, open the **“Settings”** tab and look for **”Import/Export”** options.\n\nTap **“Export Codes”** and then **“Ente Plain text export”**.\n\nThis creates an backup file containing all your codes."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar datos de Ente Auth, abre la pestaña **“Ajustes”** y busca las opciones de **”Importar/Exportar”**.\n\nToca **“Exportar códigos”** y luego **“Exportación de texto plano de Ente”**.\n\nEsto crea un archivo de copia de seguridad que contiene todos tus códigos."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar datos de Ente Auth, abra la pestaña **“Configuración”** y busque las opciones **”Importar/Exportar”**.\n\nToque **“Exportar códigos”** y luego **“Exportación de texto plano de Ente”**.\n\nEsto crea un archivo de copia de seguridad que contiene todos sus códigos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour exporter des données depuis Ente Auth, ouvrez l'onglet « Paramètres » et recherchez les options « Importer/Exporter ».\n\nAppuyez sur « Exporter les codes », puis sur « Exporter le texte brut Ente ».\n\nUn fichier de sauvegarde contenant tous vos codes est alors créé."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per esportare i dati da Ente Auth, apri la scheda **“Impostazioni”** e cerca le opzioni **“Importa/Esporta”**.\n\nTocca **“Esporta codici”** e quindi **“Esportazione testo semplice Ente”**.\n\nQuesto crea un file di backup contenente tutti i tuoi codici."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om gegevens te exporteren vanuit Ente Auth, opent u het tabblad **“Instellingen”** en zoekt u naar de opties **“Importeren/Exporteren”**.\n\nTik op **“Codes exporteren”** en vervolgens op **“Ente Platte tekst export”**.\n\nDit creëert een back-upbestand met al uw codes."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby wyeksportować dane z Ente Auth, otwórz kartę **„Ustawienia”** i poszukaj opcji **„Importuj/Eksportuj”**.\n\nDotknij **„Eksportuj kody”**, a następnie **„Eksport zwykłego tekstu Ente”**.\n\nSpowoduje to utworzenie pliku kopii zapasowej zawierającego wszystkie twoje kody."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para exportar dados do Ente Auth, abra a aba **“Configurações”** e procure as opções **”Importar/Exportar”**.\n\nToque em **“Exportar Códigos”** e depois em **“Exportação de texto simples Ente”**.\n\nIsso cria um arquivo de backup contendo todos os seus códigos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы экспортировать данные из Ente Auth, откройте вкладку **«Настройки»** и найдите опции **«Импорт/Экспорт»**.\n\nНажмите **«Экспорт кодов»**, а затем **«Экспорт обычного текста Ente»**.\n\nЭто создаст файл резервной копии, содержащий все ваши коды."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ente Auth'dan verileri dışa aktarmak için **“Ayarlar”** sekmesini açın ve **”İçe/Dışa Aktar”** seçeneklerini arayın.\n\n**“Kodları Dışa Aktar”**'a ve ardından **“Ente Düz metin dışa aktarma”**'ya dokunun.\n\nBu, tüm kodlarınızı içeren bir yedekleme dosyası oluşturur."
           }
         }
       }

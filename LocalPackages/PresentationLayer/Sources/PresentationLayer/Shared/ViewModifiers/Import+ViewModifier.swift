@@ -591,19 +591,19 @@ private extension ImportOption {
     var explanation: LocalizedStringKey {
         switch self {
         case .googleAuthenticator:
-            "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device."
+            "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
         case .twoFas:
-            "Open 2FAS Authenticator and enter the **“Settings”** section.\n\nThen enter the **“2FAS Backup”** feature.\n\nEnter the Export tool and click the **“Export to file”** button."
+            "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
         case .aegisAuthenticator:
-            "To export codes from Aegis Authenticator, navigate to the app's **Settings**, find the **”Import & Export”** section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file."
+            "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
         case .bitwardenAuthenticator:
-            "To export data from Bitwarden Authenticator, open the **“Settings”** tab and tap the **“Export”** button.\n\nYou can choose to export your data as a .json or .csv file."
+            "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .enteAuth:
-            "To export data from Ente Auth, open the **“Settings”** tab and look for **”Import/Export”** options.\n\nTap **“Export Codes”** and then **“Ente Plain text export”**.\n\nThis creates an backup file containing all your codes."
+            "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
         case .lastPassAuthenticator:
-            "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \nOpen the LastPass browser extension and log in. Go to **Account → Fix a problem yourself → Export vault items** → Export data for use anywhere."
+            "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
         case .protonAuthenticator:
-            "To export codes from Proton Authenticator, navigate to the app's settings, find the **“Manage your data”** section, and select the export option."
+            "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .authy, .microsoft:
             "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }
@@ -619,7 +619,7 @@ private struct ExplanationView: View {
 
     private var title: String {
         if option.canExport {
-            #localized("Import codes from", bundle: .module) + " " + option.title
+            #localized("Import codes from %@", bundle: .module, option.title)
         } else {
             #localized("No export available", bundle: .module)
         }
