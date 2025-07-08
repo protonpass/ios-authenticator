@@ -162,6 +162,7 @@ final class EntriesViewModel: ObservableObject {
                 guard let self, status else { return }
                 alertService.showAlert(.main(.init(title: "Sync between your devices is paused",
                                                    titleBundle: .module,
+                                                   // swiftlint:disable:next line_length
                                                    message: .localized("You session has expired. Please log in again to resume syncing with the backend.",
                                                                        .module),
                                                    actions: [.ok])))
