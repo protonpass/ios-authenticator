@@ -34,9 +34,14 @@ import SDWebImageSwiftUI
 private struct HighlightedText: View {
     let text: String
     let highlighted: String
+    let placeholder: TextContent
 
     var body: some View {
-        Text(attributedString) // ignore:missing_bundle
+        if text.isEmpty {
+            Text(placeholder) // ignore:missing_bundle
+        } else {
+            Text(attributedString) // ignore:missing_bundle
+        }
     }
 
     private var attributedString: AttributedString {
@@ -142,11 +147,15 @@ private extension EntryCell {
                                letter: entry.orderedEntry.entry.capitalLetter)
 
                 VStack(alignment: .leading) {
-                    HighlightedText(text: entry.orderedEntry.entry.issuer, highlighted: searchTerm)
+                    HighlightedText(text: entry.orderedEntry.entry.issuer,
+                                    highlighted: searchTerm,
+                                    placeholder: .localized("No issuer", .module))
                         .dynamicFont(size: 16, textStyle: .callout, weight: .medium)
                         .foregroundStyle(.textNorm)
                         .textShadow()
-                    HighlightedText(text: entry.orderedEntry.entry.name, highlighted: searchTerm)
+                    HighlightedText(text: entry.orderedEntry.entry.name,
+                                    highlighted: searchTerm,
+                                    placeholder: .localized("No title", .module))
                         .dynamicFont(size: 14, textStyle: .footnote)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)

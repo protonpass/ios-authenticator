@@ -95,6 +95,14 @@ public enum AppConstants {
         #endif
     }
 
+    public static var isIOS: Bool {
+        #if os(iOS)
+        true
+        #else
+        false
+        #endif
+    }
+
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }

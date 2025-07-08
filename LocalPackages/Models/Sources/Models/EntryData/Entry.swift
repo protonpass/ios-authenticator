@@ -68,7 +68,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     }
 
     public var capitalLetter: String {
-        issuer.first?.uppercased() ?? name.first?.uppercased() ?? ""
+        issuer.first?.uppercased() ?? "-"
     }
 }
 

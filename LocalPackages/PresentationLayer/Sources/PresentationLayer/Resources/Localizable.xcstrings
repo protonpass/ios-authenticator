@@ -5294,6 +5294,16 @@
         }
       }
     },
+    "No issuer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No issuer"
+          }
+        }
+      }
+    },
     "No new codes detected" : {
       "localizations" : {
         "de" : {
@@ -5360,6 +5370,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yeni kod bulunamadı"
+          }
+        }
+      }
+    },
+    "No title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No title"
           }
         }
       }
