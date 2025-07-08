@@ -30,6 +30,9 @@ struct CurrentTokenView: View {
         mainContent
             .animation(.bouncy, value: configuration.animateCodeChange ? code : "")
             .privacySensitive()
+            .if(configuration.animateCodeChange) { view in
+                view.contentTransition(.numericText())
+            }
     }
 }
 
@@ -51,7 +54,6 @@ private extension CurrentTokenView {
                 .kerning(3)
                 .monospaced()
                 .foregroundStyle(textColor)
-                .contentTransition(.numericText())
                 .textShadow()
         }
     }
@@ -77,7 +79,6 @@ private struct BoxedDigit: View {
                     .dynamicFont(size: 28, textStyle: .title1, weight: .semibold)
                     .monospaced()
                     .foregroundStyle(textColor)
-                    .contentTransition(.numericText())
             }
             .frame(width: codeCount == 7 || codeCount == 6 ? 28 : 24, height: 36)
         }

@@ -39,7 +39,7 @@ public final class ImportingService: ImportingServicing {
     }
 
     public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
-        log(.debug, "Starting import from provenance: \(provenance)")
+        log(.debug, "Starting import from provenance: \(provenance.name)")
         let result = switch provenance {
         case let .twofas(contents: contents, password: password):
             try parse2fas(contents, password: password)
@@ -56,8 +56,7 @@ public final class ImportingService: ImportingServicing {
         case let .protonAuthenticator(contents: contents):
             try parseAuthenticator(contents)
         }
-
-        log(.debug, "Successfully parsed entries from provenance: \(provenance)")
+        log(.debug, "Successfully parsed entries from provenance: \(provenance.name)")
         return result.toImportResult
     }
 }

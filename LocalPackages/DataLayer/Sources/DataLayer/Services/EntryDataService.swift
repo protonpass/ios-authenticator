@@ -40,6 +40,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
     func fullRefresh() async throws
+
+    @_spi(QA)
     func deleteAll() async throws
 
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
@@ -245,13 +247,12 @@ public extension EntryDataService {
     func deleteAll() async throws {
         log(.debug, "Deleting all entries")
         do {
-            async let localEntriesFetch = repository.getAllLocalEntries()
-            async let remoteEntriesFetch = repository.fetchAllRemoteEntries()
-
-            let (localEntries, remoteEntries) = try await (localEntriesFetch, remoteEntriesFetch)
-
+            let localEntries = try await repository.getAllLocalEntries()
             try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
-            try await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
+            if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
+                _ = try? await repository.remoteSave(entries: remoteEntries)
+            }
+            try await loadEntries()
         } catch {
             log(.error, "Failed to delete all entries: \(error.localizedDescription)")
             throw error
@@ -277,14 +278,12 @@ public extension EntryDataService {
     }
 
     nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
-        await log(.debug, "Importing entries from source: \(source)")
+        await log(.debug, "Importing entries from source: \(source.name)")
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
-        // We commented this to align with other client for the time being.
-        // This filtering could maybe be reimplemented later on in parallel to other clients
-//        let filteredResults = results.entries
-//            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
-        let codes = try repository.generateCodes(entries: results.entries)
+        let filteredResults = results.entries
+            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
+        let codes = try repository.generateCodes(entries: filteredResults)
 
         var index = data.count
         var uiEntries: [EntryUiModel] = []

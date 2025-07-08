@@ -37,34 +37,45 @@ public final class CheckAskForReview: CheckAskForReviewUseCase {
     private let settingsService: any SettingsServicing
     private let entryDataService: any EntryDataServiceProtocol
     private let logger: any LoggerProtocol
+    private let bundle: Bundle
 
     public init(settingsService: any SettingsServicing,
                 entryDataService: any EntryDataServiceProtocol,
-                logger: any LoggerProtocol) {
+                logger: any LoggerProtocol,
+                bundle: Bundle) {
         self.settingsService = settingsService
         self.entryDataService = entryDataService
         self.logger = logger
+        self.bundle = bundle
     }
 
     public func execute() async -> Bool {
-        logger.log(.debug, category: .ui, "Checking if should ask for review")
+        if bundle.isQaBuild {
+            logger.log(.debug, category: .ui, "Checking if should ask for review")
+        }
 
         let installationDate = await Date(timeIntervalSince1970: settingsService.installationTimestamp)
         let calendar = Calendar.current
         let components = calendar.dateComponents([.day], from: installationDate, to: .now)
 
         guard let dayCount = components.day, dayCount >= 7 else {
-            logger.log(.debug, category: .ui, "Skipped asking for review because too early")
+            if bundle.isQaBuild {
+                logger.log(.debug, category: .ui, "Skipped asking for review because too early")
+            }
             return false
         }
 
         guard let count = await entryDataService.dataState.data?.count,
               count >= 4 else {
-            logger.log(.debug, category: .ui, "Skipped asking for review because too few entries")
+            if bundle.isQaBuild {
+                logger.log(.debug, category: .ui, "Skipped asking for review because too few entries")
+            }
             return false
         }
 
-        logger.log(.debug, category: .ui, "Eligible for asking for review")
+        if bundle.isQaBuild {
+            logger.log(.debug, category: .ui, "Eligible for asking for review")
+        }
         return true
     }
 }

@@ -41,10 +41,19 @@ private struct HighlightedText: View {
 
     private var attributedString: AttributedString {
         var attributedString = AttributedString(text)
+        var searchRange = attributedString.startIndex..<attributedString.endIndex
 
-        if let range = attributedString.range(of: highlighted, options: .caseInsensitive) {
-            attributedString[range].foregroundColor = Color.accentColor
+        while let foundRange = attributedString[searchRange].range(of: highlighted,
+                                                                   options: .caseInsensitive) {
+            let lowerBound = foundRange.lowerBound
+            let upperBound = foundRange.upperBound
+
+            attributedString[lowerBound..<upperBound].foregroundColor = .accentColor
+
+            // Continue searching past this match
+            searchRange = upperBound..<attributedString.endIndex
         }
+
         return attributedString
     }
 }

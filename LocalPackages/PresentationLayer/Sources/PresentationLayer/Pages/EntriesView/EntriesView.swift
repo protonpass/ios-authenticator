@@ -437,14 +437,17 @@ private extension EntriesView {
                             .padding(.bottom, 32)
 
                         VStack(spacing: 16) {
+                            let maxWidth: CGFloat = AppConstants.isPhone ? .infinity : 450
                             CapsuleButton(title: "Create new code",
                                           textColor: .white,
                                           style: .borderedFilled,
+                                          maxWidth: maxWidth,
                                           action: handleAddNewCode)
                                 .impactHaptic()
                             CapsuleButton(title: "Import codes",
                                           textColor: .textNorm,
                                           style: .bordered,
+                                          maxWidth: maxWidth,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
                         }

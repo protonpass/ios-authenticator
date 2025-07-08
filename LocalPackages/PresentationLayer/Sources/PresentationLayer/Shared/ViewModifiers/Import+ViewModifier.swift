@@ -34,8 +34,12 @@ import UniformTypeIdentifiers
 
 // swiftlint:disable file_length
 public extension View {
-    func importingService(_ showImportOptions: Binding<Bool>, onMainDisplay: Bool) -> some View {
-        modifier(ImportingServiceModifier(showImportOptions: showImportOptions, mainDisplay: onMainDisplay))
+    func importingService(_ showImportOptions: Binding<Bool>,
+                          onMainDisplay: Bool,
+                          onComplete: (@MainActor () -> Void)? = nil) -> some View {
+        modifier(ImportingServiceModifier(showImportOptions: showImportOptions,
+                                          mainDisplay: onMainDisplay,
+                                          onComplete: onComplete))
     }
 }
 
@@ -54,8 +58,11 @@ struct ImportingServiceModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var showImportOptions: Bool
 
-    init(showImportOptions: Binding<Bool>, mainDisplay: Bool) {
-        _viewModel = .init(wrappedValue: ImportViewModel(mainDisplay: mainDisplay))
+    init(showImportOptions: Binding<Bool>,
+         mainDisplay: Bool,
+         onComplete: (@MainActor () -> Void)?) {
+        _viewModel = .init(wrappedValue: ImportViewModel(mainDisplay: mainDisplay,
+                                                         onComplete: onComplete))
         _showImportOptions = showImportOptions
     }
 
@@ -246,7 +253,7 @@ private extension View {
 }
 
 @Observable @MainActor
-final class ImportViewModel {
+private final class ImportViewModel {
     var showImporter: ImportOption?
     var password: String = ""
     var showPasswordSheet = false
@@ -287,10 +294,15 @@ final class ImportViewModel {
     @ObservationIgnored
     private let imageSelectionStream: CurrentValueSubject<[PhotosPickerItem], Never> = .init([])
 
+    @ObservationIgnored
     private let mainDisplay: Bool
 
-    init(mainDisplay: Bool) {
+    @ObservationIgnored
+    private let onComplete: (@MainActor () -> Void)?
+
+    init(mainDisplay: Bool, onComplete: (@MainActor () -> Void)?) {
         self.mainDisplay = mainDisplay
+        self.onComplete = onComplete
         imageSelectionStream
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
@@ -317,9 +329,11 @@ final class ImportViewModel {
             }
 
             guard currentSelected.autorizedFileExtensions.contains(type) else {
-                alertService.showError(#localized("Forbidden file type for this provenance", bundle: .module),
-                                       mainDisplay: mainDisplay,
-                                       action: nil)
+                let message = #localized("Importing from %1$@ doesn't support %2$@ file format.",
+                                         bundle: .main,
+                                         currentSelected.title,
+                                         type.preferredFilenameExtension ?? type.identifier)
+                alertService.showError(message, mainDisplay: mainDisplay, action: nil)
                 return
             }
             Task { [weak self] in
@@ -335,6 +349,8 @@ final class ImportViewModel {
                         showCompletion(numberOfImportedEntries)
                     } catch ImportException.MissingPassword {
                         showPasswordSheet.toggle()
+                    } catch ImportException.BadContent {
+                        alertBadContentError(url)
                     } catch {
                         alertService.showError(error, mainDisplay: mainDisplay, action: nil)
                     }
@@ -417,18 +433,34 @@ final class ImportViewModel {
     func showCompletion(_ numberOfEntries: Int) {
         let hasNewEntries = numberOfEntries > 0
 
+        let action: ActionConfig = if let onComplete {
+            ActionConfig(title: "OK", titleBundle: .module, action: onComplete)
+        } else {
+            .ok
+        }
         let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
                                         titleBundle: .module,
                                         message: .localized(hasNewEntries ?
                                             "Successfully imported \(numberOfEntries) items" :
                                             "No new codes detected",
                                             .module),
-                                        actions: [.ok])
+                                        actions: [action])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
         #if os(iOS)
         hapticsManager(.notify(.success))
         #endif
+    }
+}
+
+private extension ImportViewModel {
+    func alertBadContentError(_ url: URL) {
+        let message =
+            // swiftlint:disable:next line_length
+            #localized("Invalid file format for \"%@\". Please make sure your file is in a supported format and try again.",
+                       bundle: .module,
+                       url.lastPathComponent)
+        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
     }
 }
 
@@ -574,19 +606,19 @@ private extension ImportOption {
     var explanation: LocalizedStringKey {
         switch self {
         case .googleAuthenticator:
-            "To export codes from Google Authenticator, you'll need to use the app's built-in **“Transfer accounts”** feature, which generates a QR code for transferring accounts to a new device."
+            "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
         case .twoFas:
-            "Open 2FAS Authenticator and enter the **“Settings”** section.\n\nThen enter the **“2FAS Backup”** feature.\n\nEnter the Export tool and click the **“Export to file”** button."
+            "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
         case .aegisAuthenticator:
-            "To export codes from Aegis Authenticator, navigate to the app's **Settings**, find the **”Import & Export”** section, and select the export option.\n\nYou can choose to export as an encrypted database, or as a plain text file."
+            "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
         case .bitwardenAuthenticator:
-            "To export data from Bitwarden Authenticator, open the **“Settings”** tab and tap the **“Export”** button.\n\nYou can choose to export your data as a .json or .csv file."
+            "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .enteAuth:
-            "To export data from Ente Auth, open the **“Settings”** tab and look for **”Import/Export”** options.\n\nTap **“Export Codes”** and then **“Ente Plain text export”**.\n\nThis creates an backup file containing all your codes."
+            "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
         case .lastPassAuthenticator:
-            "To export 2FA codes (TOTP) from LastPass, you'll need to export your vault data as a CSV file.  \nOpen the LastPass browser extension and log in. Go to **Account → Fix a problem yourself → Export vault items** → Export data for use anywhere."
+            "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
         case .protonAuthenticator:
-            "To export codes from Proton Authenticator, navigate to the app's settings, find the **“Manage your data”** section, and select the export option."
+            "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .authy, .microsoft:
             "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }
@@ -595,14 +627,14 @@ private extension ImportOption {
 
 // swiftlint:enable line_length
 
-struct ExplanationView: View {
+private struct ExplanationView: View {
     @Environment(\.dismiss) private var dismiss
     let option: ImportOption
     let handle: (ImportOption) -> Void
 
     private var title: String {
         if option.canExport {
-            #localized("Import codes from", bundle: .module) + " " + option.title
+            #localized("Import codes from %@", bundle: .module, option.title)
         } else {
             #localized("No export available", bundle: .module)
         }
@@ -671,7 +703,19 @@ struct ExplanationView: View {
                 .multilineTextAlignment(option.canExport ? .leading : .center)
                 .frame(maxWidth: .infinity, alignment: option.canExport ? .leading : .center)
                 .padding(.horizontal, 32)
+
+            if option.canExport {
+                if let url = URL(string: "https://proton.me/support/contact") {
+                    Link(destination: url) {
+                        Text("Need more help?", bundle: .module)
+                            .dynamicFont(size: 20, textStyle: .title3)
+                    }
+                    .padding(.horizontal, 32)
+                }
+            }
+
             Spacer()
+
             if option.canExport {
                 CapsuleButton(title: "Import", textColor: .white, style: .borderedFilled, action: {
                     handle(option)
@@ -685,7 +729,7 @@ struct ExplanationView: View {
     }
 }
 
-struct ImportView: View {
+private struct ImportView: View {
     @Environment(\.dismiss) private var dismiss
     let handle: (ImportOption) -> Void
 

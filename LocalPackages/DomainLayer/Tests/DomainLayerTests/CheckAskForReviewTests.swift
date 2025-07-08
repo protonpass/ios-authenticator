@@ -35,7 +35,8 @@ struct CheckAskForReviewTests {
         entryService = .init()
         sut = CheckAskForReview(settingsService: settingsService,
                                          entryDataService: entryService,
-                                         logger: MockLogger())
+                                logger: MockLogger(),
+                                bundle: .main)
     }
 
     @Test("Skip asking for review when installed less than 7 days")
