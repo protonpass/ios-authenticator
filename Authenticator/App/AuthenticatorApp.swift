@@ -88,6 +88,7 @@ private extension AuthenticatorApp {
                        isFullScreen: AppConstants.isPhone) {
             OnboardingView()
                 .interactiveDismissDisabled()
+                .sheetAlertService()
         }
         .animation(.default, value: viewModel.onboarded)
         .animation(.default, value: viewModel.showEntries)
