@@ -167,10 +167,6 @@ private final class AuthenticatorAppViewModel {
     private var reviewService
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.userSessionManager)
-    private var userSessionManager
-
-    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     init() {

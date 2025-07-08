@@ -475,6 +475,12 @@ private extension EntriesView {
                 }
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
+            } else if viewModel.deleteTask != nil {
+                Color.black
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .controlSize(.large)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
