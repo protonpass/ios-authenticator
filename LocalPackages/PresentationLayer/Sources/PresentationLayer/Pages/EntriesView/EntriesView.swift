@@ -129,6 +129,7 @@ public struct EntriesView: View {
                 .overlay {
                     overlay
                 }
+                .showSpinner(viewModel.deleteTask != nil)
                 .onChange(of: router.presentedFullscreenSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
@@ -475,12 +476,6 @@ private extension EntriesView {
                 }
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
-            } else if viewModel.deleteTask != nil {
-                Color.black
-                    .opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressView()
-                    .controlSize(.large)
             }
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error) {
