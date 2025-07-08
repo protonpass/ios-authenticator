@@ -34,16 +34,16 @@ import SimpleToast
 @MainActor
 final class EntriesViewModel: ObservableObject {
     var entries: [EntryUiModel] {
+        guard let data = entryDataService.dataState.data else { return [] }
+
         guard !lastestQuery.isEmpty else {
-            return entryDataService.dataState.data ?? []
+            return data
         }
 
-        let newResults = entryDataService.dataState.data?.filter {
+        return data.filter {
             $0.orderedEntry.entry.name.lowercased().contains(lastestQuery) ||
                 $0.orderedEntry.entry.issuer.lowercased().contains(lastestQuery)
-        } ?? []
-
-        return newResults
+        }
     }
 
     var dataState: DataState<[EntryUiModel]> {

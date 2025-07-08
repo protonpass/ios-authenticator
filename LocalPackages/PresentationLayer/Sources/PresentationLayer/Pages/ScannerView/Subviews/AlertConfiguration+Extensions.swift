@@ -44,11 +44,12 @@ extension AlertConfiguration {
     static func logout(onLogout: @MainActor @escaping () -> Void) -> Self {
         let logoutAction = ActionConfig(title: "Stop syncing",
                                         titleBundle: .module,
+                                        role: .destructive,
                                         action: onLogout)
         return .init(title: "Are you sure?",
                      titleBundle: .module,
                      // swiftlint:disable:next line_length
-                     message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your proton account.",
+                     message: .localized("Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account.",
                                          .module),
                      actions: [logoutAction, ActionConfig.cancel])
     }

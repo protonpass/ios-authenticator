@@ -84,6 +84,9 @@ private extension AuthenticatorApp {
                             onUnlock: viewModel.checkBiometrics)
             }
         }
+        .task {
+            await viewModel.setUpFirstRun()
+        }
         .adaptiveSheet(isPresented: .constant(!viewModel.onboarded),
                        isFullScreen: AppConstants.isPhone) {
             OnboardingView()
@@ -153,7 +156,7 @@ private final class AuthenticatorAppViewModel {
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.setUpFirstRun)
-    private var setUpFirstRun
+    private(set) var setUpFirstRun
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.authenticationService)
@@ -173,7 +176,6 @@ private final class AuthenticatorAppViewModel {
     init() {
         sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
-        setUpFirstRun()
 
         reviewService.askForReviewEventStream
             .receive(on: DispatchQueue.main)
