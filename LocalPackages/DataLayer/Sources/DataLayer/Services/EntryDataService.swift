@@ -277,7 +277,7 @@ public extension EntryDataService {
     }
 
     nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
-        await log(.debug, "Importing entries from source: \(source)")
+        await log(.debug, "Importing entries from source: \(source.name)")
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
         // We commented this to align with other client for the time being.

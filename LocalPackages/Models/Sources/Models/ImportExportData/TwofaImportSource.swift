@@ -57,6 +57,18 @@ public enum TwofaImportSource: Sendable, Equatable {
             self
         }
     }
+
+    public var name: String {
+        switch self {
+        case .twofas: "2FAS"
+        case .aegis: "Aegis"
+        case .bitwarden: "Bitwarden"
+        case .ente: "Ente"
+        case .googleQr: "Google"
+        case .lastpass: "Lastpass"
+        case .protonAuthenticator: "Proton Authenticator"
+        }
+    }
 }
 
 public enum TwofaImportFileType: Sendable, Equatable {

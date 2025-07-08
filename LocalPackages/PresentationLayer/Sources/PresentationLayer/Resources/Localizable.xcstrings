@@ -3572,76 +3572,6 @@
         }
       }
     },
-    "Forbidden file type for this provenance" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unzulässiger Dateityp für diese Herkunft"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Forbidden file type for this provenance"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tipo de archivo prohibido para esta procedencia"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tipo de archivo prohibido para esta procedencia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Type de fichier interdit pour cette provenance"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tipo di file proibito per questa provenienza"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verboden bestandstype voor deze herkomst"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niedozwolony typ pliku dla tego źródła"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tipo de arquivo proibido para esta proveniência"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запрещенный тип файла для этого источника"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu kaynak için yasak dosya türü"
-          }
-        }
-      }
-    },
     "Free" : {
       "localizations" : {
         "de" : {
@@ -4349,6 +4279,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dosyalardan İçe Aktar"
+          }
+        }
+      }
+    },
+    "Importing from %1$@ doesn't support %2$@ file format." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importing from %1$@ doesn't support %2$@ file format."
+          }
+        }
+      }
+    },
+    "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again." : {
+      "comment" : "Placeholder is the file name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again."
           }
         }
       }

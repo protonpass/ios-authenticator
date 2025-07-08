@@ -253,7 +253,7 @@ private extension View {
 }
 
 @Observable @MainActor
-final class ImportViewModel {
+private final class ImportViewModel {
     var showImporter: ImportOption?
     var password: String = ""
     var showPasswordSheet = false
@@ -329,9 +329,11 @@ final class ImportViewModel {
             }
 
             guard currentSelected.autorizedFileExtensions.contains(type) else {
-                alertService.showError(#localized("Forbidden file type for this provenance", bundle: .module),
-                                       mainDisplay: mainDisplay,
-                                       action: nil)
+                let message = #localized("Importing from %1$@ doesn't support %2$@ file format.",
+                                         bundle: .main,
+                                         currentSelected.title,
+                                         type.preferredFilenameExtension ?? type.identifier)
+                alertService.showError(message, mainDisplay: mainDisplay, action: nil)
                 return
             }
             Task { [weak self] in
@@ -347,6 +349,8 @@ final class ImportViewModel {
                         showCompletion(numberOfImportedEntries)
                     } catch ImportException.MissingPassword {
                         showPasswordSheet.toggle()
+                    } catch ImportException.BadContent {
+                        alertBadContentError(url)
                     } catch {
                         alertService.showError(error, mainDisplay: mainDisplay, action: nil)
                     }
@@ -446,6 +450,17 @@ final class ImportViewModel {
         #if os(iOS)
         hapticsManager(.notify(.success))
         #endif
+    }
+}
+
+private extension ImportViewModel {
+    func alertBadContentError(_ url: URL) {
+        let message =
+            // swiftlint:disable:next line_length
+            #localized("Invalid file format for \"%@\". Please make sure your file is in a supported format and try again.",
+                       bundle: .module,
+                       url.lastPathComponent)
+        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
     }
 }
 
