@@ -40,6 +40,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
     func fullRefresh() async throws
+    func deleteAll() async throws
 
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
@@ -161,7 +162,7 @@ public extension EntryDataService {
         }
         log(.debug, "Deleting entry with ID: \(entry.id)")
 
-        try await repository.completeRemove(entry: entry.orderedEntry)
+        try await repository.completeRemoves(entries: [entry.orderedEntry])
 
         data = data.filter { $0.orderedEntry.id != entry.id }
         data = updateOrder(uiEntries: data)
@@ -215,12 +216,8 @@ public extension EntryDataService {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
 
-            let filteredRemote = remoteOrderedEntries
-                .filter { entry in
-                    !entriesStates.decodedEntries.contains(where: { $0.entry.isDuplicate(of: entry.entry) })
-                }
-
-            _ = try await syncOperation(remoteOrderedEntries: filteredRemote, entriesStates: entriesStates)
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
+                                        entriesStates: entriesStates)
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
@@ -241,6 +238,22 @@ public extension EntryDataService {
             updateData(entries)
         } catch {
             log(.error, "Failed to Unsync all entries: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    func deleteAll() async throws {
+        log(.debug, "Deleting all entries")
+        do {
+            async let localEntriesFetch = repository.getAllLocalEntries()
+            async let remoteEntriesFetch = repository.fetchAllRemoteEntries()
+
+            let (localEntries, remoteEntries) = try await (localEntriesFetch, remoteEntriesFetch)
+
+            try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
+            try await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
+        } catch {
+            log(.error, "Failed to delete all entries: \(error.localizedDescription)")
             throw error
         }
     }
@@ -267,9 +280,11 @@ public extension EntryDataService {
         await log(.debug, "Importing entries from source: \(source)")
         let results = try importService.importEntries(from: source)
         var data: [EntryUiModel] = await dataState.data ?? []
-        let filteredResults = results.entries
-            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
-        let codes = try repository.generateCodes(entries: filteredResults)
+        // We commented this to align with other client for the time being.
+        // This filtering could maybe be reimplemented later on in parallel to other clients
+//        let filteredResults = results.entries
+//            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
+        let codes = try repository.generateCodes(entries: results.entries)
 
         var index = data.count
         var uiEntries: [EntryUiModel] = []
@@ -427,11 +442,16 @@ private extension EntryDataService {
         dataState = .loaded(entryUiModels)
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws -> Bool {
         let operations = try syncOperation
             .calculateOperations(remote: remoteOrderedEntries.toRemoteEntries,
                                  local: entriesStates.toLocalEntries)
+
+        var itemsToPushToRemote: [OrderedEntry] = []
+        var itemsToFullyDelete: [OrderedEntry] = []
+        var itemsToUpsertLocally: [OrderedEntry] = []
+        var itemIdsToDeleteLocally: [String] = []
+        var itemsToUpdateRemotely: [OrderedEntry] = []
 
         for operation in operations {
             switch operation.operation {
@@ -439,35 +459,37 @@ private extension EntryDataService {
                 if let orderedEntry = remoteOrderedEntries
                     .getFirstOrderedEntry(for: operation.entry.id) {
                     let syncedEntry = orderedEntry.updateSyncState(.synced)
-                    try await repository.localUpsert(syncedEntry)
+                    itemsToUpsertLocally.append(syncedEntry)
                 }
             case .deleteLocal:
-                try await repository.localRemove(operation.entry.id)
+                itemIdsToDeleteLocally.append(operation.entry.id)
             case .deleteLocalAndRemote:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    try await repository.completeRemove(entry: orderedEntry)
+                    itemsToFullyDelete.append(orderedEntry)
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    _ = try await repository.remoteSave(entries: [orderedEntry])
-                }
-            case .conflict:
-                if let remoteEntry = remoteOrderedEntries.getFirstOrderedEntry(for: operation.entry.id),
-                   let localEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    let latestRevision = getLatestRevision(for: remoteEntry, and: localEntry)
-                    if remoteEntry.modifiedTime > localEntry.modifiedTime {
-                        _ = try await repository.localUpdate(remoteEntry)
+                    if operation.remoteId != nil, let revision = operation.revision {
+                        itemsToUpdateRemotely.append(orderedEntry.updateRevision(Int(revision)))
                     } else {
-                        let updatedRevision = localEntry.updateRevision(latestRevision)
-                        _ = try await repository.remoteUpdate(entry: updatedRevision)
+                        itemsToPushToRemote.append(orderedEntry)
                     }
                 }
             }
         }
 
+        async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
+        async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
+        async let remoteUpdate = repository.remoteUpdates(entries: itemsToUpdateRemotely)
+        async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
+        async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
+
+        _ = try await (localEntriesFetch, remoteSave, remoteUpdate, localRemove, fullyRemove)
+
         return !operations.isEmpty
     }
 
+    @MainActor
     func reorderItems() async throws -> [OrderedEntry] {
         async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
         async let localEntriesFetch = repository.getAllLocalEntries()
@@ -504,10 +526,6 @@ private extension EntryDataService {
 
         try await repository.completeReorder(entries: mergedAndOrderedItems)
         return mergedAndOrderedItems
-    }
-
-    func getLatestRevision(for lhs: OrderedEntry, and rhs: OrderedEntry) -> Int {
-        max(lhs.revision, rhs.revision)
     }
 }
 

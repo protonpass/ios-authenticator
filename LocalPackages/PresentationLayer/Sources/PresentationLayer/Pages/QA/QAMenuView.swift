@@ -24,12 +24,14 @@ import SwiftUI
 struct QAMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = QAMenuViewModel()
+    @State private var showWFullDeleteAlert = false
 
     var body: some View {
         NavigationStack {
             List {
                 onboardingSection
                 passBannerSection
+                actionsSection
                 installationDateSection
             }
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -40,6 +42,17 @@ struct QAMenuView: View {
                     }
                 }
             }
+            .alert(Text(verbatim: "Are you sure you want to delete all entries this cannot be undone?"),
+                   isPresented: $showWFullDeleteAlert,
+                   actions: {
+                       Button("Cancel", role: .cancel) {
+                           showWFullDeleteAlert = false
+                       }
+
+                       Button { viewModel.deleteAllData() } label: {
+                           Text(verbatim: "Delete All")
+                       }
+                   })
         }
         .tint(Color.success)
     }
@@ -64,9 +77,22 @@ private extension QAMenuView {
 
     var passBannerSection: some View {
         Section(content: {
-            Toggle(isOn: $viewModel.displayPassBanner, label: { Text(verbatim: "Display Pass Banner") })
+            Toggle(isOn: $viewModel.displayPassBanner,
+                   label: { Text(verbatim: "Display Pass Banner") })
         }, header: {
             Text(verbatim: "Pass Banner")
+        })
+    }
+
+    var actionsSection: some View {
+        Section(content: {
+            Button {
+                showWFullDeleteAlert = true
+            } label: {
+                Text(verbatim: "Delete all local and remote data")
+            }
+        }, header: {
+            Text(verbatim: "Actions")
         })
     }
 

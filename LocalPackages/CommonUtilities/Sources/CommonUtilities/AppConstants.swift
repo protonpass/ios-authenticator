@@ -62,6 +62,10 @@ public enum AppConstants {
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
     }
 
+    public enum NetworkSettings {
+        public static let batchSize = 100
+    }
+
     @MainActor
     public static var isPhone: Bool {
         #if canImport(UIKit)

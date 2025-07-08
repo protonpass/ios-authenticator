@@ -111,6 +111,8 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     private var fullSyncTask: Task<Void, Never>?
 
+    private(set) var deleteTask: Task<Void, Never>?
+
     var isAuthenticated: Bool {
         userSessionManager.isAuthenticatedWithUserData.value
     }
@@ -189,7 +191,7 @@ final class EntriesViewModel: ObservableObject {
 
     func loadEntries() {
         loadLocalTask?.cancel()
-        loadLocalTask = Task { [weak self] in
+        loadLocalTask = Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 try await entryDataService.loadEntries()
@@ -203,14 +205,18 @@ final class EntriesViewModel: ObservableObject {
         guard fullSyncTask == nil else {
             return
         }
-        fullSyncTask = Task { [weak self] in
+        fullSyncTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            defer { fullSyncTask = nil }
             do {
-                await loadLocalTask?.value
+                if let loadTask = loadLocalTask {
+                    await loadTask.value
+                }
+
                 try await entryDataService.fullRefresh()
+                fullSyncTask = nil
             } catch {
                 handle(error)
+                fullSyncTask = nil
             }
         }
     }
@@ -255,8 +261,9 @@ extension EntriesViewModel {
                                          role: .destructive,
                                          action: { [weak self] in
                                              guard let self else { return }
-                                             Task { [weak self] in
+                                             deleteTask = Task { @MainActor [weak self] in
                                                  guard let self else { return }
+                                                 defer { deleteTask = nil }
                                                  do {
                                                      try await entryDataService.delete(entry)
                                                  } catch {

@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import DataLayer
 import FactoryKit
 import Foundation
 
@@ -42,6 +43,10 @@ final class QAMenuViewModel {
     @ObservationIgnored
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.entryDataService)
+    private(set) var entryDataService
+
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
@@ -50,5 +55,16 @@ final class QAMenuViewModel {
 
     func updateInstallationTimestamp(_ date: Date) {
         appSettings.setInstallationTimestamp(date.timeIntervalSince1970)
+    }
+
+    func deleteAllData() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await entryDataService.deleteAll()
+            } catch {
+                print(error)
+            }
+        }
     }
 }

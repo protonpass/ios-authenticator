@@ -56,8 +56,7 @@ public extension ServiceContainer {
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keychain: self.keychainService(),
-                                 keysProvider: self.keyManager(),
+        self { EncryptionService(keysProvider: self.keysManager(),
                                  logger: self.logger) }
     }
 
@@ -101,9 +100,9 @@ public extension ServiceContainer {
         }
     }
 
-    var keyManager: Factory<any KeysProvider> {
+    var keysManager: Factory<any KeysProvider> {
         self {
-            KeyManager(keychain: self.keychainService())
+            KeysManager(keychain: self.keychainService())
         }
     }
 

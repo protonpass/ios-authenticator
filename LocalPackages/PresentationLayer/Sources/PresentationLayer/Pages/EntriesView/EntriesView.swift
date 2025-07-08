@@ -129,6 +129,7 @@ public struct EntriesView: View {
                 .overlay {
                     overlay
                 }
+                .showSpinner(viewModel.deleteTask != nil)
                 .onChange(of: router.presentedFullscreenSheet) { _, newValue in
                     viewModel.toggleCodeRefresh(newValue != nil)
                 }
@@ -193,6 +194,7 @@ private extension EntriesView {
                             Label("Delete", systemImage: "trash.fill")
                         }
                         .tint(Color.deleteSwipe)
+                        .disabled(viewModel.deleteTask != nil)
                     }
             }
             .onMove { source, destination in
@@ -450,6 +452,9 @@ private extension EntriesView {
                     }
                     .padding(.horizontal, 16)
                 } actions: {}
+                    .refreshable { [weak viewModel] in
+                        viewModel?.reloadData()
+                    }
             } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()

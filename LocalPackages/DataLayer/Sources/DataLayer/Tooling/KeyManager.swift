@@ -26,6 +26,10 @@ import Models
 
 public protocol KeysProvider: Sendable {
     func getSymmetricKey() throws -> SymmetricKey
+
+    func get(keyId: String) throws -> Data
+    func set(_ keyData: Data, for keyId: String) throws
+    func clear(keyId: String) throws
 }
 
 public protocol MainKeyProvider: Sendable, AnyObject {
@@ -66,10 +70,12 @@ extension CoreKeychain: SettingsProvider {
     }
 }
 
-public final class KeyManager: KeysProvider {
+public final class KeysManager: KeysProvider {
     private let keychain: any KeychainServicing
     private let keyMaker: any MainKeyProvider
     private let keychainKey = "SymmetricKey"
+
+    private let cachedKeys: any MutexProtected<[String: Data]> = SafeMutex.create([:])
 
     public init(keychain: any KeychainServicing,
                 keyMaker: any MainKeyProvider = Keymaker()) {
@@ -93,6 +99,32 @@ public final class KeyManager: KeysProvider {
             let lockedData = try Locked<Data>(clearValue: randomData, with: mainKey)
             try keychain.set(lockedData.encryptedValue, for: keychainKey)
             return .init(data: randomData)
+        }
+    }
+
+    public func get(keyId: String) throws -> Data {
+        if let key = cachedKeys.value[keyId] {
+            return key
+        }
+
+        let keyData: Data = try keychain.get(key: keyId, isSyncedKey: true)
+        cachedKeys.modify {
+            $0[keyId] = keyData
+        }
+        return keyData
+    }
+
+    public func set(_ keyData: Data, for keyId: String) throws {
+        try keychain.set(keyData, for: keyId, shouldSync: true)
+        cachedKeys.modify {
+            $0[keyId] = keyData
+        }
+    }
+
+    public func clear(keyId: String) throws {
+        try keychain.clear(key: keyId, shouldSync: true)
+        cachedKeys.modify {
+            $0.removeValue(forKey: keyId)
         }
     }
 }

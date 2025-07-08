@@ -37,7 +37,9 @@ public struct KeychainQueryConfig {
     }
 
     public static var `default`: KeychainQueryConfig {
-        KeychainQueryConfig(itemClassType: .generic, access: .default, attributes: nil)
+        KeychainQueryConfig(itemClassType: .generic,
+                            access: .default,
+                            attributes: nil)
     }
 }
 

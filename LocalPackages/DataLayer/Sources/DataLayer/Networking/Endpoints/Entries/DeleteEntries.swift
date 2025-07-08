@@ -1,6 +1,6 @@
-//  
-// MockKeyProvider.swift
-// Proton Authenticator - Created on 07/05/2025.
+//
+// DeleteEntries.swift
+// Proton Authenticator - Created on 02/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -18,39 +18,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import DataLayer
 import Foundation
-import CryptoKit
+@preconcurrency import ProtonCoreNetworking
 
-final class MockKeyProvider: @unchecked Sendable, KeysProvider {
-    let data: Data
+public struct DeleteEntriesRequest: Encodable, Sendable {
+    let entryIds: [String]
 
-    var dataKey = [String:Data]()
+    public init(entryIds: [String]) {
+        self.entryIds = entryIds
+    }
 
-    init() {
-        self.data = try! Data.random()
-    }
-    
-    public func getSymmetricKey() throws -> SymmetricKey {
-        return .init(data: data)
-    }
-    
-    func get(keyId: String) throws -> Data {
-        guard let keyData = dataKey[keyId] else {
-            throw MockError.noKeyData
-        }
-        return keyData
-    }
-    
-    func set(_ keyData: Data, for keyId: String) throws {
-        dataKey[keyId] = keyData
-    }
-    
-    func clear(keyId: String) throws {
-        dataKey.removeValue(forKey: keyId)
+    enum CodingKeys: String, CodingKey {
+        case entryIds = "EntryIDs"
     }
 }
 
-enum MockError: Error {
-    case noKeyData
+struct DeleteEntries: Endpoint {
+    typealias Body = DeleteEntriesRequest
+    typealias Response = CodeOnlyResponse
+
+    var debugDescription: String
+    var path: String
+    var method: HTTPMethod
+    var body: DeleteEntriesRequest?
+
+    init(request: DeleteEntriesRequest) {
+        debugDescription = "Delete Proton Authenticator entries"
+        path = "/authenticator/v1/entry/bulk"
+        method = .delete
+        body = request
+    }
 }

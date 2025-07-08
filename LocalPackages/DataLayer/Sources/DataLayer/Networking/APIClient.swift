@@ -35,7 +35,9 @@ public protocol RemoteEntriesDataSource: Sendable {
     func storeEntry(request: StoreEntryRequest) async throws -> RemoteEncryptedEntry
     func storeEntries(request: StoreEntriesRequest) async throws -> [RemoteEncryptedEntry]
     func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry
+    func updates(request: UpdateEntriesRequest) async throws -> [RemoteEncryptedEntry]
     func delete(entryId: String) async throws
+    func delete(entryIds: [String]) async throws
     func changeOrder(entryId: String, request: NewOrderRequest) async throws
     func batchOrdering(request: BatchOrderRequest) async throws
 }
@@ -122,9 +124,23 @@ public extension APIClient {
         return response.entry
     }
 
+    func updates(request: UpdateEntriesRequest) async throws -> [RemoteEncryptedEntry] {
+        log(.debug, "Updating entries with IDs: \(request.entries.map(\.entryID))")
+        let endpoint = UpdateEntries(request: request)
+        let response = try await exec(endpoint: endpoint)
+        return response.entries
+    }
+
     func delete(entryId: String) async throws {
         log(.debug, "Deleting entry with ID: \(entryId)")
         let endpoint = DeleteEntry(entryId: entryId)
+        _ = try await exec(endpoint: endpoint)
+    }
+
+    func delete(entryIds: [String]) async throws {
+        log(.debug, "Deleting entries with IDs: \(entryIds)")
+        let request = DeleteEntriesRequest(entryIds: entryIds)
+        let endpoint = DeleteEntries(request: request)
         _ = try await exec(endpoint: endpoint)
     }
 

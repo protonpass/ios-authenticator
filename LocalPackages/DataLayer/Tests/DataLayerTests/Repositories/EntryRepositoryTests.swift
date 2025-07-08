@@ -39,8 +39,7 @@ struct EntryRepositoryTests {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
         let localDataManager = MockLocalDataManager(persistentStorage: persistenceService)
-        encryptionService = EncryptionService(keychain: MockKeychainService(),
-                                              keysProvider: MockKeyProvider(),
+        encryptionService = EncryptionService(keysProvider: MockKeyProvider(),
                                               logger: MockLogger())
         sut = EntryRepository(localDataManager: localDataManager,
                               encryptionService: encryptionService,
@@ -346,14 +345,14 @@ struct EntryRepositoryTests {
         ]
         
         try await sut.localUpsert(entries)
-        try await sut.localRemove(entries.first!.entry)
+        try await sut.localRemoves([entries.first!.entry.id])
         
         var fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 2)
         
-        try await sut.localRemove("id2")
+        try await sut.localRemoves(["id2"])
         
          fetchedEntries = try await sut.getAllLocalEntries()
 

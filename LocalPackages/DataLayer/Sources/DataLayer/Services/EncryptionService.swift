@@ -43,7 +43,6 @@ public protocol EncryptionServicing: Sendable {
     var localEncryptionKeyId: String { get }
     var localEncryptionKey: Data { get throws }
 
-//    func encrypt(entry: Entry, keyId: String) throws -> Data
     func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
     func encrypt(entries: [Entry]) throws -> [Data]
@@ -65,16 +64,13 @@ public protocol EncryptionServicing: Sendable {
 public final class EncryptionService: EncryptionServicing {
     public let localEncryptionKeyId: String
     private let authenticatorCrypto: any AuthenticatorCryptoProtocol
-    private let keychain: any KeychainServicing
     private let keysProvider: any KeysProvider
     private let logger: any LoggerProtocol
 
     public init(authenticatorCrypto: any AuthenticatorCryptoProtocol = AuthenticatorCrypto(),
-                keychain: any KeychainServicing,
                 keysProvider: any KeysProvider,
                 deviceIdentifier: String = DeviceIdentifier.current,
                 logger: any LoggerProtocol) {
-        self.keychain = keychain
         self.logger = logger
         self.keysProvider = keysProvider
         localEncryptionKeyId = "encryptionKey-\(deviceIdentifier)"
@@ -84,19 +80,19 @@ public final class EncryptionService: EncryptionServicing {
 
     public var localEncryptionKey: Data {
         get throws {
-            if let key: Data = try? keychain.get(key: localEncryptionKeyId, isSyncedKey: true) {
+            if let key: Data = try? keysProvider.get(keyId: localEncryptionKeyId) {
                 return key
             }
             log(.info, "Generating a new local encryption key")
             let newKey = authenticatorCrypto.generateKey()
-            try keychain.set(newKey, for: localEncryptionKeyId, shouldSync: true)
+            try keysProvider.set(newKey, for: localEncryptionKeyId)
             return newKey
         }
     }
 
     public func getEncryptionKey(for keyId: String) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keychain.get(key: keyId, isSyncedKey: true)
+        let key: Data = try keysProvider.get(keyId: keyId)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
     }
@@ -168,11 +164,12 @@ public extension EncryptionService {
 public extension EncryptionService {
     func saveUserRemoteKey(keyId: String, remoteKey: Data) throws {
         log(.info, "Saving remote proton key with id \(keyId)")
-        try keychain.set(remoteKey, for: keyId, shouldSync: true)
+        try keysProvider.set(remoteKey, for: keyId)
     }
 
     func contains(keyId: String) -> Bool {
-        guard (try? keychain.get(key: keyId, isSyncedKey: true) as Data) != nil else {
+        // swiftlint:disable:next unused_optional_binding
+        guard let _ = try? keysProvider.get(keyId: keyId) else {
             return false
         }
 
@@ -181,11 +178,8 @@ public extension EncryptionService {
 
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
         log(.info, "Decrypting proton entry with remote key id \(encryptedData.authenticatorKeyID)")
-        // We're getting key from keychain constantly, it's better to have the keys cached
-        // Like what we do for Pass in PassKeyManagerProtocol
-        // swiftlint:disable:next todo
-        // TODO: Make a keymanager for this
-        let protonKey: Data = try keychain.get(key: encryptedData.authenticatorKeyID, isSyncedKey: true)
+
+        let protonKey: Data = try keysProvider.get(keyId: encryptedData.authenticatorKeyID)
 
         guard !protonKey.isEmpty else {
             log(.warning, "Proton key not found for \(encryptedData.authenticatorKeyID)")
