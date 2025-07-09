@@ -9492,12 +9492,12 @@
         }
       }
     },
-    "Your session is expired or revoked, please log in to your proton account again" : {
+    "Your session is expired or revoked, please log in to your Proton account again." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your session is expired or revoked, please log in to your proton account again"
+            "value" : "Your session is expired or revoked, please log in to your Proton account again."
           }
         }
       }

@@ -163,7 +163,7 @@ final class EntriesViewModel: ObservableObject {
                 alertService.showAlert(.main(.init(title: "Sync between your devices is paused",
                                                    titleBundle: .module,
                                                    // swiftlint:disable:next line_length
-                                                   message: .localized("Your session is expired or revoked, please log in to your proton account again",
+                                                   message: .localized("Your session is expired or revoked, please log in to your Proton account again.",
                                                                        .module),
                                                    actions: [.ok])))
             }
@@ -296,6 +296,9 @@ extension EntriesViewModel {
 
 private extension EntriesViewModel {
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {
+        guard !alertService.isShowingAlert else {
+            return
+        }
         logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
         alertService.showError(error, mainDisplay: true, action: nil)
     }
