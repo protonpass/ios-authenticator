@@ -3502,6 +3502,17 @@
         }
       }
     },
+    "File \"%@\" exceeds maximum allowed size" : {
+      "comment" : "Placeholder is the file name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File \"%@\" exceeds maximum allowed size"
+          }
+        }
+      }
+    },
     "Focus search on launch" : {
       "localizations" : {
         "de" : {
@@ -4289,6 +4300,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importing from %1$@ doesn't support %2$@ file format."
+          }
+        }
+      }
+    },
+    "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
           }
         }
       }
@@ -5810,16 +5831,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen Ayarlar'dan kamera erişimini etkinleştirin"
-          }
-        }
-      }
-    },
-    "Please go **Settings > Export**\n\nThis will create a Json file that you can use here." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
           }
         }
       }

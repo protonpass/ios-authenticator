@@ -24,7 +24,7 @@ import UniformTypeIdentifiers
 public enum ImportOption: Sendable, CaseIterable, Identifiable {
     case googleAuthenticator, twoFas, aegisAuthenticator
     case bitwardenAuthenticator, enteAuth, lastPassAuthenticator
-    case protonAuthenticator
+    case protonAuthenticator, protonPass
     case authy
     case microsoft
 

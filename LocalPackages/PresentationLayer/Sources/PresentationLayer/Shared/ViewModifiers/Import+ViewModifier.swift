@@ -107,7 +107,7 @@ struct ImportingServiceModifier: ViewModifier {
                           matching: .images,
                           photoLibrary: .shared())
             .fileImporter(isPresented: $viewModel.showImporter.mappedToBool(),
-                          allowedContentTypes: viewModel.showImporter?.autorizedFileExtensions ?? [],
+                          allowedContentTypes: viewModel.showImporter?.authorizedFileExtensions ?? [],
                           allowsMultipleSelection: false,
                           onCompletion: viewModel.processImportedFile)
     }
@@ -318,6 +318,7 @@ private final class ImportViewModel {
         showImporter = option
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func processImportedFile(_ result: Result<[URL], any Error>) {
         provenance = nil
         switch result {
@@ -328,7 +329,7 @@ private final class ImportViewModel {
                 return
             }
 
-            guard currentSelected.autorizedFileExtensions.contains(type) else {
+            guard currentSelected.authorizedFileExtensions.contains(type) else {
                 let message = #localized("Importing from %1$@ doesn't support %2$@ file format.",
                                          bundle: .main,
                                          currentSelected.title,
@@ -340,7 +341,15 @@ private final class ImportViewModel {
                 guard let self else { return }
                 if url.startAccessingSecurityScopedResource() {
                     do {
-                        let fileContent = try String(contentsOf: url, encoding: .utf8)
+                        let fileHandle = try FileHandle(forReadingFrom: url)
+                        let fileSize = try fileHandle.seekToEnd()
+                        try fileHandle.close()
+
+                        if fileSize > AppConstants.maxFileSizeInBytes {
+                            throw AuthError.importing(.fileTooLarge)
+                        }
+
+                        let fileContent = try Data(contentsOf: url)
                         provenance = currentSelected.importDestination(content: fileContent,
                                                                        type: type,
                                                                        password: password.nilIfEmpty)
@@ -351,6 +360,8 @@ private final class ImportViewModel {
                         showPasswordSheet.toggle()
                     } catch ImportException.BadContent {
                         alertBadContentError(url)
+                    } catch let AuthError.importing(reason) where reason == .fileTooLarge {
+                        alertFileTooLargeError(url)
                     } catch {
                         alertService.showError(error, mainDisplay: mainDisplay, action: nil)
                     }
@@ -454,6 +465,13 @@ private final class ImportViewModel {
 }
 
 private extension ImportViewModel {
+    func alertFileTooLargeError(_ url: URL) {
+        let message = #localized("File \"%@\" exceeds maximum allowed size",
+                                 bundle: .module,
+                                 url.lastPathComponent)
+        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+    }
+
     func alertBadContentError(_ url: URL) {
         let message =
             // swiftlint:disable:next line_length
@@ -504,6 +522,8 @@ private extension ImportOption {
             "LastPass Authenticator"
         case .protonAuthenticator:
             "Proton Authenticator"
+        case .protonPass:
+            "Proton Pass"
         case .authy:
             "Authy"
         case .microsoft:
@@ -511,7 +531,7 @@ private extension ImportOption {
         }
     }
 
-    var autorizedFileExtensions: [UTType] {
+    var authorizedFileExtensions: [UTType] {
         switch self {
         case .aegisAuthenticator:
             [.json, .text, .plainText]
@@ -523,6 +543,8 @@ private extension ImportOption {
             [.text, .plainText, .twoFAS]
         case .protonAuthenticator:
             [.text, .plainText, .json]
+        case .protonPass:
+            [.zip]
         case .googleAuthenticator:
             [.image, .jpeg, .png]
         default:
@@ -530,22 +552,27 @@ private extension ImportOption {
         }
     }
 
-    func importDestination(content: String, type: UTType, password: String?) -> TwofaImportSource? {
-        switch self {
+    func importDestination(content: Data, type: UTType, password: String?) -> TwofaImportSource? {
+        let textContent: () -> String = {
+            String(data: content, encoding: .utf8) ?? ""
+        }
+        return switch self {
         case .twoFas:
-            .twofas(contents: content, password: password)
+            .twofas(contents: textContent(), password: password)
         case .aegisAuthenticator:
-            .aegis(contents: type.toTwofaImportFileType(content: content), password: password)
+            .aegis(contents: type.toTwofaImportFileType(content: textContent()), password: password)
         case .bitwardenAuthenticator:
-            .bitwarden(contents: type.toTwofaImportFileType(content: content))
+            .bitwarden(contents: type.toTwofaImportFileType(content: textContent()))
         case .enteAuth:
-            .ente(contents: content)
+            .ente(contents: textContent())
         case .googleAuthenticator:
-            .googleQr(contents: content)
+            .googleQr(contents: textContent())
         case .lastPassAuthenticator:
-            .lastpass(contents: type.toTwofaImportFileType(content: content))
+            .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
         case .protonAuthenticator:
-            .protonAuthenticator(contents: content)
+            .protonAuthenticator(contents: textContent())
+        case .protonPass:
+            .protonPass(contents: content)
         case .authy, .microsoft:
             nil
         }
@@ -567,6 +594,8 @@ private extension ImportOption {
             Image(.lastpassIcon)
         case .protonAuthenticator:
             Image(.protonAuthIcon)
+        case .protonPass:
+            Image(.protonPassIcon)
         case .authy:
             Image(.authyIcon)
         case .microsoft:
@@ -618,7 +647,9 @@ private extension ImportOption {
         case .lastPassAuthenticator:
             "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
         case .protonAuthenticator:
-            "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
+            "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
+        case .protonPass:
+            "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
         case .authy, .microsoft:
             "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }

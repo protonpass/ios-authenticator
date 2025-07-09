@@ -29,23 +29,7 @@ public enum TwofaImportSource: Sendable, Equatable {
     case googleQr(contents: String)
     case lastpass(contents: TwofaImportFileType)
     case protonAuthenticator(contents: String)
-
-    public var authorizedFileTypes: [UTType] {
-        switch self {
-        case .aegis:
-            [.json, .text, .plainText]
-        case .bitwarden:
-            [.json, .commaSeparatedText]
-        case .lastpass:
-            [.json]
-        case .ente, .twofas:
-            [.text, .plainText]
-        case .protonAuthenticator:
-            [.text, .plainText, .json]
-        default:
-            []
-        }
-    }
+    case protonPass(contents: Data)
 
     public func updatePassword(_ password: String?) -> Self {
         switch self {
@@ -67,6 +51,7 @@ public enum TwofaImportSource: Sendable, Equatable {
         case .googleQr: "Google"
         case .lastpass: "Lastpass"
         case .protonAuthenticator: "Proton Authenticator"
+        case .protonPass: "Proton Pass"
         }
     }
 }
