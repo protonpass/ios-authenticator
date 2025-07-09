@@ -21,6 +21,7 @@
 import Combine
 import CommonUtilities
 import DataLayer
+import DomainLayer
 #if os(iOS)
 import DocScanner
 #endif
@@ -350,9 +351,10 @@ private final class ImportViewModel {
                         }
 
                         let fileContent = try Data(contentsOf: url)
-                        provenance = currentSelected.importDestination(content: fileContent,
-                                                                       type: type,
-                                                                       password: password.nilIfEmpty)
+                        provenance = try currentSelected.importDestination(content: fileContent,
+                                                                           type: type,
+                                                                           password: password.nilIfEmpty,
+                                                                           parseImageQRCode: parseImageQRCodeContent)
                         guard let provenance else { return }
                         let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
                         showCompletion(numberOfImportedEntries)
@@ -552,9 +554,19 @@ private extension ImportOption {
         }
     }
 
-    func importDestination(content: Data, type: UTType, password: String?) -> TwofaImportSource? {
+    func importDestination(content: Data,
+                           type: UTType,
+                           password: String?,
+                           parseImageQRCode: any ParseImageQRCodeContentUseCase) throws -> TwofaImportSource? {
         let textContent: () -> String = {
             String(data: content, encoding: .utf8) ?? ""
+        }
+        let qrContent: () throws -> String = {
+            if let image = CIImage(data: content) {
+                try parseImageQRCode(image: image)
+            } else {
+                ""
+            }
         }
         return switch self {
         case .twoFas:
@@ -566,7 +578,7 @@ private extension ImportOption {
         case .enteAuth:
             .ente(contents: textContent())
         case .googleAuthenticator:
-            .googleQr(contents: textContent())
+            try .googleQr(contents: qrContent())
         case .lastPassAuthenticator:
             .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
         case .protonAuthenticator:

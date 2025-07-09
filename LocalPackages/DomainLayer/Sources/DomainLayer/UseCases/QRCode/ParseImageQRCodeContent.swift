@@ -27,31 +27,31 @@ import PhotosUI
 import SwiftUI
 
 public protocol ParseImageQRCodeContentUseCase: Sendable {
-    func execute(imageSelection: PhotosPickerItem) async throws -> String
+    func execute(image: CIImage) throws -> String
 }
 
 public extension ParseImageQRCodeContentUseCase {
     func callAsFunction(imageSelection: PhotosPickerItem) async throws -> String {
-        try await execute(imageSelection: imageSelection)
+        guard let image = try await imageSelection.loadTransferable(type: QRCodeImage.self),
+              let ciImage = image.image.toCiImage else {
+            throw AuthError.imageParsing(.errorProcessingImage)
+        }
+        return try execute(image: ciImage)
+    }
+
+    func callAsFunction(image: CIImage) throws -> String {
+        try execute(image: image)
     }
 }
 
 public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {
     public init() {}
 
-    public func execute(imageSelection: PhotosPickerItem) async throws -> String {
-        guard let image = try await imageSelection.loadTransferable(type: QRCodeImage.self) else {
-            throw AuthError.imageParsing(.errorProcessingImage)
-        }
-        return try parseImageForCode(image: image)
-    }
-
-    private func parseImageForCode(image: QRCodeImage) throws -> String {
-        guard let ciImage = image.image.toCiImage,
-              let detector = CIDetector(ofType: CIDetectorTypeQRCode,
+    public func execute(image: CIImage) throws -> String {
+        guard let detector = CIDetector(ofType: CIDetectorTypeQRCode,
                                         context: nil,
                                         options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]),
-              let features = detector.features(in: ciImage) as? [CIQRCodeFeature]
+            let features = detector.features(in: image) as? [CIQRCodeFeature]
         else {
             throw AuthError.imageParsing(.failedDetectingQRCode)
         }
