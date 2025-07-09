@@ -79,6 +79,7 @@ public extension UseCaseContainer {
     var setUpFirstRun: Factory<any SetUpFirstRunUseCase> {
         self { @MainActor in SetUpFirstRun(settingsService: self.settingsService,
                                            authenticationService: ServiceContainer.shared.authenticationService(),
+                                           userSessionManager: ServiceContainer.shared.userSessionManager(),
                                            logger: self.logger) }
     }
 
