@@ -41,20 +41,22 @@ public final class ImportingService: ImportingServicing {
     public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
         log(.debug, "Starting import from provenance: \(provenance.name)")
         let result = switch provenance {
-        case let .twofas(contents: contents, password: password):
+        case let .twofas(contents, password):
             try parse2fas(contents, password: password)
-        case let .aegis(contents: contents, password: password):
+        case let .aegis(contents, password):
             try parseAegis(contents, password: password)
-        case let .bitwarden(contents: contents):
+        case let .bitwarden(contents):
             try parseBitwarden(contents)
-        case let .ente(contents: contents):
+        case let .ente(contents):
             try parseEnte(contents)
-        case let .googleQr(contents: contents):
+        case let .googleQr(contents):
             try parseGoogleQr(contents)
-        case let .lastpass(contents: contents):
+        case let .lastpass(contents):
             try parseLastpass(contents)
-        case let .protonAuthenticator(contents: contents):
+        case let .protonAuthenticator(contents):
             try parseAuthenticator(contents)
+        case let .protonPass(contents):
+            try parsePass(contents)
         }
         log(.debug, "Successfully parsed entries from provenance: \(provenance.name)")
         return result.toImportResult
@@ -78,6 +80,15 @@ private extension ImportingService {
             throw AuthError.importing(.contentIsEmpty)
         }
         return try importer.importFromProtonAuthenticator(contents: content)
+    }
+
+    func parsePass(_ content: Data) throws -> AuthenticatorImportResult {
+        log(.debug, "Parsing Proton Pass content")
+        guard !content.isEmpty else {
+            log(.warning, "Proton Pass content is empty")
+            throw AuthError.importing(.contentIsEmpty)
+        }
+        return try importer.importFromPassZip(contents: content)
     }
 
     func parseLastpass(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {

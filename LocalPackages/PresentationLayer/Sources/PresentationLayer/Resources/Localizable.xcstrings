@@ -4293,6 +4293,16 @@
         }
       }
     },
+    "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+          }
+        }
+      }
+    },
     "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again." : {
       "comment" : "Placeholder is the file name",
       "localizations" : {
@@ -5810,16 +5820,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen Ayarlar'dan kamera erişimini etkinleştirin"
-          }
-        }
-      }
-    },
-    "Please go **Settings > Export**\n\nThis will create a Json file that you can use here." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go **Settings > Export**\n\nThis will create a Json file that you can use here."
           }
         }
       }
