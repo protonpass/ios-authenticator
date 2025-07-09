@@ -9422,16 +9422,6 @@
         }
       }
     },
-    "You session has expired. Please log in again to resume syncing with the backend." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You session has expired. Please log in again to resume syncing with the backend."
-          }
-        }
-      }
-    },
     "Your import file is protected by a password. Please enter the password to proceed." : {
       "localizations" : {
         "de" : {
@@ -9498,6 +9488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "İçe aktarma dosyanız bir parola ile korunuyor. Devam etmek için lütfen parolayı girin."
+          }
+        }
+      }
+    },
+    "Your session is expired or revoked, please log in to your proton account again" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your session is expired or revoked, please log in to your proton account again"
           }
         }
       }
