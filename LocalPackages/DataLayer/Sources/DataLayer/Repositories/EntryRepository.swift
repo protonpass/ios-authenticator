@@ -708,7 +708,8 @@ extension EntryRepository {
             log(.debug, "Retrieved \(encryptedKeysData.count) remote encryption keys")
 
             var newKeysAdded = 0
-            for encryptedKeyData in encryptedKeysData/* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
+            for encryptedKeyData in
+                encryptedKeysData /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
                 let keyDecrypted = try userSessionManager
