@@ -3502,6 +3502,17 @@
         }
       }
     },
+    "File \"%@\" exceeds maximum allowed size" : {
+      "comment" : "Placeholder is the file name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File \"%@\" exceeds maximum allowed size"
+          }
+        }
+      }
+    },
     "Focus search on launch" : {
       "localizations" : {
         "de" : {

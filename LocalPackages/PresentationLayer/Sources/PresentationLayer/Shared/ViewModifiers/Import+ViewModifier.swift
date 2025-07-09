@@ -318,6 +318,7 @@ private final class ImportViewModel {
         showImporter = option
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func processImportedFile(_ result: Result<[URL], any Error>) {
         provenance = nil
         switch result {
@@ -340,6 +341,14 @@ private final class ImportViewModel {
                 guard let self else { return }
                 if url.startAccessingSecurityScopedResource() {
                     do {
+                        let fileHandle = try FileHandle(forReadingFrom: url)
+                        let fileSize = try fileHandle.seekToEnd()
+                        try fileHandle.close()
+
+                        if fileSize > AppConstants.maxFileSizeInBytes {
+                            throw AuthError.importing(.fileTooLarge)
+                        }
+
                         let fileContent = try Data(contentsOf: url)
                         provenance = currentSelected.importDestination(content: fileContent,
                                                                        type: type,
@@ -351,6 +360,8 @@ private final class ImportViewModel {
                         showPasswordSheet.toggle()
                     } catch ImportException.BadContent {
                         alertBadContentError(url)
+                    } catch let AuthError.importing(reason) where reason == .fileTooLarge {
+                        alertFileTooLargeError(url)
                     } catch {
                         alertService.showError(error, mainDisplay: mainDisplay, action: nil)
                     }
@@ -454,6 +465,13 @@ private final class ImportViewModel {
 }
 
 private extension ImportViewModel {
+    func alertFileTooLargeError(_ url: URL) {
+        let message = #localized("File \"%@\" exceeds maximum allowed size",
+                                 bundle: .module,
+                                 url.lastPathComponent)
+        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+    }
+
     func alertBadContentError(_ url: URL) {
         let message =
             // swiftlint:disable:next line_length
@@ -535,22 +553,24 @@ private extension ImportOption {
     }
 
     func importDestination(content: Data, type: UTType, password: String?) -> TwofaImportSource? {
-        let text = String(data: content, encoding: .utf8) ?? ""
+        let textContent: () -> String = {
+            String(data: content, encoding: .utf8) ?? ""
+        }
         return switch self {
         case .twoFas:
-            .twofas(contents: text, password: password)
+            .twofas(contents: textContent(), password: password)
         case .aegisAuthenticator:
-            .aegis(contents: type.toTwofaImportFileType(content: text), password: password)
+            .aegis(contents: type.toTwofaImportFileType(content: textContent()), password: password)
         case .bitwardenAuthenticator:
-            .bitwarden(contents: type.toTwofaImportFileType(content: text))
+            .bitwarden(contents: type.toTwofaImportFileType(content: textContent()))
         case .enteAuth:
-            .ente(contents: text)
+            .ente(contents: textContent())
         case .googleAuthenticator:
-            .googleQr(contents: text)
+            .googleQr(contents: textContent())
         case .lastPassAuthenticator:
-            .lastpass(contents: type.toTwofaImportFileType(content: text))
+            .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
         case .protonAuthenticator:
-            .protonAuthenticator(contents: text)
+            .protonAuthenticator(contents: textContent())
         case .protonPass:
             .protonPass(contents: content)
         case .authy, .microsoft:

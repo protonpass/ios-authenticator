@@ -23,6 +23,7 @@ import Foundation
 public enum ImportingFailureReason: Sendable, CustomDebugStringConvertible {
     case wrongFormat
     case contentIsEmpty
+    case fileTooLarge
 
     public var debugDescription: String {
         switch self {
@@ -30,6 +31,8 @@ public enum ImportingFailureReason: Sendable, CustomDebugStringConvertible {
             "Is not the correct file format"
         case .contentIsEmpty:
             "No entries detected to import"
+        case .fileTooLarge:
+            "File too large"
         }
     }
 }
