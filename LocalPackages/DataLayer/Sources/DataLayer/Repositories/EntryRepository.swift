@@ -709,7 +709,7 @@ extension EntryRepository {
 
             var newKeysAdded = 0
             for encryptedKeyData in encryptedKeysData
-                where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
+            /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
                 let keyDecrypted = try userSessionManager
