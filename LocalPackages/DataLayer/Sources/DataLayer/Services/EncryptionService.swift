@@ -105,7 +105,6 @@ public final class EncryptionService: EncryptionServicing {
 }
 
 public extension EncryptionService {
-    // check ou cést utilisé
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {

@@ -67,6 +67,10 @@ extension ToolsContainer {
         self { TOTPIssuerMapper() }
     }
 
+    var reachabilityManager: Factory<any ReachabilityServicing> {
+        self { ReachabilityManager() }
+    }
+
     #if os(iOS)
     var hapticsManager: Factory<any HapticsServicing> {
         self { @MainActor in HapticsManager(settings: ServiceContainer.shared.settingsService()) }

@@ -347,12 +347,15 @@ public extension EntryRepository {
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
                                        remoteModifiedTime: entry.modifiedTime)
+            entity.updateSyncState(newState: entry.syncState)
+            
             try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
                                 keyId: entity.keyId,
                                 remoteId: entity.remoteId,
                                 order: entity.order,
+                                syncState: entry.syncState,
                                 modifiedTime: entity.modifiedTime,
                                 revision: entity.revision,
                                 contentFormatVersion: entryContentFormatVersion)

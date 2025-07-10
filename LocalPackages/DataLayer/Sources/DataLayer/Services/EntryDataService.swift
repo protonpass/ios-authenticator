@@ -82,6 +82,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
+    @ObservationIgnored
+    private let reachabilityManager: any ReachabilityServicing
 
     @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
@@ -96,12 +98,14 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
                 logger: any LoggerProtocol,
+                reachabilityManager: any ReachabilityServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
+        self.reachabilityManager = reachabilityManager
         self.syncOperation = syncOperation
         setUp()
     }
@@ -153,6 +157,11 @@ public extension EntryDataService {
             return
         }
         data[index] = data[index].copy(newEntry: entry)
+        if reachabilityManager.hasInternetAccess.value == false {
+            let updatedEntry = data[index].orderedEntry.updateSyncState(.unsynced)
+            data[index].orderedEntry = updatedEntry
+        }
+
         try await repository.completeUpdate(entry: data[index].orderedEntry)
 
         updateData(data)
@@ -218,6 +227,10 @@ public extension EntryDataService {
 
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
+        guard reachabilityManager.hasInternetAccess.value else {
+            log(.debug, "Not active network connection")
+            return
+        }
         do {
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
@@ -481,6 +494,7 @@ private extension EntryDataService {
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
+                    // TODO: need to check if key still valid if not need to push it again
                     if operation.remoteId != nil, let revision = operation.revision {
                         itemsToUpdateRemotely.append(orderedEntry.updateRevision(Int(revision)))
                     } else {
