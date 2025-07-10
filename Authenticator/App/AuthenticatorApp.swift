@@ -214,7 +214,7 @@ private final class AuthenticatorAppViewModel {
     }
 
     func checkBiometrics() {
-        guard authenticationService.biometricEnabled else { return }
+        guard !appSettings.isFirstRun, authenticationService.biometricEnabled else { return }
         Task { [weak self] in
             guard let self else { return }
             do {
