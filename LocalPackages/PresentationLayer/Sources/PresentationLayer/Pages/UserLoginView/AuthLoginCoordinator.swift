@@ -68,7 +68,7 @@ final class MobileLoginCoordinator: MobileCoordinatorProtocol {
 
         userSessionManager.userLoggedOut
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+            .sink { [weak self] in
                 guard let self else { return }
                 logInAndSignUp = makeLoginAndSignUp()
             }

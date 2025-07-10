@@ -54,7 +54,7 @@ public struct APIManagerConfiguration: Sendable {
 public protocol APIManagerProtocol: Sendable {
     var isAuthenticatedWithUserData: CurrentValueSubject<Bool, Never> { get }
     var sessionWasInvalidated: PassthroughSubject<Bool, Never> { get }
-    var userLoggedOut: PassthroughSubject<Bool, Never> { get }
+    var userLoggedOut: PassthroughSubject<Void, Never> { get }
 
     var apiService: APIService { get }
 
@@ -101,7 +101,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
     private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
     public nonisolated let sessionWasInvalidated = PassthroughSubject<Bool, Never>()
-    public nonisolated let userLoggedOut = PassthroughSubject<Bool, Never>()
+    public nonisolated let userLoggedOut = PassthroughSubject<Void, Never>()
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -215,7 +215,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         isAuthenticated.send(false)
         userDataLoaded.send(false)
         isAuthenticatedWithUserData.send(false)
-        userLoggedOut.send(true)
+        userLoggedOut.send()
     }
 }
 
