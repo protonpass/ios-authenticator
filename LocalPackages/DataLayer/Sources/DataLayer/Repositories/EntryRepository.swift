@@ -622,7 +622,10 @@ public extension EntryRepository {
                             "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
                         try await fetchRemoteEncryptionKeyOrPushLocalKey()
                     }
-                    let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
+                    guard let decryptedEntry = try encryptionService
+                        .decryptRemoteData(encryptedData: encryptedEntry) else {
+                        continue
+                    }
 
                     var syncState = EntrySyncState.unsynced
                     let entityId = decryptedEntry.id
@@ -684,7 +687,7 @@ extension EntryRepository {
         }
 
         do {
-            let key = try encryptionService.localEncryptionKey
+            let key = encryptionService.generateRemoteKey()
             log(.debug, "Encrypting local encryption key for remote storage")
             let encryptedKey = try userSessionManager.userKeyEncrypt(object: key)
             let result = try await apiClient.storeKey(encryptedKey: encryptedKey)
