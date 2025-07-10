@@ -57,8 +57,9 @@ public protocol EncryptionServicing: Sendable {
 
     func saveUserRemoteKey(keyId: String, remoteKey: Data) throws
     func contains(keyId: String) -> Bool
-    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry
+    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry?
     func getEncryptionKey(for keyId: String) throws -> Data
+    func generateKey() -> Data
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -95,6 +96,11 @@ public final class EncryptionService: EncryptionServicing {
         let key: Data = try keysProvider.get(keyId: keyId)
         log(.info, "Retrieved key: \(String(describing: key))")
         return key
+    }
+
+    public func generateKey() -> Data {
+        log(.info, "Generating a new encryption key")
+        return authenticatorCrypto.generateKey()
     }
 }
 
@@ -176,10 +182,12 @@ public extension EncryptionService {
         return true
     }
 
-    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry {
+    func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry? {
         log(.info, "Decrypting proton entry with remote key id \(encryptedData.authenticatorKeyID)")
 
-        let protonKey: Data = try keysProvider.get(keyId: encryptedData.authenticatorKeyID)
+        guard let protonKey: Data = try? keysProvider.get(keyId: encryptedData.authenticatorKeyID) else {
+            return nil
+        }
 
         guard !protonKey.isEmpty else {
             log(.warning, "Proton key not found for \(encryptedData.authenticatorKeyID)")

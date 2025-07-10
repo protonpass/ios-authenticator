@@ -155,6 +155,20 @@ final class EntriesViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        userSessionManager.sessionWasInvalidated
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] status in
+                guard let self, status else { return }
+                alertService.showAlert(.main(.init(title: "Sync between your devices is paused",
+                                                   titleBundle: .module,
+                                                   // swiftlint:disable:next line_length
+                                                   message: .localized("Your session is expired or revoked, please log in to your Proton account again.",
+                                                                       .module),
+                                                   actions: [.ok])))
+            }
+            .store(in: &cancellables)
+
         Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -282,6 +296,9 @@ extension EntriesViewModel {
 
 private extension EntriesViewModel {
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {
+        guard !alertService.isShowingAlert else {
+            return
+        }
         logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
         alertService.showError(error, mainDisplay: true, action: nil)
     }

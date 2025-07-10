@@ -622,7 +622,10 @@ public extension EntryRepository {
                             "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
                         try await fetchRemoteEncryptionKeyOrPushLocalKey()
                     }
-                    let decryptedEntry = try encryptionService.decryptRemoteData(encryptedData: encryptedEntry)
+                    guard let decryptedEntry = try encryptionService
+                        .decryptRemoteData(encryptedData: encryptedEntry) else {
+                        continue
+                    }
 
                     var syncState = EntrySyncState.unsynced
                     let entityId = decryptedEntry.id
@@ -667,25 +670,25 @@ extension EntryRepository {
             log(.info, "Remote key already exists, with id: \(remoteEncryptionKey.keyID)")
             currentEncryptionKey = remoteEncryptionKey
         } else {
-            log(.debug, "No remote key found, sending local encryption key")
-            currentEncryptionKey = try await sendLocalEncryptionKey()
+            log(.debug, "No remote key found, sending new encryption key to backend")
+            currentEncryptionKey = try await sendNewRemoteEncryptionKey()
         }
 
         store.set(currentEncryptionKey?.keyID, forKey: currentRemoteEncryptionKeyId)
         log(.info, "Stored remote key ID: \(currentEncryptionKey?.keyID ?? "unknown")")
     }
 
-    private func sendLocalEncryptionKey() async throws -> RemoteEncryptedKey? {
-        log(.debug, "Sending local encryption key to remote")
+    private func sendNewRemoteEncryptionKey() async throws -> RemoteEncryptedKey? {
+        log(.debug, "Sending a new encryption key to remote")
 
         guard userSessionManager.isAuthenticatedWithUserData.value else {
-            log(.warning, "Cannot send local encryption key: user not authenticated")
+            log(.warning, "Cannot send new encryption key: user not authenticated")
             return nil
         }
 
         do {
-            let key = try encryptionService.localEncryptionKey
-            log(.debug, "Encrypting local encryption key for remote storage")
+            let key = encryptionService.generateKey()
+            log(.debug, "Encrypting new encryption key for remote storage")
             let encryptedKey = try userSessionManager.userKeyEncrypt(object: key)
             let result = try await apiClient.storeKey(encryptedKey: encryptedKey)
             try encryptionService.saveUserRemoteKey(keyId: result.keyID, remoteKey: key)
@@ -708,8 +711,8 @@ extension EntryRepository {
             log(.debug, "Retrieved \(encryptedKeysData.count) remote encryption keys")
 
             var newKeysAdded = 0
-            for encryptedKeyData in encryptedKeysData
-                where !encryptionService.contains(keyId: encryptedKeyData.keyID) {
+            for encryptedKeyData in
+                encryptedKeysData /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
                 let keyDecrypted = try userSessionManager

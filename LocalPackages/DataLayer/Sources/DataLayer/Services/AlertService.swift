@@ -89,7 +89,9 @@ public protocol AlertServiceProtocol: Sendable, Observable {
     var alert: AlertDisplay? { get }
     var showMainAlert: Bool { get set }
     var showSheetAlert: Bool { get set }
+    var isShowingAlert: Bool { get }
 
+    func resetAlert()
     func showAlert(_ alertDisplay: AlertDisplay)
     func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?)
 }
@@ -178,10 +180,18 @@ public final class AlertService: AlertServiceProtocol {
     public var showMainAlert = false
     public var showSheetAlert = false
 
+    public var isShowingAlert: Bool {
+        showMainAlert || showSheetAlert
+    }
+
     public init() {}
 
     public func showAlert(_ alertDisplay: AlertDisplay) {
         alert = alertDisplay
+    }
+
+    public func resetAlert() {
+        alert = nil
     }
 
     public func showError(_ error: String, mainDisplay: Bool, action: (@MainActor () -> Void)?) {

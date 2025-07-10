@@ -249,8 +249,9 @@ public extension EntryDataService {
         do {
             let localEntries = try await repository.getAllLocalEntries()
             try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
+
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
-                _ = try? await repository.remoteSave(entries: remoteEntries)
+                _ = try? await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
             }
             try await loadEntries()
         } catch {

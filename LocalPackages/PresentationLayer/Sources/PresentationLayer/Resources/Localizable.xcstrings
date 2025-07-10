@@ -8082,6 +8082,16 @@
         }
       }
     },
+    "Sync between your devices is paused" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync between your devices is paused"
+          }
+        }
+      }
+    },
     "Tap to copy token to clipboard. Swipe left to delete and right to edit." : {
       "localizations" : {
         "de" : {
@@ -9478,6 +9488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "İçe aktarma dosyanız bir parola ile korunuyor. Devam etmek için lütfen parolayı girin."
+          }
+        }
+      }
+    },
+    "Your session is expired or revoked, please log in to your Proton account again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your session is expired or revoked, please log in to your Proton account again."
           }
         }
       }
