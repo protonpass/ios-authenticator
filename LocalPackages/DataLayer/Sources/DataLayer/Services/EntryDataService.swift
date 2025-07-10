@@ -494,7 +494,6 @@ private extension EntryDataService {
                 }
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
-                    // TODO: need to check if key still valid if not need to push it again
                     if operation.remoteId != nil, let revision = operation.revision {
                         itemsToUpdateRemotely.append(orderedEntry.updateRevision(Int(revision)))
                     } else {
