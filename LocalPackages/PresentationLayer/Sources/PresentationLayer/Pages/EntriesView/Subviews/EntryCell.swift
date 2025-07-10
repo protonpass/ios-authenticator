@@ -181,6 +181,7 @@ private extension EntryCell {
 
             Image(.entrySeparator)
                 .resizable(resizingMode: .tile)
+                .frame(height: 2)
                 .frame(maxWidth: .infinity)
 
             HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {

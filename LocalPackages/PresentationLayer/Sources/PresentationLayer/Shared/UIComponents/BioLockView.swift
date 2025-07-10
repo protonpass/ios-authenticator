@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import SwiftUI
 
 public struct BioLockView: View {
@@ -40,12 +41,12 @@ public struct BioLockView: View {
                 .frame(maxWidth: 150)
 
             if manualUnlock {
-                Button(action: onUnlock) {
-                    Text("Unlock", bundle: .module)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.accent)
-                }
-                .padding(.top)
+                CapsuleButton(title: "Unlock",
+                              textColor: .white,
+                              style: .borderedFilled,
+                              maxWidth: AppConstants.isPhone ? .infinity : 180,
+                              action: onUnlock)
+                    .padding(.top)
             }
 
             Spacer()
