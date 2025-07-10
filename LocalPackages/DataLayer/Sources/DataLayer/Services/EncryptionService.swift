@@ -59,7 +59,7 @@ public protocol EncryptionServicing: Sendable {
     func contains(keyId: String) -> Bool
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry?
     func getEncryptionKey(for keyId: String) throws -> Data
-    func generateRemoteKey() -> Data
+    func generateKey() -> Data
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -98,8 +98,8 @@ public final class EncryptionService: EncryptionServicing {
         return key
     }
 
-    public func generateRemoteKey() -> Data {
-        log(.info, "Generating a new remote encryption key")
+    public func generateKey() -> Data {
+        log(.info, "Generating a new encryption key")
         return authenticatorCrypto.generateKey()
     }
 }
