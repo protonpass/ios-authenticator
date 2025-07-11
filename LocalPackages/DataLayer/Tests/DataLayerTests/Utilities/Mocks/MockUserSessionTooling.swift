@@ -26,7 +26,8 @@ import Models
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
     public var sessionWasInvalidated = PassthroughSubject<Bool, Never>()
-    
+    public var userLoggedOut = PassthroughSubject<Void, Never>()
+
     public var isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
     
     // MARK: - APIManagerProtocol

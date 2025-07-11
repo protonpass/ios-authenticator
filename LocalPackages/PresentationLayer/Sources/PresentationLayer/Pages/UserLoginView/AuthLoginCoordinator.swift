@@ -21,6 +21,7 @@
 //
 
 #if os(iOS)
+import Combine
 import DataLayer
 import FactoryKit
 import Foundation
@@ -60,8 +61,18 @@ final class MobileLoginCoordinator: MobileCoordinatorProtocol {
 
     private lazy var logInAndSignUp = makeLoginAndSignUp()
 
+    private var cancellables = Set<AnyCancellable>()
+
     init(logger: any LoggerProtocol) {
         self.logger = logger
+
+        userSessionManager.userLoggedOut
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                logInAndSignUp = makeLoginAndSignUp()
+            }
+            .store(in: &cancellables)
     }
 
     func createLoginFlow() -> UIViewController {
