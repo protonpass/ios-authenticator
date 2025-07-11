@@ -2244,70 +2244,16 @@
     },
     "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account." : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daten auf diesem Gerät werden nicht aktualisiert und Änderungen werden nicht auf anderen Geräten widergespiegelt.\n\nDu wirst von deinem Proton-Konto abgemeldet."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account."
           }
         },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los datos de este dispositivo no se actualizarán y los cambios no se verán reflejados en otros dispositivos.\n\nSe cerrará la sesión de tu cuenta Proton."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los datos de este dispositivo no se actualizarán y los cambios no se reflejarán en otros dispositivos.\n\nSe cerrará la sesión de su cuenta de Proton."
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les données de cet appareil ne seront pas mises à jour et les modifications ne seront pas répercutées sur les autres appareils.\n\nVous serez déconnecté de votre compte Proton."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I dati su questo dispositivo non verranno aggiornati e le modifiche non saranno riflesse su altri dispositivi.\n\nVerrai disconnesso dal tuo account Proton."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gegevens op dit apparaat worden niet bijgewerkt en wijzigingen worden niet weergegeven op andere apparaten.\n\nU wordt uitgelogd uit uw Proton-account."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dane na tym urządzeniu nie zostaną zaktualizowane, a zmiany nie będą widoczne na innych urządzeniach.\n\nZostaniesz wylogowany ze swojego konta Proton."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os dados neste dispositivo não serão atualizados e as alterações não serão refletidas em outros dispositivos.\n\nVocê será desconectado da sua conta Proton."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Данные на этом устройстве не будут обновлены, и изменения не будут отражены на других устройствах.\n\nВы будете автоматически выведены из своего аккаунта Proton."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu cihazdaki veriler güncellenmeyecek ve değişiklikler diğer cihazlara yansımayacaktır.\n\nProton hesabınızdan çıkış yapılacaktır."
           }
         }
       }
@@ -3510,6 +3456,12 @@
             "state" : "translated",
             "value" : "File \"%@\" exceeds maximum allowed size"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier « %@ » dépasse la taille maximale autorisée."
+          }
         }
       }
     },
@@ -4221,6 +4173,12 @@
             "state" : "translated",
             "value" : "Import codes from %@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer des codes depuis %@"
+          }
         }
       }
     },
@@ -4301,6 +4259,12 @@
             "state" : "translated",
             "value" : "Importing from %1$@ doesn't support %2$@ file format."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’importation depuis %1$@ ne prend pas en charge le format de fichier %2$@."
+          }
         }
       }
     },
@@ -4310,6 +4274,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nVous créerez ainsi un fichier ZIP que vous pourrez utiliser ici."
           }
         }
       }
@@ -4321,6 +4291,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le format de fichier n'est pas valide pour « %@ ». Veuillez vous assurer que votre fichier est dans un format pris en charge et réessayez."
           }
         }
       }
@@ -4962,6 +4938,12 @@
             "state" : "translated",
             "value" : "Need more help?"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Besoin d'aide supplémentaire ?"
+          }
         }
       }
     },
@@ -5322,6 +5304,12 @@
             "state" : "translated",
             "value" : "No issuer"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans émetteur"
+          }
         }
       }
     },
@@ -5402,15 +5390,81 @@
             "state" : "translated",
             "value" : "No title"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans titre"
+          }
         }
       }
     },
     "OK" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ok"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oké"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОК"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamam"
           }
         }
       }
@@ -5842,6 +5896,12 @@
             "state" : "translated",
             "value" : "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Sauvegarde 2FAS > Exporter**\n\nCela créera un fichier 2fas que vous pourrez utiliser ici."
+          }
         }
       }
     },
@@ -5851,6 +5911,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Données > Exporter les codes**\n\nChoisissez **Texte brut** et cela créera un fichier txt que vous pourrez utiliser ici."
           }
         }
       }
@@ -5862,6 +5928,12 @@
             "state" : "translated",
             "value" : "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Export**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+          }
         }
       }
     },
@@ -5871,6 +5943,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
         }
       }
@@ -5882,6 +5960,12 @@
             "state" : "translated",
             "value" : "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes vers un fichier**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+          }
         }
       }
     },
@@ -5891,6 +5975,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes**\n\nCela créera un ou plusieurs QR codes que vous pourrez utiliser ici."
           }
         }
       }
@@ -8089,6 +8179,12 @@
             "state" : "translated",
             "value" : "Sync between your devices is paused"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La synchronisation entre vos appareils est suspendue."
+          }
         }
       }
     },
@@ -9498,6 +9594,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your session is expired or revoked, please log in to your Proton account again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre session a expiré ou a été révoquée. Veuillez vous reconnecter à votre compte Proton."
           }
         }
       }
