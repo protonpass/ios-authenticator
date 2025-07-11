@@ -347,12 +347,15 @@ public extension EntryRepository {
             entity.updateEncryptedData(encryptedData,
                                        with: entity.keyId,
                                        remoteModifiedTime: entry.modifiedTime)
+            entity.updateSyncState(newState: entry.syncState)
+
             try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
                                 keyId: entity.keyId,
                                 remoteId: entity.remoteId,
                                 order: entity.order,
+                                syncState: entry.syncState,
                                 modifiedTime: entity.modifiedTime,
                                 revision: entity.revision,
                                 contentFormatVersion: entryContentFormatVersion)
@@ -367,7 +370,13 @@ public extension EntryRepository {
         await log(.debug,
                   "Updating order for \(entries.count) entries")
         do {
-            let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage.fetchAll()
+            let idsToFetch: [String] = entries.map(\.id)
+            let predicate = #Predicate<EncryptedEntryEntity> { entity in
+                idsToFetch.contains(entity.id)
+            }
+            let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
+                .fetch(predicate: predicate)) ?? []
+
             await log(.debug, "Found \(encryptedEntries.count) local entries for order update")
 
             guard entries.count == encryptedEntries.count else {

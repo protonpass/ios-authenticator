@@ -82,6 +82,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
+    @ObservationIgnored
+    private let reachabilityManager: any ReachabilityServicing
 
     @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
@@ -96,12 +98,14 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
                 logger: any LoggerProtocol,
+                reachabilityManager: any ReachabilityServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
+        self.reachabilityManager = reachabilityManager
         self.syncOperation = syncOperation
         setUp()
     }
@@ -153,38 +157,50 @@ public extension EntryDataService {
             return
         }
         data[index] = data[index].copy(newEntry: entry)
+        if reachabilityManager.hasInternetAccess.value == false {
+            let updatedEntry = data[index].orderedEntry.updateSyncState(.unsynced)
+            data[index].orderedEntry = updatedEntry
+        }
+
         try await repository.completeUpdate(entry: data[index].orderedEntry)
 
         updateData(data)
     }
 
     func delete(_ entry: EntryUiModel) async throws {
-        guard var data = dataState.data else {
-            return
-        }
+        guard let currentData = dataState.data else { return }
+
         log(.debug, "Deleting entry with ID: \(entry.id)")
 
         try await repository.completeRemoves(entries: [entry.orderedEntry])
 
-        data = data.filter { $0.orderedEntry.id != entry.id }
-        data = updateOrder(uiEntries: data)
-        try await repository.localReorder(data.map(\.orderedEntry))
-        updateData(data)
+        let filteredData = currentData.filter { $0.orderedEntry.id != entry.id }
+
+        // Only reorder items whose order changes
+        let (updatedOrderedEntries, changedEntries) = updateOrderAndExtractChanges(uiEntries: filteredData)
+
+        if !changedEntries.isEmpty {
+            try await repository.localReorder(changedEntries)
+        } else {
+            log(.debug, "No order changes required")
+        }
+
+        updateData(updatedOrderedEntries)
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws {
         log(.debug, "Reordering item from position \(currentPosition) to \(newPosition)")
-        guard currentPosition != newPosition else {
+        guard currentPosition != newPosition, var entries = dataState.data else {
             return
         }
-        guard var entryUiModels = dataState.data else {
-            return
-        }
-        entryUiModels.move(from: currentPosition, to: newPosition)
-        entryUiModels = updateOrder(uiEntries: entryUiModels)
-        try await repository.completeReorder(entries: entryUiModels.map(\.orderedEntry))
-        updateData(entryUiModels)
+
+        entries.move(from: currentPosition, to: newPosition)
+
+        // Only reorder items whose order changes
+        let (updatedOrderedEntries, changedEntries) = updateOrderAndExtractChanges(uiEntries: entries)
+        try await repository.completeReorder(entries: changedEntries)
+        updateData(updatedOrderedEntries)
     }
 
     func loadEntries() async throws {
@@ -211,6 +227,10 @@ public extension EntryDataService {
 
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
+        guard reachabilityManager.hasInternetAccess.value else {
+            log(.debug, "Not active network connection")
+            return
+        }
         do {
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
@@ -415,17 +435,22 @@ private extension EntryDataService {
         return results
     }
 
-    func updateOrder(uiEntries: [EntryUiModel]?) -> [EntryUiModel] {
-        log(.debug, "Updating entry order")
+    func updateOrderAndExtractChanges(uiEntries: [EntryUiModel]?)
+        -> (updated: [EntryUiModel], changedEntries: [OrderedEntry]) {
         guard var uiEntries else {
             log(.warning, "No data available to update order")
-            return []
+            return ([], [])
         }
 
+        var changed: [OrderedEntry] = []
+
         for (index, uiEntry) in uiEntries.enumerated() where uiEntry.orderedEntry.order != index {
-            uiEntries[index] = uiEntry.updateOrder(index)
+            let updated = uiEntry.updateOrder(index)
+            uiEntries[index] = updated
+            changed.append(updated.orderedEntry)
         }
-        return uiEntries
+
+        return (uiEntries, changed)
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -520,8 +545,9 @@ private extension EntryDataService {
                 return $0.modifiedTime > $1.modifiedTime
             }
             .enumerated()
-            .map { index, item in
-                item.updateOrder(index)
+            .compactMap { index, item -> OrderedEntry? in
+                guard item.order != index else { return nil }
+                return item.updateOrder(index)
             }
 
         try await repository.completeReorder(entries: mergedAndOrderedItems)

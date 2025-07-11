@@ -27,7 +27,7 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
     public var order: Int
     public var syncState: EntrySyncState
     public let creationDate: TimeInterval
-    public let modifiedTime: TimeInterval
+    public var modifiedTime: TimeInterval
     public let flags: Int
     public var revision: Int
     public let contentFormatVersion: Int
@@ -59,6 +59,7 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
     public func updateEntry(_ newEntry: Entry) -> OrderedEntry {
         var updatedSelf = self
         updatedSelf.entry = newEntry
+        updatedSelf.modifiedTime = Date.now.timeIntervalSince1970
         return updatedSelf
     }
 
