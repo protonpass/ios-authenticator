@@ -66,6 +66,7 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
     public func updateOrder(_ newOrder: Int) -> OrderedEntry {
         var updatedSelf = self
         updatedSelf.order = newOrder
+        updatedSelf.modifiedTime = Date.now.timeIntervalSince1970
         return updatedSelf
     }
 
