@@ -109,7 +109,7 @@ struct ImportingServiceModifier: ViewModifier {
                           photoLibrary: .shared())
             .fileImporter(isPresented: $viewModel.showImporter.mappedToBool(),
                           allowedContentTypes: viewModel.showImporter?.authorizedFileExtensions ?? [],
-                          allowsMultipleSelection: false,
+                          allowsMultipleSelection: viewModel.showImporter == .googleAuthenticator,
                           onCompletion: viewModel.processImportedFile)
     }
 
@@ -330,7 +330,9 @@ private final class ImportViewModel {
                 return
             }
 
-            guard currentSelected.authorizedFileExtensions.contains(type) else {
+            let selectedMimeTypes = urls.compactMap(\.mimeType)
+            guard selectedMimeTypes.allSatisfy({ type in
+                currentSelected.authorizedFileExtensions.contains(type) }) else {
                 let message = #localized("Importing from %1$@ doesn't support %2$@ file format.",
                                          bundle: .main,
                                          currentSelected.title,
@@ -340,36 +342,48 @@ private final class ImportViewModel {
             }
             Task { [weak self] in
                 guard let self else { return }
-                if url.startAccessingSecurityScopedResource() {
-                    do {
-                        let fileHandle = try FileHandle(forReadingFrom: url)
-                        let fileSize = try fileHandle.seekToEnd()
-                        try fileHandle.close()
+                var sources = [TwofaImportSource]()
+                for url in urls {
+                    if url.startAccessingSecurityScopedResource() {
+                        do {
+                            let fileHandle = try FileHandle(forReadingFrom: url)
+                            let fileSize = try fileHandle.seekToEnd()
+                            try fileHandle.close()
 
-                        if fileSize > AppConstants.maxFileSizeInBytes {
-                            throw AuthError.importing(.fileTooLarge)
+                            if fileSize > AppConstants.maxFileSizeInBytes {
+                                throw AuthError.importing(.fileTooLarge)
+                            }
+
+                            let fileContent = try Data(contentsOf: url)
+                            provenance =
+                                try currentSelected.importDestination(content: fileContent,
+                                                                      type: type,
+                                                                      password: nil,
+                                                                      parseImageQRCode: parseImageQRCodeContent)
+                            guard let provenance else { return }
+                            sources.append(provenance)
+                        } catch {
+                            alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                            return
                         }
-
-                        let fileContent = try Data(contentsOf: url)
-                        provenance = try currentSelected.importDestination(content: fileContent,
-                                                                           type: type,
-                                                                           password: password.nilIfEmpty,
-                                                                           parseImageQRCode: parseImageQRCodeContent)
-                        guard let provenance else { return }
-                        let numberOfImportedEntries = try await entryDataService.importEntries(from: provenance)
-                        showCompletion(numberOfImportedEntries)
-                    } catch ImportException.MissingPassword {
-                        showPasswordSheet.toggle()
-                    } catch ImportException.BadContent {
-                        alertBadContentError(url)
-                    } catch let AuthError.importing(reason) where reason == .fileTooLarge {
-                        alertFileTooLargeError(url)
-                    } catch {
-                        alertService.showError(error, mainDisplay: mainDisplay, action: nil)
                     }
+                    url.stopAccessingSecurityScopedResource()
                 }
-                url.stopAccessingSecurityScopedResource()
+
+                do {
+                    let numberOfImportedEntries = try await entryDataService.importEntries(from: sources)
+                    showCompletion(numberOfImportedEntries)
+                } catch ImportException.MissingPassword {
+                    showPasswordSheet.toggle()
+                } catch ImportException.BadContent {
+                    alertBadContentError(url)
+                } catch let AuthError.importing(reason) where reason == .fileTooLarge {
+                    alertFileTooLargeError(url)
+                } catch {
+                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                }
             }
+
         case let .failure(error):
             alertService.showError(error, mainDisplay: mainDisplay, action: nil)
         }

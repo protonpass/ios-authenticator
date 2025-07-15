@@ -48,11 +48,17 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func getTotpParams(entry: Entry) throws -> TotpParams
     func exportEntries() throws -> String
-    func importEntries(from source: TwofaImportSource) async throws -> Int
+    func importEntries(from sources: [TwofaImportSource]) async throws -> Int
     func stopTotpGenerator()
     func startTotpGenerator()
 
     func unsyncAllEntries() async throws
+}
+
+public extension EntryDataServiceProtocol {
+    func importEntries(from source: TwofaImportSource) async throws -> Int {
+        try await importEntries(from: [source])
+    }
 }
 
 public final class CurrentTimeProviderImpl: MobileCurrentTimeProvider {
@@ -298,9 +304,8 @@ public extension EntryDataService {
         return try repository.export(entries: entries.map(\.entry))
     }
 
-    nonisolated func importEntries(from source: TwofaImportSource) async throws -> Int {
-        await log(.debug, "Importing entries from source: \(source.name)")
-        let results = try importService.importEntries(from: source)
+    nonisolated func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
+        let results = try importService.importEntries(from: sources)
         var data: [EntryUiModel] = await dataState.data ?? []
         let filteredResults = results.entries
             .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
