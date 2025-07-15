@@ -536,6 +536,8 @@ private extension EntryDataService {
             }
         }
 
+        var itemsToUpdate: [OrderedEntry] = []
+
         // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
         let mergedAndOrderedItems = currentItems.values
             .sorted {
@@ -545,12 +547,17 @@ private extension EntryDataService {
                 return $0.modifiedTime > $1.modifiedTime
             }
             .enumerated()
-            .compactMap { index, item -> OrderedEntry? in
-                guard item.order != index else { return nil }
-                return item.updateOrder(index)
+            .map { index, item in
+                var updatedItem = item
+                if item.order != index {
+                    updatedItem = item.updateOrder(index)
+                    itemsToUpdate.append(updatedItem)
+                }
+
+                return updatedItem
             }
 
-        try await repository.completeReorder(entries: mergedAndOrderedItems)
+        try await repository.completeReorder(entries: itemsToUpdate)
         return mergedAndOrderedItems
     }
 }
