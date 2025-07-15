@@ -234,7 +234,8 @@ public extension EntryDataService {
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
         guard reachabilityManager.hasInternetAccess.value else {
-            log(.debug, "Not active network connection")
+            log(.debug, "Not active network connection loading local entries")
+            try await loadEntries()
             return
         }
         do {
@@ -252,7 +253,11 @@ public extension EntryDataService {
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
-            throw error
+
+            if let data = dataState.data, !data.isEmpty {
+                return
+            }
+            dataState = .failed(error)
         }
     }
 
