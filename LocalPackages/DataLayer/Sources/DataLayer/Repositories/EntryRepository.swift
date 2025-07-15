@@ -241,13 +241,36 @@ public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
         do {
+            // Fetch all entries sorted by modification date (newest first) and then by order
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
                 .fetch(predicate: nil,
                        sortingDescriptor: [
-                           SortDescriptor(\.order)
+                           SortDescriptor(\.order),
+                           SortDescriptor(\.modifiedTime, order: .reverse)
                        ])
-            let entries = try encryptionService.decrypt(entries: encryptedEntries)
-            log(.info, "Successfully fetched \(entries.count) local entries")
+
+            // Identify which entries to keep (newest per ID) and which to remove
+            var entriesToKeep = [EncryptedEntryEntity]()
+            var duplicateEntryIds = [String]()
+            var seenIds = Set<String>()
+
+            for entry in encryptedEntries {
+                if seenIds.contains(entry.id) {
+                    duplicateEntryIds.append(entry.id)
+                } else {
+                    seenIds.insert(entry.id)
+                    entriesToKeep.append(entry)
+                }
+            }
+
+            // Remove duplicates from storage if any found
+            if !duplicateEntryIds.isEmpty {
+                log(.info, "Found \(duplicateEntryIds.count) duplicate entries to remove")
+                try await localRemoves(duplicateEntryIds)
+            }
+
+            let entries = try encryptionService.decrypt(entries: entriesToKeep)
+            log(.info, "Successfully fetched \(entries.count) unique local entries")
             return entries
         } catch {
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
