@@ -301,6 +301,11 @@ extension SettingsViewModel {
             try content.write(to: tempURL, atomically: true, encoding: .utf8)
             shareURL = tempURL
         } catch {
+            if let authError = error as? AuthError,
+               case let .generic(reason) = authError,
+               reason.isExportEmptyData {
+                return
+            }
             alertService.showError(error, mainDisplay: false, action: nil)
         }
     }

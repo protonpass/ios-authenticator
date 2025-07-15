@@ -68,7 +68,7 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
         ""
     }
 
-    func importEntries(from source: Models.TwofaImportSource) async throws -> Int {
+    func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
         0
     }
     

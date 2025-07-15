@@ -25,7 +25,13 @@ import Models
 public typealias ImportException = AuthenticatorImportException
 
 public protocol ImportingServicing: Sendable {
-    func importEntries(from provenance: TwofaImportSource) throws -> ImportResult
+    func importEntries(from sources: [TwofaImportSource]) throws -> ImportResult
+}
+
+public extension ImportingServicing {
+    func importEntries(from source: TwofaImportSource) throws -> ImportResult {
+        try importEntries(from: [source])
+    }
 }
 
 public final class ImportingService: ImportingServicing {
@@ -38,28 +44,34 @@ public final class ImportingService: ImportingServicing {
         self.logger = logger
     }
 
-    public func importEntries(from provenance: TwofaImportSource) throws -> ImportResult {
-        log(.debug, "Starting import from provenance: \(provenance.name)")
-        let result = switch provenance {
-        case let .twofas(contents, password):
-            try parse2fas(contents, password: password)
-        case let .aegis(contents, password):
-            try parseAegis(contents, password: password)
-        case let .bitwarden(contents):
-            try parseBitwarden(contents)
-        case let .ente(contents):
-            try parseEnte(contents)
-        case let .googleQr(contents):
-            try parseGoogleQr(contents)
-        case let .lastpass(contents):
-            try parseLastpass(contents)
-        case let .protonAuthenticator(contents):
-            try parseAuthenticator(contents)
-        case let .protonPass(contents):
-            try parsePass(contents)
+    public func importEntries(from sources: [TwofaImportSource]) throws -> ImportResult {
+        let sourceNames = sources.map(\.name).joined(separator: ",")
+        log(.debug, "Starting import from sources: \(sourceNames)")
+        var results = [ImportResult]()
+        for source in sources {
+            let result = switch source {
+            case let .twofas(contents, password):
+                try parse2fas(contents, password: password)
+            case let .aegis(contents, password):
+                try parseAegis(contents, password: password)
+            case let .bitwarden(contents):
+                try parseBitwarden(contents)
+            case let .ente(contents):
+                try parseEnte(contents)
+            case let .googleQr(contents):
+                try parseGoogleQr(contents)
+            case let .lastpass(contents):
+                try parseLastpass(contents)
+            case let .protonAuthenticator(contents):
+                try parseAuthenticator(contents)
+            case let .protonPass(contents):
+                try parsePass(contents)
+            }
+            results.append(result.toImportResult)
         }
-        log(.debug, "Successfully parsed entries from provenance: \(provenance.name)")
-        return result.toImportResult
+
+        log(.debug, "Successfully parsed entries from sources: \(sourceNames)")
+        return results.reduce(.empty) { $0 + $1 }
     }
 }
 
