@@ -53,4 +53,12 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "Missing remote id for entity"
         }
     }
+
+    public var isExportEmptyData: Bool {
+        if case .exportEmptyData = self {
+            true
+        } else {
+            false
+        }
+    }
 }
