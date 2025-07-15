@@ -245,8 +245,8 @@ public extension EntryRepository {
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
                 .fetch(predicate: nil,
                        sortingDescriptor: [
-                           SortDescriptor(\.modifiedTime, order: .reverse),
-                           SortDescriptor(\.order)
+                           SortDescriptor(\.order),
+                           SortDescriptor(\.modifiedTime, order: .reverse)
                        ])
 
             // Identify which entries to keep (newest per ID) and which to remove
@@ -269,10 +269,7 @@ public extension EntryRepository {
                 try await localRemoves(duplicateEntryIds)
             }
 
-            // Sort the kept entries by their original order
-            let uniqueEntries = entriesToKeep.sorted { $0.order < $1.order }
-
-            let entries = try encryptionService.decrypt(entries: uniqueEntries)
+            let entries = try encryptionService.decrypt(entries: entriesToKeep)
             log(.info, "Successfully fetched \(entries.count) unique local entries")
             return entries
         } catch {
