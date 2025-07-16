@@ -278,8 +278,13 @@ public extension EntryDataService {
     func deleteAll() async throws {
         log(.debug, "Deleting all entries")
         do {
-            let localEntries = try await repository.getAllLocalEntries()
-            try await repository.localRemoves(localEntries.decodedEntries.map(\.id))
+            let localEntries = try await repository.getAllLocalEncryptedEntries()
+
+            let entryIdsToRemove = localEntries.map(\.id)
+            let keyIdsToReset = localEntries.map(\.keyId)
+
+            try await repository.localRemoves(entryIdsToRemove)
+            try await repository.reset(keyIds: keyIdsToReset)
 
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
                 _ = try? await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))

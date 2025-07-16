@@ -61,6 +61,12 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func unsyncAllEntries() async throws
 
+    @_spi(QA)
+    func reset(keyIds: [String]) async throws
+
+    @_spi(QA)
+    func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity]
+
     // MARK: - Remote Proton BE CRUD
 
     func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
@@ -428,6 +434,16 @@ public extension EntryRepository {
         }
 
         try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
+    }
+
+    func reset(keyIds: [String]) async throws {
+        for keyId in keyIds {
+            try encryptionService.reset(keyId: keyId)
+        }
+    }
+
+    func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity] {
+        try await localDataManager.persistentStorage.fetch(predicate: nil)
     }
 }
 

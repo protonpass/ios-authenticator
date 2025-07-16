@@ -60,6 +60,9 @@ public protocol EncryptionServicing: Sendable {
     func decryptRemoteData(encryptedData: RemoteEncryptedEntry) throws -> Entry?
     func getEncryptionKey(for keyId: String) throws -> Data
     func generateKey() -> Data
+
+    @_spi(QA)
+    func reset(keyId: String) throws
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -210,6 +213,13 @@ public extension EncryptionService {
             log(.error, "Rust decryption service failed to decrypt entry with remote id: \(encryptedData.entryID)")
             throw error
         }
+    }
+}
+
+public extension EncryptionService {
+    func reset(keyId: String) throws {
+        let newKey = authenticatorCrypto.generateKey()
+        try keysProvider.set(newKey, for: keyId)
     }
 }
 
