@@ -152,9 +152,8 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         let newApiService: PMAPIService
 
         do {
-            let encryptedContent: Data = try keychain.get(key: credentialsKey,
-                                                          ofType: .generic,
-                                                          isSyncedKey: false)
+            let encryptedContent: Data = try keychain.get(keyId: credentialsKey,
+                                                          isSynced: false)
             let credentials: Credentials = try encryptionService.symmetricDecrypt(encryptedData: encryptedContent)
 
             cachedCredentials.modify {
@@ -286,7 +285,7 @@ private extension UserSessionManager {
 
     func removeCachedCredentials() {
         do {
-            try keychain.delete(credentialsKey)
+            try keychain.delete(keyId: credentialsKey, isSynced: false)
         } catch {
             log(.error, "Failed to saved user sessions in keychain: \(error)")
         }
