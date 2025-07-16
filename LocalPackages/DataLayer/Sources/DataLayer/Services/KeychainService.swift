@@ -24,8 +24,6 @@ import CommonUtilities
 import Foundation
 @preconcurrency import KeychainAccess
 
-
-// swiftlint:disable discouraged_optional_boolean
 public protocol KeychainServicing: Sendable {
     func get<T: Decodable & Sendable>(keyId: String, isSynced: Bool) throws -> T
     func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws
@@ -83,5 +81,3 @@ public enum KeychainError: Error, Equatable, CustomDebugStringConvertible {
         }
     }
 }
-
-// swiftlint:enable discouraged_optional_boolean

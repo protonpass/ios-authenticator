@@ -219,6 +219,7 @@ public extension EncryptionService {
 public extension EncryptionService {
     func reset(keyId: String) throws {
         let newKey = authenticatorCrypto.generateKey()
+        try keysProvider.clear(keyId: keyId)
         try keysProvider.set(newKey, for: keyId)
     }
 }
