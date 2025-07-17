@@ -63,6 +63,8 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     @_spi(QA)
     func reset(keyIds: [String]) async throws
+    @_spi(QA)
+    func resetRemoteKeys() async
 
     @_spi(QA)
     func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity]
@@ -439,6 +441,18 @@ public extension EntryRepository {
     func reset(keyIds: [String]) async throws {
         for keyId in keyIds {
             try encryptionService.reset(keyId: keyId)
+        }
+    }
+
+    func resetRemoteKeys() async {
+        if let encryptedKeysData = try? await apiClient.getKeys() {
+            for keyData in encryptedKeysData {
+                encryptionService.reset(remoteKeyId: keyData.keyID)
+            }
+        }
+        if let remoteKeychainEncryptionKeyId = kSharedUserDefaults
+            .string(forKey: AppConstants.Settings.remoteEncryptionKeyId) {
+            encryptionService.reset(remoteKeyId: remoteKeychainEncryptionKeyId)
         }
     }
 
