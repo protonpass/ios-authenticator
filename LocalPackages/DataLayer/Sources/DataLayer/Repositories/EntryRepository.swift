@@ -235,7 +235,8 @@ public extension EntryRepository {
         try await localReorder(entries)
         if isAuthenticated {
             do {
-                try await batchRemoteReordering(entries: entries)
+                let newOrderedEntries = try await getAllLocalEntries().decodedEntries
+                try await batchRemoteReordering(entries: newOrderedEntries)
             } catch {
                 log(.error, "Failed to remote reorder: \(error.localizedDescription)")
             }
@@ -417,7 +418,7 @@ public extension EntryRepository {
 
             for entry in encryptedEntries {
                 guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
-                entry.updateOrder(newOrder: orderedEntry.order)
+                entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
             }
 
             try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
@@ -669,16 +670,15 @@ public extension EntryRepository {
             var sinceLastToken: String?
 
             var entries: [OrderedEntry] = []
-
+            var index = 0
             while true {
                 let encryptedEntries = try await apiClient.getEntries(lastId: sinceLastToken)
                 log(.debug, "Retrieved \(encryptedEntries.entries.count) encrypted entries from remote")
-
                 if encryptedEntries.entries.isEmpty {
                     break
                 }
 
-                for (index, encryptedEntry) in encryptedEntries.entries.enumerated() {
+                for encryptedEntry in encryptedEntries.entries {
                     if !encryptionService.contains(keyId: encryptedEntry.authenticatorKeyID) {
                         log(.debug,
                             "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
@@ -706,6 +706,7 @@ public extension EntryRepository {
                                                     revision: encryptedEntry.revision,
                                                     contentFormatVersion: encryptedEntry.contentFormatVersion)
                     entries.append(orderedEntry)
+                    index += 1
                 }
                 sinceLastToken = encryptedEntries.lastID
                 log(.info, "Successfully fetched and decrypted \(entries.count) entries from remote")

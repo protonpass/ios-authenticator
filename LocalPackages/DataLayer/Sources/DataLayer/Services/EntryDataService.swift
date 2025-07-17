@@ -542,40 +542,69 @@ private extension EntryDataService {
             return localEntries.decodedEntries
         }
 
-        // Step 1: Merge items by `id` with conflict resolution
-        var currentItems = [String: OrderedEntry]()
-        for item in localEntries.decodedEntries + remoteEntries {
-            if let existing = currentItems[item.id], item.order != existing.order {
-                // Resolve by most recently modified
-                currentItems[item.id] = item.modifiedTime > existing.modifiedTime ? item : existing
+        return try await performReordering(remoteEntries: remoteEntries, localEntries: localEntries.decodedEntries)
+    }
+
+    @MainActor
+    func performReordering(remoteEntries: [OrderedEntry],
+                           localEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
+        var mergedItems = [String: OrderedEntry]()
+
+        // Track all items
+        let allItems = localEntries + remoteEntries
+
+        for item in allItems {
+            if let existing = mergedItems[item.id] {
+                // Conflict resolution: prefer most recently modified
+                if item.modifiedTime > existing.modifiedTime {
+                    mergedItems[item.id] = item
+                }
             } else {
-                currentItems[item.id] = item
+                mergedItems[item.id] = item
             }
+        }
+
+        let sortedItems = mergedItems.values.sorted { item1, item2 in
+            if item1.order != item2.order {
+                return item1.order < item2.order
+            }
+            return item1.modifiedTime > item2.modifiedTime
+        }
+
+        let mergedOrderedItems = sortedItems.enumerated().map { index, item in
+            item.updateOrder(index)
         }
 
         var itemsToUpdate: [OrderedEntry] = []
 
-        // Step 2: Sort items by existing `order`and last modified time (if they have the same order)
-        let mergedAndOrderedItems = currentItems.values
-            .sorted {
-                if $0.order != $1.order {
-                    return $0.order < $1.order
-                }
-                return $0.modifiedTime > $1.modifiedTime
-            }
-            .enumerated()
-            .map { index, item in
-                var updatedItem = item
-                if item.order != index {
-                    updatedItem = item.updateOrder(index)
-                    itemsToUpdate.append(updatedItem)
-                }
+        for newOrderedItem in mergedOrderedItems {
+            let newOrder = newOrderedItem.order
+            let itemId = newOrderedItem.id
 
-                return updatedItem
+            var needsUpdate = false
+
+            // Check if local version needs updating
+            if let localItem = localEntries.first(where: { $0.id == itemId }),
+               localItem.order != newOrder {
+                needsUpdate = true
             }
 
-        try await repository.completeReorder(entries: itemsToUpdate)
-        return mergedAndOrderedItems
+            // Check if remote version needs updating
+            if let remoteItem = remoteEntries.first(where: { $0.id == itemId }),
+               remoteItem.order != newOrder {
+                needsUpdate = true
+            }
+
+            if needsUpdate {
+                itemsToUpdate.append(newOrderedItem)
+            }
+        }
+
+        if !itemsToUpdate.isEmpty {
+            try await repository.completeReorder(entries: itemsToUpdate)
+        }
+
+        return mergedOrderedItems
     }
 }
 
