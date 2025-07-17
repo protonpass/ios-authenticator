@@ -350,11 +350,15 @@ public extension EntryRepository {
         }
     }
 
+    @MainActor
     func localRemoves(_ entriesId: [String]) async throws {
-        log(.debug, "Deleting entries with ids \(entriesId) from local storage")
+        guard !entriesId.isEmpty else {
+            return
+        }
+        await log(.debug, "Deleting entries with ids \(entriesId) from local storage")
         let predicate = #Predicate<EncryptedEntryEntity> { entriesId.contains($0.id) }
         try await localDataManager.persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
-        log(.info, "Successfully deleted entries \(entriesId) from local storage")
+        await log(.info, "Successfully deleted entries \(entriesId) from local storage")
     }
 
     func localRemoveAll() async throws {
