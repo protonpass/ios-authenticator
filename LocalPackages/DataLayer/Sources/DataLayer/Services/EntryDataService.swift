@@ -285,6 +285,10 @@ public extension EntryDataService {
 
             try await repository.localRemoves(entryIdsToRemove)
             try await repository.reset(keyIds: keyIdsToReset)
+            
+            if let remoteKeychainEncryptionKeyId = kSharedUserDefaults.string(forKey: AppConstants.Settings.remoteEncryptionKeyId) {
+                try await repository.reset(keyIds: [remoteKeychainEncryptionKeyId])
+            }
 
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
                 _ = try? await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
