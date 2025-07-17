@@ -28,6 +28,7 @@ import Foundation
 @Observable
 final class QAMenuViewModel {
     var installationDate: Date
+    var isLoading = false
 
     var onboarded: Bool {
         didSet {
@@ -48,6 +49,10 @@ final class QAMenuViewModel {
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.alertService)
+    private(set) var alertService
+
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
@@ -61,10 +66,19 @@ final class QAMenuViewModel {
     func deleteAllData() {
         Task { @MainActor [weak self] in
             guard let self else { return }
+            defer { isLoading = false }
+            isLoading = true
             do {
                 try await entryDataService.deleteAll()
+                alertService.showAlert(.sheet(.init(title: "Done",
+                                                    titleBundle: .module,
+                                                    message: .verbatim("Deleted all data"),
+                                                    actions: [.ok])))
             } catch {
-                print(error)
+                alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                    titleBundle: .module,
+                                                    message: .verbatim(error.localizedDescription),
+                                                    actions: [.ok])))
             }
         }
     }

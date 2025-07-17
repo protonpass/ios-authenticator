@@ -40,7 +40,7 @@ public protocol MutexProtected<Value>: Sendable {
 final class LegacyMutex<Value: Sendable>: MutexProtected {
     private let lock: OSAllocatedUnfairLock<Value>
 
-    public init(_ value: Value) {
+    init(_ value: Value) {
         lock = .init(uncheckedState: value)
     }
 

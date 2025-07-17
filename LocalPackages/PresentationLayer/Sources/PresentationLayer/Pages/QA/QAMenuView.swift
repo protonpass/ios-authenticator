@@ -24,7 +24,7 @@ import SwiftUI
 struct QAMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = QAMenuViewModel()
-    @State private var showWFullDeleteAlert = false
+    @State private var showFullDeleteAlert = false
 
     var body: some View {
         NavigationStack {
@@ -34,6 +34,7 @@ struct QAMenuView: View {
                 actionsSection
                 installationDateSection
             }
+            .showSpinner(viewModel.isLoading)
             .navigationTitle(Text(verbatim: "QA menu"))
             .toolbar {
                 ToolbarItem(placement: toolbarItemPlacement) {
@@ -42,11 +43,11 @@ struct QAMenuView: View {
                     }
                 }
             }
-            .alert(Text(verbatim: "Are you sure you want to delete all entries this cannot be undone?"),
-                   isPresented: $showWFullDeleteAlert,
+            .alert(Text(verbatim: "Are you sure you want to delete all data this cannot be undone?"),
+                   isPresented: $showFullDeleteAlert,
                    actions: {
                        Button("Cancel", role: .cancel) {
-                           showWFullDeleteAlert = false
+                           showFullDeleteAlert = false
                        }
 
                        Button(role: .destructive, action: viewModel.deleteAllData) {
@@ -86,9 +87,9 @@ private extension QAMenuView {
     var actionsSection: some View {
         Section(content: {
             Button {
-                showWFullDeleteAlert = true
+                showFullDeleteAlert = true
             } label: {
-                Text(verbatim: "Delete all local and remote data")
+                Text(verbatim: "Remove all data (iCloud, local and remote)")
             }
         }, header: {
             Text(verbatim: "Actions")

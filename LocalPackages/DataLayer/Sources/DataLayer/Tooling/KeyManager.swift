@@ -53,7 +53,7 @@ final class CoreKeychain: Keychain, @unchecked Sendable {
 extension CoreKeychain: SettingsProvider {
     private static let LockTimeKey = "AuthAccount.LockTimeKey"
 
-    public var lockTime: AutolockTimeout {
+    var lockTime: AutolockTimeout {
         get {
             guard let string = try? stringOrError(forKey: Self.LockTimeKey), let intValue = Int(string) else {
                 return .never
@@ -90,14 +90,14 @@ public final class KeysManager: KeysProvider {
 
         // At this point either migration is done or no key is generated (first installation)
         // so we proceed as normal (get if exist and random if not)
-        if let lockedSymmetricKeyData: Data = try? keychain.get(key: keychainKey) {
+        if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: true) {
             let lockedData = Locked<Data>(encryptedValue: lockedSymmetricKeyData)
             let unlockedData = try lockedData.unlock(with: mainKey)
             return .init(data: unlockedData)
         } else {
             let randomData = try Data.random()
             let lockedData = try Locked<Data>(clearValue: randomData, with: mainKey)
-            try keychain.set(lockedData.encryptedValue, for: keychainKey)
+            try keychain.set(lockedData.encryptedValue, for: keychainKey, shouldSync: true)
             return .init(data: randomData)
         }
     }
@@ -107,7 +107,7 @@ public final class KeysManager: KeysProvider {
             return key
         }
 
-        let keyData: Data = try keychain.get(key: keyId, isSyncedKey: true)
+        let keyData: Data = try keychain.get(keyId: keyId, isSynced: true)
         cachedKeys.modify {
             $0[keyId] = keyData
         }
@@ -122,7 +122,7 @@ public final class KeysManager: KeysProvider {
     }
 
     public func clear(keyId: String) throws {
-        try keychain.clear(key: keyId, shouldSync: true)
+        try keychain.delete(keyId: keyId, isSynced: true)
         cachedKeys.modify {
             $0.removeValue(forKey: keyId)
         }

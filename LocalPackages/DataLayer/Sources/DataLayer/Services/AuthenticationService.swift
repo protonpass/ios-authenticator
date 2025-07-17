@@ -65,7 +65,7 @@ public final class AuthenticationService: AuthenticationServicing {
         self.logger = logger
         do {
             if let keychainValue: AuthenticationState = try keychain
-                .get(key: AppConstants.Settings.authenticationState) {
+                .get(keyId: AppConstants.Settings.authenticationState, isSynced: false) {
                 currentState = keychainValue
             }
         } catch KeychainError.invalidData, KeychainError.itemNotFound {
@@ -79,7 +79,7 @@ public final class AuthenticationService: AuthenticationServicing {
         guard currentState != newState else { return }
         logger.log(.info, category: .data, "Set new authentication state: \(newState)")
 
-        try keychain.set(newState, for: AppConstants.Settings.authenticationState)
+        try keychain.set(newState, for: AppConstants.Settings.authenticationState, shouldSync: false)
         currentState = newState
     }
 

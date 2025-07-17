@@ -1,4 +1,4 @@
-//  
+//
 // MockKeychainService.swift
 // Proton Authenticator - Created on 07/05/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -22,7 +22,7 @@ import DataLayer
 import Foundation
 
 final class MockKeychainService: @unchecked Sendable, KeychainServicing {
-
+    
     private var storage: [String: Any] = [:]
     private var globalSyncState: Bool = false
     
@@ -33,29 +33,21 @@ final class MockKeychainService: @unchecked Sendable, KeychainServicing {
     
     // MARK: - KeychainServicing Implementation
     
-    func get<T: Decodable & Sendable>(key: String, ofType itemClassType: ItemClassType, isSyncedKey: Bool?) throws -> T {
-        guard let value = storage[key] as? T else {
+    func get<T: Decodable & Sendable>(keyId: String, isSynced: Bool) throws -> T {
+        guard let value = storage[keyId] as? T else {
             throw MockKeychainError.itemNotFound
         }
         return value
     }
     
-    func set<T: Encodable & Sendable>(_ item: T, for key: String, config: KeychainQueryConfig, shouldSync: Bool?) throws {
-        storage[key] = item
+    func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws {
+        storage[keyId] = item
     }
     
-    func delete(_ key: String, ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
-        guard storage.removeValue(forKey: key) != nil else {
+    func delete(keyId: String, isSynced: Bool) throws {
+        guard storage.removeValue(forKey: keyId) != nil else {
             throw MockKeychainError.itemNotFound
         }
-    }
-    
-    func clearAll(ofType itemClassType: ItemClassType, shouldSync: Bool?) throws {
-        storage.removeAll()
-    }
-    
-    func clear(key: String, shouldSync: Bool?) throws {
-        try delete(key, ofType: .generic, shouldSync: shouldSync)
     }
     
     func setGlobalSyncState(_ syncState: Bool) {
