@@ -63,6 +63,8 @@ public protocol EncryptionServicing: Sendable {
 
     @_spi(QA)
     func reset(keyId: String) throws
+    @_spi(QA)
+    func reset(remoteKeyId: String)
 }
 
 public final class EncryptionService: EncryptionServicing {
@@ -221,6 +223,14 @@ public extension EncryptionService {
         let newKey = authenticatorCrypto.generateKey()
         try keysProvider.clear(keyId: keyId)
         try keysProvider.set(newKey, for: keyId)
+    }
+
+    func reset(remoteKeyId: String) {
+        do {
+            try keysProvider.clear(keyId: remoteKeyId)
+        } catch {
+            try? keysProvider.clear(keyId: remoteKeyId, isSynced: false)
+        }
     }
 }
 

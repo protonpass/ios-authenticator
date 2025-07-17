@@ -286,6 +286,8 @@ public extension EntryDataService {
             try await repository.localRemoves(entryIdsToRemove)
             try await repository.reset(keyIds: keyIdsToReset)
 
+            await repository.resetRemoteKeys()
+
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
                 _ = try? await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
             }

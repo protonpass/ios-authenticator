@@ -29,7 +29,13 @@ public protocol KeysProvider: Sendable {
 
     func get(keyId: String) throws -> Data
     func set(_ keyData: Data, for keyId: String) throws
-    func clear(keyId: String) throws
+    func clear(keyId: String, isSynced: Bool) throws
+}
+
+public extension KeysProvider {
+    func clear(keyId: String, isSynced: Bool = true) throws {
+        try clear(keyId: keyId, isSynced: isSynced)
+    }
 }
 
 public protocol MainKeyProvider: Sendable, AnyObject {
@@ -121,8 +127,8 @@ public final class KeysManager: KeysProvider {
         }
     }
 
-    public func clear(keyId: String) throws {
-        try keychain.delete(keyId: keyId, isSynced: true)
+    public func clear(keyId: String, isSynced: Bool) throws {
+        try keychain.delete(keyId: keyId, isSynced: isSynced)
         cachedKeys.modify {
             $0.removeValue(forKey: keyId)
         }
