@@ -2244,16 +2244,70 @@
     },
     "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daten auf diesem Gerät werden nicht aktualisiert und Änderungen werden nicht auf anderen Geräten übernommen.\n\nDu wirst von deinem Proton-Konto abgemeldet."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los datos de este dispositivo no se actualizarán y los cambios no se reflejarán en otros dispositivos.\n\nSe cerrará la sesión de tu cuenta de Proton."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los datos en este dispositivo no se actualizarán y los cambios no se reflejarán en otros dispositivos.\n\nSe cerrará la sesión de su cuenta de Proton."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les données de cet appareil ne seront pas mises à jour et les modifications ne seront pas répercutées sur les autres appareils.\n\nVous serez déconnecté de votre compte Proton."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I dati su questo dispositivo non verranno aggiornati e le modifiche non saranno riflesse sugli altri dispositivi.\n\nVerrai disconnesso dal tuo account Proton."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gegevens op dit apparaat worden niet bijgewerkt en wijzigingen worden niet op andere apparaten doorgevoerd.\n\nU wordt uitgelogd bij uw Proton-account."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane na tym urządzeniu nie będą aktualizowane, a zmiany nie pojawią się na innych urządzeniach.\n\nNastąpi wylogowanie z Twojego konta Proton."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os dados neste dispositivo não serão atualizados e as alterações não serão refletidas em outros dispositivos.\n\nVocê será desconectado da sua conta Proton."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные на этом устройстве не будут обновляться, и изменения не отразятся на других устройствах.\n\nВы выйдете из своего аккаунта Proton."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu cihazdaki veriler güncellenmeyecek ve değişiklikler diğer cihazlara yansımayacaktır.\n\nProton hesabınızdan çıkış yapacaksınız."
           }
         }
       }
@@ -2750,10 +2804,70 @@
     },
     "Done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatto"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voltooid"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Concluir"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готово"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamam"
           }
         }
       }
@@ -3461,16 +3575,70 @@
     "File \"%@\" exceeds maximum allowed size" : {
       "comment" : "Placeholder is the file name",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei „%@“ überschreitet die maximal zulässige Größe"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "File \"%@\" exceeds maximum allowed size"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo «%@» supera el tamaño máximo permitido"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El archivo \"%@\" excede el tamaño máximo permitido."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Le fichier « %@ » dépasse la taille maximale autorisée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file \"%@\" supera la dimensione massima consentita"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestand \"%@\" overschrijdt de maximaal toegestane grootte"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plik „%@” przekracza maksymalny dozwolony rozmiar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O arquivo \"%@\" excede o tamanho máximo permitido"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл «%@» превышает максимально допустимый размер."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" dosyası izin verilen en büyük boyutu aşıyor"
           }
         }
       }
@@ -4178,16 +4346,70 @@
     },
     "Import codes from %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codes aus %@ importieren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import codes from %@"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar códigos de %@"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar códigos desde %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importer des codes depuis %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa codici da %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codes importeren van %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj kody z %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar códigos de %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импортировать коды из %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ konumundan kodları içe aktarın"
           }
         }
       }
@@ -4264,10 +4486,28 @@
     },
     "Importing from %1$@ doesn't support %2$@ file format." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Import aus %1$@ unterstützt das Dateiformat %2$@ nicht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importing from %1$@ doesn't support %2$@ file format."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La importación desde %1$@ no admite el formato de archivo %2$@."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La importación desde %1$@ no es compatible con el formato de archivo %2$@."
           }
         },
         "fr" : {
@@ -4275,15 +4515,69 @@
             "state" : "translated",
             "value" : "L’importation depuis %1$@ ne prend pas en charge le format de fichier %2$@."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'importazione da %1$@ non supporta il formato file %2$@."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren van %1$@ ondersteunt het bestandsformaat %2$@ niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importowanie z %1$@ nie obsługuje formatu pliku %2$@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A importação de %1$@ não é compatível com o formato de arquivo %2$@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт из %1$@ не поддерживает формат файла %2$@."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ üzerinden içe aktarma işlemi, %2$@ dosya biçimini desteklemiyor."
+          }
         }
       }
     },
     "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehe in der Proton Pass-Erweiterung, der Web- oder Desktop-App zu **Einstellungen > Export**\n\nStelle sicher, dass du das **ZIP-Format ohne Dateianhänge** auswählst.\n\nDadurch wird eine ZIP-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la extensión de Proton Pass, aplicación web o de escritorio, ve a **Ajustes > Exportar**\n\nAsegúrate de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la extensión de Proton Pass, en la aplicación web o de escritorio, vaya a **Configuración > Exportar**\n\nAsegúrese de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puede usar aquí."
           }
         },
         "fr" : {
@@ -4291,22 +4585,112 @@
             "state" : "translated",
             "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nVous créerez ainsi un fichier ZIP que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nell'estensione, app web o desktop di Proton Pass, vai a **Impostazioni > Esporta**\n\nAssicurati di scegliere il **formato zip senza allegati**.\n\nQuesto creerà un file zip che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga in de Proton Pass-extensie, web- of desktop-app naar **Instellingen > Exporteren**\n\nZorg ervoor dat u het **zip-formaat zonder bestandsbijlagen** kiest.\n\nHiermee wordt een zip-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W rozszerzeniu Proton Pass, aplikacji internetowej lub komputerowej przejdź do **Ustawienia > Eksportuj**\n\nPamiętaj, aby wybrać **format zip bez załączników**.\n\nSpowoduje to utworzenie pliku zip, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **Configurações > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В расширении Proton Pass, веб- или компьютерном приложении перейдите в **Настройки > Экспорт**.\n\nОбязательно выберите **формат zip без вложений**.\n\nБудет создан zip-файл, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proton Pass uzantısında, web veya masaüstü uygulamasında **Ayarlar > Dışa Aktar** bölümüne gidin\n\n**Dosya ekleri olmayan zip biçimini** seçtiğinizden emin olun.\n\nBu işlem, burada kullanabileceğiniz bir zip dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again." : {
       "comment" : "Placeholder is the file name",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungültiges Dateiformat für „%@“. Bitte stelle sicher, dass deine Datei in einem unterstützten Format vorliegt, und versuche es erneut."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato de archivo no válido para «%@». Asegúrate de que tu archivo tenga un formato compatible y vuelve a intentarlo."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato de archivo no válido para \"%@\". Asegúrese de que su archivo esté en un formato compatible e inténtelo de nuevo."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Le format de fichier n'est pas valide pour « %@ ». Veuillez vous assurer que votre fichier est dans un format pris en charge et réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato file non valido per \"%@\". Assicurati che il tuo file sia in un formato supportato e riprova."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ongeldig bestandsformaat voor \"%@\". Zorg ervoor dat uw bestand een ondersteund formaat heeft en probeer het opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowy format pliku „%@”. Upewnij się, że plik ma obsługiwany format i spróbuj ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato de arquivo inválido para \"%@\". Certifique-se de que seu arquivo esteja em um formato compatível e tente novamente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недопустимый формат файла «%@». Убедитесь, что ваш файл имеет поддерживаемый формат, и попробуйте снова."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" için geçersiz dosya biçimi. Lütfen dosyanızın desteklenen bir biçimde olduğundan emin olun ve yeniden deneyin."
           }
         }
       }
@@ -4943,16 +5327,70 @@
     },
     "Need more help?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brauchst du weitere Hilfe?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Need more help?"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Necesitas más ayuda?"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Necesita más ayuda?"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Besoin d'aide supplémentaire ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve ancora aiuto?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hebt u meer hulp nodig?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potrzebujesz więcej pomocy?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precisa de mais ajuda?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужна помощь?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha fazla yardıma mı ihtiyacınız var?"
           }
         }
       }
@@ -5309,16 +5747,70 @@
     },
     "No issuer" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Aussteller"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No issuer"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin emisor"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin emisor"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sans émetteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun emittente"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen uitgever"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wydawcy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum emissor"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет издателя"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Düzenleyen yok"
           }
         }
       }
@@ -5395,16 +5887,70 @@
     },
     "No title" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Titel"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No title"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin título"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin título"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sans titre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun titolo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen titel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak tytułu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum título"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет заголовка"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başlık yok"
           }
         }
       }
@@ -5901,10 +6447,28 @@
     },
     "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > 2FAS-Backup > Export**\n\nDadurch wird eine 2fas-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Copia de seguridad 2FAS > Exportar**\n\nEsto creará un archivo 2fas que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Copia de seguridad de 2FAS > Exportar**\n\nEsto creará un archivo 2fas que puede usar aquí."
           }
         },
         "fr" : {
@@ -5912,15 +6476,69 @@
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Sauvegarde 2FAS > Exporter**\n\nCela créera un fichier 2fas que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Backup 2FAS > Esporta**\n\nQuesto creerà un file 2fas che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > 2FAS-back-up > Exporteren**\n\nHiermee wordt een 2fas-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Kopia zapasowa 2FAS > Eksportuj**\n\nSpowoduje to utworzenie pliku 2fas, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Backup do 2FAS > Exportar**\n\nIsso criará um arquivo 2fas que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Резервное копирование 2FAS > Экспорт**.\n\nБудет создан файл 2fas, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > 2FAS Yedekleme > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir 2fas dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > Daten > Codes exportieren**\n\nWähle **Klartext**, dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Datos > Exportar códigos**\n\nElige **Texto sin formato**, esto creará un archivo txt que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Datos > Exportar códigos**\n\nElija **Texto sin formato**, esto creará un archivo txt que puede usar aquí."
           }
         },
         "fr" : {
@@ -5928,15 +6546,69 @@
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Données > Exporter les codes**\n\nChoisissez **Texte brut** et cela créera un fichier txt que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Dati > Esporta codici**\n\nScegli **Testo semplice**, questo creerà un file txt che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Gegevens > Codes exporteren**\n\nKies **Platte tekst**, hiermee wordt een txt-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Dane > Eksportuj kody**\n\nWybierz **Zwykły tekst**, co spowoduje utworzenie pliku txt, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Dados > Exportar códigos**\n\nEscolha **Texto simples**, isso criará um arquivo txt que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Данные > Экспорт кодов**.\n\nВыберите **Обычный текст**, будет создан txt-файл, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > Veri > Kodları dışa aktar** bölümüne gidin\n\n**Düz metin** seçeneğini belirleyin. Bu işlem, burada kullanabileceğiniz bir txt dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > Export**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -5944,15 +6616,69 @@
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Export**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Exporteren**\n\nHiermee wordt een Json-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Eksportuj**\n\nSpowoduje to utworzenie pliku Json, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Экспорт**.\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > Import & Export > Export**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -5960,15 +6686,69 @@
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Importa ed Esporta > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Importeren en exporteren > Exporteren**\n\nHiermee wordt een Json-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Importuj i eksportuj > Eksportuj**\n\nSpowoduje to utworzenie pliku Json, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Импорт и экспорт > Экспорт**.\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > İçe ve Dışa Aktar > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > Konten übertragen > Konten in Datei exportieren**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -5976,21 +6756,111 @@
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes vers un fichier**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Trasferisci account > Esporta account in un file**\n\nQuesto creerà un file Json che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Accounts overdragen > Accounts naar bestand exporteren**\n\nHiermee wordt een Json-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta do pliku**\n\nSpowoduje to utworzenie pliku Json, którego możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Transferir contas > Exportar contas para arquivo**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Перенос аккаунтов > Экспортировать аккаунты в файл**.\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > Hesapları aktar > Hesapları dosyaya aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+          }
         }
       }
     },
     "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **Einstellungen > Konten übertragen > Konten exportieren**\n\nDadurch werden ein oder mehrere QR-Codes erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puedes usar aquí."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **Configuración > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes**\n\nCela créera un ou plusieurs QR codes que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Trasferisci account > Esporta account**\n\nQuesto creerà uno o più codici QR che potrai usare qui."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Accounts overdragen > Accounts exporteren**\n\nHiermee worden een of meer QR-codes gemaakt die u hier kunt gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta**\n\nSpowoduje to utworzenie jednego lub więcej kodów QR, których możesz tutaj użyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **Configurações > Transferir contas > Exportar contas**\n\nIsso criará um ou mais códigos QR que você pode usar aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **Настройки > Перенос аккаунтов > Экспортировать аккаунты**.\n\nБудет создан один или несколько QR-кодов, которые вы сможете использовать здесь."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **Ayarlar > Hesapları aktar > Hesapları dışa aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir veya daha fazla QR kodu oluşturacaktır."
           }
         }
       }
@@ -8184,16 +9054,70 @@
     },
     "Sync between your devices is paused" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Synchronisierung zwischen deinen Geräten ist pausiert"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sync between your devices is paused"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización entre tus dispositivos está en pausa"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización entre sus dispositivos está en pausa."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "La synchronisation entre vos appareils est suspendue."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione tra i tuoi dispositivi è in pausa"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie tussen uw apparaten is gepauzeerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronizacja między Twoimi urządzeniami jest wstrzymana"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A sincronização entre seus dispositivos está pausada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронизация между вашими устройствами приостановлена"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cihazlarınız arasındaki eşitleme duraklatıldı"
           }
         }
       }
@@ -9600,16 +10524,70 @@
     },
     "Your session is expired or revoked, please log in to your Proton account again." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Sitzung ist abgelaufen oder wurde widerrufen. Bitte melde dich erneut bei deinem Proton-Konto an."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your session is expired or revoked, please log in to your Proton account again."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu sesión ha caducado o ha sido revocada. Vuelve a iniciar sesión en tu cuenta de Proton."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su sesión ha caducado o ha sido revocada. Vuelva a iniciar sesión en su cuenta de Proton."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votre session a expiré ou a été révoquée. Veuillez vous reconnecter à votre compte Proton."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua sessione è scaduta o revocata, accedi di nuovo al tuo account Proton."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uw sessie is verlopen of ingetrokken, log opnieuw in op uw Proton-account."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoja sesja wygasła lub została unieważniona. Zaloguj się ponownie na swoje konto Proton."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua sessão expirou ou foi revogada. Faça login na sua conta Proton novamente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Срок действия вашего сеанса истёк или он был отозван. Пожалуйста, войдите в свой аккаунт Proton ещё раз."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oturumunuzun süresi doldu veya iptal edildi, lütfen Proton hesabınıza yeniden giriş yapın."
           }
         }
       }
