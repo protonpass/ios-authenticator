@@ -191,7 +191,6 @@ private final class AuthenticatorAppViewModel {
                 #endif
             }
             .store(in: &cancellables)
-
     }
 
     func handleDeepLink(_ url: URL) {

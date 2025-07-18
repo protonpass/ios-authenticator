@@ -842,6 +842,9 @@
         }
       }
     },
+    "Automatic Backup" : {
+
+    },
     "Back up your data securely with encrypted iCloud sync." : {
       "localizations" : {
         "de" : {
@@ -981,6 +984,15 @@
           }
         }
       }
+    },
+    "Backup from %@" : {
+
+    },
+    "Backups" : {
+
+    },
+    "BACKUPS" : {
+
     },
     "Biometric lock" : {
       "localizations" : {
@@ -5048,6 +5060,9 @@
         }
       }
     },
+    "Last backup: %@" : {
+
+    },
     "Light" : {
       "localizations" : {
         "de" : {
@@ -6027,6 +6042,9 @@
           }
         }
       }
+    },
+    "Only the last 5 backups are kept." : {
+
     },
     "Open Settings" : {
       "localizations" : {

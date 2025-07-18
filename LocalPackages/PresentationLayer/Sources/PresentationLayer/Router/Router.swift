@@ -24,7 +24,6 @@ import Models
 import SwiftUI
 
 enum RouterDestination: Hashable {
-    case appearance
     case backup
 }
 
@@ -73,10 +72,8 @@ struct RouterEmbeded: ViewModifier {
         content
             .navigationDestination(for: RouterDestination.self) { destination in
                 switch destination {
-                case .appearance:
-                    Text(verbatim: "appeareance")
                 case .backup:
-                    Text(verbatim: "backup")
+                    BackUpView()
                 }
             }
     }

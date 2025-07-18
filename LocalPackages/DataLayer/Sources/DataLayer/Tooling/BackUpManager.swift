@@ -29,12 +29,14 @@ public protocol BackUpServicing: Actor {
     func getAllDocumentsData() throws -> [BackUpFileInfo]
 }
 
-public struct BackUpFileInfo: Sendable, Equatable {
+public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
+    public let id: String
     public let name: String
     public let creationDate: Date
     public let url: URL
 
-    init(name: String, creationDate: Date, url: URL) {
+    init(id: String = UUID().uuidString, name: String, creationDate: Date, url: URL) {
+        self.id = id
         self.name = name
         self.creationDate = creationDate
         self.url = url
