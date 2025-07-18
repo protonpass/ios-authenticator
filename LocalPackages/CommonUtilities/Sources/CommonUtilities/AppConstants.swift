@@ -40,6 +40,7 @@ public enum AppConstants {
     public static let keychainGroup = "\(teamId).\(accessGroup)"
     public static let appStoreUrl = "itms-apps://itunes.apple.com/app/id6741758667"
     public static let maxFileSizeInBytes = 10 * 1_024 * 1_024 // 10 MB
+    public static let icloudContainerIdentifier = "iCloud.me.proton.authenticator"
 
     public enum QA {
         public static let mockEntriesDisplay = "MockEntriesDisplay"

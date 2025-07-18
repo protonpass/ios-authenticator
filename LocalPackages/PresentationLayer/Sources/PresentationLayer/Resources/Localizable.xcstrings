@@ -4204,6 +4204,9 @@
         }
       }
     },
+    "iCloud sync" : {
+
+    },
     "Import" : {
       "localizations" : {
         "de" : {

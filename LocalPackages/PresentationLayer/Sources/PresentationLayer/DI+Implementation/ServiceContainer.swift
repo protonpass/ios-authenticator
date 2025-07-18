@@ -114,4 +114,8 @@ public extension ServiceContainer {
     var reviewService: Factory<any ReviewServicing> {
         self { ReviewService() }
     }
+
+    var backUpManager: Factory<any BackUpServicing> {
+        self { BackUpManager() }
+    }
 }

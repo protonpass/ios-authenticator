@@ -36,6 +36,18 @@
 			<array/>
 		</dict>
 	</array>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.me.proton.authenticator</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Proton_Authenticator</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>None</string>
+		</dict>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -79,21 +91,5 @@
 			</dict>
 		</dict>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
-	<key>ITSEncryptionExportComplianceCode</key>
-	<string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
-	<key>NSUbiquitousContainers</key>
-	<dict>
-		<key>iCloud.me.proton.authenticator.iCloudDocumentsContainer</key>
-		<dict>
-			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
-			<true/>
-			<key>NSUbiquitousContainerName</key>
-			<string>Proton_Authenticator</string>
-			<key>NSUbiquitousContainerSupportedFolderLevels</key>
-			<string>None</string>
-		</dict>
-	</dict>
 </dict>
 </plist>

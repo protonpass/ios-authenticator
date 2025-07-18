@@ -139,7 +139,7 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("Backup", .module),
+            SettingRow(title: .localized("iCloud sync", .module),
                        subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
                                             .module),
                        trailingMode: .toggle(isOn: viewModel.backUpEnabled,
@@ -149,6 +149,18 @@ private extension SettingsView {
                     + #localized("Proton Authenticator will periodically save all the data to iCloud.",
                                  bundle: .module),
                     activateStatus(viewModel.backUpEnabled))
+            SettingDivider()
+
+            SettingRow(title: .localized("Backup", .module),
+                       subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                            .module),
+                       trailingMode: .detailChevronRight) {
+                router.navigate(to: .backup)
+            }
+//                .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
+//                    + ","
+//                    + #localized("Proton Authenticator will periodically save all the data to iCloud.",
+//                                 bundle: .module))
             SettingDivider()
 
             #if os(iOS)

@@ -421,6 +421,9 @@
         }
       }
     },
+    "Today, %@" : {
+
+    },
     "unlock" : {
       "localizations" : {
         "de" : {
@@ -630,6 +633,9 @@
           }
         }
       }
+    },
+    "Yesterday, %@" : {
+
     }
   },
   "version" : "1.0"

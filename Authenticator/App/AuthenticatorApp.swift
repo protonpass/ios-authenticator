@@ -192,20 +192,6 @@ private final class AuthenticatorAppViewModel {
             }
             .store(in: &cancellables)
 
-        if let url = FileManager.default.url(forUbiquityContainerIdentifier: nil) {
-            print("iCloud container URL: \(url)")
-            let dirURL = url.appendingPathComponent("Documents")
-            let fileURL = dirURL.appendingPathComponent("hello.txt")
-            do {
-                try FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true,
-                                                        attributes: nil)
-                try "hello world".write(to: fileURL, atomically: true, encoding: .utf8)
-            } catch {
-                print(error)
-            }
-        } else {
-            print("iCloud container not available.")
-        }
     }
 
     func handleDeepLink(_ url: URL) {
