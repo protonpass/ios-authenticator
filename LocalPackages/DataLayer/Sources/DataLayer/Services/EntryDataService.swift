@@ -24,6 +24,8 @@ import CommonUtilities
 import CoreData
 import Foundation
 import Models
+import ProtonCoreNetworking
+import ProtonCoreServices
 
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
@@ -88,8 +90,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
-    @ObservationIgnored
-    private let reachabilityManager: any ReachabilityServicing
 
     @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
@@ -104,14 +104,12 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
                 logger: any LoggerProtocol,
-                reachabilityManager: any ReachabilityServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
-        self.reachabilityManager = reachabilityManager
         self.syncOperation = syncOperation
         setUp()
     }
@@ -230,11 +228,6 @@ public extension EntryDataService {
 
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
-        guard reachabilityManager.hasInternetAccess.value else {
-            log(.debug, "Not active network connection loading local entries")
-            try await loadEntries()
-            return
-        }
         do {
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
@@ -250,6 +243,12 @@ public extension EntryDataService {
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
+            if let coreError = error as? ResponseError,
+               coreError.bestShotAtReasonableErrorCode == APIErrorCode.potentiallyBlocked {
+                log(.info, "No internet connection or Proton is blocked. Loading local entries.")
+                try await loadEntries()
+                return
+            }
 
             if let data = dataState.data, !data.isEmpty {
                 return
