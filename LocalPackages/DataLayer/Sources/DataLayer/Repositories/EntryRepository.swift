@@ -85,7 +85,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func completeSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]?
     func completeRemoves(entries: [OrderedEntry]) async throws
-    func completeUpdate(entry: OrderedEntry) async throws
+    func completeUpdate(entry: OrderedEntry, oldEntry: OrderedEntry) async throws
     func completeReorder(entries: [OrderedEntry]) async throws
 }
 
@@ -220,13 +220,16 @@ public extension EntryRepository {
         try await localRemoves(entries.map(\.id))
     }
 
-    func completeUpdate(entry: OrderedEntry) async throws {
+    func completeUpdate(entry: OrderedEntry, oldEntry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
             do {
                 _ = try await remoteUpdate(entry: orderedEntity)
             } catch {
-                log(.error, "Failed to remote update: \(error.localizedDescription)")
+                log(.error, "Failed to remote update \(entry.id) \(error.localizedDescription)")
+                log(.warning, "Revert local update \(entry.id)")
+                _ = try await localUpdate(oldEntry)
+                throw error
             }
         }
     }
