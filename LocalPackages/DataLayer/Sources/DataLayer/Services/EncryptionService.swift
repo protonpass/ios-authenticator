@@ -117,18 +117,24 @@ public extension EncryptionService {
             return .nonDecryptable
         }
 
-        let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData, key: encryptionKey)
-        let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
-                                        keyId: entry.keyId,
-                                        remoteId: entry.remoteId.nilIfEmpty,
-                                        order: entry.order,
-                                        syncState: entry.syncState,
-                                        creationDate: entry.creationDate,
-                                        modifiedTime: entry.modifiedTime,
-                                        flags: entry.flags,
-                                        revision: entry.revision,
-                                        contentFormatVersion: entry.contentFormatVersion)
-        return .decrypted(orderedEntry)
+        do {
+            let rustEntry = try authenticatorCrypto.decryptEntry(ciphertext: entry.encryptedData,
+                                                                 key: encryptionKey)
+            let orderedEntry = OrderedEntry(entry: rustEntry.toEntry,
+                                            keyId: entry.keyId,
+                                            remoteId: entry.remoteId.nilIfEmpty,
+                                            order: entry.order,
+                                            syncState: entry.syncState,
+                                            creationDate: entry.creationDate,
+                                            modifiedTime: entry.modifiedTime,
+                                            flags: entry.flags,
+                                            revision: entry.revision,
+                                            contentFormatVersion: entry.contentFormatVersion)
+            return .decrypted(orderedEntry)
+        } catch {
+            log(.error, "Failed to decrypt entry \(entry.id)")
+            return .nonDecryptable
+        }
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
