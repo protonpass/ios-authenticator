@@ -104,7 +104,8 @@ public extension AlertServiceProtocol {
     func showError(_ error: any Error,
                    mainDisplay: Bool = true,
                    action: (@MainActor () -> Void)? = nil) {
-        let errorMessage = if let authError = error as? CustomDebugStringConvertible {
+        let errorMessage = if let authError = error as? CustomDebugStringConvertible,
+                              error.localizedDescription != authError.debugDescription {
             "\(error.localizedDescription). \(authError.debugDescription)."
         } else {
             error.localizedDescription

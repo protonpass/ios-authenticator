@@ -162,13 +162,10 @@ public extension EntryDataService {
         guard let index = data.firstIndex(where: { $0.id == entry.id }) else {
             return
         }
-        data[index] = data[index].copy(newEntry: entry)
-        if reachabilityManager.hasInternetAccess.value == false {
-            let updatedEntry = data[index].orderedEntry.updateSyncState(.unsynced)
-            data[index].orderedEntry = updatedEntry
-        }
+        let oldEntry = data[index]
+        data[index] = oldEntry.copy(newEntry: entry)
 
-        try await repository.completeUpdate(entry: data[index].orderedEntry)
+        try await repository.completeUpdate(entry: data[index].orderedEntry, oldEntry: oldEntry.orderedEntry)
 
         updateData(data)
     }
