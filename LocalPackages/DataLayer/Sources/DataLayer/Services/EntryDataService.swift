@@ -92,6 +92,9 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let reachabilityManager: any ReachabilityServicing
 
     @ObservationIgnored
+    private var backUpManager: any BackUpServicing
+
+    @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
 
     @ObservationIgnored
@@ -105,6 +108,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
                 logger: any LoggerProtocol,
                 reachabilityManager: any ReachabilityServicing,
+                backUpManager: any BackUpServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
@@ -112,6 +116,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
         self.reachabilityManager = reachabilityManager
+        self.backUpManager = backUpManager
         self.syncOperation = syncOperation
         setUp()
     }
@@ -602,6 +607,28 @@ private extension EntryDataService {
         }
 
         return mergedOrderedItems
+    }
+
+    func backUpEntries() {
+        guard let exportData = try? exportEntries().data(using: .utf8) else {
+            return
+        }
+
+        Task {
+            do {
+                try await backUpManager.write(fileName: exportFileName(), data: exportData)
+            } catch {
+                log(.error, "Failed to backup entries: \(error)")
+            }
+        }
+    }
+
+    func exportFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let currentDate = dateFormatter.string(from: .now)
+
+        return "Proton_Authenticator_backup_\(currentDate).json"
     }
 }
 
