@@ -25,6 +25,7 @@ import Foundation
 import Models
 
 final class MockedSettingsService: SettingsServicing {
+    
     init() {}
 
     var isFirstRun = false
@@ -37,6 +38,9 @@ final class MockedSettingsService: SettingsServicing {
     var hapticFeedbackEnabled = false
     var focusSearchOnLaunch = false
     var iCloudBackUp = false
+    var iCloudSync = false
+    var fullBackUp: Bool = false
+
 
     func setFirstRun(_ value: Bool) {
         isFirstRun = value
@@ -87,8 +91,16 @@ final class MockedSettingsService: SettingsServicing {
     func toggleICloudBackUp(_ value: Bool) {
         iCloudBackUp = value
     }
+    
+    func toggleICloudSync(_ value: Bool) {
+        iCloudSync = value
+    }
 
     func setInstallationTimestamp(_ value: TimeInterval) {
         installationTimestamp = value
+    }
+    
+    func setFullBackup(_ value: Bool) {
+        fullBackUp = value
     }
 }

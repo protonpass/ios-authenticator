@@ -61,7 +61,9 @@ public enum AppConstants {
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
         public static let iCloudBackUp = "ICloudBackUp"
+        public static let iCloudSync = "iCloudSync"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
+        public static let fullBackUp = "FullBackUp"
     }
 
     public enum NetworkSettings {

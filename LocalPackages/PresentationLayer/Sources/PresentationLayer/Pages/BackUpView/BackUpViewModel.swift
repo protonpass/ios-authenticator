@@ -45,6 +45,13 @@ final class BackUpViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private(set) var logger
+
     init() {
         setUp()
     }
@@ -53,6 +60,7 @@ final class BackUpViewModel {
         do {
             backups = try await backUpManager.getAllDocumentsData()
         } catch {
+            log(.error, "Failed to load backup files, error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }
@@ -68,12 +76,14 @@ final class BackUpViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {
+                log(.error, "Failed to load backup: \(backup), error: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
             }
         }
     }
 
     func toggleBackICloudUp() {
+        settingsService.toggleICloudBackUp(!backupActivated)
         backupActivated.toggle()
     }
 
@@ -90,8 +100,28 @@ final class BackUpViewModel {
         let alert: AlertDisplay = .sheet(config)
         alertService.showAlert(alert)
     }
+
+    func backup() {
+        Task {
+            do {
+                guard let exportData = try entryDataService.exportEntries().data(using: .utf8) else {
+                    return
+                }
+                try await backUpManager.write(data: exportData)
+                await loadData()
+            } catch {
+                log(.error, "Failed to backup: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
+    }
 }
 
 private extension BackUpViewModel {
-    func setUp() {}
+    func setUp() {
+        backupActivated = settingsService.iCloudBackUp
+    }
 }

@@ -42,6 +42,12 @@ final class QAMenuViewModel {
         }
     }
 
+    var fullBackupActivated: Bool {
+        didSet {
+            appSettings.setFullBackup(fullBackupActivated)
+        }
+    }
+
     @ObservationIgnored
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
@@ -57,6 +63,7 @@ final class QAMenuViewModel {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
+        fullBackupActivated = appSettings.fullBackUp
     }
 
     func updateInstallationTimestamp(_ date: Date) {

@@ -34,7 +34,9 @@ public protocol SettingsServicing: Sendable, Observable {
     var showPassBanner: Bool { get }
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
+    var iCloudSync: Bool { get }
     var iCloudBackUp: Bool { get }
+    var fullBackUp: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -47,10 +49,12 @@ public protocol SettingsServicing: Sendable, Observable {
     // periphery:ignore
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
+    func toggleICloudSync(_ value: Bool)
     func toggleICloudBackUp(_ value: Bool)
 
     /// For QA purpose
     func setInstallationTimestamp(_ value: TimeInterval)
+    func setFullBackup(_ value: Bool)
 }
 
 @Observable
@@ -67,7 +71,9 @@ public final class SettingsService: SettingsServicing {
     public private(set) var showPassBanner: Bool
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
+    public private(set) var iCloudSync: Bool
     public private(set) var iCloudBackUp: Bool
+    public private(set) var fullBackUp: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -75,11 +81,15 @@ public final class SettingsService: SettingsServicing {
             AppConstants.Settings.isFirstRun: true,
             AppConstants.Settings.installationTimestamp: Date.now.timeIntervalSince1970,
             AppConstants.Settings.hapticFeedbackEnabled: true,
-            AppConstants.Settings.iCloudBackUp: false
+            AppConstants.Settings.iCloudSync: false,
+            AppConstants.Settings.iCloudBackUp: false,
+            AppConstants.Settings.fullBackUp: false
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
         installationTimestamp = store.double(forKey: AppConstants.Settings.installationTimestamp)
+        fullBackUp = store.bool(forKey: AppConstants.Settings.fullBackUp)
+
         theme = store.value(for: AppConstants.Settings.theme)
         searchBarDisplayMode = store.value(for: AppConstants.Settings.searchBarMode)
         let digitStyle: DigitStyle = store.value(for: AppConstants.Settings.digitStyle)
@@ -92,6 +102,7 @@ public final class SettingsService: SettingsServicing {
         showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
         hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
+        iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
         iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
     }
 }
@@ -161,6 +172,12 @@ public extension SettingsService {
                key: AppConstants.Settings.focusSearchOnLaunchEnabled)
     }
 
+    func toggleICloudSync(_ value: Bool) {
+        update(currentValue: &iCloudSync,
+               newValue: value,
+               key: AppConstants.Settings.iCloudBackUp)
+    }
+
     func toggleICloudBackUp(_ value: Bool) {
         update(currentValue: &iCloudBackUp,
                newValue: value,
@@ -170,6 +187,11 @@ public extension SettingsService {
     func setInstallationTimestamp(_ value: TimeInterval) {
         installationTimestamp = value
         store.set(value, forKey: AppConstants.Settings.installationTimestamp)
+    }
+
+    func setFullBackup(_ value: Bool) {
+        fullBackUp = value
+        store.set(value, forKey: AppConstants.Settings.fullBackUp)
     }
 }
 

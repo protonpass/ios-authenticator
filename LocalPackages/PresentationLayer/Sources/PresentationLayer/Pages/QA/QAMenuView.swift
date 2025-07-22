@@ -30,6 +30,7 @@ struct QAMenuView: View {
         NavigationStack {
             List {
                 onboardingSection
+                fullBackup
                 passBannerSection
                 actionsSection
                 installationDateSection
@@ -72,6 +73,14 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })
         }, header: {
             Text(verbatim: "Onboarding")
+        })
+    }
+
+    var fullBackup: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "New backup section") })
+        }, header: {
+            Text(verbatim: "Bach up options")
         })
     }
 

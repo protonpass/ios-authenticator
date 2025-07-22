@@ -75,10 +75,44 @@ struct BackUpView: View {
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
+            .toolbar { toolbarContent }
             .navigationTitle(Text("Backups", bundle: .module))
             .fullScreenMainBackground()
     }
 
+    private func activateStatus(_ active: Bool) -> String {
+        active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
+    }
+
+    private var isDarkMode: Bool {
+        colorScheme == .dark
+    }
+
+    private var settingsBorder: Color {
+        (isDarkMode ? Color.white : .black).opacity(0.12)
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        #if os(iOS)
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                viewModel.backup()
+            } label: {
+                Text("Backup now", bundle: .module)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.accent)
+                    .padding(10)
+            }
+            .adaptiveButtonStyle()
+        }
+        #endif
+    }
+}
+
+// MARK: - Utils
+
+private extension BackUpView {
     func section(_ title: LocalizedStringKey? = nil, @ViewBuilder content: () -> some View) -> some View {
         VStack(spacing: DesignConstant.padding) {
             if let title {
@@ -115,18 +149,6 @@ struct BackUpView: View {
         }
         .padding(DesignConstant.padding)
         .contentShape(.rect)
-    }
-
-    private func activateStatus(_ active: Bool) -> String {
-        active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
-    }
-
-    private var isDarkMode: Bool {
-        colorScheme == .dark
-    }
-
-    private var settingsBorder: Color {
-        (isDarkMode ? Color.white : .black).opacity(0.12)
     }
 }
 

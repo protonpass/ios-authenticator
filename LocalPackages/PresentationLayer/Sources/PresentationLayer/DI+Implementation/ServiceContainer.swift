@@ -54,7 +54,8 @@ public extension ServiceContainer {
                                               totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper(),
                                               logger: self.logger,
                                               reachabilityManager: ToolsContainer.shared.reachabilityManager(),
-                                              backUpManager: self.backUpManager()) }
+                                              backUpManager: self.backUpManager(),
+                                              settings: self.settingsService()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {

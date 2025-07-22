@@ -24,7 +24,7 @@ import Macro
 import Models
 
 public protocol BackUpServicing: Actor {
-    func write(fileName: String, data: Data) throws
+    func write(data: Data) throws
     func read(fileName: String) throws -> Data
     func getAllDocumentsData() throws -> [BackUpFileInfo]
 }
@@ -50,10 +50,13 @@ public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
 public actor BackUpManager: BackUpServicing {
     private let coordinator: NSFileCoordinator
     private let maxBackupCount: Int
+    private let dateFormatter: DateFormatter
 
     public init(maxBackupCount: Int = 5) {
         coordinator = NSFileCoordinator()
         self.maxBackupCount = maxBackupCount
+        dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
     }
 
     private var containerURL: URL? {
@@ -65,32 +68,23 @@ public actor BackUpManager: BackUpServicing {
         return documentsFolderURL
     }
 
-    public func write(fileName: String, data: Data) throws {
+    public func write(data: Data) throws {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try enforceFileRotationPolicy()
+        let todayFileName = getTodaysBackupFileName()
+        let targetURL = documentURL.appendingPathComponent(todayFileName)
 
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        var coordinationError: NSError?
-        var writeError: Error?
-
-        coordinator
-            .coordinate(writingItemAt: targetURL, options: [.forReplacing], error: &coordinationError) { url in
-                do {
-                    try data.write(to: url, options: .atomic)
-                } catch {
-                    writeError = error
-                }
+        if FileManager.default.fileExists(atPath: targetURL.path) {
+            try coordinatedWrite(at: targetURL) { url in
+                try data.write(to: url, options: .atomic)
             }
-
-        if let error = writeError {
-            throw error
-        }
-
-        if let coordinationError {
-            throw coordinationError
+        } else {
+            try enforceFileRotationPolicy()
+            try coordinatedWrite(at: targetURL) { url in
+                try data.write(to: url, options: .atomic)
+            }
         }
     }
 
@@ -137,7 +131,7 @@ public actor BackUpManager: BackUpServicing {
     }
 
     public func getAllDocumentsData() throws -> [BackUpFileInfo] {
-        try getAllFilesWithMetadata()
+        try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
     }
 
     public func getAllDocumentsFileNames() throws -> [String]? {
@@ -146,23 +140,30 @@ public actor BackUpManager: BackUpServicing {
         }
 
         let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: [.isDirectoryKey],
+                                                                   includingPropertiesForKeys: [
+                                                                       .isDirectoryKey,
+                                                                       .contentModificationDateKey
+                                                                   ],
                                                                    options: .skipsHiddenFiles)
-
-        return fileURLs.compactMap { url in
-            guard let resourceValues = try? url.resourceValues(forKeys: [.isDirectoryKey]),
-                  let isDirectory = resourceValues.isDirectory,
-                  !isDirectory else {
-                return nil
-            }
-            return url.lastPathComponent
+        return fileURLs.compactMap { url -> (String, Date)? in
+            guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey]),
+                  values.isDirectory == false,
+                  let date = values.contentModificationDate else { return nil }
+            return (url.lastPathComponent, date)
         }
+        .sorted { $0.1 > $1.1 }
+        .map(\.0)
     }
 }
 
 private extension BackUpManager {
+    func getTodaysBackupFileName() -> String {
+        let todayString = dateFormatter.string(from: Date())
+        return "Proton_Authenticator_backup_\(todayString).json"
+    }
+
     func enforceFileRotationPolicy() throws {
-        let files = try getAllFilesWithMetadata()
+        let files = try getAllFilesWithMetadata().sorted { $0.creationDate < $1.creationDate }
 
         guard files.count >= maxBackupCount else {
             return
@@ -196,7 +197,6 @@ private extension BackUpManager {
             }
             return BackUpFileInfo(name: url.lastPathComponent, creationDate: creationDate, url: url)
         }
-        .sorted { $0.creationDate < $1.creationDate }
 
         return sortedResults
     }
@@ -209,6 +209,30 @@ private extension BackUpManager {
             .coordinate(writingItemAt: url, options: [.forDeleting], error: &coordinationError) { coordinatedURL in
                 do {
                     try FileManager.default.removeItem(at: coordinatedURL)
+                } catch {
+                    operationError = error
+                }
+            }
+
+        if let error = operationError {
+            throw error
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+    }
+
+    func coordinatedWrite(at url: URL, block: (URL) throws -> Void) throws {
+        var coordinationError: NSError?
+        var operationError: Error?
+
+        coordinator
+            .coordinate(writingItemAt: url,
+                        options: [.forReplacing],
+                        error: &coordinationError) { coordinatedURL in
+                do {
+                    try block(coordinatedURL)
                 } catch {
                     operationError = error
                 }

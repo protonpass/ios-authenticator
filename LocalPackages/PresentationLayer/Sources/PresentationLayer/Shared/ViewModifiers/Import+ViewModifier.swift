@@ -111,6 +111,7 @@ struct ImportingServiceModifier: ViewModifier {
                           allowedContentTypes: viewModel.showImporter?.authorizedFileExtensions ?? [],
                           allowsMultipleSelection: viewModel.showImporter == .googleAuthenticator,
                           onCompletion: viewModel.processImportedFile)
+            .showSpinner(viewModel.importing)
     }
 
     func handle(_ selectedOption: ImportOption) {
@@ -260,6 +261,7 @@ private final class ImportViewModel {
     var showPasswordSheet = false
     var scanning = true
     var showWrongPasswordAlert = false
+    private(set) var importing = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -342,6 +344,7 @@ private final class ImportViewModel {
             }
             Task { [weak self] in
                 guard let self else { return }
+                defer { importing = false }
                 var sources = [TwofaImportSource]()
                 for url in urls {
                     if url.startAccessingSecurityScopedResource() {
@@ -371,6 +374,7 @@ private final class ImportViewModel {
                 }
 
                 do {
+                    importing = true
                     let numberOfImportedEntries = try await entryDataService.importEntries(from: sources)
                     showCompletion(numberOfImportedEntries)
                 } catch ImportException.MissingPassword {

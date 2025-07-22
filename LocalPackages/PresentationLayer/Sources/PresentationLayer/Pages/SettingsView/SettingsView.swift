@@ -139,29 +139,29 @@ public struct SettingsView: View {
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            SettingRow(title: .localized("iCloud sync", .module),
-                       subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                            .module),
-                       trailingMode: .toggle(isOn: viewModel.backUpEnabled,
-                                             onToggle: viewModel.toggleBackICloudUp))
-                .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
-                    + ","
-                    + #localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                 bundle: .module),
-                    activateStatus(viewModel.backUpEnabled))
-            SettingDivider()
+            if viewModel.fullBackupEnabled {
+                SettingRow(title: .localized("Backup", .module),
+                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                .module),
+                           trailingMode: .detailChevronRight) {
+                    router.navigate(to: .backup)
+                }
 
-            SettingRow(title: .localized("Backup", .module),
-                       subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                            .module),
-                       trailingMode: .detailChevronRight) {
-                router.navigate(to: .backup)
+                SettingDivider()
+
+            } else {
+                SettingRow(title: .localized("iCloud sync", .module),
+                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                .module),
+                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                 onToggle: viewModel.toggleICloudSyncBackup))
+                    .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
+                        + ","
+                        + #localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                     bundle: .module),
+                        activateStatus(viewModel.iCloudSync))
+                SettingDivider()
             }
-//                .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
-//                    + ","
-//                    + #localized("Proton Authenticator will periodically save all the data to iCloud.",
-//                                 bundle: .module))
-            SettingDivider()
 
             #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
