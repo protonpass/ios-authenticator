@@ -63,20 +63,18 @@ private struct HighlightedText: View {
     }
 }
 
-struct EntryCell: View {
+struct EntryCell: View, @preconcurrency Equatable {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
+
     let entry: EntryUiModel
-    let currentCode: String
-    let nextCode: String
     let configuration: EntryCellConfiguration
     let searchTerm: String
     let isHovered: Bool
     let reducedShadow: Bool
     let onAction: (EntryAction) -> Void
     let pauseCountDown: Bool
-    let copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
 
     init(entry: EntryUiModel,
@@ -86,18 +84,14 @@ struct EntryCell: View {
          reducedShadow: Bool,
          onAction: @escaping (EntryAction) -> Void,
          pauseCountDown: Bool,
-         copyBadgeRemainingSeconds: Int,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
         self.configuration = configuration
-        currentCode = entry.code.displayedCode(for: .current, config: configuration)
-        nextCode = entry.code.displayedCode(for: .next, config: configuration)
         self.searchTerm = searchTerm
         self.isHovered = isHovered
         self.reducedShadow = reducedShadow
         self.onAction = onAction
         self.pauseCountDown = pauseCountDown
-        self.copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
         _animatingEntry = animatingEntry
     }
 
@@ -111,23 +105,11 @@ struct EntryCell: View {
         }
         .onChange(of: animatingEntry) { _, newValue in
             // Another entry is selected, we dismiss the badge of this entry
-            if newValue != entry.orderedEntry.entry {
-                withAnimation(Animation.interpolatingSpring(mass: 0.03,
-                                                            stiffness: 5.5,
-                                                            damping: 0.9,
-                                                            initialVelocity: 4.8)) {
-                    showCopyBadge = false
-                }
-            }
-        }
-        .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
-            if animatingEntry == entry.orderedEntry.entry {
-                withAnimation(Animation.interpolatingSpring(mass: 0.03,
-                                                            stiffness: 5.5,
-                                                            damping: 0.9,
-                                                            initialVelocity: 4.8)) {
-                    showCopyBadge = newValue > 0
-                }
+            withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                        stiffness: 5.5,
+                                                        damping: 0.9,
+                                                        initialVelocity: 4.8)) {
+                showCopyBadge = newValue != entry.orderedEntry.entry ? false : true
             }
         }
         .onDisappear {
@@ -135,7 +117,20 @@ struct EntryCell: View {
             if animatingEntry == entry.orderedEntry.entry {
                 animatingEntry = nil
             }
+            print("Cell named: \(entry.orderedEntry.entry.name) Disappeared")
         }
+        .onAppear {
+            print("Cell named: \(entry.orderedEntry.entry.name) appeared")
+        }
+    }
+
+    static func == (lhs: EntryCell, rhs: EntryCell) -> Bool {
+        lhs.entry == rhs.entry &&
+            lhs.searchTerm == rhs.searchTerm &&
+            lhs.configuration == rhs.configuration &&
+            lhs.isHovered == rhs.isHovered &&
+            lhs.animatingEntry == rhs.animatingEntry &&
+            lhs.pauseCountDown == rhs.pauseCountDown
     }
 }
 
@@ -145,6 +140,7 @@ private extension EntryCell {
             HStack(spacing: 10) {
                 EntryThumbnail(iconUrl: entry.issuerInfo?.iconUrl,
                                letter: entry.orderedEntry.entry.capitalLetter)
+                    .equatable()
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.orderedEntry.entry.issuer,
@@ -184,31 +180,11 @@ private extension EntryCell {
                 .frame(height: 2)
                 .frame(maxWidth: .infinity)
 
-            HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
-                CurrentTokenView(code: currentCode,
-                                 configuration: configuration,
-                                 showCopyBadge: showCopyBadge)
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text("Next", bundle: .module)
-                        .dynamicFont(size: 14, textStyle: .footnote)
-                        .foregroundStyle(.textWeak)
-                        .textShadow()
-                    Text(verbatim: nextCode)
-                        .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
-                        .monospaced()
-                        .foregroundStyle(.textNorm)
-                        .textShadow()
-                        .privacySensitive()
-                }
-                .animation(.default, value: showCopyBadge)
-                .opacity(showCopyBadge ? 0 : 1)
-            }
-            .padding(.top, 8)
-            .padding(.bottom, 12)
-            .padding(.horizontal, 16)
+            CodeView(configuration: configuration, code: entry.code, showCopyBadge: $showCopyBadge)
+                .equatable()
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .padding(.horizontal, 16)
         }
         .background(LinearGradient(stops:
             [
@@ -267,7 +243,16 @@ private struct TOTPCountdownView: View {
     private let period: Int // TOTP period in seconds (typically 30 or 60)
     private let size: CGFloat // Diameter of the circle
     private let lineWidth: CGFloat // Thickness of the progress bar
-    private let pauseCountDown: Bool
+    private var pauseCountDown: Bool
+
+    @State private var paused = false
+
+    var stopAnimate: Bool {
+        if paused || (!paused && pauseCountDown) {
+            return true
+        }
+        return false
+    }
 
     init(period: Int,
          size: CGFloat = 32,
@@ -280,7 +265,7 @@ private struct TOTPCountdownView: View {
     }
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1, paused: pauseCountDown)) { context in
+        TimelineView(.animation(minimumInterval: 0.3, paused: stopAnimate)) { context in
             let period = Double(period)
             let currentTimestamp = context.date.timeIntervalSince1970
             let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
@@ -299,7 +284,6 @@ private struct TOTPCountdownView: View {
                 // Background circle
                 Circle()
                     .stroke(lineWidth: 4)
-                    .animation(.default, value: progress)
                     .foregroundStyle(color.opacity(0.3))
                     .padding(2)
 
@@ -310,10 +294,6 @@ private struct TOTPCountdownView: View {
                     .foregroundStyle(color)
                     .padding(2)
                     .rotationEffect(.degrees(-90))
-                    .animation(.default, value: progress)
-                    .transaction { transaction in
-                        transaction.disablesAnimations = timeRemaining == period - 1
-                    }
 
                 // Countdown text
                 Text(verbatim: "\(Int(timeRemaining))")
@@ -321,6 +301,12 @@ private struct TOTPCountdownView: View {
                     .foregroundStyle(.textNorm)
             }
             .frame(width: size, height: size)
+        }
+        .onAppear {
+            paused = false
+        }
+        .onDisappear {
+            paused = true
         }
     }
 }
@@ -346,5 +332,41 @@ struct EntryOptions: View {
         Button(role: .destructive,
                action: { onAction(.delete(entry)) },
                label: { Label("Delete", systemImage: "trash.fill") })
+    }
+}
+
+struct CodeView: View, @preconcurrency Equatable {
+    let configuration: EntryCellConfiguration
+    let code: Code
+    @Binding var showCopyBadge: Bool
+
+    var body: some View {
+        HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
+            CurrentTokenView(code: code.displayedCode(for: .current, config: configuration),
+                             configuration: configuration,
+                             showCopyBadge: showCopyBadge)
+                .equatable()
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 0) {
+                Text("Next", bundle: .module)
+                    .dynamicFont(size: 14, textStyle: .footnote)
+                    .foregroundStyle(.textWeak)
+                    .textShadow()
+                Text(verbatim: code.displayedCode(for: .next, config: configuration))
+                    .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
+                    .monospaced()
+                    .foregroundStyle(.textNorm)
+                    .textShadow()
+                    .privacySensitive()
+            }
+            .animation(.default, value: showCopyBadge)
+            .opacity(showCopyBadge ? 0 : 1)
+        }
+    }
+
+    static func == (lhs: CodeView, rhs: CodeView) -> Bool {
+        lhs.code == rhs.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration
     }
 }

@@ -293,20 +293,11 @@ extension SettingsViewModel {
     }
 
     func exportData() {
-        do {
-            let fileName = exportFileName()
-            let content = try entryDataService.exportEntries()
-
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-            try content.write(to: tempURL, atomically: true, encoding: .utf8)
-            shareURL = tempURL
-        } catch {
-            if let authError = error as? AuthError,
-               case let .generic(reason) = authError,
-               reason.isExportEmptyData {
+        Task { [weak self] in
+            guard let self else {
                 return
             }
-            alertService.showError(error, mainDisplay: false, action: nil)
+            shareURL = await saveToFile()
         }
     }
 }
@@ -329,5 +320,24 @@ private extension SettingsViewModel {
         let currentDate = dateFormatter.string(from: .now)
 
         return "Proton_Authenticator_backup_\(currentDate).json"
+    }
+
+    nonisolated func saveToFile() async -> URL? {
+        do {
+            let fileName = await exportFileName()
+            let content = try await entryDataService.exportEntries()
+
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            try content.write(to: tempURL, atomically: true, encoding: .utf8)
+            return tempURL
+        } catch {
+            if let authError = error as? AuthError,
+               case let .generic(reason) = authError,
+               reason.isExportEmptyData {
+                return nil
+            }
+            await alertService.showError(error, mainDisplay: false, action: nil)
+            return nil
+        }
     }
 }

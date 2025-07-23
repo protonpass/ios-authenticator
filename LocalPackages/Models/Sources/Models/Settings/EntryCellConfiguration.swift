@@ -20,7 +20,7 @@
 
 import Foundation
 
-public struct EntryCellConfiguration {
+public struct EntryCellConfiguration: Equatable, Hashable {
     public let hideEntryCode: Bool
     public let digitStyle: DigitStyle
     public let animateCodeChange: Bool

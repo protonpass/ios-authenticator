@@ -21,7 +21,7 @@
 import Models
 import SwiftUI
 
-struct CurrentTokenView: View {
+struct CurrentTokenView: View, @preconcurrency Equatable {
     let code: String
     let configuration: EntryCellConfiguration
     let showCopyBadge: Bool
@@ -33,6 +33,10 @@ struct CurrentTokenView: View {
             .if(configuration.animateCodeChange) { view in
                 view.contentTransition(.numericText())
             }
+    }
+
+    static func == (lhs: CurrentTokenView, rhs: CurrentTokenView) -> Bool {
+        lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration && lhs.code == rhs.code
     }
 }
 
