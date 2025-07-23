@@ -639,14 +639,6 @@ private extension EntryDataService {
             }
         }
     }
-
-    func exportFileName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let currentDate = dateFormatter.string(from: .now)
-
-        return "Proton_Authenticator_backup_\(currentDate).json"
-    }
 }
 
 extension [EntryState] {

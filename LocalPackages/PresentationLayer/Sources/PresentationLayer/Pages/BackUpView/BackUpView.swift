@@ -80,10 +80,6 @@ struct BackUpView: View {
             .fullScreenMainBackground()
     }
 
-    private func activateStatus(_ active: Bool) -> String {
-        active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
-    }
-
     private var isDarkMode: Bool {
         colorScheme == .dark
     }
