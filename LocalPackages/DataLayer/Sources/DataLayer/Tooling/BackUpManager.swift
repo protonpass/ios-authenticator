@@ -263,9 +263,9 @@ private extension Date {
 
             // Some languages might format this differently, so we need to handle it
             if calendar.isDateInToday(self), !dateString.localizedCaseInsensitiveContains("today") {
-                return #localized("Today, %@", formatter.string(from: self), bundle: .module)
+                return #localized("Today, %@", bundle: .module, formatter.string(from: self))
             } else if calendar.isDateInYesterday(self), !dateString.localizedCaseInsensitiveContains("yesterday") {
-                return #localized("Yesterday, %@", formatter.string(from: self), bundle: .module)
+                return #localized("Yesterday, %@", bundle: .module, formatter.string(from: self))
             }
             return dateString
         } else {
