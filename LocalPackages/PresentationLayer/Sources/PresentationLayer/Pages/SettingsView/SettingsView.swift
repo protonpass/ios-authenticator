@@ -140,16 +140,14 @@ private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
             if viewModel.fullBackupEnabled {
-                SettingRow(title: .localized("Backup", .module),
-                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                                .module),
+                SettingRow(title: .localized("Backups", .module),
                            trailingMode: .detailChevronRight) {
                     router.navigate(to: .backup)
                 }
 
                 SettingDivider()
             } else {
-                SettingRow(title: .localized("iCloud sync", .module),
+                SettingRow(title: .localized("Backup", .module),
                            subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
                                                 .module),
                            trailingMode: .toggle(isOn: viewModel.iCloudSync,

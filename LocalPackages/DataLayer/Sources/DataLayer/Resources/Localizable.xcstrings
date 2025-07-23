@@ -422,7 +422,14 @@
       }
     },
     "Today, %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today, %@"
+          }
+        }
+      }
     },
     "unlock" : {
       "localizations" : {
@@ -635,7 +642,14 @@
       }
     },
     "Yesterday, %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday, %@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

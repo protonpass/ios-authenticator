@@ -843,7 +843,14 @@
       }
     },
     "Automatic Backup" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic Backup"
+          }
+        }
+      }
     },
     "Back up your data securely with encrypted iCloud sync." : {
       "localizations" : {
@@ -986,16 +993,44 @@
       }
     },
     "Backup from %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup from %@"
+          }
+        }
+      }
     },
     "Backup now" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup now"
+          }
+        }
+      }
     },
     "Backups" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backups"
+          }
+        }
+      }
     },
     "BACKUPS" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACKUPS"
+          }
+        }
+      }
     },
     "Biometric lock" : {
       "localizations" : {
@@ -4219,9 +4254,6 @@
         }
       }
     },
-    "iCloud sync" : {
-
-    },
     "Import" : {
       "localizations" : {
         "de" : {
@@ -5064,7 +5096,14 @@
       }
     },
     "Last backup: %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last backup: %@"
+          }
+        }
+      }
     },
     "Light" : {
       "localizations" : {
@@ -6047,7 +6086,14 @@
       }
     },
     "Only the last 5 backups are kept." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only the last 5 backups are kept."
+          }
+        }
+      }
     },
     "Open Settings" : {
       "localizations" : {
