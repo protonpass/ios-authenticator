@@ -148,7 +148,6 @@ private extension SettingsView {
                 }
 
                 SettingDivider()
-
             } else {
                 SettingRow(title: .localized("iCloud sync", .module),
                            subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
