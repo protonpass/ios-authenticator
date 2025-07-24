@@ -175,7 +175,7 @@ public extension SettingsService {
     func toggleICloudSync(_ value: Bool) {
         update(currentValue: &iCloudSync,
                newValue: value,
-               key: AppConstants.Settings.iCloudBackUp)
+               key: AppConstants.Settings.iCloudSync)
     }
 
     func toggleICloudBackUp(_ value: Bool) {
@@ -190,8 +190,9 @@ public extension SettingsService {
     }
 
     func setFullBackup(_ value: Bool) {
-        fullBackUp = value
-        store.set(value, forKey: AppConstants.Settings.fullBackUp)
+        update(currentValue: &fullBackUp,
+               newValue: value,
+               key: AppConstants.Settings.fullBackUp)
     }
 }
 

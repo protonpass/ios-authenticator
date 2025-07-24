@@ -60,8 +60,8 @@ public enum AppConstants {
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
-        public static let iCloudBackUp = "ICloudBackUp"
-        public static let iCloudSync = "iCloudSync"
+        public static let iCloudBackUp = "ICloudDocumentBackUp"
+        public static let iCloudSync = "ICloudBackUp"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"
     }

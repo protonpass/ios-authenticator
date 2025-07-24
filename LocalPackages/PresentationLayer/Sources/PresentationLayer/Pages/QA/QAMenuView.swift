@@ -80,7 +80,7 @@ private extension QAMenuView {
         Section(content: {
             Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "New backup section") })
         }, header: {
-            Text(verbatim: "Bach up options")
+            Text(verbatim: "Backup options")
         })
     }
 

@@ -56,7 +56,7 @@ struct BackUpView: View {
                         Text("Last backup: \(displayedDate)", bundle: .module)
                     }
                 }
-                .font(Font.custom("SF Pro Text", size: 13))
+                .dynamicFont(size: 13, textStyle: .body)
                 .foregroundStyle(.textWeak)
                 .padding(.top, 32)
             }

@@ -28,10 +28,10 @@ import Models
 @Observable @MainActor
 final class BackUpViewModel {
     private(set) var backups: [BackUpFileInfo] = []
-
     private(set) var loading = false
+    private(set) var backupActivated = true
+
     var errorMessage: String?
-    var backupActivated = true
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.backUpManager)
@@ -87,20 +87,6 @@ final class BackUpViewModel {
         backupActivated.toggle()
     }
 
-    func showCompletion(_ numberOfEntries: Int) {
-        let hasNewEntries = numberOfEntries > 0
-
-        let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
-                                        titleBundle: .module,
-                                        message: .localized(hasNewEntries ?
-                                            "Successfully imported \(numberOfEntries) items" :
-                                            "No new codes detected",
-                                            .module),
-                                        actions: [.ok])
-        let alert: AlertDisplay = .sheet(config)
-        alertService.showAlert(alert)
-    }
-
     func backup() {
         Task {
             do {
@@ -123,5 +109,19 @@ final class BackUpViewModel {
 private extension BackUpViewModel {
     func setUp() {
         backupActivated = settingsService.iCloudBackUp
+    }
+
+    func showCompletion(_ numberOfEntries: Int) {
+        let hasNewEntries = numberOfEntries > 0
+
+        let config = AlertConfiguration(title: hasNewEntries ? "Codes imported" : "No codes imported",
+                                        titleBundle: .module,
+                                        message: .localized(hasNewEntries ?
+                                            "Successfully imported \(numberOfEntries) items" :
+                                            "No new codes detected",
+                                            .module),
+                                        actions: [.ok])
+        let alert: AlertDisplay = .sheet(config)
+        alertService.showAlert(alert)
     }
 }

@@ -88,15 +88,6 @@ public actor BackUpManager: BackUpServicing {
         }
     }
 
-    public func delete(fileName: String) throws {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        try coordinatedDelete(at: targetURL)
-    }
-
     public func read(fileName: String) throws -> Data {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
@@ -133,27 +124,6 @@ public actor BackUpManager: BackUpServicing {
     public func getAllDocumentsData() throws -> [BackUpFileInfo] {
         try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
     }
-
-    public func getAllDocumentsFileNames() throws -> [String]? {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: [
-                                                                       .isDirectoryKey,
-                                                                       .contentModificationDateKey
-                                                                   ],
-                                                                   options: .skipsHiddenFiles)
-        return fileURLs.compactMap { url -> (String, Date)? in
-            guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey]),
-                  values.isDirectory == false,
-                  let date = values.contentModificationDate else { return nil }
-            return (url.lastPathComponent, date)
-        }
-        .sorted { $0.1 > $1.1 }
-        .map(\.0)
-    }
 }
 
 private extension BackUpManager {
@@ -188,7 +158,7 @@ private extension BackUpManager {
                                                                    ],
                                                                    options: .skipsHiddenFiles)
 
-        let sortedResults: [BackUpFileInfo] = try fileURLs.compactMap { url -> BackUpFileInfo? in
+        return try fileURLs.compactMap { url -> BackUpFileInfo? in
             let resourceValues = try url.resourceValues(forKeys: [.isDirectoryKey, .creationDateKey])
             guard let isDirectory = resourceValues.isDirectory,
                   !isDirectory,
@@ -197,8 +167,6 @@ private extension BackUpManager {
             }
             return BackUpFileInfo(name: url.lastPathComponent, creationDate: creationDate, url: url)
         }
-
-        return sortedResults
     }
 
     func coordinatedDelete(at url: URL) throws {
@@ -246,28 +214,57 @@ private extension BackUpManager {
             throw coordinationError
         }
     }
+
+    func getAllDocumentsFileNames() throws -> [String]? {
+        guard let documentURL else {
+            throw AuthError.backup(.noDestinationFolder)
+        }
+
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+                                                                   includingPropertiesForKeys: [
+                                                                       .isDirectoryKey,
+                                                                       .contentModificationDateKey
+                                                                   ],
+                                                                   options: .skipsHiddenFiles)
+        return fileURLs.compactMap { url -> (String, Date)? in
+            guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey]),
+                  values.isDirectory == false,
+                  let date = values.contentModificationDate else { return nil }
+            return (url.lastPathComponent, date)
+        }
+        .sorted { $0.1 > $1.1 }
+        .map(\.0)
+    }
+
+    func delete(fileName: String) throws {
+        guard let documentURL else {
+            throw AuthError.backup(.noDestinationFolder)
+        }
+
+        let targetURL = documentURL.appendingPathComponent(fileName)
+        try coordinatedDelete(at: targetURL)
+    }
 }
 
 private extension Date {
     var formattedBackupDate: String {
         let formatter = DateFormatter()
         let calendar = Calendar.current
-
-        if calendar.isDateInToday(self) || calendar.isDateInYesterday(self) {
+        let isToday = calendar.isDateInToday(self)
+        let isYesterday = calendar.isDateInYesterday(self)
+        
+        if isToday || isYesterday {
             formatter.doesRelativeDateFormatting = true
             formatter.dateStyle = .short
             formatter.timeStyle = .short
 
-            // This will automatically use "Today" and "Yesterday" in the user's language
-            let dateString = formatter.string(from: self)
-
             // Some languages might format this differently, so we need to handle it
-            if calendar.isDateInToday(self), !dateString.localizedCaseInsensitiveContains("today") {
+            if isToday {
                 return #localized("Today, %@", bundle: .module, formatter.string(from: self))
-            } else if calendar.isDateInYesterday(self), !dateString.localizedCaseInsensitiveContains("yesterday") {
+            } else if isYesterday {
                 return #localized("Yesterday, %@", bundle: .module, formatter.string(from: self))
             }
-            return dateString
+            return formatter.string(from: self)
         } else {
             formatter.doesRelativeDateFormatting = false
             if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
