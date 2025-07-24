@@ -122,10 +122,6 @@ struct EntryCell: View, @preconcurrency Equatable {
             if animatingEntry == entry.orderedEntry.entry {
                 animatingEntry = nil
             }
-            print("Cell named: \(entry.orderedEntry.entry.name) Disappeared")
-        }
-        .onAppear {
-            print("Cell named: \(entry.orderedEntry.entry.name) appeared")
         }
     }
 
@@ -168,7 +164,6 @@ private extension EntryCell {
 
                 TOTPCountdownView(period: entry.orderedEntry.entry.period,
                                   pauseCountDown: pauseCountDown)
-//                    .equatable()
 
                 if isHovered {
                     Menu(content: {
@@ -247,92 +242,6 @@ private extension EntryCell {
     }
 }
 
-// private struct TOTPCountdownView: View, @preconcurrency Equatable {
-//    private let period: Int // TOTP period in seconds (typically 30 or 60)
-//    private let size: CGFloat // Diameter of the circle
-//    private let lineWidth: CGFloat // Thickness of the progress bar
-//    private var pauseCountDown: Bool
-//
-//    @State private var paused = false
-//
-//    var stopAnimate: Bool {
-//        if paused || (!paused && pauseCountDown) {
-//            return true
-//        }
-//        return false
-//    }
-//
-//    init(period: Int,
-//         size: CGFloat = 32,
-//         lineWidth: CGFloat = 4,
-//         pauseCountDown: Bool) {
-//        self.period = period
-//        self.size = size
-//        self.lineWidth = lineWidth
-//        self.pauseCountDown = pauseCountDown
-//    }
-//
-//    var body: some View {
-//        TimelineView(.animation(minimumInterval: 0.5, paused: stopAnimate)) { context in
-//            let period = Double(period)
-//            let currentTimestamp = context.date.timeIntervalSince1970
-//            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy:
-//            period)).rounded(.down)
-//            let progress = timeRemaining / period
-//
-//            let color: Color = switch timeRemaining {
-//            case 0...5:
-//                .timer1
-//            case 5...10:
-//                .timer2
-//            default:
-//                .timer3
-//            }
-//
-//            ZStack {
-//                // Background circle
-//                Circle()
-//                    .stroke(lineWidth: 4)
-//                    .foregroundStyle(color.opacity(0.3))
-//                    .padding(2)
-//
-//                // Progress circle
-//                Circle()
-//                    .trim(from: 1 - progress, to: 1)
-//                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-//                    .foregroundStyle(color)
-//                    .padding(2)
-//                    .rotationEffect(.degrees(-90))
-//                    .if(AppConstants.isPhone) { view in
-//                        view.animation(.default, value: progress)
-//                            .transaction { transaction in
-//                                transaction.disablesAnimations = timeRemaining == period - 1
-//                            }
-//                    }
-//
-//                // Countdown text
-//                Text(verbatim: "\(Int(timeRemaining))")
-//                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
-//                    .foregroundStyle(.textNorm)
-//            }
-//            .frame(width: size, height: size)
-//        }
-//        .onAppear {
-//            paused = false
-//        }
-//        .onDisappear {
-//            paused = true
-//        }
-//    }
-//
-//    static func == (lhs: TOTPCountdownView, rhs: TOTPCountdownView) -> Bool {
-//        lhs.period == rhs.period &&
-//        lhs.size == rhs.size &&
-//        lhs.lineWidth == rhs.lineWidth &&
-//        lhs.pauseCountDown == rhs.pauseCountDown
-//    }
-// }
-
 struct EntryOptions: View {
     let entry: EntryUiModel
     let onAction: (EntryAction) -> Void
@@ -357,7 +266,7 @@ struct EntryOptions: View {
     }
 }
 
-struct CodeView: View, @preconcurrency Equatable {
+private struct CodeView: View, @preconcurrency Equatable {
     let configuration: EntryCellConfiguration
     let code: Code
     @Binding var showCopyBadge: Bool
@@ -402,7 +311,7 @@ private struct CountdownInfo {
 }
 
 @MainActor @Observable
-final class TOTPCountdownManager {
+private final class TOTPCountdownManager {
     static let shared = TOTPCountdownManager()
 
     private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
@@ -460,7 +369,7 @@ final class TOTPCountdownManager {
     }
 }
 
-struct TOTPCountdownView: View {
+private struct TOTPCountdownView: View {
     private let period: Int
     private let size: CGFloat
     private let lineWidth: CGFloat

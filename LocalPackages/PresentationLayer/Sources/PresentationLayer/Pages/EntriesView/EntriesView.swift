@@ -174,8 +174,8 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry, reducedShadow: false)
-                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 18))
-                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 18))
+                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 25))
+                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 25))
                     .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
@@ -557,16 +557,5 @@ private extension View {
         #else
         self
         #endif
-    }
-
-    @ViewBuilder
-    func adaptiveScrollPhraseChange(onChange: @escaping (_ isScrolling: Bool) -> Void) -> some View {
-        if #available(iOS 18, *) {
-            self.onScrollPhaseChange { _, newPhase in
-                onChange(newPhase.isScrolling)
-            }
-        } else {
-            self
-        }
     }
 }
