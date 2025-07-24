@@ -252,7 +252,7 @@ private extension Date {
         let calendar = Calendar.current
         let isToday = calendar.isDateInToday(self)
         let isYesterday = calendar.isDateInYesterday(self)
-        
+
         if isToday || isYesterday {
             formatter.doesRelativeDateFormatting = true
             formatter.dateStyle = .short
