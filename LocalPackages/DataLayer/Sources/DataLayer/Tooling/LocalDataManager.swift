@@ -37,11 +37,11 @@ public actor LocalDataManager: LocalDataManagerProtocol {
     public init(settingsService: any SettingsServicing) {
         self.settingsService = settingsService
         persistentStorage = LocalDataManager
-            .createPersistenceService(iCloudSyncEnabled: settingsService.iCloudBackUp)
+            .createPersistenceService(iCloudSyncEnabled: settingsService.iCloudSync)
     }
 
     public func refreshLocalStorage() async {
-        let iCloudSyncEnabled = await settingsService.iCloudBackUp
+        let iCloudSyncEnabled = await settingsService.iCloudSync
         persistentStorage = LocalDataManager.createPersistenceService(iCloudSyncEnabled: iCloudSyncEnabled)
     }
 }

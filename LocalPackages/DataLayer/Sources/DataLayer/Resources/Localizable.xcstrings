@@ -421,6 +421,16 @@
         }
       }
     },
+    "Today, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today, %@"
+          }
+        }
+      }
+    },
     "unlock" : {
       "localizations" : {
         "de" : {
@@ -627,6 +637,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Evet"
+          }
+        }
+      }
+    },
+    "Yesterday, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday, %@"
           }
         }
       }
