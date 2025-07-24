@@ -20,6 +20,7 @@
 
 import Foundation
 import LocalAuthentication
+
 #if canImport(UIKit)
 import UIKit
 #endif

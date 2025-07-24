@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Combine
+import CommonUtilities
 import FactoryKit
 import Models
 import SwiftUI
@@ -31,7 +32,7 @@ import AppKit
 
 import SDWebImageSwiftUI
 
-private struct HighlightedText: View {
+private struct HighlightedText: View, @preconcurrency Equatable {
     let text: String
     let highlighted: String
     let placeholder: TextContent
@@ -60,6 +61,10 @@ private struct HighlightedText: View {
         }
 
         return attributedString
+    }
+
+    static func == (lhs: HighlightedText, rhs: HighlightedText) -> Bool {
+        lhs.text == rhs.text && lhs.highlighted == rhs.highlighted
     }
 }
 
@@ -146,12 +151,14 @@ private extension EntryCell {
                     HighlightedText(text: entry.orderedEntry.entry.issuer,
                                     highlighted: searchTerm,
                                     placeholder: .localized("No issuer", .module))
+                        .equatable()
                         .dynamicFont(size: 16, textStyle: .callout, weight: .medium)
                         .foregroundStyle(.textNorm)
                         .textShadow()
                     HighlightedText(text: entry.orderedEntry.entry.name,
                                     highlighted: searchTerm,
                                     placeholder: .localized("No title", .module))
+                        .equatable()
                         .dynamicFont(size: 14, textStyle: .footnote)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
@@ -161,6 +168,7 @@ private extension EntryCell {
 
                 TOTPCountdownView(period: entry.orderedEntry.entry.period,
                                   pauseCountDown: pauseCountDown)
+//                    .equatable()
 
                 if isHovered {
                     Menu(content: {
@@ -239,77 +247,91 @@ private extension EntryCell {
     }
 }
 
-private struct TOTPCountdownView: View {
-    private let period: Int // TOTP period in seconds (typically 30 or 60)
-    private let size: CGFloat // Diameter of the circle
-    private let lineWidth: CGFloat // Thickness of the progress bar
-    private var pauseCountDown: Bool
-
-    @State private var paused = false
-
-    var stopAnimate: Bool {
-        if paused || (!paused && pauseCountDown) {
-            return true
-        }
-        return false
-    }
-
-    init(period: Int,
-         size: CGFloat = 32,
-         lineWidth: CGFloat = 4,
-         pauseCountDown: Bool) {
-        self.period = period
-        self.size = size
-        self.lineWidth = lineWidth
-        self.pauseCountDown = pauseCountDown
-    }
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 0.3, paused: stopAnimate)) { context in
-            let period = Double(period)
-            let currentTimestamp = context.date.timeIntervalSince1970
-            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
-            let progress = timeRemaining / period
-
-            let color: Color = switch timeRemaining {
-            case 0...5:
-                .timer1
-            case 5...10:
-                .timer2
-            default:
-                .timer3
-            }
-
-            ZStack {
-                // Background circle
-                Circle()
-                    .stroke(lineWidth: 4)
-                    .foregroundStyle(color.opacity(0.3))
-                    .padding(2)
-
-                // Progress circle
-                Circle()
-                    .trim(from: 1 - progress, to: 1)
-                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                    .foregroundStyle(color)
-                    .padding(2)
-                    .rotationEffect(.degrees(-90))
-
-                // Countdown text
-                Text(verbatim: "\(Int(timeRemaining))")
-                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
-                    .foregroundStyle(.textNorm)
-            }
-            .frame(width: size, height: size)
-        }
-        .onAppear {
-            paused = false
-        }
-        .onDisappear {
-            paused = true
-        }
-    }
-}
+// private struct TOTPCountdownView: View, @preconcurrency Equatable {
+//    private let period: Int // TOTP period in seconds (typically 30 or 60)
+//    private let size: CGFloat // Diameter of the circle
+//    private let lineWidth: CGFloat // Thickness of the progress bar
+//    private var pauseCountDown: Bool
+//
+//    @State private var paused = false
+//
+//    var stopAnimate: Bool {
+//        if paused || (!paused && pauseCountDown) {
+//            return true
+//        }
+//        return false
+//    }
+//
+//    init(period: Int,
+//         size: CGFloat = 32,
+//         lineWidth: CGFloat = 4,
+//         pauseCountDown: Bool) {
+//        self.period = period
+//        self.size = size
+//        self.lineWidth = lineWidth
+//        self.pauseCountDown = pauseCountDown
+//    }
+//
+//    var body: some View {
+//        TimelineView(.animation(minimumInterval: 0.5, paused: stopAnimate)) { context in
+//            let period = Double(period)
+//            let currentTimestamp = context.date.timeIntervalSince1970
+//            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy:
+//            period)).rounded(.down)
+//            let progress = timeRemaining / period
+//
+//            let color: Color = switch timeRemaining {
+//            case 0...5:
+//                .timer1
+//            case 5...10:
+//                .timer2
+//            default:
+//                .timer3
+//            }
+//
+//            ZStack {
+//                // Background circle
+//                Circle()
+//                    .stroke(lineWidth: 4)
+//                    .foregroundStyle(color.opacity(0.3))
+//                    .padding(2)
+//
+//                // Progress circle
+//                Circle()
+//                    .trim(from: 1 - progress, to: 1)
+//                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+//                    .foregroundStyle(color)
+//                    .padding(2)
+//                    .rotationEffect(.degrees(-90))
+//                    .if(AppConstants.isPhone) { view in
+//                        view.animation(.default, value: progress)
+//                            .transaction { transaction in
+//                                transaction.disablesAnimations = timeRemaining == period - 1
+//                            }
+//                    }
+//
+//                // Countdown text
+//                Text(verbatim: "\(Int(timeRemaining))")
+//                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+//                    .foregroundStyle(.textNorm)
+//            }
+//            .frame(width: size, height: size)
+//        }
+//        .onAppear {
+//            paused = false
+//        }
+//        .onDisappear {
+//            paused = true
+//        }
+//    }
+//
+//    static func == (lhs: TOTPCountdownView, rhs: TOTPCountdownView) -> Bool {
+//        lhs.period == rhs.period &&
+//        lhs.size == rhs.size &&
+//        lhs.lineWidth == rhs.lineWidth &&
+//        lhs.pauseCountDown == rhs.pauseCountDown
+//    }
+// }
 
 struct EntryOptions: View {
     let entry: EntryUiModel
@@ -368,5 +390,146 @@ struct CodeView: View, @preconcurrency Equatable {
 
     static func == (lhs: CodeView, rhs: CodeView) -> Bool {
         lhs.code == rhs.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration
+    }
+}
+
+// MARK: - Circular count down display and logic
+
+private struct CountdownInfo {
+    let progress: Double
+    let color: Color
+    let timeRemaining: Int
+}
+
+@MainActor @Observable
+final class TOTPCountdownManager {
+    static let shared = TOTPCountdownManager()
+
+    private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
+    private var activeSubscribers = 0
+
+    @ObservationIgnored
+    private var timerCancellable: AnyCancellable?
+
+    private init() {}
+
+    private func startTimer() {
+        guard timerCancellable == nil else { return }
+
+        timerCancellable = Timer.publish(every: 0.5, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                currentTimestamp = Date().timeIntervalSince1970
+            }
+    }
+
+    private func stopTimer() {
+        guard activeSubscribers == 0 else { return }
+        timerCancellable?.cancel()
+        timerCancellable = nil
+    }
+
+    func subscribe() {
+        activeSubscribers += 1
+        startTimer()
+    }
+
+    func unsubscribe() {
+        activeSubscribers = max(0, activeSubscribers - 1)
+        if activeSubscribers == 0 {
+            stopTimer()
+        }
+    }
+
+    fileprivate func calculateProgressAndColor(period: Int) -> CountdownInfo {
+        let period = Double(period)
+        let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
+        let progress = timeRemaining / period
+
+        let color: Color = switch timeRemaining {
+        case 0...5:
+            .timer1
+        case 5...10:
+            .timer2
+        default:
+            .timer3
+        }
+
+        return CountdownInfo(progress: progress, color: color, timeRemaining: Int(timeRemaining))
+    }
+}
+
+struct TOTPCountdownView: View {
+    private let period: Int
+    private let size: CGFloat
+    private let lineWidth: CGFloat
+    private var pauseCountDown: Bool
+
+    @State private var timerManager = TOTPCountdownManager.shared
+    @State private var isActive = false
+
+    init(period: Int,
+         size: CGFloat = 32,
+         lineWidth: CGFloat = 4,
+         pauseCountDown: Bool = false) {
+        self.period = period
+        self.size = size
+        self.lineWidth = lineWidth
+        self.pauseCountDown = pauseCountDown
+    }
+
+    var body: some View {
+        let infos = timerManager.calculateProgressAndColor(period: period)
+
+        ZStack {
+            // Background circle
+            Circle()
+                .stroke(lineWidth: 4)
+                .foregroundStyle(infos.color.opacity(0.3))
+                .padding(2)
+
+            // Progress circle
+            Circle()
+                .trim(from: 1 - infos.progress, to: 1)
+                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .foregroundStyle(infos.color)
+                .padding(2)
+                .rotationEffect(.degrees(-90))
+                .if(AppConstants.isPhone) { view in
+                    view.animation(.default, value: infos.progress)
+                        .transaction { transaction in
+                            transaction.disablesAnimations = infos.timeRemaining == Int(Double(period) - 1)
+                        }
+                }
+
+            // Countdown text
+            Text(verbatim: "\(infos.timeRemaining)")
+                .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+                .foregroundStyle(.textNorm)
+        }
+        .frame(width: size, height: size)
+        .opacity(shouldPause ? 0.5 : 1.0)
+        .onAppear {
+            isActive = true
+            if !shouldPause {
+                timerManager.subscribe()
+            }
+        }
+        .onDisappear {
+            isActive = false
+            timerManager.unsubscribe()
+        }
+        .onChange(of: pauseCountDown) {
+            if pauseCountDown {
+                timerManager.unsubscribe()
+            } else if isActive {
+                timerManager.subscribe()
+            }
+        }
+    }
+
+    private var shouldPause: Bool {
+        pauseCountDown || !isActive
     }
 }
