@@ -215,6 +215,7 @@ private extension BackUpManager {
         }
     }
 
+    // periphery:ignore
     func getAllDocumentsFileNames() throws -> [String]? {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
@@ -236,6 +237,7 @@ private extension BackUpManager {
         .map(\.0)
     }
 
+    // periphery:ignore
     func delete(fileName: String) throws {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
