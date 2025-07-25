@@ -33,39 +33,41 @@ import SimpleToast
 @Observable
 @MainActor
 final class EntriesViewModel: ObservableObject {
-    var entries: [EntryUiModel] {
-        guard let data = entryDataService.dataState.data else { return [] }
+    var animatingEntry: Entry?
 
-        guard !lastestQuery.isEmpty else {
+    var entries: [EntryUiModel] {
+        if let searchResults {
+            return searchResults
+        } else if let data = entryDataService.dataState.data {
             return data
         }
 
-        return data.filter {
-            $0.orderedEntry.entry.name.lowercased().contains(lastestQuery) ||
-                $0.orderedEntry.entry.issuer.lowercased().contains(lastestQuery)
-        }
+        return []
     }
 
     var dataState: DataState<[EntryUiModel]> {
         entryDataService.dataState
     }
 
-    var pauseCountDown = false
-
-    var copyBadgeRemainingSeconds = 0
-    var animatingEntry: Entry?
-
     var focusSearchOnLaunch: Bool {
         settingsService.focusSearchOnLaunch
     }
 
-    @ObservationIgnored var query = "" {
+    var isAuthenticated: Bool {
+        userSessionManager.isAuthenticatedWithUserData.value
+    }
+
+    @ObservationIgnored
+    var query = "" {
         didSet {
             searchTextStream.send(query)
         }
     }
 
-    private var lastestQuery = ""
+    @ObservationIgnored
+    private var copyBadgeRemainingSeconds = 0
+
+    private var searchResults: [EntryUiModel]?
 
     @ObservationIgnored
     private let searchTextStream: CurrentValueSubject<String, Never> = .init("")
@@ -73,6 +75,10 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.totpCountdownManager)
+    private(set) var totpCountdownManager
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
@@ -110,12 +116,10 @@ final class EntriesViewModel: ObservableObject {
     private var loadLocalTask: Task<Void, Never>?
     @ObservationIgnored
     private var fullSyncTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var searchTask: Task<Void, Never>?
 
     private(set) var deleteTask: Task<Void, Never>?
-
-    var isAuthenticated: Bool {
-        userSessionManager.isAuthenticatedWithUserData.value
-    }
 
     init() {
         NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
@@ -142,7 +146,8 @@ final class EntriesViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newSearch in
                 guard let self else { return }
-                lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                let lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                executeSearch(query: lastestQuery)
             }
             .store(in: &cancellables)
 
@@ -174,6 +179,9 @@ final class EntriesViewModel: ObservableObject {
             .sink { [weak self] _ in
                 guard let self else { return }
                 copyBadgeRemainingSeconds -= 1
+                if copyBadgeRemainingSeconds <= 0 {
+                    animatingEntry = nil
+                }
             }
             .store(in: &cancellables)
     }
@@ -261,10 +269,11 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
-        pauseCountDown = shouldPause
         if shouldPause {
+            totpCountdownManager.stopTimer()
             entryDataService.stopTotpGenerator()
         } else {
+            totpCountdownManager.startTimer()
             entryDataService.startTotpGenerator()
         }
     }
@@ -301,5 +310,31 @@ private extension EntriesViewModel {
         }
         logger.log(.error, category: .ui, error.localizedDescription, function: function, line: line)
         alertService.showError(error, mainDisplay: true, action: nil)
+    }
+
+    func executeSearch(query: String) {
+        if query.isEmpty {
+            searchTask?.cancel()
+            searchResults = nil
+            return
+        }
+
+        searchTask?.cancel()
+        searchTask = Task { [weak self] in
+            guard let self, let data = entryDataService.dataState.data else {
+                return
+            }
+            if Task.isCancelled {
+                return
+            }
+            searchResults = await filterData(query: query, data: data)
+        }
+    }
+
+    nonisolated func filterData(query: String, data: [EntryUiModel]) async -> [EntryUiModel] {
+        data.filter {
+            $0.orderedEntry.entry.name.lowercased().contains(query) ||
+                $0.orderedEntry.entry.issuer.lowercased().contains(query)
+        }
     }
 }

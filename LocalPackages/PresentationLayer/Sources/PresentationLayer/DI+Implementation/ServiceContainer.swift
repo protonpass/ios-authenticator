@@ -120,4 +120,8 @@ public extension ServiceContainer {
     var backUpManager: Factory<any BackUpServicing> {
         self { BackUpManager() }
     }
+
+    var totpCountdownManager: Factory<any TOTPCountdownProtocol> {
+        self { @MainActor in TOTPCountdownManager.shared }
+    }
 }

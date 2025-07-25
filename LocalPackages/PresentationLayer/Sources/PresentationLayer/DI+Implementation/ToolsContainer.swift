@@ -67,6 +67,7 @@ extension ToolsContainer {
         self { TOTPIssuerMapper() }
     }
 
+    // periphery:ignore
     var reachabilityManager: Factory<any ReachabilityServicing> {
         self { ReachabilityManager() }
     }
