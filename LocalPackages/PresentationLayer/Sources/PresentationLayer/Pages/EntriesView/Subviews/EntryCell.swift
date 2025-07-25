@@ -79,7 +79,6 @@ struct EntryCell: View, @preconcurrency Equatable {
     let isHovered: Bool
     let reducedShadow: Bool
     let onAction: (EntryAction) -> Void
-    let pauseCountDown: Bool
     @Binding var animatingEntry: Entry?
 
     init(entry: EntryUiModel,
@@ -88,7 +87,6 @@ struct EntryCell: View, @preconcurrency Equatable {
          isHovered: Bool,
          reducedShadow: Bool,
          onAction: @escaping (EntryAction) -> Void,
-         pauseCountDown: Bool,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
         self.configuration = configuration
@@ -96,7 +94,6 @@ struct EntryCell: View, @preconcurrency Equatable {
         self.isHovered = isHovered
         self.reducedShadow = reducedShadow
         self.onAction = onAction
-        self.pauseCountDown = pauseCountDown
         _animatingEntry = animatingEntry
     }
 
@@ -130,8 +127,7 @@ struct EntryCell: View, @preconcurrency Equatable {
             lhs.searchTerm == rhs.searchTerm &&
             lhs.configuration == rhs.configuration &&
             lhs.isHovered == rhs.isHovered &&
-            lhs.animatingEntry == rhs.animatingEntry &&
-            lhs.pauseCountDown == rhs.pauseCountDown
+            lhs.animatingEntry == rhs.animatingEntry
     }
 }
 
@@ -162,8 +158,7 @@ private extension EntryCell {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.orderedEntry.entry.period,
-                                  pauseCountDown: pauseCountDown)
+                TOTPCountdownView(period: entry.orderedEntry.entry.period)
 
                 if isHovered {
                     Menu(content: {
@@ -304,81 +299,19 @@ private struct CodeView: View, @preconcurrency Equatable {
 
 // MARK: - Circular count down display and logic
 
-private struct CountdownInfo {
-    let progress: Double
-    let color: Color
-    let timeRemaining: Int
-}
-
-@MainActor @Observable
-private final class TOTPCountdownManager {
-    static let shared = TOTPCountdownManager()
-
-    private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
-
-    @ObservationIgnored
-    private var timerCancellable: AnyCancellable?
-
-    private init() {}
-
-    private func startTimer() {
-        guard timerCancellable == nil else { return }
-
-        timerCancellable = Timer.publish(every: 0.5, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self else { return }
-                currentTimestamp = Date().timeIntervalSince1970
-            }
-    }
-
-    private func stopTimer() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
-    }
-
-    func subscribe() {
-        startTimer()
-    }
-
-    func unsubscribe() {
-        stopTimer()
-    }
-
-    func calculateCountdownInfo(period: Int) -> CountdownInfo {
-        let period = Double(period)
-        let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
-        let progress = timeRemaining / period
-
-        let color: Color = switch timeRemaining {
-        case 0...5:
-            .timer1
-        case 5...10:
-            .timer2
-        default:
-            .timer3
-        }
-
-        return CountdownInfo(progress: progress, color: color, timeRemaining: Int(timeRemaining))
-    }
-}
-
 private struct TOTPCountdownView: View {
     private let period: Int
     private let size: CGFloat
     private let lineWidth: CGFloat
-    private var pauseCountDown: Bool
 
-    @State private var timerManager = TOTPCountdownManager.shared
+    @State private var timerManager = resolve(\ServiceContainer.totpCountdownManager)
 
     init(period: Int,
          size: CGFloat = 32,
-         lineWidth: CGFloat = 4,
-         pauseCountDown: Bool = false) {
+         lineWidth: CGFloat = 4) {
         self.period = period
         self.size = size
         self.lineWidth = lineWidth
-        self.pauseCountDown = pauseCountDown
     }
 
     var body: some View {
@@ -411,18 +344,5 @@ private struct TOTPCountdownView: View {
                 .foregroundStyle(.textNorm)
         }
         .frame(width: size, height: size)
-        .opacity(pauseCountDown ? 0.5 : 1.0)
-        .onAppear {
-            if !pauseCountDown {
-                timerManager.subscribe()
-            }
-        }
-        .onChange(of: pauseCountDown) {
-            if pauseCountDown {
-                timerManager.unsubscribe()
-            } else {
-                timerManager.subscribe()
-            }
-        }
     }
 }

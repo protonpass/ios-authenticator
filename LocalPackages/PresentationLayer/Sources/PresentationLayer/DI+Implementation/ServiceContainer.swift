@@ -113,4 +113,8 @@ public extension ServiceContainer {
     var reviewService: Factory<any ReviewServicing> {
         self { ReviewService() }
     }
+
+    var totpCountdownManager: Factory<any TOTPCountdownProtocol> {
+        self { @MainActor in TOTPCountdownManager.shared }
+    }
 }

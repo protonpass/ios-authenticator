@@ -253,7 +253,6 @@ private extension EntriesView {
                   isHovered: hoveringEntry == entry,
                   reducedShadow: reducedShadow,
                   onAction: handle(_:),
-                  pauseCountDown: viewModel.pauseCountDown,
                   animatingEntry: $viewModel.animatingEntry)
             .equatable()
             .listRowBackground(Color.clear)

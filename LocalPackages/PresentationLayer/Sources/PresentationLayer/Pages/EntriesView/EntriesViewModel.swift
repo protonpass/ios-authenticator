@@ -33,7 +33,6 @@ import SimpleToast
 @Observable
 @MainActor
 final class EntriesViewModel: ObservableObject {
-    var pauseCountDown = false
     var animatingEntry: Entry?
 
     var entries: [EntryUiModel] {
@@ -76,6 +75,10 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.totpCountdownManager)
+    private(set) var totpCountdownManager
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
@@ -266,10 +269,11 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
-        pauseCountDown = shouldPause
         if shouldPause {
+            totpCountdownManager.stopTimer()
             entryDataService.stopTotpGenerator()
         } else {
+            totpCountdownManager.startTimer()
             entryDataService.startTotpGenerator()
         }
     }
