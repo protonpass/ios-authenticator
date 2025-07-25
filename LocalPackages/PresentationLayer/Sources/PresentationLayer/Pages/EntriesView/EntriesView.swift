@@ -146,7 +146,6 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
                 .importingService($showImportOptions, onMainDisplay: true)
-                .animation(.default, value: viewModel.entries)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
@@ -165,9 +164,6 @@ private extension EntriesView {
                 }
             }
         }
-        .adaptiveScrollPhraseChange { isScrolling in
-            viewModel.pauseCountDown = isScrolling
-        }
     }
 }
 
@@ -178,8 +174,8 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry, reducedShadow: false)
-                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 18))
-                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 18))
+                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 24))
+                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24))
                     .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)
@@ -204,6 +200,7 @@ private extension EntriesView {
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
         }
+        .animation(.default, value: viewModel.entries)
         .listStyle(.plain)
         #if os(iOS)
             .listRowSpacing(12)
@@ -218,9 +215,9 @@ private extension EntriesView {
         ScrollView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
                 ForEach(viewModel.entries) { entry in
-                    cell(for: entry, reducedShadow: true)
+                    cell(for: entry)
                         .draggable(entry) {
-                            cell(for: entry, reducedShadow: true)
+                            cell(for: entry)
                                 .opacity(0.8)
                                 .onAppear {
                                     draggingEntry = entry
@@ -249,16 +246,15 @@ private extension EntriesView {
         }
     }
 
-    func cell(for entry: EntryUiModel, reducedShadow: Bool) -> some View {
+    func cell(for entry: EntryUiModel, reducedShadow: Bool = true) -> some View {
         EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
                   searchTerm: viewModel.query,
                   isHovered: hoveringEntry == entry,
                   reducedShadow: reducedShadow,
                   onAction: handle(_:),
-                  pauseCountDown: viewModel.pauseCountDown,
-                  copyBadgeRemainingSeconds: viewModel.copyBadgeRemainingSeconds,
                   animatingEntry: $viewModel.animatingEntry)
+            .equatable()
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
             .accessibility(addTraits: .isButton)
@@ -560,16 +556,5 @@ private extension View {
         #else
         self
         #endif
-    }
-
-    @ViewBuilder
-    func adaptiveScrollPhraseChange(onChange: @escaping (_ isScrolling: Bool) -> Void) -> some View {
-        if #available(iOS 18, *) {
-            self.onScrollPhaseChange { _, newPhase in
-                onChange(newPhase.isScrolling)
-            }
-        } else {
-            self
-        }
     }
 }

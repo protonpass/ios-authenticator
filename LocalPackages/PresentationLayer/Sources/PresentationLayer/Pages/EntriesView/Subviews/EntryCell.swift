@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Combine
+import CommonUtilities
 import FactoryKit
 import Models
 import SwiftUI
@@ -31,7 +32,7 @@ import AppKit
 
 import SDWebImageSwiftUI
 
-private struct HighlightedText: View {
+private struct HighlightedText: View, @preconcurrency Equatable {
     let text: String
     let highlighted: String
     let placeholder: TextContent
@@ -61,22 +62,23 @@ private struct HighlightedText: View {
 
         return attributedString
     }
+
+    static func == (lhs: HighlightedText, rhs: HighlightedText) -> Bool {
+        lhs.text == rhs.text && lhs.highlighted == rhs.highlighted
+    }
 }
 
-struct EntryCell: View {
+struct EntryCell: View, @preconcurrency Equatable {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
+
     let entry: EntryUiModel
-    let currentCode: String
-    let nextCode: String
     let configuration: EntryCellConfiguration
     let searchTerm: String
     let isHovered: Bool
     let reducedShadow: Bool
     let onAction: (EntryAction) -> Void
-    let pauseCountDown: Bool
-    let copyBadgeRemainingSeconds: Int
     @Binding var animatingEntry: Entry?
 
     init(entry: EntryUiModel,
@@ -85,19 +87,13 @@ struct EntryCell: View {
          isHovered: Bool,
          reducedShadow: Bool,
          onAction: @escaping (EntryAction) -> Void,
-         pauseCountDown: Bool,
-         copyBadgeRemainingSeconds: Int,
          animatingEntry: Binding<Entry?>) {
         self.entry = entry
         self.configuration = configuration
-        currentCode = entry.code.displayedCode(for: .current, config: configuration)
-        nextCode = entry.code.displayedCode(for: .next, config: configuration)
         self.searchTerm = searchTerm
         self.isHovered = isHovered
         self.reducedShadow = reducedShadow
         self.onAction = onAction
-        self.pauseCountDown = pauseCountDown
-        self.copyBadgeRemainingSeconds = copyBadgeRemainingSeconds
         _animatingEntry = animatingEntry
     }
 
@@ -111,23 +107,11 @@ struct EntryCell: View {
         }
         .onChange(of: animatingEntry) { _, newValue in
             // Another entry is selected, we dismiss the badge of this entry
-            if newValue != entry.orderedEntry.entry {
-                withAnimation(Animation.interpolatingSpring(mass: 0.03,
-                                                            stiffness: 5.5,
-                                                            damping: 0.9,
-                                                            initialVelocity: 4.8)) {
-                    showCopyBadge = false
-                }
-            }
-        }
-        .onChange(of: copyBadgeRemainingSeconds) { _, newValue in
-            if animatingEntry == entry.orderedEntry.entry {
-                withAnimation(Animation.interpolatingSpring(mass: 0.03,
-                                                            stiffness: 5.5,
-                                                            damping: 0.9,
-                                                            initialVelocity: 4.8)) {
-                    showCopyBadge = newValue > 0
-                }
+            withAnimation(Animation.interpolatingSpring(mass: 0.03,
+                                                        stiffness: 5.5,
+                                                        damping: 0.9,
+                                                        initialVelocity: 4.8)) {
+                showCopyBadge = newValue == entry.orderedEntry.entry
             }
         }
         .onDisappear {
@@ -137,6 +121,14 @@ struct EntryCell: View {
             }
         }
     }
+
+    static func == (lhs: EntryCell, rhs: EntryCell) -> Bool {
+        lhs.entry == rhs.entry &&
+            lhs.searchTerm == rhs.searchTerm &&
+            lhs.configuration == rhs.configuration &&
+            lhs.isHovered == rhs.isHovered &&
+            lhs.animatingEntry == rhs.animatingEntry
+    }
 }
 
 private extension EntryCell {
@@ -145,17 +137,20 @@ private extension EntryCell {
             HStack(spacing: 10) {
                 EntryThumbnail(iconUrl: entry.issuerInfo?.iconUrl,
                                letter: entry.orderedEntry.entry.capitalLetter)
+                    .equatable()
 
                 VStack(alignment: .leading) {
                     HighlightedText(text: entry.orderedEntry.entry.issuer,
                                     highlighted: searchTerm,
                                     placeholder: .localized("No issuer", .module))
+                        .equatable()
                         .dynamicFont(size: 16, textStyle: .callout, weight: .medium)
                         .foregroundStyle(.textNorm)
                         .textShadow()
                     HighlightedText(text: entry.orderedEntry.entry.name,
                                     highlighted: searchTerm,
                                     placeholder: .localized("No title", .module))
+                        .equatable()
                         .dynamicFont(size: 14, textStyle: .footnote)
                         .lineLimit(1)
                         .foregroundStyle(.textWeak)
@@ -163,8 +158,7 @@ private extension EntryCell {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TOTPCountdownView(period: entry.orderedEntry.entry.period,
-                                  pauseCountDown: pauseCountDown)
+                TOTPCountdownView(period: entry.orderedEntry.entry.period)
 
                 if isHovered {
                     Menu(content: {
@@ -184,31 +178,11 @@ private extension EntryCell {
                 .frame(height: 2)
                 .frame(maxWidth: .infinity)
 
-            HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
-                CurrentTokenView(code: currentCode,
-                                 configuration: configuration,
-                                 showCopyBadge: showCopyBadge)
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text("Next", bundle: .module)
-                        .dynamicFont(size: 14, textStyle: .footnote)
-                        .foregroundStyle(.textWeak)
-                        .textShadow()
-                    Text(verbatim: nextCode)
-                        .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
-                        .monospaced()
-                        .foregroundStyle(.textNorm)
-                        .textShadow()
-                        .privacySensitive()
-                }
-                .animation(.default, value: showCopyBadge)
-                .opacity(showCopyBadge ? 0 : 1)
-            }
-            .padding(.top, 8)
-            .padding(.bottom, 12)
-            .padding(.horizontal, 16)
+            CodeView(configuration: configuration, code: entry.code, showCopyBadge: showCopyBadge)
+                .equatable()
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .padding(.horizontal, 16)
         }
         .background(LinearGradient(stops:
             [
@@ -263,68 +237,6 @@ private extension EntryCell {
     }
 }
 
-private struct TOTPCountdownView: View {
-    private let period: Int // TOTP period in seconds (typically 30 or 60)
-    private let size: CGFloat // Diameter of the circle
-    private let lineWidth: CGFloat // Thickness of the progress bar
-    private let pauseCountDown: Bool
-
-    init(period: Int,
-         size: CGFloat = 32,
-         lineWidth: CGFloat = 4,
-         pauseCountDown: Bool) {
-        self.period = period
-        self.size = size
-        self.lineWidth = lineWidth
-        self.pauseCountDown = pauseCountDown
-    }
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1, paused: pauseCountDown)) { context in
-            let period = Double(period)
-            let currentTimestamp = context.date.timeIntervalSince1970
-            let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
-            let progress = timeRemaining / period
-
-            let color: Color = switch timeRemaining {
-            case 0...5:
-                .timer1
-            case 5...10:
-                .timer2
-            default:
-                .timer3
-            }
-
-            ZStack {
-                // Background circle
-                Circle()
-                    .stroke(lineWidth: 4)
-                    .animation(.default, value: progress)
-                    .foregroundStyle(color.opacity(0.3))
-                    .padding(2)
-
-                // Progress circle
-                Circle()
-                    .trim(from: 1 - progress, to: 1)
-                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                    .foregroundStyle(color)
-                    .padding(2)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.default, value: progress)
-                    .transaction { transaction in
-                        transaction.disablesAnimations = timeRemaining == period - 1
-                    }
-
-                // Countdown text
-                Text(verbatim: "\(Int(timeRemaining))")
-                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
-                    .foregroundStyle(.textNorm)
-            }
-            .frame(width: size, height: size)
-        }
-    }
-}
-
 struct EntryOptions: View {
     let entry: EntryUiModel
     let onAction: (EntryAction) -> Void
@@ -346,5 +258,91 @@ struct EntryOptions: View {
         Button(role: .destructive,
                action: { onAction(.delete(entry)) },
                label: { Label("Delete", systemImage: "trash.fill") })
+    }
+}
+
+private struct CodeView: View, @preconcurrency Equatable {
+    let configuration: EntryCellConfiguration
+    let code: Code
+    let showCopyBadge: Bool
+
+    var body: some View {
+        HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
+            CurrentTokenView(code: code.displayedCode(for: .current, config: configuration),
+                             configuration: configuration,
+                             showCopyBadge: showCopyBadge)
+                .equatable()
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 0) {
+                Text("Next", bundle: .module)
+                    .dynamicFont(size: 14, textStyle: .footnote)
+                    .foregroundStyle(.textWeak)
+                    .textShadow()
+                Text(verbatim: code.displayedCode(for: .next, config: configuration))
+                    .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
+                    .monospaced()
+                    .foregroundStyle(.textNorm)
+                    .textShadow()
+                    .privacySensitive()
+            }
+            .animation(.default, value: showCopyBadge)
+            .opacity(showCopyBadge ? 0 : 1)
+        }
+    }
+
+    static func == (lhs: CodeView, rhs: CodeView) -> Bool {
+        lhs.code == rhs.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration
+    }
+}
+
+// MARK: - Circular count down display and logic
+
+private struct TOTPCountdownView: View {
+    private let period: Int
+    private let size: CGFloat
+    private let lineWidth: CGFloat
+
+    @State private var timerManager = resolve(\ServiceContainer.totpCountdownManager)
+
+    init(period: Int,
+         size: CGFloat = 32,
+         lineWidth: CGFloat = 4) {
+        self.period = period
+        self.size = size
+        self.lineWidth = lineWidth
+    }
+
+    var body: some View {
+        let infos = timerManager.calculateCountdownInfo(period: period)
+
+        ZStack {
+            // Background circle
+            Circle()
+                .stroke(lineWidth: 4)
+                .foregroundStyle(infos.color.opacity(0.3))
+                .padding(2)
+
+            // Progress circle
+            Circle()
+                .trim(from: 1 - infos.progress, to: 1)
+                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                .foregroundStyle(infos.color)
+                .padding(2)
+                .rotationEffect(.degrees(-90))
+                .if(AppConstants.isPhone) { view in
+                    view.animation(.default, value: infos.progress)
+                        .transaction { transaction in
+                            transaction.disablesAnimations = infos.timeRemaining == Int(Double(period) - 1)
+                        }
+                }
+
+            // Countdown text
+            Text(verbatim: "\(infos.timeRemaining)")
+                .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+                .foregroundStyle(.textNorm)
+        }
+        .frame(width: size, height: size)
     }
 }
