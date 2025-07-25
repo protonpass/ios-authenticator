@@ -857,7 +857,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sichere deine Daten sicher mit verschlüsselter iCloud-Synchronisierung."
+            "value" : "Sichere deine Daten zuverlässig mit verschlüsselter iCloud-Synchronisierung."
           }
         },
         "en" : {
@@ -875,7 +875,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Realice una copia de seguridad segura de sus datos con la sincronización cifrada de iCloud."
+            "value" : "Realice una copia de seguridad de sus datos con la sincronización cifrada de iCloud."
           }
         },
         "fr" : {
@@ -2327,7 +2327,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I dati su questo dispositivo non verranno aggiornati e le modifiche non saranno riflesse sugli altri dispositivi.\n\nVerrai disconnesso dal tuo account Proton."
+            "value" : "I dati su questo dispositivo non verranno aggiornati e le modifiche non verranno applicate ad altri dispositivi.\n\nEffettuerai la disconnessione dal tuo account Proton."
           }
         },
         "nl" : {
@@ -2345,7 +2345,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Os dados neste dispositivo não serão atualizados e as alterações não serão refletidas em outros dispositivos.\n\nVocê será desconectado da sua conta Proton."
+            "value" : "Os dados neste dispositivo não serão atualizados e as alterações não serão refletidas em outros dispositivos.\n\nSua conta Proton será desconectada."
           }
         },
         "ru" : {
@@ -2747,7 +2747,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disabilitato"
+            "value" : "Disabilitata"
           }
         },
         "nl" : {
@@ -3009,13 +3009,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habilitar datos biométricos"
+            "value" : "Activar biometría"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habilitar datos biométricos"
+            "value" : "Activar datos biométricos"
           }
         },
         "fr" : {
@@ -3149,13 +3149,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habilitar sincronización de iCloud"
+            "value" : "Activar la sincronización con iCloud"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habilitar sincronización de iCloud"
+            "value" : "Activar sincronización de iCloud"
           }
         },
         "fr" : {
@@ -3377,7 +3377,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abilitato"
+            "value" : "Abilitata"
           }
         },
         "nl" : {
@@ -4067,7 +4067,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ir a Configuración"
+            "value" : "Ir a Ajustes"
           }
         },
         "fr" : {
@@ -4609,7 +4609,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gehe in der Proton Pass-Erweiterung, der Web- oder Desktop-App zu **Einstellungen > Export**\n\nStelle sicher, dass du das **ZIP-Format ohne Dateianhänge** auswählst.\n\nDadurch wird eine ZIP-Datei erstellt, die du hier verwenden kannst."
+            "value" : "Gehe in der Proton Pass-Erweiterung, der Web- oder Desktop-App zu **Einstellungen > Export**\n\nAchte darauf, das **ZIP-Format ohne Dateianhänge** auszuwählen.\n\nDadurch wird eine ZIP-Datei erstellt, die du hier verwenden kannst."
           }
         },
         "en" : {
@@ -4627,7 +4627,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En la extensión de Proton Pass, en la aplicación web o de escritorio, vaya a **Configuración > Exportar**\n\nAsegúrese de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puede usar aquí."
+            "value" : "En la extensión de Proton Pass, en la aplicación web o de escritorio, vaya a **Ajustes > Exportar**\n\nAsegúrese de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puede usar aquí."
           }
         },
         "fr" : {
@@ -4722,7 +4722,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nieprawidłowy format pliku „%@”. Upewnij się, że plik ma obsługiwany format i spróbuj ponownie."
+            "value" : "Niepoprawny format pliku „%@”. Upewnij się, że plik ma obsługiwany format i spróbuj ponownie."
           }
         },
         "pt-BR" : {
@@ -4792,7 +4792,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nieprawidłowy sekret: %@"
+            "value" : "Niepoprawny sekret: %@"
           }
         },
         "pt-BR" : {
@@ -4902,13 +4902,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Emisor %@"
+            "value" : "emisor %@"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Emisor %@"
+            "value" : "emisor %@"
           }
         },
         "fr" : {
@@ -5624,7 +5624,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucun code n'a été importé."
+            "value" : "Aucun code importé"
           }
         },
         "it" : {
@@ -5904,7 +5904,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucun nouveau code n'a été détecté."
+            "value" : "Aucun nouveau code détecté"
           }
         },
         "it" : {
@@ -6538,7 +6538,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Copia de seguridad de 2FAS > Exportar**\n\nEsto creará un archivo 2fas que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Copia de seguridad de 2FAS > Exportar**\n\nEsto creará un archivo 2fas que puede usar aquí."
           }
         },
         "fr" : {
@@ -6590,7 +6590,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Daten > Codes exportieren**\n\nWähle **Klartext**, dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
+            "value" : "Bitte gehe zu **Einstellungen > Daten > Codes exportieren**\n\nWähle **Klartext**. Dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
           }
         },
         "en" : {
@@ -6608,7 +6608,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Datos > Exportar códigos**\n\nElija **Texto sin formato**, esto creará un archivo txt que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Datos > Exportar códigos**\n\nElija **Texto sin formato**; esto creará un archivo txt que puede usar aquí."
           }
         },
         "fr" : {
@@ -6678,7 +6678,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -6748,7 +6748,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -6818,7 +6818,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puede usar aquí."
           }
         },
         "fr" : {
@@ -6888,7 +6888,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vaya a **Configuración > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puede usar aquí."
+            "value" : "Vaya a **Ajustes > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puede usar aquí."
           }
         },
         "fr" : {
@@ -6912,7 +6912,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta**\n\nSpowoduje to utworzenie jednego lub więcej kodów QR, których możesz tutaj użyć."
+            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta**\n\nSpowoduje to utworzenie jednego lub większej liczby kodów QR, których możesz tutaj użyć."
           }
         },
         "pt-BR" : {
@@ -8102,7 +8102,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz swojego obecnego dostawcę 2FA"
+            "value" : "Wybierz swojego obecnego dostawcę uwierzytelniania dwustopniowego"
           }
         },
         "pt-BR" : {
@@ -8319,7 +8319,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Várias imagens não puderam ser processadas. Veja os logs para mais detalhes."
+            "value" : "Não foi possível o processamento de várias imagens. Confira os logs para mais detalhes."
           }
         },
         "ru" : {
@@ -8802,13 +8802,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Succesvol %lld item geïmporteerd"
+                  "value" : "%lld item succesvol geïmporteerd"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Succesvol %lld items geïmporteerd"
+                  "value" : "%lld items succesvol geïmporteerd"
                 }
               }
             }
@@ -9105,7 +9105,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sincronizar entre dispositivos com a conta Proton"
+            "value" : "Sincronizar entre dispositivos com a conta da Proton"
           }
         },
         "ru" : {
@@ -9309,13 +9309,13 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kod QR jest nieprawidłowy. Spróbuj zeskanować inny."
+            "value" : "Kod QR jest niepoprawny. Spróbuj zeskanować inny."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O código QR não é válido. Por favor, tente escanear um diferente."
+            "value" : "O código QR não é válido. Tente escanear um código diferente."
           }
         },
         "ru" : {
@@ -9687,7 +9687,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um die biometrische Authentifizierung zu verwenden, musst du Face ID/Touch ID für diese App in deinen Geräteeinstellungen aktivieren."
+            "value" : "Um die biometrische Authentifizierung zu verwenden, musst du für diese App in deinen Geräteeinstellungen Face ID/Touch ID aktivieren."
           }
         },
         "en" : {
@@ -9705,7 +9705,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Para usar la autenticación biométrica, debe habilitar Face ID/Touch ID para esta aplicación en la configuración de su dispositivo."
+            "value" : "Para usar la autenticación biométrica, debe activar Face ID/Touch ID para esta aplicación en los ajustes de su dispositivo."
           }
         },
         "fr" : {
@@ -9985,7 +9985,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lamentablemente, %1$@ no es compatible actualmente con la exportación de datos desde su aplicación. Considere contactar a %2$@ para solicitar esta característica.\n\nPor favor, importe sus datos manualmente por ahora."
+            "value" : "Lamentablemente, %1$@ no es compatible actualmente con la exportación de datos desde su aplicación. Considere contactar a %2$@ para solicitar esta función. \n\nImporte sus datos manualmente por ahora."
           }
         },
         "fr" : {
@@ -9997,7 +9997,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Purtroppo, %1$@ al momento non supporta l'esportazione dei dati dalla loro app. Potresti considerare di contattare %2$@ per richiedere questa funzione. \n\nPer ora, importa i tuoi dati manualmente."
+            "value" : "%1$@ al momento non supporta l'esportazione dei dati dalla loro app. Potresti contattare %2$@ per richiedere questa funzione. \n\nPer ora, importa i tuoi dati manualmente."
           }
         },
         "nl" : {
@@ -10009,13 +10009,13 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Niestety, %1$@ obecnie nie obsługuje eksportu danych ze swojej aplikacji. Rozważ skontaktowanie się z %2$@, aby poprosić o tę funkcję.\n\nNa razie zaimportuj swoje dane ręcznie."
+            "value" : "Niestety, %1$@ obecnie nie obsługuje eksportu danych ze swojej aplikacji. Rozważ skontaktowanie się z %2$@, aby poprosić o tę funkcję. \n\nNa razie zaimportuj swoje dane ręcznie."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Infelizmente, %1$@ atualmente não suporta a exportação de dados do aplicativo. Considere contatar %2$@ para solicitar este recurso. \n\nPor favor, importe seus dados manualmente por enquanto."
+            "value" : "No momento, %1$@ não é compatível com a exportação de dados do aplicativo. Entre em contato com %2$@ para solicitar este recurso. \n\nImporte seus dados manualmente por enquanto."
           }
         },
         "ru" : {
@@ -10341,7 +10341,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le mot de passe est incorrect."
+            "value" : "Mot de passe incorrect"
           }
         },
         "it" : {
@@ -10475,7 +10475,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Puede activar esta opción haciendo clic en el botón de alternancia a la derecha de la fila."
+            "value" : "Puede activar esta opción si hace clic en el botón de alternancia a la derecha de la fila."
           }
         },
         "fr" : {
@@ -10645,7 +10645,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sua sessão expirou ou foi revogada. Faça login na sua conta Proton novamente."
+            "value" : "Sua sessão expirou ou foi revogada. Faça login na sua conta da Proton novamente."
           }
         },
         "ru" : {
