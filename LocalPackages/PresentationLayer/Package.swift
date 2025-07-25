@@ -7,7 +7,7 @@ var platforms: [SupportedPlatform] = [
     .macOS(.v14),
     .iOS(.v17),
     .tvOS(.v16),
-    .watchOS(.v8),
+    .watchOS(.v10),
     .visionOS(.v2)
 ]
 
