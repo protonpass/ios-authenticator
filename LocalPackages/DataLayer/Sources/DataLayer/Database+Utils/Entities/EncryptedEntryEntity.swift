@@ -18,83 +18,83 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Foundation
-import Models
-import SwiftData
-
-@Model
-public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
-    public private(set) var id: String = UUID().uuidString
-    public private(set) var remoteId: String = ""
-    public private(set) var encryptedData = Data()
-    public private(set) var keyId: String = ""
-    public private(set) var order: Int = 0
-    public private(set) var syncState = EntrySyncState.unsynced
-    public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
-    public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
-    public private(set) var flags: Int = 0
-    public private(set) var contentFormatVersion: Int = 0
-    public private(set) var revision: Int = 0
-
-    public var isSynced: Bool {
-        syncState == .synced && !remoteId.isEmpty
-    }
-
-    public init(id: String,
-                encryptedData: Data,
-                remoteId: String,
-                keyId: String,
-                order: Int,
-                syncState: EntrySyncState,
-                creationDate: TimeInterval,
-                modifiedTime: TimeInterval,
-                flags: Int = 0,
-                contentFormatVersion: Int = 0,
-                revision: Int = 0) {
-        self.id = id
-        self.encryptedData = encryptedData
-        self.keyId = keyId
-        self.order = order
-        self.syncState = syncState
-        self.creationDate = creationDate
-        self.modifiedTime = modifiedTime
-        self.flags = flags
-        self.contentFormatVersion = contentFormatVersion
-        self.remoteId = remoteId
-        self.revision = revision
-    }
-
-    func updateEncryptedData(_ encryptedData: Data,
-                             with keyId: String,
-                             remoteModifiedTime: TimeInterval? = nil) {
-        self.encryptedData = encryptedData
-        self.keyId = keyId
-        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
-    }
-
-    func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
-        order = newOrder
-        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
-    }
-
-    // periphery:ignore
-    func updateSyncState(newState: EntrySyncState) {
-        syncState = newState
-    }
-
-    func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
-        remoteId = remoteEncryptedEntry.entryID
-        syncState = EntrySyncState.synced
-        modifiedTime = Double(remoteEncryptedEntry.modifyTime)
-        flags = remoteEncryptedEntry.flags
-        revision = remoteEncryptedEntry.revision
-    }
-
-    func update(with orderedEntry: OrderedEntry) {
-        syncState = orderedEntry.syncState
-        remoteId = orderedEntry.remoteId ?? ""
-        modifiedTime = orderedEntry.modifiedTime
-        flags = orderedEntry.flags
-        revision = orderedEntry.revision
-    }
-}
+//import Foundation
+//import Models
+//import SwiftData
+//
+//@Model
+//public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
+//    public private(set) var id: String = UUID().uuidString
+//    public private(set) var remoteId: String = ""
+//    public private(set) var encryptedData = Data()
+//    public private(set) var keyId: String = ""
+//    public private(set) var order: Int = 0
+//    public private(set) var syncState = EntrySyncState.unsynced
+//    public private(set) var creationDate: TimeInterval = Date().timeIntervalSince1970
+//    public private(set) var modifiedTime: TimeInterval = Date().timeIntervalSince1970
+//    public private(set) var flags: Int = 0
+//    public private(set) var contentFormatVersion: Int = 0
+//    public private(set) var revision: Int = 0
+//
+//    public var isSynced: Bool {
+//        syncState == .synced && !remoteId.isEmpty
+//    }
+//
+//    public init(id: String,
+//                encryptedData: Data,
+//                remoteId: String,
+//                keyId: String,
+//                order: Int,
+//                syncState: EntrySyncState,
+//                creationDate: TimeInterval,
+//                modifiedTime: TimeInterval,
+//                flags: Int = 0,
+//                contentFormatVersion: Int = 0,
+//                revision: Int = 0) {
+//        self.id = id
+//        self.encryptedData = encryptedData
+//        self.keyId = keyId
+//        self.order = order
+//        self.syncState = syncState
+//        self.creationDate = creationDate
+//        self.modifiedTime = modifiedTime
+//        self.flags = flags
+//        self.contentFormatVersion = contentFormatVersion
+//        self.remoteId = remoteId
+//        self.revision = revision
+//    }
+//
+//    func updateEncryptedData(_ encryptedData: Data,
+//                             with keyId: String,
+//                             remoteModifiedTime: TimeInterval? = nil) {
+//        self.encryptedData = encryptedData
+//        self.keyId = keyId
+//        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
+//    }
+//
+//    func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
+//        order = newOrder
+//        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
+//    }
+//
+//    // periphery:ignore
+//    func updateSyncState(newState: EntrySyncState) {
+//        syncState = newState
+//    }
+//
+//    func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
+//        remoteId = remoteEncryptedEntry.entryID
+//        syncState = EntrySyncState.synced
+//        modifiedTime = Double(remoteEncryptedEntry.modifyTime)
+//        flags = remoteEncryptedEntry.flags
+//        revision = remoteEncryptedEntry.revision
+//    }
+//
+//    func update(with orderedEntry: OrderedEntry) {
+//        syncState = orderedEntry.syncState
+//        remoteId = orderedEntry.remoteId ?? ""
+//        modifiedTime = orderedEntry.modifiedTime
+//        flags = orderedEntry.flags
+//        revision = orderedEntry.revision
+//    }
+//}

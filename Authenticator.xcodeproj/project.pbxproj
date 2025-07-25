@@ -21,10 +21,12 @@
 		5BF5101F2E3261A30025E5D2 /* WatchAuthenticator Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510352E3275810025E5D2 /* FactoryKit */; };
 		5BF510382E32758C0025E5D2 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510372E32758C0025E5D2 /* Models */; };
-		5BF5103A2E3276840025E5D2 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510392E3276840025E5D2 /* PresentationLayer */; };
 		5BF511BA2E337CD50025E5D2 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF511B92E337CD50025E5D2 /* WatchConnectivity.framework */; platformFilters = (ios, xros, ); };
 		5BF511BC2E337CE00025E5D2 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF511BB2E337CE00025E5D2 /* WatchConnectivity.framework */; };
 		5BF511BE2E337D0C0025E5D2 /* CommonUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF511BD2E337D0C0025E5D2 /* CommonUtilities */; };
+		5BF5125B2E337FF50025E5D2 /* OneTimePassword in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF5125A2E337FF50025E5D2 /* OneTimePassword */; };
+		5BF5125E2E33801D0025E5D2 /* SimplyPersist in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF5125D2E33801D0025E5D2 /* SimplyPersist */; };
+		5BF512612E3380540025E5D2 /* SimpleToast in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF512602E3380540025E5D2 /* SimpleToast */; };
 		5BF607E12D79FDB900904FC8 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF607E02D79FDB900904FC8 /* CloudKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -219,9 +221,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				5BF510382E32758C0025E5D2 /* Models in Frameworks */,
+				5BF5125E2E33801D0025E5D2 /* SimplyPersist in Frameworks */,
 				5BF511BC2E337CE00025E5D2 /* WatchConnectivity.framework in Frameworks */,
-				5BF5103A2E3276840025E5D2 /* PresentationLayer in Frameworks */,
+				5BF5125B2E337FF50025E5D2 /* OneTimePassword in Frameworks */,
 				5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */,
+				5BF512612E3380540025E5D2 /* SimpleToast in Frameworks */,
 				5BF511BE2E337D0C0025E5D2 /* CommonUtilities in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,8 +416,10 @@
 			packageProductDependencies = (
 				5BF510352E3275810025E5D2 /* FactoryKit */,
 				5BF510372E32758C0025E5D2 /* Models */,
-				5BF510392E3276840025E5D2 /* PresentationLayer */,
 				5BF511BD2E337D0C0025E5D2 /* CommonUtilities */,
+				5BF5125A2E337FF50025E5D2 /* OneTimePassword */,
+				5BF5125D2E33801D0025E5D2 /* SimplyPersist */,
+				5BF512602E3380540025E5D2 /* SimpleToast */,
 			);
 			productName = "WatchAuthenticator Watch App";
 			productReference = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */;
@@ -524,6 +530,9 @@
 			packageReferences = (
 				5B387F7A2D54CFD1006E0312 /* XCRemoteSwiftPackageReference "Factory" */,
 				5B5E0D532D5A332D00E7BCD4 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				5BF512592E337FF50025E5D2 /* XCRemoteSwiftPackageReference "OneTimePassword" */,
+				5BF5125C2E33801D0025E5D2 /* XCRemoteSwiftPackageReference "SimplyPersist" */,
+				5BF5125F2E3380540025E5D2 /* XCRemoteSwiftPackageReference "SimpleToast" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B8765182D52539D00B4CC30 /* Products */;
@@ -1646,6 +1655,30 @@
 				minimumVersion = 8.44.0;
 			};
 		};
+		5BF512592E337FF50025E5D2 /* XCRemoteSwiftPackageReference "OneTimePassword" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lukacs-m/OneTimePassword";
+			requirement = {
+				branch = develop;
+				kind = branch;
+			};
+		};
+		5BF5125C2E33801D0025E5D2 /* XCRemoteSwiftPackageReference "SimplyPersist" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lukacs-m/SimplyPersist";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.3;
+			};
+		};
+		5BF5125F2E3380540025E5D2 /* XCRemoteSwiftPackageReference "SimpleToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lukacs-m/SimpleToast";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1701,13 +1734,24 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Models;
 		};
-		5BF510392E3276840025E5D2 /* PresentationLayer */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PresentationLayer;
-		};
 		5BF511BD2E337D0C0025E5D2 /* CommonUtilities */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUtilities;
+		};
+		5BF5125A2E337FF50025E5D2 /* OneTimePassword */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BF512592E337FF50025E5D2 /* XCRemoteSwiftPackageReference "OneTimePassword" */;
+			productName = OneTimePassword;
+		};
+		5BF5125D2E33801D0025E5D2 /* SimplyPersist */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BF5125C2E33801D0025E5D2 /* XCRemoteSwiftPackageReference "SimplyPersist" */;
+			productName = SimplyPersist;
+		};
+		5BF512602E3380540025E5D2 /* SimpleToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5BF5125F2E3380540025E5D2 /* XCRemoteSwiftPackageReference "SimpleToast" */;
+			productName = SimpleToast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

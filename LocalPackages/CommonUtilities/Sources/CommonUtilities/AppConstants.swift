@@ -73,7 +73,7 @@ public enum AppConstants: Sendable {
 
     @MainActor
     public static var isPhone: Bool {
-        #if canImport(UIKit)
+        #if os(iOS)
         UIDevice.current.userInterfaceIdiom == .phone
         #else
         false
@@ -83,7 +83,7 @@ public enum AppConstants: Sendable {
     // periphery:ignore
     @MainActor
     public static var isIpad: Bool {
-        #if canImport(UIKit)
+        #if os(iOS)
         UIDevice.current.userInterfaceIdiom == .pad
         #else
         false

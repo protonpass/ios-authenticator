@@ -62,7 +62,7 @@ final class LegacyMutex<Value: Sendable>: MutexProtected {
     }
 }
 
-@available(iOS 18.0, macOS 15.0, *)
+@available(iOS 18.0, macOS 15.0, watchOS 11.0, tvOS 18.0, *)
 final class NativeMutex<Value: Sendable>: MutexProtected {
     private let mutex: Mutex<Value>
 
@@ -95,7 +95,7 @@ public enum SafeMutex {
     /// - Parameter value: The initial value to protect
     /// - Returns: A thread-safe wrapper conforming to MutexProtocol
     public static func create<Value: Sendable>(_ value: Value) -> any MutexProtected<Value> {
-        if #available(iOS 18.0, macOS 15.0, *) {
+        if #available(iOS 18.0, macOS 15.0, watchOS 11.0, tvOS 18.0, *) {
             NativeMutex(value)
         } else {
             LegacyMutex(value)
