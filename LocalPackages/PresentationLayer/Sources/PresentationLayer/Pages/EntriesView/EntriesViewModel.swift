@@ -37,8 +37,8 @@ final class EntriesViewModel: ObservableObject {
     var animatingEntry: Entry?
 
     var entries: [EntryUiModel] {
-        if let contentSearched {
-            return contentSearched
+        if let searchResults {
+            return searchResults
         } else if let data = entryDataService.dataState.data {
             return data
         }
@@ -68,7 +68,7 @@ final class EntriesViewModel: ObservableObject {
     @ObservationIgnored
     private var copyBadgeRemainingSeconds = 0
 
-    private var contentSearched: [EntryUiModel]?
+    private var searchResults: [EntryUiModel]?
 
     @ObservationIgnored
     private let searchTextStream: CurrentValueSubject<String, Never> = .init("")
@@ -311,7 +311,7 @@ private extension EntriesViewModel {
     func executeSearch(query: String) {
         if query.isEmpty {
             searchTask?.cancel()
-            contentSearched = nil
+            searchResults = nil
             return
         }
 
@@ -323,7 +323,7 @@ private extension EntriesViewModel {
             if Task.isCancelled {
                 return
             }
-            contentSearched = await filterData(query: query, data: data)
+            searchResults = await filterData(query: query, data: data)
         }
     }
 

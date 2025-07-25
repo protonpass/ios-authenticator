@@ -174,8 +174,8 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry, reducedShadow: false)
-                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 25))
-                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 25))
+                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 24))
+                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24))
                     .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)

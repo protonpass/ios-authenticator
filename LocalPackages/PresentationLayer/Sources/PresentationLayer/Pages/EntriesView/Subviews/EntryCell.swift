@@ -114,7 +114,7 @@ struct EntryCell: View, @preconcurrency Equatable {
                                                         stiffness: 5.5,
                                                         damping: 0.9,
                                                         initialVelocity: 4.8)) {
-                showCopyBadge = newValue != entry.orderedEntry.entry ? false : true
+                showCopyBadge = newValue == entry.orderedEntry.entry
             }
         }
         .onDisappear {
@@ -183,7 +183,7 @@ private extension EntryCell {
                 .frame(height: 2)
                 .frame(maxWidth: .infinity)
 
-            CodeView(configuration: configuration, code: entry.code, showCopyBadge: $showCopyBadge)
+            CodeView(configuration: configuration, code: entry.code, showCopyBadge: showCopyBadge)
                 .equatable()
                 .padding(.top, 8)
                 .padding(.bottom, 12)
@@ -269,7 +269,7 @@ struct EntryOptions: View {
 private struct CodeView: View, @preconcurrency Equatable {
     let configuration: EntryCellConfiguration
     let code: Code
-    @Binding var showCopyBadge: Bool
+    let showCopyBadge: Bool
 
     var body: some View {
         HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
@@ -315,7 +315,6 @@ private final class TOTPCountdownManager {
     static let shared = TOTPCountdownManager()
 
     private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
-    private var activeSubscribers = 0
 
     @ObservationIgnored
     private var timerCancellable: AnyCancellable?
@@ -334,24 +333,19 @@ private final class TOTPCountdownManager {
     }
 
     private func stopTimer() {
-        guard activeSubscribers == 0 else { return }
         timerCancellable?.cancel()
         timerCancellable = nil
     }
 
     func subscribe() {
-        activeSubscribers += 1
         startTimer()
     }
 
     func unsubscribe() {
-        activeSubscribers = max(0, activeSubscribers - 1)
-        if activeSubscribers == 0 {
-            stopTimer()
-        }
+        stopTimer()
     }
 
-    fileprivate func calculateProgressAndColor(period: Int) -> CountdownInfo {
+    func calculateCountdownInfo(period: Int) -> CountdownInfo {
         let period = Double(period)
         let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
         let progress = timeRemaining / period
@@ -376,7 +370,6 @@ private struct TOTPCountdownView: View {
     private var pauseCountDown: Bool
 
     @State private var timerManager = TOTPCountdownManager.shared
-    @State private var isActive = false
 
     init(period: Int,
          size: CGFloat = 32,
@@ -389,7 +382,7 @@ private struct TOTPCountdownView: View {
     }
 
     var body: some View {
-        let infos = timerManager.calculateProgressAndColor(period: period)
+        let infos = timerManager.calculateCountdownInfo(period: period)
 
         ZStack {
             // Background circle
@@ -418,27 +411,18 @@ private struct TOTPCountdownView: View {
                 .foregroundStyle(.textNorm)
         }
         .frame(width: size, height: size)
-        .opacity(shouldPause ? 0.5 : 1.0)
+        .opacity(pauseCountDown ? 0.5 : 1.0)
         .onAppear {
-            isActive = true
-            if !shouldPause {
+            if !pauseCountDown {
                 timerManager.subscribe()
             }
-        }
-        .onDisappear {
-            isActive = false
-            timerManager.unsubscribe()
         }
         .onChange(of: pauseCountDown) {
             if pauseCountDown {
                 timerManager.unsubscribe()
-            } else if isActive {
+            } else {
                 timerManager.subscribe()
             }
         }
-    }
-
-    private var shouldPause: Bool {
-        pauseCountDown || !isActive
     }
 }
