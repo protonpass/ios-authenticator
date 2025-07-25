@@ -36,7 +36,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "file 2FA"
+            "value" : "File 2Fas"
           }
         },
         "nl" : {
@@ -54,7 +54,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Arquivos 2Fas"
+            "value" : "Arquivos 2FAs"
           }
         },
         "ru" : {
