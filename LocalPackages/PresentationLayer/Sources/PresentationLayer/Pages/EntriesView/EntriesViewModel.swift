@@ -92,6 +92,11 @@ final class EntriesViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.userSessionManager)
     private(set) var userSessionManager
 
+    // periphery:ignore
+    @ObservationIgnored
+    @Injected(\ServiceContainer.iosToWatchCommunicationManager)
+    private var iosToWatchCommunicationManager
+
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logger
@@ -221,6 +226,10 @@ final class EntriesViewModel: ObservableObject {
                 handle(error)
             }
         }
+    }
+
+    func check() {
+        iosToWatchCommunicationManager.checkIfActive()
     }
 
     func fullSync() {

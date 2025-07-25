@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Models
 import ProtonCoreDataModel
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking

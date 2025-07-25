@@ -1,4 +1,4 @@
-//  
+//
 // EncryptedUserDataEntity.swift
 // Proton Authenticator - Created on 25/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -38,4 +38,3 @@ public final class EncryptedUserDataEntity: Equatable, Hashable, @unchecked Send
         modifiedTime = Date.now.timeIntervalSince1970
     }
 }
-

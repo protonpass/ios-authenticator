@@ -30,7 +30,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     public let secret: String
     public let note: String?
     public let type: TotpType
-    private let precomputedHash: Int
+//    private let precomputedHash: Int
 
     public init(id: String,
                 name: String,
@@ -48,8 +48,8 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         self.secret = secret
         self.note = note
         self.type = type
-        var hasher = Hasher()
-        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
+//        var hasher = Hasher()
+//        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
 
     static var `default`: Entry {
@@ -75,7 +75,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
 // MARK: - Hashable
 
 public extension Entry {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(precomputedHash)
-    }
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(precomputedHash)
+//    }
 }

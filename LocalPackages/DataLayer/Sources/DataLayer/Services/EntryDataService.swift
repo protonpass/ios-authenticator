@@ -55,6 +55,10 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func startTotpGenerator()
 
     func unsyncAllEntries() async throws
+
+    // MARK: - Watch data connectivity
+
+    func extractingOrderedEntry() -> [OrderedEntry]
 }
 
 public extension EntryDataServiceProtocol {
@@ -381,6 +385,15 @@ public extension EntryDataService {
 
         log(.info, "Starting TOTP generator")
         startUpdatingTotpCode(entries)
+    }
+}
+
+// MARK: - Watch
+
+public extension EntryDataService {
+    func extractingOrderedEntry() -> [OrderedEntry] {
+        guard let entries = dataState.data else { return [] }
+        return Array(entries.map(\.orderedEntry).prefix(50))
     }
 }
 

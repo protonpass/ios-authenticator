@@ -1,4 +1,4 @@
-//  
+//
 // WatchConnectivityFailureReason.swift
 // Proton Authenticator - Created on 25/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -22,14 +22,14 @@ import Foundation
 
 public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equatable, Sendable {
     case companionNotReachable
-    case messageDecodingFailed
+    case messageDecodingFailed(String)
 
     public var debugDescription: String {
         switch self {
         case .companionNotReachable:
             "Could not reach the companion app"
-        case .messageDecodingFailed:
-            "Failed to decoede received message"
+        case let .messageDecodingFailed(error):
+            "Failed to decode received message: \(error)"
         }
     }
 }

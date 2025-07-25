@@ -1,4 +1,4 @@
-//  
+//
 // EncryptedEntryEntity.swift
 // Proton Authenticator - Created on 25/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -64,16 +64,16 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     }
 
     public func updateEncryptedData(_ encryptedData: Data,
-                             with keyId: String,
-                             remoteModifiedTime: TimeInterval? = nil) {
+                                    with keyId: String,
+                                    remoteModifiedTime: TimeInterval? = nil) {
         self.encryptedData = encryptedData
         self.keyId = keyId
-        modifiedTime = remoteModifiedTime ??  Date.now.timeIntervalSince1970
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
     public func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
         order = newOrder
-        modifiedTime = remoteModifiedTime ??  Date.now.timeIntervalSince1970
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
     // periphery:ignore
@@ -97,4 +97,3 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         revision = orderedEntry.revision
     }
 }
-

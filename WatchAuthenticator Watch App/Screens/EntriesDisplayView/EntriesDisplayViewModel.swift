@@ -1,5 +1,5 @@
 //
-//  
+//
 // EntriesDisplayViewModel.swift
 // Proton Authenticator - Created on 24/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -60,7 +60,7 @@ final class EntriesDisplayViewModel: ObservableObject {
     }
 
     @ObservationIgnored
-    @LazyInjected(\WatchDIContainer.entryDataService)
+    @LazyInjected(\WatchDIContainer.dataService)
     private(set) var entryDataService
 
     private var lastestQuery = ""

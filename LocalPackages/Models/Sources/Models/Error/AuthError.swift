@@ -50,6 +50,8 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
             reason.debugDescription
         case let .backup(reason):
             reason.debugDescription
+        case let .watchConnectivity(reason):
+            reason.debugDescription
         }
     }
 

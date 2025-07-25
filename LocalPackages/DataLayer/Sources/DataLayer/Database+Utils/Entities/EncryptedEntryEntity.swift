@@ -18,12 +18,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-//import Foundation
-//import Models
-//import SwiftData
+// import Foundation
+// import Models
+// import SwiftData
 //
-//@Model
-//public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
+// @Model
+// public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendable {
 //    public private(set) var id: String = UUID().uuidString
 //    public private(set) var remoteId: String = ""
 //    public private(set) var encryptedData = Data()
@@ -97,4 +97,4 @@
 //        flags = orderedEntry.flags
 //        revision = orderedEntry.revision
 //    }
-//}
+// }

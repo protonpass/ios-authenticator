@@ -1,4 +1,4 @@
-//  
+//
 // WatchIOSMessageType.swift
 // Proton Authenticator - Created on 25/07/2025.
 // Copyright (c) 2025 Proton Technologies AG

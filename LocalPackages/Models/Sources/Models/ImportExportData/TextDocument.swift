@@ -31,7 +31,7 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         title = TextDocument.exportFileName
         self.content = content
     }
-  
+
     public static let readableContentTypes: [UTType] = [.text]
 
     public init(configuration: ReadConfiguration) throws {

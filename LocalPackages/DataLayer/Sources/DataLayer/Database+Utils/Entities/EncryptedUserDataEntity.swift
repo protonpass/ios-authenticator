@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-//import Foundation
-//import SwiftData
+// import Foundation
+// import SwiftData
 //
-//@Model
-//public final class EncryptedUserDataEntity: Equatable, Hashable, @unchecked Sendable {
+// @Model
+// public final class EncryptedUserDataEntity: Equatable, Hashable, @unchecked Sendable {
 //    public private(set) var id: String = UUID().uuidString
 //    public private(set) var modifiedTime: TimeInterval = Date.now.timeIntervalSince1970
 //    public private(set) var encryptedData = Data()
@@ -37,4 +37,4 @@
 //        self.encryptedData = encryptedData
 //        modifiedTime = Date.now.timeIntervalSince1970
 //    }
-//}
+// }

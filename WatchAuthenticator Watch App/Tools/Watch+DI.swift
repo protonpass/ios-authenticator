@@ -1,4 +1,4 @@
-//  
+//
 // Watch+DI.swift
 // Proton Authenticator - Created on 24/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
@@ -38,12 +38,12 @@ final class WatchDIContainer: SharedContainer {
         self { LocalDataManager() }
     }
 
-    var watchCommunicationService: Factory<any WatchCommunicationServiceProtocol> {
-        self { WatchCommunicationService() }
+    var watchToIOSCommunicationManager: Factory<any WatchCommunicationServiceProtocol> {
+        self { WatchToIOSCommunicationManager() }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keychain: self.keychainService()) }
+        self { WatchEncryptionService(keychain: self.keychainService()) }
     }
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
@@ -51,8 +51,8 @@ final class WatchDIContainer: SharedContainer {
                                encryptionService: self.encryptionService()) }
     }
 
-    var entryDataService: Factory<any EntryDataServiceProtocol> {
-        self { @MainActor in EntryDataService(repository: self.entryRepository(),
-                                              communicationService: self.watchCommunicationService()) }
+    var dataService: Factory<any DataServiceProtocol> {
+        self { @MainActor in DataService(repository: self.entryRepository(),
+                                         communicationService: self.watchToIOSCommunicationManager()) }
     }
 }
