@@ -149,7 +149,7 @@ final class OnboardingViewModel {
     }
 
     func enableICloudSync() {
-        appSettings.toggleICloudBackUp(true)
+        appSettings.toggleICloudSync(true)
         iCloudSyncEnabled = true
         Task {
             await localDataManager.refreshLocalStorage()

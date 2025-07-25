@@ -31,6 +31,7 @@ struct SettingRow: View {
     enum TrailingMode {
         case toggle(isOn: Bool, onToggle: () -> Void)
         case detailChevronUpDown(TextContent)
+        case detailChevronRight
     }
 
     var body: some View {
@@ -75,6 +76,10 @@ struct SettingRow: View {
                         .padding(.trailing, DesignConstant.padding / 2)
 
                     Image(systemName: "chevron.up.chevron.down")
+                        .foregroundStyle(.textNorm)
+
+                case .detailChevronRight:
+                    Image(systemName: "chevron.right")
                         .foregroundStyle(.textNorm)
                 }
             }

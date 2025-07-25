@@ -90,12 +90,19 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
-
+    @ObservationIgnored
+    private let reachabilityManager: any ReachabilityServicing
+    @ObservationIgnored
+    private var backUpManager: any BackUpServicing
     @ObservationIgnored
     private let syncOperation: any SyncOperationCheckerProtocol
-
     @ObservationIgnored
     private let logger: LoggerProtocol
+    @ObservationIgnored
+    private let settings: SettingsServicing
+
+    @ObservationIgnored
+    private var backUpEntriesTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -104,13 +111,19 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 totpGenerator: any TotpGeneratorProtocol,
                 totpIssuerMapper: any TOTPIssuerMapperServicing,
                 logger: any LoggerProtocol,
+                reachabilityManager: any ReachabilityServicing,
+                backUpManager: any BackUpServicing,
+                settings: any SettingsServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
         self.totpGenerator = totpGenerator
         self.totpIssuerMapper = totpIssuerMapper
         self.logger = logger
+        self.reachabilityManager = reachabilityManager
+        self.backUpManager = backUpManager
         self.syncOperation = syncOperation
+        self.settings = settings
         setUp()
     }
 
@@ -164,6 +177,7 @@ public extension EntryDataService {
         data[index] = oldEntry.copy(newEntry: entry)
 
         try await repository.completeUpdate(entry: data[index].orderedEntry, oldEntry: oldEntry.orderedEntry)
+        backUpEntries()
 
         updateData(data)
     }
@@ -185,6 +199,7 @@ public extension EntryDataService {
         } else {
             log(.debug, "No order changes required")
         }
+        backUpEntries()
 
         updateData(updatedOrderedEntries)
         log(.debug, "Deleted entry with ID: \(entry.id)")
@@ -201,6 +216,8 @@ public extension EntryDataService {
         // Only reorder items whose order changes
         let (updatedOrderedEntries, changedEntries) = updateOrderAndExtractChanges(uiEntries: entries)
         try await repository.completeReorder(entries: changedEntries)
+        backUpEntries()
+
         updateData(updatedOrderedEntries)
     }
 
@@ -240,6 +257,8 @@ public extension EntryDataService {
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
+            backUpEntries()
+
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
@@ -339,6 +358,9 @@ public extension EntryDataService {
         _ = try await repository.completeSave(entries: uiEntries.map(\.orderedEntry))
 
         data.append(contentsOf: uiEntries)
+
+        await backUpEntries()
+
         await MainActor.run {
             updateData(data)
         }
@@ -407,6 +429,9 @@ private extension EntryDataService {
         }
 
         data.append(entryUI)
+
+        backUpEntries()
+
         updateData(data)
         log(.debug, "Saved entry \(entryUI.id)")
     }
@@ -601,6 +626,21 @@ private extension EntryDataService {
         }
 
         return mergedOrderedItems
+    }
+
+    func backUpEntries() {
+        guard settings.iCloudBackUp, let exportData = try? exportEntries().data(using: .utf8) else {
+            return
+        }
+        backUpEntriesTask?.cancel()
+
+        backUpEntriesTask = Task {
+            do {
+                try await backUpManager.write(data: exportData)
+            } catch {
+                log(.error, "Failed to backup entries: \(error)")
+            }
+        }
     }
 }
 

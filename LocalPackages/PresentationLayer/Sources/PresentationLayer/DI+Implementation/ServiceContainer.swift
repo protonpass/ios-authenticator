@@ -52,7 +52,10 @@ public extension ServiceContainer {
                                               importService: self.importService(),
                                               totpGenerator: ToolsContainer.shared.totpGenerator(),
                                               totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper(),
-                                              logger: self.logger) }
+                                              logger: self.logger,
+                                              reachabilityManager: ToolsContainer.shared.reachabilityManager(),
+                                              backUpManager: self.backUpManager(),
+                                              settings: self.settingsService()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
@@ -112,6 +115,10 @@ public extension ServiceContainer {
 
     var reviewService: Factory<any ReviewServicing> {
         self { ReviewService() }
+    }
+
+    var backUpManager: Factory<any BackUpServicing> {
+        self { BackUpManager() }
     }
 
     var totpCountdownManager: Factory<any TOTPCountdownProtocol> {

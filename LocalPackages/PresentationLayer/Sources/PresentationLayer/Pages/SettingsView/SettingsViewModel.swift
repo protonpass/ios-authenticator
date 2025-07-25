@@ -34,7 +34,8 @@ import UIKit
 
 @Observable @MainActor
 final class SettingsViewModel {
-    private(set) var backUpEnabled = true
+    private(set) var fullBackupEnabled = false
+    private(set) var iCloudSync = true
     private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
@@ -96,7 +97,7 @@ final class SettingsViewModel {
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
-    private var toggleBackICloudUpTask: Task<Void, Never>?
+    private var toggleICloudSyncTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables: Set<AnyCancellable> = []
@@ -155,7 +156,9 @@ final class SettingsViewModel {
         }
         biometricLock = authenticationService.biometricEnabled
 
-        backUpEnabled = settingsService.iCloudBackUp
+        fullBackupEnabled = settingsService.fullBackUp
+
+        iCloudSync = settingsService.iCloudSync
 
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
@@ -178,11 +181,11 @@ extension SettingsViewModel {
         settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
 
-    func toggleBackICloudUp() {
-        settingsService.toggleICloudBackUp(!backUpEnabled)
-        backUpEnabled.toggle()
-        toggleBackICloudUpTask?.cancel()
-        toggleBackICloudUpTask = Task {
+    func toggleICloudSyncBackup() {
+        settingsService.toggleICloudSync(!iCloudSync)
+        iCloudSync.toggle()
+        toggleICloudSyncTask?.cancel()
+        toggleICloudSyncTask = Task {
             await localDataManager.refreshLocalStorage()
         }
     }

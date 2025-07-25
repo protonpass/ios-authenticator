@@ -575,6 +575,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Authenticator/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Proton Authenticator";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_ITSEncryptionExportComplianceCode = "0f155edb-2296-4418-b746-00ee2cb43be5";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -770,6 +772,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Authenticator/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Proton Authenticator";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_ITSEncryptionExportComplianceCode = "0f155edb-2296-4418-b746-00ee2cb43be5";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -827,6 +831,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Authenticator/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Proton Authenticator";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = YES;
+				INFOPLIST_KEY_ITSEncryptionExportComplianceCode = "0f155edb-2296-4418-b746-00ee2cb43be5";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Need the usage of the camera to be able to scan 2fa codes";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Restrict unwelcome access to your Proton Authenticator account on this device";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
