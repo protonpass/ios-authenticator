@@ -30,6 +30,7 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
     case symmetricCrypto(SymmetricKeyCryptoFailureReasons)
     case crypto(CryptoFailureReason)
     case backup(BackUpFailureReason)
+    case watchConnectivity(WatchConnectivityFailureReason)
 
     public var debugDescription: String {
         switch self {

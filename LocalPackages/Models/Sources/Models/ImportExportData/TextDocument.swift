@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+#if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
@@ -30,7 +31,7 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         title = TextDocument.exportFileName
         self.content = content
     }
-
+  
     public static let readableContentTypes: [UTType] = [.text]
 
     public init(configuration: ReadConfiguration) throws {
@@ -83,3 +84,4 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         return "Proton_Authenticator_backup_\(currentDate)"
     }
 }
+#endif
