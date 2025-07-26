@@ -18,6 +18,7 @@
 		5B8765722D527F9C00B4CC30 /* DomainLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765712D527F9C00B4CC30 /* DomainLayer */; };
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
 		5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765752D527F9C00B4CC30 /* PresentationLayer */; };
+		5B9AD5D02E358A9C000FC006 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B9AD5CF2E358A9C000FC006 /* Macro */; };
 		5BF5101F2E3261A30025E5D2 /* WatchAuthenticator Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510352E3275810025E5D2 /* FactoryKit */; };
 		5BF510382E32758C0025E5D2 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510372E32758C0025E5D2 /* Models */; };
@@ -227,6 +228,7 @@
 				5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */,
 				5BF512612E3380540025E5D2 /* SimpleToast in Frameworks */,
 				5BF511BE2E337D0C0025E5D2 /* CommonUtilities in Frameworks */,
+				5B9AD5D02E358A9C000FC006 /* Macro in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,6 +422,7 @@
 				5BF5125A2E337FF50025E5D2 /* OneTimePassword */,
 				5BF5125D2E33801D0025E5D2 /* SimplyPersist */,
 				5BF512602E3380540025E5D2 /* SimpleToast */,
+				5B9AD5CF2E358A9C000FC006 /* Macro */,
 			);
 			productName = "WatchAuthenticator Watch App";
 			productReference = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */;
@@ -1340,6 +1343,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2SB5Z68H26;
@@ -1369,6 +1373,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
@@ -1403,6 +1408,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
@@ -1724,6 +1730,10 @@
 		5B8765752D527F9C00B4CC30 /* PresentationLayer */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PresentationLayer;
+		};
+		5B9AD5CF2E358A9C000FC006 /* Macro */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Macro;
 		};
 		5BF510352E3275810025E5D2 /* FactoryKit */ = {
 			isa = XCSwiftPackageProductDependency;

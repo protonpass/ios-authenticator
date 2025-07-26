@@ -23,6 +23,7 @@
 import Combine
 import FactoryKit
 import Foundation
+import Macro
 import Models
 import SimpleToast
 
@@ -109,6 +110,6 @@ final class EntriesDisplayViewModel: ObservableObject {
             return
         }
         entryDataService.sendCode(code)
-        toast = SimpleToast(title: "Code sent to your phone")
+        toast = SimpleToast(title: #localized("Code copied to your phone clipboard"))
     }
 }
