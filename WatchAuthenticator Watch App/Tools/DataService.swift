@@ -85,12 +85,12 @@ final class DataService: DataServiceProtocol {
     func loadEntries() async throws {
         do {
             if Task.isCancelled { return }
-//            let entriesStates = try await repository.getAllEntries()
-//            if entriesStates.isEmpty {
-            askForDataUpdate()
-//            }
+            let entriesStates = try await repository.getAllEntries()
+            if entriesStates.isEmpty {
+                askForDataUpdate()
+            }
             if Task.isCancelled { return }
-            let entries = try await generateUIEntries(from: [] /* entriesStates */ )
+            let entries = try await generateUIEntries(from: entriesStates)
             updateData(entries)
         } catch {
             if let data = dataState.data, !data.isEmpty { return }
@@ -115,25 +115,16 @@ final class DataService: DataServiceProtocol {
     }
 
     func askForDataUpdate() {
-//        guard !waitingForUpdate else {
-//            return
-//        }
         do {
             try communicationService.sendMessage(message: .syncData)
         } catch {
+            if let data = dataState.data, !data.isEmpty { return }
             dataState = .failed(error)
-//            print("\(error.localizedDescription)")
         }
     }
 
     func sendCode(_ code: String) {
-        do {
-            try communicationService.sendMessage(message: .code(code))
-        } catch {
-            dataState = .failed(error)
-
-//            print("\(error.localizedDescription)")
-        }
+        try? communicationService.sendMessage(message: .code(code))
     }
 
     func parse(_ status: CommunicationState) {
@@ -145,8 +136,8 @@ final class DataService: DataServiceProtocol {
             case let .success(entries):
                 manageReceivedData(entries)
             case let .failure(error):
+                if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
-//                print("Error: \(error.localizedDescription)")
             }
         case .idle:
             return
@@ -165,17 +156,16 @@ final class DataService: DataServiceProtocol {
                     let newIds = entries.ids
                     let existingIds = currentData.ids
                     let idsToDelete = existingIds.subtracting(newIds)
-//                    if !idsToDelete.isEmpty {
-//                        try await repository.removeAll(Array(idsToDelete))
-//                    }
+                    if !idsToDelete.isEmpty {
+                        try await repository.removeAll(Array(idsToDelete))
+                    }
                 }
-//                try await repository.upsert(entries)
+                try await repository.upsert(entries)
                 let entries = try await generateUIEntries(from: entries)
                 updateData(entries)
             } catch {
+                if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
-
-//                print("Failed manageReceivedData: \(error)")
             }
         }
     }

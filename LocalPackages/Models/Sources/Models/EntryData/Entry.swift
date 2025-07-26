@@ -30,7 +30,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     public let secret: String
     public let note: String?
     public let type: TotpType
-//    private let precomputedHash: Int
+    private let precomputedHash: Int
 
     public init(id: String,
                 name: String,
@@ -48,8 +48,8 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         self.secret = secret
         self.note = note
         self.type = type
-//        var hasher = Hasher()
-//        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
+        var hasher = Hasher()
+        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
 
     static var `default`: Entry {
@@ -70,12 +70,32 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
     public var capitalLetter: String {
         issuer.first?.uppercased() ?? "-"
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, uri, period, issuer, secret, note, type
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        uri = try container.decode(String.self, forKey: .uri)
+        period = try container.decode(Int.self, forKey: .period)
+        issuer = try container.decode(String.self, forKey: .issuer)
+        secret = try container.decode(String.self, forKey: .secret)
+        note = try container.decodeIfPresent(String.self, forKey: .note)
+        type = try container.decode(TotpType.self, forKey: .type)
+
+        // Recompute hash after decoding
+        var hasher = Hasher()
+        precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
+    }
 }
 
 // MARK: - Hashable
 
 public extension Entry {
-//    func hash(into hasher: inout Hasher) {
-//        hasher.combine(precomputedHash)
-//    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(precomputedHash)
+    }
 }

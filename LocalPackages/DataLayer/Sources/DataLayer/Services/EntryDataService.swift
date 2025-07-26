@@ -393,7 +393,7 @@ public extension EntryDataService {
 public extension EntryDataService {
     func extractingOrderedEntry() -> [OrderedEntry] {
         guard let entries = dataState.data else { return [] }
-        return Array(entries.map(\.orderedEntry).prefix(50))
+        return entries.map(\.orderedEntry)
     }
 }
 

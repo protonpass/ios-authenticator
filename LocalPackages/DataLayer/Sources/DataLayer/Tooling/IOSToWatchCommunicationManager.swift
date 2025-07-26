@@ -38,14 +38,18 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
         self.entryDataService = entryDataService
         super.init()
         self.session.delegate = self
-        self.session.activate()
+        checkIfActive()
         print("woot session activated \(self.session.activationState == .activated), isPaired: \(self.session.isPaired), isWatchAppInstalled: \(self.session.isWatchAppInstalled)")
     }
 
     public func checkIfActive() {
-        if session.activationState != .activated {
-            session.activate()
+        guard WCSession.isSupported(),
+              session.isPaired,
+              session.isWatchAppInstalled,
+              session.activationState != .activated else {
+            return
         }
+        session.activate()
         print("woot retry session activated \(session.activationState == .activated), isPaired: \(session.isPaired), isWatchAppInstalled: \(session.isWatchAppInstalled)")
     }
 
