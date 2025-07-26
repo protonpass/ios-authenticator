@@ -38,7 +38,8 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
         self.entryDataService = entryDataService
         super.init()
         self.session.delegate = self
-        checkIfActive()
+        self.session.activate()
+//        checkIfActive()
         print("woot session activated \(self.session.activationState == .activated), isPaired: \(self.session.isPaired), isWatchAppInstalled: \(self.session.isWatchAppInstalled)")
     }
 
@@ -78,15 +79,20 @@ private extension IOSToWatchCommunicationManager {
             guard let self else { return }
             do {
                 switch message {
+//                case .syncData:
+//                    let entries = await entryDataService.extractingOrderedEntry()
+//                    try sendMessage(message: .dataContent(entries))
                 case .syncData:
                     let entries = await entryDataService.extractingOrderedEntry()
-                    try sendMessage(message: .dataContent(entries))
+                    try sendAllPages(entries: entries)
+
                 case let .code(newCode):
                     #if canImport(UIKit)
                     UIPasteboard.general.string = newCode
                     #else
                     return
                     #endif
+
                 default:
                     return
                 }
@@ -95,6 +101,46 @@ private extension IOSToWatchCommunicationManager {
             }
         }
     }
+
+    private func sendAllPages(entries: [OrderedEntry]) throws {
+        let pageSize = 100
+        let requestId = UUID().uuidString
+        let totalPages = Int(ceil(Double(entries.count) / Double(pageSize)))
+
+        for page in 0..<totalPages {
+            let startIndex = page * pageSize
+            let endIndex = min(startIndex + pageSize, entries.count)
+            let pageEntries = Array(entries[startIndex..<endIndex])
+
+            let paginatedData = PaginatedWatchDataCommunication(requestId: requestId,
+                                                                orderedEntries: pageEntries,
+                                                                currentPage: page,
+                                                                totalPages: totalPages,
+                                                                isLastPage: page == totalPages - 1)
+
+            try sendMessage(message: .dataContent(paginatedData))
+
+            // Small delay between pages if needed
+//            if page < totalPages - 1 {
+//                Thread.sleep(forTimeInterval: 0.1) // 100ms between pages
+//            }
+        }
+    }
+
+//    func sendPaginatedData(entries: [OrderedEntry], pageSize: Int, currentPage: Int = 0, requestId: String)
+//    throws {
+//        let totalPages = Int(ceil(Double(entries.count) / Double(pageSize)))
+//        let startIndex = currentPage * pageSize
+//        let endIndex = min(startIndex + pageSize, entries.count)
+//
+//        let pageEntries = Array(entries[startIndex..<endIndex])
+//        let paginatedResponse = PaginatedWatchDataCommunication(orderedEntries: pageEntries,
+//                                                                currentPage: currentPage,
+//                                                                totalPages: totalPages,
+//                                                                requestId: requestId)
+//
+//        try sendMessage(message: .dataContent(paginatedResponse))
+//    }
 
     func sendMessage(message: WatchIOSMessageType) throws {
         guard session.isReachable, session.activationState == .activated else {

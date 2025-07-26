@@ -115,6 +115,9 @@ final class DataService: DataServiceProtocol {
     }
 
     func askForDataUpdate() {
+        guard !waitingForUpdate else {
+            return
+        }
         do {
             try communicationService.sendMessage(message: .syncData)
         } catch {

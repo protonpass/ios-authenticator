@@ -23,6 +23,8 @@ import Foundation
 public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equatable, Sendable {
     case companionNotReachable
     case messageDecodingFailed(String)
+    case sessionActivationFailed(String)
+    case timeout
 
     public var debugDescription: String {
         switch self {
@@ -30,6 +32,10 @@ public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equata
             "Could not reach the companion app"
         case let .messageDecodingFailed(error):
             "Failed to decode received message: \(error)"
+        case let .sessionActivationFailed(error):
+            "Failed to activate session: \(error)"
+        case .timeout:
+            "Connection to the companion app timed out"
         }
     }
 }

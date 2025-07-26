@@ -51,9 +51,6 @@ struct EntriesDisplayView: View {
             .task {
                 viewModel.loadEntries()
             }
-            .refreshable {
-                await viewModel.askForUpdate()
-            }
         }
         .searchable(text: $viewModel.query)
         .toast(toast: $viewModel.toast)

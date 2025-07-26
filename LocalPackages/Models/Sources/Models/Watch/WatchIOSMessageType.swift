@@ -20,8 +20,25 @@
 
 import Foundation
 
+public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
+    public let requestId: String
+    public let orderedEntries: [OrderedEntry]
+    public let currentPage: Int
+    public let totalPages: Int
+    public let isLastPage: Bool
+
+    public init(requestId: String, orderedEntries: [OrderedEntry], currentPage: Int, totalPages: Int,
+                isLastPage: Bool) {
+        self.orderedEntries = orderedEntries
+        self.currentPage = currentPage
+        self.totalPages = totalPages
+        self.requestId = requestId
+        self.isLastPage = isLastPage
+    }
+}
+
 public enum WatchIOSMessageType: Codable, Equatable, Sendable {
     case syncData
-    case dataContent([OrderedEntry])
+    case dataContent(PaginatedWatchDataCommunication)
     case code(String)
 }
