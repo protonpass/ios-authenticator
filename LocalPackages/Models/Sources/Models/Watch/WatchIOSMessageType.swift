@@ -27,7 +27,10 @@ public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
     public let totalPages: Int
     public let isLastPage: Bool
 
-    public init(requestId: String, orderedEntries: [OrderedEntry], currentPage: Int, totalPages: Int,
+    public init(requestId: String,
+                orderedEntries: [OrderedEntry],
+                currentPage: Int,
+                totalPages: Int,
                 isLastPage: Bool) {
         self.orderedEntries = orderedEntries
         self.currentPage = currentPage
