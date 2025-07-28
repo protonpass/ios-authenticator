@@ -105,7 +105,7 @@ public struct EntriesView: View {
                 }
                 .onChange(of: scenePhase) { _, newValue in
                     if newValue == .active {
-                        viewModel.check()
+                        viewModel.checkWatchConnectivity()
                         if router.noSheetDisplayed {
                             withAnimation {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch

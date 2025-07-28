@@ -28,7 +28,7 @@ protocol DataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[UIModel]> { get }
     var waitingForUpdate: Bool { get }
 
-    func loadEntries() async throws
+    func loadEntries() async
     func askForDataUpdate()
     func sendCode(_ code: String)
 }
@@ -71,18 +71,7 @@ final class DataService: DataServiceProtocol {
         setUp()
     }
 
-    private func setUp() {
-        communicationService
-            .communicationState
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                guard let self else { return }
-                parse(state)
-            }
-            .store(in: &cancellables)
-    }
-
-    func loadEntries() async throws {
+    func loadEntries() async {
         do {
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllEntries()
@@ -90,28 +79,12 @@ final class DataService: DataServiceProtocol {
                 askForDataUpdate()
             }
             if Task.isCancelled { return }
-            let entries = try await generateUIEntries(from: entriesStates)
+            let entries = generateUIEntries(from: entriesStates)
             updateData(entries)
         } catch {
             if let data = dataState.data, !data.isEmpty { return }
             dataState = .failed(error)
         }
-    }
-
-    func generateUIEntries(from entries: [OrderedEntry]) async throws -> [UIModel] {
-        var results = [UIModel]()
-        for entry in entries {
-            guard let url = URL(string: entry.entry.uri), let token = try? Token(url: url) else {
-                continue
-            }
-            results.append(.init(orderedEntry: entry, token: token))
-        }
-
-        return results
-    }
-
-    func updateData(_ entries: [UIModel]) {
-        dataState = .loaded(entries)
     }
 
     func askForDataUpdate() {
@@ -128,6 +101,35 @@ final class DataService: DataServiceProtocol {
 
     func sendCode(_ code: String) {
         try? communicationService.sendMessage(message: .code(code))
+    }
+}
+
+private extension DataService {
+    func setUp() {
+        communicationService
+            .communicationState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                parse(state)
+            }
+            .store(in: &cancellables)
+    }
+
+    func generateUIEntries(from entries: [OrderedEntry]) -> [UIModel] {
+        var results = [UIModel]()
+        for entry in entries {
+            guard let url = URL(string: entry.entry.uri), let token = try? Token(url: url) else {
+                continue
+            }
+            results.append(.init(orderedEntry: entry, token: token))
+        }
+
+        return results
+    }
+
+    func updateData(_ entries: [UIModel]) {
+        dataState = .loaded(entries)
     }
 
     func parse(_ status: CommunicationState) {
@@ -164,7 +166,7 @@ final class DataService: DataServiceProtocol {
                     }
                 }
                 try await repository.upsert(entries)
-                let entries = try await generateUIEntries(from: entries)
+                let entries = generateUIEntries(from: entries)
                 updateData(entries)
             } catch {
                 if let data = dataState.data, !data.isEmpty { return }

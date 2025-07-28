@@ -25,22 +25,23 @@ public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
     public let orderedEntries: [OrderedEntry]
     public let currentPage: Int
     public let totalPages: Int
-    public let isLastPage: Bool
 
     public init(requestId: String,
                 orderedEntries: [OrderedEntry],
                 currentPage: Int,
-                totalPages: Int,
-                isLastPage: Bool) {
+                totalPages: Int) {
         self.orderedEntries = orderedEntries
         self.currentPage = currentPage
         self.totalPages = totalPages
         self.requestId = requestId
-        self.isLastPage = isLastPage
+    }
+    
+    public var isLastPage: Bool {
+        currentPage == totalPages - 1
     }
 
     public static var empty: PaginatedWatchDataCommunication {
-        .init(requestId: UUID().uuidString, orderedEntries: [], currentPage: 0, totalPages: 0, isLastPage: true)
+        .init(requestId: UUID().uuidString, orderedEntries: [], currentPage: 0, totalPages: 1)
     }
 }
 

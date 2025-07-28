@@ -7,6 +7,7 @@
 
 included: # paths to include during linting. `--path` is ignored if present.
   - Authenticator
+  - WatchAuthenticator Watch App
   - LocalPackages/DataLayer
   - LocalPackages/DomainLayer
   - LocalPackages/Models

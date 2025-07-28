@@ -45,11 +45,12 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
     private let encoder: JSONEncoder
     private var timeoutPublisher: AnyCancellable?
 
-    init(session: WCSession = .default) {
+    init(session: WCSession = .default,
+         decoder: JSONDecoder = JSONDecoder(),
+         encoder: JSONEncoder = JSONEncoder()) {
         self.session = session
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970
-        encoder = JSONEncoder()
+        self.decoder = decoder
+        self.encoder = encoder
         super.init()
         self.session.delegate = self
         self.session.activate()
@@ -89,11 +90,8 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
             throw AuthError.watchConnectivity(.companionNotReachable)
         }
 
-        switch message {
-        case .syncData:
+        if case .syncData = message {
             startTimeoutTimer()
-        default:
-            break
         }
 
         let data = try encoder.encode(message)

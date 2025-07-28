@@ -24,18 +24,14 @@ import Models
 import SimplyPersist
 import SwiftData
 
-// swiftlint:disable line_length
-
+@MainActor
 public protocol EntryRepositoryProtocol: Sendable {
-    @MainActor
     func getAllEntries() async throws -> [OrderedEntry]
-    @MainActor
     func upsert(_ entries: [OrderedEntry]) async throws
-
-    @MainActor
     func removeAll(_ ids: [String]) async throws
 }
 
+@MainActor
 final class EntryRepository: EntryRepositoryProtocol {
     private let localDataManager: any LocalDataManagerProtocol
     private let encryptionService: any EncryptionServicing
@@ -51,63 +47,51 @@ final class EntryRepository: EntryRepositoryProtocol {
 
 extension EntryRepository {
     func getAllEntries() async throws -> [OrderedEntry] {
-        do {
-            let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
-                .fetch(predicate: nil,
-                       sortingDescriptor: [
-                           SortDescriptor(\.order)
-                       ])
-            let entries = try encryptionService.decrypt(entries: encryptedEntries)
-            return entries
-        } catch {
-            throw error
-        }
+        let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+            .fetch(predicate: nil,
+                   sortingDescriptor: [
+                       SortDescriptor(\.order)
+                   ])
+        let entries = try encryptionService.decrypt(entries: encryptedEntries)
+        return entries
     }
 
     func upsert(_ entries: [OrderedEntry]) async throws {
-        do {
-            let idsToFetch: [String] = entries.map(\.id)
-            let predicate = #Predicate<EncryptedEntryEntity> { entity in
-                idsToFetch.contains(entity.id)
-            }
-
-            let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
-                .fetch(predicate: predicate)
-            let currentLocalIds = encryptedEntries.map(\.id)
-
-            let entitiesToUpdate = entries.filter { currentLocalIds.contains($0.id) }
-            try await localUpdates(encryptedEntries: encryptedEntries, entriesToUpdate: entitiesToUpdate)
-
-            let newEntries = entries.filter { !currentLocalIds.contains($0.id) }
-
-            let newEncryptedEntries = try newEntries.map { try encrypt($0) }
-
-            try await localDataManager.persistentStorage.batchSave(content: newEncryptedEntries)
-        } catch {
-            throw error
+        let idsToFetch: [String] = entries.map(\.id)
+        let predicate = #Predicate<EncryptedEntryEntity> { entity in
+            idsToFetch.contains(entity.id)
         }
+
+        let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+            .fetch(predicate: predicate)
+        let currentLocalIds = encryptedEntries.map(\.id)
+
+        let entitiesToUpdate = entries.filter { currentLocalIds.contains($0.id) }
+        try await localUpdates(encryptedEntries: encryptedEntries, entriesToUpdate: entitiesToUpdate)
+
+        let newEntries = entries.filter { !currentLocalIds.contains($0.id) }
+
+        let newEncryptedEntries = try newEntries.map { try encrypt($0) }
+
+        try await localDataManager.persistentStorage.batchSave(content: newEncryptedEntries)
     }
 
     private func localUpdates(encryptedEntries: [EncryptedEntryEntity],
                               entriesToUpdate: [OrderedEntry]) async throws {
-        do {
-            for orderedEntry in entriesToUpdate {
-                guard let keyId = orderedEntry.keyId,
-                      let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
+        for orderedEntry in entriesToUpdate {
+            guard let keyId = orderedEntry.keyId,
+                  let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
 
-                else { continue }
+            else { continue }
 
-                let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry)
-                encryptedEntry.updateEncryptedData(encryptedData,
-                                                   with: keyId,
-                                                   remoteModifiedTime: orderedEntry.modifiedTime)
-                encryptedEntry.update(with: orderedEntry)
-            }
-
-            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
-        } catch {
-            throw error
+            let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry)
+            encryptedEntry.updateEncryptedData(encryptedData,
+                                               with: keyId,
+                                               remoteModifiedTime: orderedEntry.modifiedTime)
+            encryptedEntry.update(with: orderedEntry)
         }
+
+        try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func removeAll(_ ids: [String]) async throws {

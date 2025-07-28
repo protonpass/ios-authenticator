@@ -31,14 +31,16 @@ import SimpleToast
 @MainActor
 final class EntriesDisplayViewModel: ObservableObject {
     var entries: [UIModel] {
+        guard let data = entryDataService.dataState.data else { return [] }
+
         guard !lastestQuery.isEmpty else {
-            return entryDataService.dataState.data ?? []
+            return data
         }
 
-        let newResults = entryDataService.dataState.data?.filter {
+        let newResults = data.filter {
             $0.orderedEntry.entry.name.lowercased().contains(lastestQuery) ||
                 $0.orderedEntry.entry.issuer.lowercased().contains(lastestQuery)
-        } ?? []
+        }
 
         return newResults
     }
@@ -55,7 +57,6 @@ final class EntriesDisplayViewModel: ObservableObject {
 
     var toast: SimpleToast?
 
-    @ObservationIgnored
     var waitingForData: Bool {
         entryDataService.waitingForUpdate
     }
@@ -92,16 +93,14 @@ final class EntriesDisplayViewModel: ObservableObject {
         loadLocalTask?.cancel()
         loadLocalTask = Task { [weak self] in
             guard let self else { return }
-            do {
-                try await entryDataService.loadEntries()
-            } catch {
-                print("error loading entries: \(error)")
-            }
+            await entryDataService.loadEntries()
         }
     }
 
     func askForUpdate() async {
-        try? await Task.sleep(nanoseconds: 3_000_000_000)
+        // If we remove this second delay the iphone to watch update does not seem to work correctly
+        // We should look into it in the futur if needed
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
         entryDataService.askForDataUpdate()
     }
 

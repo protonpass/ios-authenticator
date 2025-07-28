@@ -23,6 +23,7 @@
 import SimpleToast
 import SwiftUI
 
+// swiftlint:disable line_length
 struct EntriesDisplayView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = EntriesDisplayViewModel()
@@ -30,7 +31,7 @@ struct EntriesDisplayView: View {
     var body: some View {
         NavigationStack {
             List(viewModel.entries) { entry in
-                Button { viewModel.copyToWatchClipboard(entry.token.currentPassword) } label: {
+                Button { /* viewModel.copyToWatchClipboard(entry.token.currentPassword)*/ } label: {
                     TOTPTokenCell(entry: entry)
                         .equatable()
                 }
@@ -76,7 +77,7 @@ private extension EntriesDisplayView {
                         .padding(.bottom, 16)
                 } description: {
                     VStack(spacing: 8) {
-                        Text("No codes sync with your phone") // ignore:missing_bundle
+                        Text("No codes synced with your phone") // ignore:missing_bundle
                             .lineLimit(3)
                             .monospaced()
                             .multilineTextAlignment(.center)
@@ -119,3 +120,5 @@ private extension EntriesDisplayView {
         }
     }
 }
+
+// swiftlint:enable line_length

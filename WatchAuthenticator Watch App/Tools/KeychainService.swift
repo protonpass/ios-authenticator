@@ -20,6 +20,7 @@
 
 import CryptoKit
 import Foundation
+@preconcurrency import KeychainAccess
 import Security
 
 //// swiftlint:enable discouraged_optional_boolean
@@ -31,58 +32,28 @@ protocol KeychainServicing: Sendable {
 }
 
 struct KeychainService: KeychainServicing {
+    private let keychain: Keychain
+
+    init(keychain: Keychain = Keychain()) {
+        self.keychain = keychain
+    }
+
     /// Stores a CryptoKit key in the keychain as a generic password.
     func set(_ item: some GenericPasswordConvertible, key: String) throws {
-        // Treat the key data as a generic password.
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: key,
-            kSecAttrAccessible: kSecAttrAccessibleWhenUnlocked,
-            kSecUseDataProtectionKeychain: true,
-            kSecValueData: item.rawRepresentation
-        ] as [String: Any]
-
-        // Add the key data.
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw KeyStoreError("Unable to store item: \(status.message)")
-        }
+        try keychain.set(item.rawRepresentation, key: key)
     }
 
     /// Reads a CryptoKit key from the keychain as a generic password.
     func get<T: GenericPasswordConvertible>(key: String) throws -> T? {
-        // Seek a generic password with the given account.
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: key,
-            kSecUseDataProtectionKeychain: true,
-            kSecReturnData: true
-        ] as [String: Any]
-
-        // Find and cast the result as data.
-        var item: CFTypeRef?
-        switch SecItemCopyMatching(query as CFDictionary, &item) {
-        case errSecSuccess:
-            guard let data = item as? Data else { return nil }
-            return try T(rawRepresentation: data) // Convert back to a key.
-        case errSecItemNotFound: return nil
-        case let status: throw KeyStoreError("Keychain read failed: \(status.message)")
+        guard let data = try keychain.getData(key) else {
+            throw KeyStoreError("Could not find the data for keyid \(key)")
         }
+        return try T(rawRepresentation: data)
     }
 
     /// Removes any existing key with the given account.
     func delete(for key: String) throws {
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecUseDataProtectionKeychain: true,
-            kSecAttrAccount: key
-        ] as [String: Any]
-
-        switch SecItemDelete(query as CFDictionary) {
-        case errSecItemNotFound, errSecSuccess: break // Okay to ignore
-        case let status:
-            throw KeyStoreError("Unexpected deletion error: \(status.message)")
-        }
+        try keychain.remove(key)
     }
 }
 

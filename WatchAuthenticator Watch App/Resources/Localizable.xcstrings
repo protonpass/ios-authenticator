@@ -21,12 +21,12 @@
         }
       }
     },
-    "No codes sync with your phone" : {
+    "No codes synced with your phone" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No codes sync with your phone"
+            "value" : "No codes synced with your phone"
           }
         }
       }

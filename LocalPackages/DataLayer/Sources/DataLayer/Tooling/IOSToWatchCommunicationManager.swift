@@ -32,11 +32,12 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
 
     public init(session: WCSession = .default,
                 entryDataService: any EntryDataServiceProtocol,
-                logger: any LoggerProtocol) {
+                logger: any LoggerProtocol,
+                decoder: JSONDecoder = JSONDecoder(),
+                encoder: JSONEncoder = JSONEncoder()) {
         self.session = session
-        decoder = JSONDecoder()
-        encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .secondsSince1970
+        self.decoder = decoder
+        self.encoder = encoder
         self.entryDataService = entryDataService
         self.logger = logger
         super.init()
@@ -65,7 +66,7 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
             let message = try decoder.decode(WatchIOSMessageType.self, from: messageData)
             parseMessage(message: message)
         } catch {
-            logger.log(.warning, category: .network, "Couldn't decode WCSession message: \(error)")
+            logger.log(.error, category: .network, "Couldn't decode WCSession message: \(error)")
         }
     }
 }
@@ -80,7 +81,7 @@ private extension IOSToWatchCommunicationManager {
                 sendAllPages(entries: entries)
             case let .code(newCode):
                 #if canImport(UIKit)
-                UIPasteboard.general.string = newCode
+                await pasteToClipboard(newCode)
                 #else
                 return
                 #endif
@@ -124,7 +125,17 @@ private extension IOSToWatchCommunicationManager {
             let data = try encoder.encode(message)
             session.sendMessageData(data, replyHandler: nil)
         } catch {
-            logger.log(.warning, category: .network, "Couldn't encode WCSession message: \(error)")
+            logger.log(.error, category: .network, "Couldn't encode WCSession message: \(error)")
         }
+    }
+
+    @MainActor
+    func pasteToClipboard(_ text: String) {
+        guard UIApplication.shared.applicationState == .active else {
+            logger.log(.warning, category: .network, "Attempted to write to UIPasteboard while app not active.")
+            return
+        }
+
+        UIPasteboard.general.string = text
     }
 }

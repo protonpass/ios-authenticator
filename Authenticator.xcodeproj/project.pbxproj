@@ -19,6 +19,7 @@
 		5B8765742D527F9C00B4CC30 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765732D527F9C00B4CC30 /* Models */; };
 		5B8765762D527F9C00B4CC30 /* PresentationLayer in Frameworks */ = {isa = PBXBuildFile; productRef = 5B8765752D527F9C00B4CC30 /* PresentationLayer */; };
 		5B9AD5D02E358A9C000FC006 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B9AD5CF2E358A9C000FC006 /* Macro */; };
+		5B9AD63B2E37C096000FC006 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 5B9AD63A2E37C096000FC006 /* KeychainAccess */; };
 		5BF5101F2E3261A30025E5D2 /* WatchAuthenticator Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510352E3275810025E5D2 /* FactoryKit */; };
 		5BF510382E32758C0025E5D2 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 5BF510372E32758C0025E5D2 /* Models */; };
@@ -223,6 +224,7 @@
 			files = (
 				5BF510382E32758C0025E5D2 /* Models in Frameworks */,
 				5BF5125E2E33801D0025E5D2 /* SimplyPersist in Frameworks */,
+				5B9AD63B2E37C096000FC006 /* KeychainAccess in Frameworks */,
 				5BF511BC2E337CE00025E5D2 /* WatchConnectivity.framework in Frameworks */,
 				5BF5125B2E337FF50025E5D2 /* OneTimePassword in Frameworks */,
 				5BF510362E3275810025E5D2 /* FactoryKit in Frameworks */,
@@ -423,6 +425,7 @@
 				5BF5125D2E33801D0025E5D2 /* SimplyPersist */,
 				5BF512602E3380540025E5D2 /* SimpleToast */,
 				5B9AD5CF2E358A9C000FC006 /* Macro */,
+				5B9AD63A2E37C096000FC006 /* KeychainAccess */,
 			);
 			productName = "WatchAuthenticator Watch App";
 			productReference = 5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */;
@@ -536,6 +539,7 @@
 				5BF512592E337FF50025E5D2 /* XCRemoteSwiftPackageReference "OneTimePassword" */,
 				5BF5125C2E33801D0025E5D2 /* XCRemoteSwiftPackageReference "SimplyPersist" */,
 				5BF5125F2E3380540025E5D2 /* XCRemoteSwiftPackageReference "SimpleToast" */,
+				5B9AD6392E37C096000FC006 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5B8765182D52539D00B4CC30 /* Products */;
@@ -1356,7 +1360,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1390,7 +1394,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1425,7 +1429,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1661,6 +1665,14 @@
 				minimumVersion = 8.44.0;
 			};
 		};
+		5B9AD6392E37C096000FC006 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				kind = exactVersion;
+				version = 4.2.2;
+			};
+		};
 		5BF512592E337FF50025E5D2 /* XCRemoteSwiftPackageReference "OneTimePassword" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lukacs-m/OneTimePassword";
@@ -1734,6 +1746,11 @@
 		5B9AD5CF2E358A9C000FC006 /* Macro */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Macro;
+		};
+		5B9AD63A2E37C096000FC006 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5B9AD6392E37C096000FC006 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 		5BF510352E3275810025E5D2 /* FactoryKit */ = {
 			isa = XCSwiftPackageProductDependency;

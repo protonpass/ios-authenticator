@@ -19,12 +19,12 @@
 // along with Proton Pass. If not, see https://www.gnu.org/licenses/.
 
 import Combine
+import CommonUtilities
 import FactoryKit
 import Foundation
 import SwiftUI
 
-@MainActor
-struct TOTPTokenCell: View, @preconcurrency Equatable {
+struct TOTPTokenCell: View, Equatable {
     private let entry: UIModel
     @State private var timerManager = resolve(\WatchDIContainer.countdownTimer)
 
@@ -44,10 +44,6 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
         entry.orderedEntry.entry.name
     }
 
-    var textColor: Color {
-        Color(red: 0.87, green: 0.87, blue: 0.87)
-    }
-
     var body: some View {
         let progress = timerManager.calculateProgress(period: period)
 
@@ -56,11 +52,11 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
                 Text(verbatim: issuer)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(.cellText)
                 Text(verbatim: label)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(textColor)
+                    .foregroundStyle(.cellText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -78,7 +74,7 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
                 .animation(.default, value: progress)
                 .transaction { transaction in
                     transaction
-                        .disablesAnimations = progress >= 0.96 // infos.timeRemaining == Int(Double(period) - 1)
+                        .disablesAnimations = progress >= 0.96
                 }
         }
         .padding(.vertical, 8)
@@ -98,11 +94,11 @@ struct RoundedRectProgressViewStyle: ProgressViewStyle {
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 16)
                     .frame(height: 4)
-                    .foregroundColor(Color.gray.opacity(0.2))
+                    .foregroundStyle(Color.gray.opacity(0.2))
 
                 RoundedRectangle(cornerRadius: 16)
                     .frame(width: width * progress, height: 4)
-                    .foregroundColor(progress.color)
+                    .foregroundStyle(progress.color)
             }
         }
         .frame(height: 4)
@@ -124,20 +120,7 @@ private extension Double {
 
 private extension String {
     var mainCode: String {
-        count > 6 ? self : spaced(every: 3)
-    }
-}
-
-extension String {
-    func spaced(every n: Int) -> String {
-        guard n > 0 else { return self }
-
-        return stride(from: 0, to: count, by: n).map { index in
-            let start = self.index(startIndex, offsetBy: index)
-            let end = self.index(start, offsetBy: n, limitedBy: endIndex) ?? endIndex
-            return String(self[start..<end])
-        }
-        .joined(separator: " ")
+        count > 6 ? self : separatedByGroup(3, delimiter: " ")
     }
 }
 

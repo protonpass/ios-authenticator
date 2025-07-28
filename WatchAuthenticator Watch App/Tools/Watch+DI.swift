@@ -48,8 +48,8 @@ final class WatchDIContainer: SharedContainer {
     }
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { EntryRepository(localDataManager: self.localDataManager(),
-                               encryptionService: self.encryptionService()) }
+        self { @MainActor in EntryRepository(localDataManager: self.localDataManager(),
+                                             encryptionService: self.encryptionService()) }
     }
 
     var countdownTimer: Factory<any CountdownTimerProtocol> {

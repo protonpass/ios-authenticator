@@ -228,7 +228,7 @@ final class EntriesViewModel: ObservableObject {
         }
     }
 
-    func check() {
+    func checkWatchConnectivity() {
         iosToWatchCommunicationManager.checkIfActive()
     }
 
