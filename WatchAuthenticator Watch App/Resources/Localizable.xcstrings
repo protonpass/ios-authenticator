@@ -1,12 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Code copied to your phone clipboard" : {
+    "Copied to phone clipboard" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Code copied to your phone clipboard"
+            "value" : "Copied to phone clipboard"
           }
         }
       }

@@ -110,6 +110,6 @@ final class EntriesDisplayViewModel: ObservableObject {
             return
         }
         entryDataService.sendCode(code)
-        toast = SimpleToast(title: #localized("Code copied to your phone clipboard"))
+        toast = SimpleToast(title: #localized("Copied to phone clipboard"))  // ignore:missing_bundle
     }
 }
