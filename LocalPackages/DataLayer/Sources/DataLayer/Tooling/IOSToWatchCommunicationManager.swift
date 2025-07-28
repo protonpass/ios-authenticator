@@ -76,7 +76,7 @@ private extension IOSToWatchCommunicationManager {
             guard let self else { return }
             switch message {
             case .syncData:
-                let entries = await entryDataService.extractingOrderedEntry()
+                let entries = await entryDataService.dataState.orderEntries
                 sendAllPages(entries: entries)
             case let .code(newCode):
                 #if canImport(UIKit)
