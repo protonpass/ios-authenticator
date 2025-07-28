@@ -109,8 +109,7 @@ private extension IOSToWatchCommunicationManager {
             let paginatedData = PaginatedWatchDataCommunication(requestId: requestId,
                                                                 orderedEntries: pageEntries,
                                                                 currentPage: page,
-                                                                totalPages: totalPages,
-                                                                isLastPage: page == totalPages - 1)
+                                                                totalPages: totalPages)
 
             sendMessage(message: .dataContent(paginatedData))
         }

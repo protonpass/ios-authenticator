@@ -35,7 +35,7 @@ public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
         self.totalPages = totalPages
         self.requestId = requestId
     }
-    
+
     public var isLastPage: Bool {
         currentPage == totalPages - 1
     }

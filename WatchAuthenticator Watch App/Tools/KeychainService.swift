@@ -40,7 +40,7 @@ struct KeychainService: KeychainServicing {
 
     /// Stores a CryptoKit key in the keychain as a generic password.
     func set(_ item: some GenericPasswordConvertible, key: String) throws {
-        try keychain.set(item.rawRepresentation, key: key)
+        try keychain.set(item.dataRepresentation, key: key)
     }
 
     /// Reads a CryptoKit key from the keychain as a generic password.
@@ -48,7 +48,7 @@ struct KeychainService: KeychainServicing {
         guard let data = try keychain.getData(key) else {
             throw KeyStoreError("Could not find the data for keyid \(key)")
         }
-        return try T(rawRepresentation: data)
+        return try T(data: data)
     }
 
     /// Removes any existing key with the given account.

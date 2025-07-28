@@ -93,48 +93,17 @@ extension WatchEncryptionService {
 }
 
 /// The interface needed for SecKey conversion.
-protocol GenericPasswordConvertible: CustomStringConvertible {
+protocol GenericPasswordConvertible {
     /// Creates a key from a raw representation.
-    init(rawRepresentation data: some ContiguousBytes) throws
+    init(data: Data) throws
 
     /// A raw representation of the key.
-    var rawRepresentation: Data { get }
+    var dataRepresentation: Data { get }
 }
 
-// swiftlint:disable extension_access_modifier
-extension GenericPasswordConvertible {
-    /// A string version of the key for visual inspection.
-    /// IMPORTANT: Never log the actual key data.
-    public var description: String {
-        rawRepresentation.withUnsafeBytes { bytes in
-            "Key representation contains \(bytes.count) bytes."
-        }
-    }
-}
-
-// swiftlint:enable extension_access_modifier
-
-// Ensure that SymmetricKey is generic password convertible.
-extension SymmetricKey: @retroactive CustomStringConvertible {}
+//// Ensure that SymmetricKey is generic password convertible.
 extension SymmetricKey: GenericPasswordConvertible {
-    init(rawRepresentation data: some ContiguousBytes) throws {
-        self.init(data: data)
-    }
-
-    var rawRepresentation: Data {
-        dataRepresentation // Contiguous bytes repackaged as a Data instance.
-    }
-}
-
-extension ContiguousBytes {
-    /// A Data instance created safely from the contiguous bytes without making any copies.
     var dataRepresentation: Data {
-        withUnsafeBytes { bytes in
-            let cfdata = CFDataCreateWithBytesNoCopy(nil,
-                                                     bytes.baseAddress?.assumingMemoryBound(to: UInt8.self),
-                                                     bytes.count,
-                                                     kCFAllocatorNull)
-            return ((cfdata as NSData?) as Data?) ?? Data()
-        }
+        withUnsafeBytes { Data($0) }
     }
 }
