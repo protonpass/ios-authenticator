@@ -95,11 +95,11 @@ private extension IOSToWatchCommunicationManager {
             sendMessage(message: .dataContent(PaginatedWatchDataCommunication.empty))
             return
         }
-        
+
         let pageSize = 100
         let requestId = UUID().uuidString
         let totalPages = Int(ceil(Double(entries.count) / Double(pageSize)))
-        
+
         for page in 0..<totalPages {
             let startIndex = page * pageSize
             let endIndex = min(startIndex + pageSize, entries.count)

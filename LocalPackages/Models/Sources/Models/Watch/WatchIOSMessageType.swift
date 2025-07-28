@@ -38,7 +38,7 @@ public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
         self.requestId = requestId
         self.isLastPage = isLastPage
     }
-    
+
     public static var empty: PaginatedWatchDataCommunication {
         .init(requestId: UUID().uuidString, orderedEntries: [], currentPage: 0, totalPages: 0, isLastPage: true)
     }
