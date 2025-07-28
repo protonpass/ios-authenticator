@@ -25,10 +25,7 @@ import SwiftUI
 
 @MainActor
 struct TOTPTokenCell: View, @preconcurrency Equatable {
-    @Environment(\.scenePhase) private var scenePhase
-
     private let entry: UIModel
-
     @State private var timerManager = resolve(\WatchDIContainer.countdownTimer)
 
     init(entry: UIModel) {
