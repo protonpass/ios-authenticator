@@ -104,6 +104,7 @@ final class EntriesDisplayViewModel: ObservableObject {
         entryDataService.askForDataUpdate()
     }
 
+    // periphery:ignore
     func copyToWatchClipboard(_ code: String?) {
         guard let code else {
             return

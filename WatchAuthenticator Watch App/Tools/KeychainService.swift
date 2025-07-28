@@ -69,10 +69,3 @@ struct KeyStoreError: Error, CustomStringConvertible {
         message
     }
 }
-
-extension OSStatus {
-    /// A human readable message for the status.
-    var message: String {
-        (SecCopyErrorMessageString(self, nil) as String?) ?? String(self)
-    }
-}

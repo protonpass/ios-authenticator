@@ -30,6 +30,7 @@ protocol DataServiceProtocol: Sendable, Observable {
 
     func loadEntries() async
     func askForDataUpdate()
+    // periphery:ignore
     func sendCode(_ code: String)
 }
 
