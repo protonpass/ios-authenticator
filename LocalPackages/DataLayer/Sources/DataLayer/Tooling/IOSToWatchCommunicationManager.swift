@@ -28,30 +28,28 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
     private let entryDataService: any EntryDataServiceProtocol
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
+    private let logger: any LoggerProtocol
 
     public init(session: WCSession = .default,
-                entryDataService: any EntryDataServiceProtocol) {
+                entryDataService: any EntryDataServiceProtocol,
+                logger: any LoggerProtocol) {
         self.session = session
         decoder = JSONDecoder()
         encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .secondsSince1970
         self.entryDataService = entryDataService
+        self.logger = logger
         super.init()
         self.session.delegate = self
         self.session.activate()
-//        checkIfActive()
-        print("woot session activated \(self.session.activationState == .activated), isPaired: \(self.session.isPaired), isWatchAppInstalled: \(self.session.isWatchAppInstalled)")
     }
 
     public func checkIfActive() {
         guard WCSession.isSupported(),
-              session.isPaired,
-              session.isWatchAppInstalled,
               session.activationState != .activated else {
             return
         }
         session.activate()
-        print("woot retry session activated \(session.activationState == .activated), isPaired: \(session.isPaired), isWatchAppInstalled: \(session.isWatchAppInstalled)")
     }
 
     public func sessionDidBecomeInactive(_ session: WCSession) {}
@@ -65,44 +63,34 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
     public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
         do {
             let message = try decoder.decode(WatchIOSMessageType.self, from: messageData)
-            try parseMessage(message: message)
+            parseMessage(message: message)
         } catch {
-            print(error)
+            logger.log(.warning, category: .network, "Couldn't decode WCSession message: \(error)")
         }
     }
 }
 
 private extension IOSToWatchCommunicationManager {
-    func parseMessage(message: WatchIOSMessageType) throws {
-        print("woot message received: \(message)")
+    func parseMessage(message: WatchIOSMessageType) {
         Task { [weak self] in
             guard let self else { return }
-            do {
-                switch message {
-//                case .syncData:
-//                    let entries = await entryDataService.extractingOrderedEntry()
-//                    try sendMessage(message: .dataContent(entries))
-                case .syncData:
-                    let entries = await entryDataService.extractingOrderedEntry()
-                    try sendAllPages(entries: entries)
-
-                case let .code(newCode):
-                    #if canImport(UIKit)
-                    UIPasteboard.general.string = newCode
-                    #else
-                    return
-                    #endif
-
-                default:
-                    return
-                }
-            } catch {
-                print("Error: \(error.localizedDescription)")
+            switch message {
+            case .syncData:
+                let entries = await entryDataService.extractingOrderedEntry()
+                sendAllPages(entries: entries)
+            case let .code(newCode):
+                #if canImport(UIKit)
+                UIPasteboard.general.string = newCode
+                #else
+                return
+                #endif
+            default:
+                return
             }
         }
     }
 
-    private func sendAllPages(entries: [OrderedEntry]) throws {
+    func sendAllPages(entries: [OrderedEntry]) {
         let pageSize = 100
         let requestId = UUID().uuidString
         let totalPages = Int(ceil(Double(entries.count) / Double(pageSize)))
@@ -118,38 +106,20 @@ private extension IOSToWatchCommunicationManager {
                                                                 totalPages: totalPages,
                                                                 isLastPage: page == totalPages - 1)
 
-            try sendMessage(message: .dataContent(paginatedData))
-
-            // Small delay between pages if needed
-//            if page < totalPages - 1 {
-//                Thread.sleep(forTimeInterval: 0.1) // 100ms between pages
-//            }
+            sendMessage(message: .dataContent(paginatedData))
         }
     }
 
-//    func sendPaginatedData(entries: [OrderedEntry], pageSize: Int, currentPage: Int = 0, requestId: String)
-//    throws {
-//        let totalPages = Int(ceil(Double(entries.count) / Double(pageSize)))
-//        let startIndex = currentPage * pageSize
-//        let endIndex = min(startIndex + pageSize, entries.count)
-//
-//        let pageEntries = Array(entries[startIndex..<endIndex])
-//        let paginatedResponse = PaginatedWatchDataCommunication(orderedEntries: pageEntries,
-//                                                                currentPage: currentPage,
-//                                                                totalPages: totalPages,
-//                                                                requestId: requestId)
-//
-//        try sendMessage(message: .dataContent(paginatedResponse))
-//    }
+    func sendMessage(message: WatchIOSMessageType) {
+        do {
+            guard session.isReachable, session.activationState == .activated else {
+                throw AuthError.watchConnectivity(.companionNotReachable)
+            }
 
-    func sendMessage(message: WatchIOSMessageType) throws {
-        guard session.isReachable, session.activationState == .activated else {
-            throw AuthError.watchConnectivity(.companionNotReachable)
+            let data = try encoder.encode(message)
+            session.sendMessageData(data, replyHandler: nil)
+        } catch {
+            logger.log(.warning, category: .network, "Couldn't encode WCSession message: \(error)")
         }
-        print("woot message sent: \(message)")
-
-        let data = try encoder.encode(message)
-
-        session.sendMessageData(data, replyHandler: nil)
     }
 }

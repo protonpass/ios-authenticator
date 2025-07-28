@@ -126,6 +126,7 @@ public extension ServiceContainer {
     }
 
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
-        self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService()) }
+        self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
+                                              logger: self.logger) }
     }
 }

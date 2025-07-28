@@ -33,7 +33,7 @@ protocol DataServiceProtocol: Sendable, Observable {
     func sendCode(_ code: String)
 }
 
-struct UIModel: Hashable, Identifiable {
+struct UIModel: Hashable, Identifiable, Equatable {
     let orderedEntry: OrderedEntry
     let token: Token
 

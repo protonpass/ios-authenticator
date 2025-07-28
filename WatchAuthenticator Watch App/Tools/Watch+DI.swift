@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Pass. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
+
 // periphery:ignore:all
 import FactoryKit
 import Foundation
@@ -49,6 +51,10 @@ final class WatchDIContainer: SharedContainer {
     var entryRepository: Factory<any EntryRepositoryProtocol> {
         self { EntryRepository(localDataManager: self.localDataManager(),
                                encryptionService: self.encryptionService()) }
+    }
+
+    var countdownTimer: Factory<any CountdownTimerProtocol> {
+        self { @MainActor in CountdownTimer.shared }
     }
 
     var dataService: Factory<any DataServiceProtocol> {

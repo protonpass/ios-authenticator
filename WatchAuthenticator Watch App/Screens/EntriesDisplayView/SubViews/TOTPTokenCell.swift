@@ -18,26 +18,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Pass. If not, see https://www.gnu.org/licenses/.
 
+import Combine
+import FactoryKit
 import Foundation
 import SwiftUI
 
-struct TOTPTokenCell: View {
-    @State private var model: TOTPTokenCellModel
+@MainActor
+struct TOTPTokenCell: View, @preconcurrency Equatable {
+    @Environment(\.scenePhase) private var scenePhase
+
+    private let entry: UIModel
+
+    @State private var timerManager = resolve(\WatchDIContainer.countdownTimer)
 
     init(entry: UIModel) {
-        _model = State(wrappedValue: TOTPTokenCellModel(entry: entry))
+        self.entry = entry
     }
 
-    var period: TimeInterval {
-        TimeInterval(model.entry.orderedEntry.entry.period)
+    var period: Int {
+        entry.orderedEntry.entry.period
     }
 
     var issuer: String {
-        model.entry.orderedEntry.entry.issuer
+        entry.orderedEntry.entry.issuer
     }
 
     var label: String {
-        model.entry.orderedEntry.entry.name
+        entry.orderedEntry.entry.name
     }
 
     var textColor: Color {
@@ -45,6 +52,8 @@ struct TOTPTokenCell: View {
     }
 
     var body: some View {
+        let progress = timerManager.calculateProgress(period: period)
+
         VStack {
             VStack(alignment: .leading) {
                 Text(verbatim: issuer)
@@ -58,7 +67,7 @@ struct TOTPTokenCell: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let code = model.code {
+            if let code = entry.token.currentPassword {
                 Text(verbatim: code.mainCode)
                     .font(.title2)
                     .monospaced()
@@ -66,43 +75,20 @@ struct TOTPTokenCell: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 2)
             }
-            TimelineView(.animation(minimumInterval: 1.0 / period)) { context in
-                let progress = computeProgress(current: context.date, period: period)
 
-                ProgressView(value: progress)
-                    .progressViewStyle(RoundedRectProgressViewStyle())
-            }
+            ProgressView(value: 1 - progress)
+                .progressViewStyle(RoundedRectProgressViewStyle())
+                .animation(.default, value: progress)
+                .transaction { transaction in
+                    transaction
+                        .disablesAnimations = progress >= 0.96 // infos.timeRemaining == Int(Double(period) - 1)
+                }
         }
         .padding(.vertical, 8)
     }
 
-    @MainActor
-    private func computeProgress(current: Date, period: TimeInterval) -> Double {
-        let elapsed = current.timeIntervalSince1970.truncatingRemainder(dividingBy: period)
-        let progress = min(max(elapsed / period, 0), 1)
-        if progress < 0.01 {
-            model.updateCode()
-        }
-
-        return progress
-    }
-}
-
-@Observable
-@MainActor
-final class TOTPTokenCellModel {
-    var code: String?
-
-    let entry: UIModel
-    private var timer: Timer?
-
-    init(entry: UIModel) {
-        self.entry = entry
-        updateCode()
-    }
-
-    func updateCode() {
-        code = entry.token.currentPassword
+    static func == (lhs: TOTPTokenCell, rhs: TOTPTokenCell) -> Bool {
+        lhs.entry == rhs.entry
     }
 }
 
@@ -155,5 +141,38 @@ extension String {
             return String(self[start..<end])
         }
         .joined(separator: " ")
+    }
+}
+
+@MainActor
+public protocol CountdownTimerProtocol: Sendable, Observable {
+    func calculateProgress(period: Int) -> Double
+}
+
+@MainActor @Observable
+public final class CountdownTimer: CountdownTimerProtocol {
+    public static let shared = CountdownTimer()
+
+    private var timerCancellable: AnyCancellable?
+
+    private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
+
+    private init() {
+        startTimer()
+    }
+
+    public func startTimer() {
+        guard timerCancellable == nil else { return }
+
+        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                currentTimestamp = Date().timeIntervalSince1970
+            }
+    }
+
+    public func calculateProgress(period: Int) -> Double {
+        (Double(period) - currentTimestamp.truncatingRemainder(dividingBy: Double(period))) / Double(period)
     }
 }

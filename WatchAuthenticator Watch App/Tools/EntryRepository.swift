@@ -25,9 +25,8 @@ import SimplyPersist
 import SwiftData
 
 // swiftlint:disable line_length
-public protocol EntryRepositoryProtocol: Sendable {
-    // MARK: - local CRUD
 
+public protocol EntryRepositoryProtocol: Sendable {
     @MainActor
     func getAllEntries() async throws -> [OrderedEntry]
     @MainActor
@@ -67,9 +66,6 @@ extension EntryRepository {
 
     func upsert(_ entries: [OrderedEntry]) async throws {
         do {
-            // Fetch entities that already exist for the ids (as we cannot leverage swiftData `.unique` with
-            // iCloud)
-            // to remove duplicates.
             let idsToFetch: [String] = entries.map(\.id)
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
                 idsToFetch.contains(entity.id)

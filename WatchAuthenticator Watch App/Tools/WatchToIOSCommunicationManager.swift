@@ -81,23 +81,13 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
     // MARK: - WatchCommunicationServiceProtocol
 
     func sendMessage(message: WatchIOSMessageType) throws {
-//         guard session.activationState == .activated else {
-//             throw AuthError.watchConnectivity(.sessionNotActivated)
-//         }
-//
-//         guard session.isPaired else {
-//             communicationState.send(.responseReceived(.failure(
-//                 AuthError.watchConnectivity(.notPaired)
-//             )))
-//             throw AuthError.watchConnectivity(.notPaired)
-//         }
-//
-//         guard session.isReachable else {
-//             communicationState.send(.responseReceived(.failure(
-//                 AuthError.watchConnectivity(.companionNotReachable)
-//             )))
-//             throw AuthError.watchConnectivity(.companionNotReachable)
-//         }
+        guard session.activationState == .activated else {
+            throw AuthError.watchConnectivity(.sessionNotActivated)
+        }
+
+        guard session.isReachable else {
+            throw AuthError.watchConnectivity(.companionNotReachable)
+        }
 
         switch message {
         case .syncData:
@@ -107,18 +97,9 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
         }
 
         let data = try encoder.encode(message)
+        communicationState.send(.waitingForMessage)
         session.sendMessageData(data, replyHandler: nil)
     }
-
-//    func sendMessage(message: WatchIOSMessageType) throws {
-//        guard session.isReachable else {
-//            throw AuthError.watchConnectivity(.companionNotReachable)
-//        }
-//        let data = try encoder.encode(message)
-//
-//        communicationState.send(.waitingForMessage)
-//        session.sendMessageData(data, replyHandler: nil)
-//    }
 }
 
 private extension WatchToIOSCommunicationManager {

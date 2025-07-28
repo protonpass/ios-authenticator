@@ -25,6 +25,8 @@ public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equata
     case messageDecodingFailed(String)
     case sessionActivationFailed(String)
     case timeout
+    case sessionNotActivated
+    case notPaired
 
     public var debugDescription: String {
         switch self {
@@ -36,6 +38,10 @@ public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equata
             "Failed to activate session: \(error)"
         case .timeout:
             "Connection to the companion app timed out"
+        case .sessionNotActivated:
+            "Session not activated yet"
+        case .notPaired:
+            "Not paired with the companion app"
         }
     }
 }

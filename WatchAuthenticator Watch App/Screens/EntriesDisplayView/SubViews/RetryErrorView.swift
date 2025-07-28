@@ -21,59 +21,27 @@
 import SwiftUI
 
 struct RetryErrorView: View {
-    let mode: Mode
-    let tintColor: Color
-    let error: any Error
-    let onRetry: () -> Void
+    private let tintColor: Color
+    private let error: any Error
+    private let onRetry: () -> Void
 
-    enum Mode: Sendable {
-        /// Full-page error view, error message displayed  with retry button below
-        case vertical(textColor: Color)
-        /// Inlined error view, error message displayed with retry button on the right
-        case horizontal(textColor: Color)
-
-        static var defaultVertical: Mode {
-            .vertical(textColor: .textNorm)
-        }
-
-        // periphery:ignore
-        static var defaultHorizontal: Mode {
-            .horizontal(textColor: .textNorm)
-        }
-    }
-
-    init(mode: Mode = .defaultVertical,
-         tintColor: Color,
+    init(tintColor: Color,
          error: any Error,
          onRetry: @escaping () -> Void) {
-        self.mode = mode
         self.tintColor = tintColor
         self.error = error
         self.onRetry = onRetry
     }
 
     var body: some View {
-        switch mode {
-        case let .vertical(textColor):
-            ScrollView {
-                VStack {
-                    Text(verbatim: error.localizedDebugDescription)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(textColor)
-                    retryButton
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        case let .horizontal(textColor):
-            HStack {
+        ScrollView {
+            VStack {
                 Text(verbatim: error.localizedDebugDescription)
-                    .font(.callout)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(textColor)
-                Spacer()
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.textNorm)
                 retryButton
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

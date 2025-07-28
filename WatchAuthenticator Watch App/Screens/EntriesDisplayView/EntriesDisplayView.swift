@@ -32,6 +32,7 @@ struct EntriesDisplayView: View {
             List(viewModel.entries) { entry in
                 Button { viewModel.copyToWatchClipboard(entry.token.currentPassword) } label: {
                     TOTPTokenCell(entry: entry)
+                        .equatable()
                 }
                 .buttonStyle(.plain)
             }
