@@ -105,6 +105,7 @@ public struct EntriesView: View {
                 }
                 .onChange(of: scenePhase) { _, newValue in
                     if newValue == .active {
+                        viewModel.checkWatchConnectivity()
                         if router.noSheetDisplayed {
                             withAnimation {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch
@@ -174,8 +175,8 @@ private extension EntriesView {
         List {
             ForEach(viewModel.entries) { entry in
                 cell(for: entry, reducedShadow: false)
-                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 24))
-                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 24))
+                    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 18))
+                    .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: 18))
                     .swipeActions(edge: .leading) {
                         Button {
                             router.presentedSheet = .createEditEntry(entry)

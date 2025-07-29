@@ -7,7 +7,7 @@ var platforms: [SupportedPlatform] = [
     .macOS(.v14),
     .iOS(.v17),
     .tvOS(.v16),
-    .watchOS(.v8),
+    .watchOS(.v10),
     .visionOS(.v2)
 ]
 
@@ -25,7 +25,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/lukacs-m/DocScanner", exact: "0.2.6"),
         .package(url: "https://github.com/hmlongco/Factory", exact: "2.5.3"),
-        .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
+        .package(url: "https://github.com/lukacs-m/SimpleToast", exact: "0.1.6"),
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", .upToNextMajor(from: "3.0.0")),
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),

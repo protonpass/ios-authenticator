@@ -21,13 +21,12 @@
 import Testing
 import Foundation
 import DataLayer
+import Models
 import SimplyPersist
 import SwiftData
 import ProtonCoreDataModel
 import ProtonCoreLogin
 import ProtonCoreNetworking
-
-
 
 @Suite(.tags(.localDatasource))
 struct UserDataSourceTests {

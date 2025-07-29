@@ -1,6 +1,6 @@
 //
 // EncryptedEntryEntity.swift
-// Proton Authenticator - Created on 04/03/2025.
+// Proton Authenticator - Created on 25/07/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import Models
 import SwiftData
 
 @Model
@@ -64,25 +63,25 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         self.revision = revision
     }
 
-    func updateEncryptedData(_ encryptedData: Data,
-                             with keyId: String,
-                             remoteModifiedTime: TimeInterval? = nil) {
+    public func updateEncryptedData(_ encryptedData: Data,
+                                    with keyId: String,
+                                    remoteModifiedTime: TimeInterval? = nil) {
         self.encryptedData = encryptedData
         self.keyId = keyId
-        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
-    func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
+    public func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
         order = newOrder
-        modifiedTime = remoteModifiedTime ?? Date.currentTimestamp
+        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
     }
 
     // periphery:ignore
-    func updateSyncState(newState: EntrySyncState) {
+    public func updateSyncState(newState: EntrySyncState) {
         syncState = newState
     }
 
-    func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
+    public func update(with remoteEncryptedEntry: RemoteEncryptedEntry) {
         remoteId = remoteEncryptedEntry.entryID
         syncState = EntrySyncState.synced
         modifiedTime = Double(remoteEncryptedEntry.modifyTime)
@@ -90,7 +89,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         revision = remoteEncryptedEntry.revision
     }
 
-    func update(with orderedEntry: OrderedEntry) {
+    public func update(with orderedEntry: OrderedEntry) {
         syncState = orderedEntry.syncState
         remoteId = orderedEntry.remoteId ?? ""
         modifiedTime = orderedEntry.modifiedTime

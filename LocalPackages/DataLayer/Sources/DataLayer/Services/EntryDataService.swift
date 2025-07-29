@@ -654,6 +654,12 @@ extension [EntryState] {
     }
 }
 
+public extension DataState<[EntryUiModel]> {
+    var orderEntries: [OrderedEntry] {
+        data?.map(\.orderedEntry) ?? []
+    }
+}
+
 extension [OrderedEntry] {
     func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
         self.first { $0.entry.id == entryId }

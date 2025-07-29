@@ -22,7 +22,6 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
-        .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
         .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "8.52.0")
