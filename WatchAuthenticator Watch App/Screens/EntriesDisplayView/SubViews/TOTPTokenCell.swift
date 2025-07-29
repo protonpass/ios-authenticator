@@ -24,7 +24,7 @@ import FactoryKit
 import Foundation
 import SwiftUI
 
-struct TOTPTokenCell: View, Equatable {
+struct TOTPTokenCell: View, @preconcurrency Equatable {
     private let entry: UIModel
     @State private var timerManager = resolve(\WatchDIContainer.countdownTimer)
 
