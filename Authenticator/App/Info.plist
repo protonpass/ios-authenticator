@@ -23,9 +23,9 @@
 	<array>
 		<string>protonpass</string>
 		<string>protonvpn</string>
-		<string>ch.protonmail.protonmail.mailto</string>
-		<string>ch.protonmail.drive</string>
-		<string>protoncalendar</string>
+		<string>protonmail</string>
+		<string>protondrive</string>
+		<string>ch.protonmail.calendar</string>
 	</array>
 	<key>NSServices</key>
 	<array>
@@ -52,10 +52,6 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <true/>
-    <key>ITSEncryptionExportComplianceCode</key>
-    <string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

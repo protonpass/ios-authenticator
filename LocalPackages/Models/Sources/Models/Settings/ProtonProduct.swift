@@ -39,9 +39,9 @@ public extension ProtonProduct {
         switch self {
         case .pass: "protonpass"
         case .vpn: "protonvpn"
-        case .mail: "ch.protonmail.protonmail.mailto"
-        case .drive: "ch.protonmail.drive"
-        case .calendar: "protoncalendar"
+        case .mail: "protonmail"
+        case .drive: "protondrive"
+        case .calendar: "ch.protonmail.calendar"
         }
     }
 
