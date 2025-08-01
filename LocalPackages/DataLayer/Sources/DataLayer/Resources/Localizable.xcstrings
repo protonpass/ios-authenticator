@@ -428,6 +428,12 @@
             "state" : "translated",
             "value" : "Today, %@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui, %@"
+          }
         }
       }
     },
@@ -647,6 +653,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yesterday, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier, %@"
           }
         }
       }

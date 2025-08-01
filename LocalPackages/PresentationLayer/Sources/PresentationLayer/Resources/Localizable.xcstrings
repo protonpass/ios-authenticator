@@ -849,6 +849,12 @@
             "state" : "translated",
             "value" : "Automatic Backup"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegardes automatiques"
+          }
         }
       }
     },
@@ -999,6 +1005,12 @@
             "state" : "translated",
             "value" : "Backup from %@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde de %@"
+          }
         }
       }
     },
@@ -1028,6 +1040,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "BACKUPS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SAUVEGARDES"
           }
         }
       }
@@ -5102,6 +5120,12 @@
             "state" : "translated",
             "value" : "Last backup: %@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière sauvegarde : %@"
+          }
         }
       }
     },
@@ -6091,6 +6115,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Only the last 5 backups are kept."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seules les 5 dernières sauvegardes sont conservées."
           }
         }
       }
