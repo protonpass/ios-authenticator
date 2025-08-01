@@ -341,9 +341,9 @@ public extension EntryRepository {
                 for orderedEntry in entriesToUpdate {
                     guard let keyId = orderedEntry.keyId,
                           let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
-                            
+
                     else { continue }
-                    
+
                     let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
                                                                       keyId: keyId)
                     encryptedEntry.updateEncryptedData(encryptedData,
@@ -396,7 +396,7 @@ public extension EntryRepository {
                                            remoteModifiedTime: entry.modifiedTime)
                 entity.updateSyncState(newState: entry.syncState)
             }
-            
+
 //
 //            try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
