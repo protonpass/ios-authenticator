@@ -6545,6 +6545,16 @@
         }
       }
     },
+    "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        }
+      }
+    },
     "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here." : {
       "localizations" : {
         "de" : {
@@ -6611,76 +6621,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen **Ayarlar > 2FAS Yedekleme > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir 2fas dosyası oluşturacaktır."
-          }
-        }
-      }
-    },
-    "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Daten > Codes exportieren**\n\nWähle **Klartext**. Dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a **Ajustes > Datos > Exportar códigos**\n\nElige **Texto sin formato**, esto creará un archivo txt que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vaya a **Ajustes > Datos > Exportar códigos**\n\nElija **Texto sin formato**; esto creará un archivo txt que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accédez à **Paramètres > Données > Exporter les codes**\n\nChoisissez **Texte brut** et cela créera un fichier txt que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai a **Impostazioni > Dati > Esporta codici**\n\nScegli **Testo semplice**, questo creerà un file txt che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar **Instellingen > Gegevens > Codes exporteren**\n\nKies **Platte tekst**, hiermee wordt een txt-bestand gemaakt dat u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Dane > Eksportuj kody**\n\nWybierz **Zwykły tekst**, co spowoduje utworzenie pliku txt, którego możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acesse **Configurações > Dados > Exportar códigos**\n\nEscolha **Texto simples**, isso criará um arquivo txt que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейдите в **Настройки > Данные > Экспорт кодов**.\n\nВыберите **Обычный текст**, будет создан txt-файл, который вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lütfen **Ayarlar > Veri > Kodları dışa aktar** bölümüne gidin\n\n**Düz metin** seçeneğini belirleyin. Bu işlem, burada kullanabileceğiniz bir txt dosyası oluşturacaktır."
           }
         }
       }

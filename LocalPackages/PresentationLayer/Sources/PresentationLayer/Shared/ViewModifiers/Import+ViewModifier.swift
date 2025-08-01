@@ -673,7 +673,7 @@ private extension ImportOption {
         case .bitwardenAuthenticator:
             "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .enteAuth:
-            "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+            "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
         case .lastPassAuthenticator:
             "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
         case .protonAuthenticator:
