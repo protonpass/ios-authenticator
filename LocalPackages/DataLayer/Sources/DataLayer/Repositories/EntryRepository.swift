@@ -26,8 +26,6 @@ import Models
 import SimplyPersist
 import SwiftData
 
-// TODO: update all entities transformation with transaction
-
 // swiftlint:disable line_length file_length
 public protocol EntryRepositoryProtocol: Sendable {
     // MARK: - Uri parsing and params from rust lib
@@ -212,8 +210,9 @@ public extension EntryRepository {
                         log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
                         return
                     }
-                    entities.switchToDelete()
-                    try? await localDataManager.persistentStorage.batchSave(content: entities)
+                    try? await localDataManager.persistentStorage.performTransaction {
+                        entities.switchToDelete()
+                    }
                     return
                 }
             }
@@ -352,7 +351,6 @@ public extension EntryRepository {
                     encryptedEntry.update(with: orderedEntry)
                 }
             }
-//            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
             log(.info, "Successfully updated \(encryptedEntries.count) entries locally")
         } catch {
             log(.error, "Failed to update entries: \(error.localizedDescription)")
@@ -433,20 +431,12 @@ public extension EntryRepository {
                 return
             }
 
-            try await localDataManager.persistentStorage.performTransaction { [weak self] in
-                guard let self else { return }
-
+            try await localDataManager.persistentStorage.performTransaction {
                 for entry in encryptedEntries {
                     guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
                     entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
                 }
             }
-//            for entry in encryptedEntries {
-//                guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
-//                entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
-//            }
-//
-//            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
             await log(.info, "Successfully saved updated order to local storage")
         } catch {
             await log(.error, "Failed to update entry order: \(error.localizedDescription)")
@@ -461,7 +451,6 @@ public extension EntryRepository {
                 entry.updateSyncState(newState: .unsynced)
             }
         }
-//        try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func reset(keyIds: [String]) async throws {
