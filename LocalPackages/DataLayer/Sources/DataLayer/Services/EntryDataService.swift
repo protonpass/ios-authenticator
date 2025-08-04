@@ -159,13 +159,13 @@ public extension EntryDataService {
     }
 
     func insertAndRefreshEntry(from params: EntryParameters) async throws {
-        log(.debug, "Inserting and refreshing entry from parameters: \(params)")
+        log(.debug, "Inserting and refreshing entry")
         let entry = try createEntry(with: params)
         try await save(entry)
     }
 
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws {
-        log(.debug, "Updating and refreshing entry with ID: \(entryId) and params: \(params)")
+        log(.debug, "Updating and refreshing entry with ID: \(entryId)")
 
         var entry = try createEntry(with: params)
         entry.id = entryId
@@ -277,7 +277,7 @@ public extension EntryDataService {
     }
 
     func unsyncAllEntries() async throws {
-        log(.debug, "Unsync all entries")
+        log(.debug, "Unsyncing all entries")
         do {
             try await repository.unsyncAllEntries()
             let entriesStates = try await repository.getAllLocalEntries()
@@ -285,7 +285,7 @@ public extension EntryDataService {
             let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
             updateData(entries)
         } catch {
-            log(.error, "Failed to Unsync all entries: \(error.localizedDescription)")
+            log(.error, "Failed to unsync all entries: \(error.localizedDescription)")
             throw error
         }
     }
