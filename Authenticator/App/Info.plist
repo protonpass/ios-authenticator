@@ -23,9 +23,9 @@
 	<array>
 		<string>protonpass</string>
 		<string>protonvpn</string>
-		<string>ch.protonmail.protonmail.mailto</string>
-		<string>ch.protonmail.drive</string>
-		<string>protoncalendar</string>
+		<string>protonmail</string>
+		<string>protondrive</string>
+		<string>ch.protonmail.calendar</string>
 	</array>
 	<key>NSServices</key>
 	<array>

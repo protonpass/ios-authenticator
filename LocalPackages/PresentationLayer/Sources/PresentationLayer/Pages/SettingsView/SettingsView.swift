@@ -419,9 +419,9 @@ private extension ProtonProduct {
         case .mail:
             "Protect your inbox from spam, tracking, and targeted ads."
         case .drive:
-            "Organize your schedule and keep your plans to yourself."
-        case .calendar:
             "Give your precious photos and files the safe home they deserve."
+        case .calendar:
+            "Organize your schedule and keep your plans to yourself."
         }
     }
 
