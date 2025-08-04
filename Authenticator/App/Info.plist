@@ -52,6 +52,10 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <true/>
+    <key>ITSEncryptionExportComplianceCode</key>
+    <string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
