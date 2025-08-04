@@ -73,17 +73,30 @@ struct BackUpView: View {
         .errorMessageAlert($viewModel.errorMessage)
         .sheetAlertService()
         .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
-            TextField("Password", text: $viewModel.password)
+            SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
             Button { viewModel.savePassword() } label: {
-                Text("Register the password", bundle: .module)
+                Text("Save the password", bundle: .module)
             }
             Button("No", role: .cancel) {
                 viewModel.password = ""
             }
         } message: {
-            Text("Set a password to automatically protect the export files.")
+            Text("Set a password to automatically protect the export files.", bundle: .module)
         }
+        .alert("Please enter the password used to encrypt this backup.",
+               isPresented: $viewModel.isShowingPasswordProtectionFile,
+               presenting: viewModel.passwordProtectionFile) { backup in
+            SecureField("Password", text: $viewModel.password)
+                .autocorrectionDisabled()
+            Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
+                Text("Decrypt the backup", bundle: .module)
+            }
+            Button("Cancel", role: .cancel) {
+                viewModel.password = ""
+            }
+        }
+
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

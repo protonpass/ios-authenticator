@@ -998,6 +998,16 @@
         }
       }
     },
+    "Backup data protection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup data protection"
+          }
+        }
+      }
+    },
     "Backup from %@" : {
       "localizations" : {
         "en" : {
@@ -2376,6 +2386,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu cihazdaki veriler güncellenmeyecek ve değişiklikler diğer cihazlara yansımayacaktır.\n\nProton hesabınızdan çıkış yapacaksınız."
+          }
+        }
+      }
+    },
+    "Decrypt the backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrypt the backup"
           }
         }
       }
@@ -5639,6 +5659,16 @@
         }
       }
     },
+    "No" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No"
+          }
+        }
+      }
+    },
     "No codes imported" : {
       "localizations" : {
         "de" : {
@@ -6561,6 +6591,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen Ayarlar'dan kamera erişimini etkinleştirin"
+          }
+        }
+      }
+    },
+    "Please enter the password used to encrypt this backup." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter the password used to encrypt this backup."
           }
         }
       }
@@ -7615,6 +7655,16 @@
         }
       }
     },
+    "Save the password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the password"
+          }
+        }
+      }
+    },
     "Scan a QR code" : {
       "localizations" : {
         "de" : {
@@ -8242,6 +8292,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sağlayıcınızı seçin"
+          }
+        }
+      }
+    },
+    "Set a password to automatically protect the export files." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a password to automatically protect the export files."
           }
         }
       }

@@ -26,6 +26,11 @@ import FactoryKit
 import Foundation
 import Models
 
+struct PasswordProtectedBackup: Identifiable {
+    let id = UUID()
+    let content: String
+}
+
 @Observable @MainActor
 final class BackUpViewModel {
     private(set) var backups: [BackUpFileInfo] = []
@@ -36,7 +41,8 @@ final class BackUpViewModel {
 
     var password = ""
     var showPasswordAlert = false
-    var showAddPasswordAlert = false
+    var isShowingPasswordProtectionFile = false
+    var passwordProtectionFile: PasswordProtectedBackup?
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.backUpManager)
@@ -81,14 +87,31 @@ final class BackUpViewModel {
                 loading = true
                 let data = try await backUpManager.read(fileName: backup.name)
                 let content = String(data: data, encoding: .utf8) ?? ""
-                var password: String?
-                if content.contains("salt"),
-                   let password: String = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
-                                                                   isSynced: false) {
-                    // TODO: check if password set in keychain for backup exports
-                    // get password for backup
+                if content.contains("salt") {
+                    isShowingPasswordProtectionFile = true
+                    passwordProtectionFile = PasswordProtectedBackup(content: content)
+                    return
                 }
-                let source = TwofaImportSource.protonAuthenticator(contents: content, password: password)
+                let source = TwofaImportSource.protonAuthenticator(contents: content, password: nil)
+                let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
+                showCompletion(numberOfImportedEntries)
+            } catch {
+                log(.error, "Failed to load backup: \(backup), error: \(error.localizedDescription)")
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func loadPasswordProtectedBackup(backup: PasswordProtectedBackup) {
+        Task {
+            defer {
+                loading = false
+                password = ""
+            }
+            do {
+                loading = true
+                let source = TwofaImportSource.protonAuthenticator(contents: backup.content,
+                                                                   password: password.nilIfEmpty)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {

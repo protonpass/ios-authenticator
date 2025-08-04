@@ -115,7 +115,7 @@ public struct SettingsView: View {
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
         .alert("Export data", isPresented: $showExportAlert) {
-            TextField("Password", text: $viewModel.password)
+            SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
             Button { viewModel.exportData(shouldUsePassword: true) } label: {
                 Text("Use the password", bundle: .module)

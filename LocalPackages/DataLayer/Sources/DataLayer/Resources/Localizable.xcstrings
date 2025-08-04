@@ -421,22 +421,6 @@
         }
       }
     },
-    "Today, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today, %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aujourd'hui, %@"
-          }
-        }
-      }
-    },
     "unlock" : {
       "localizations" : {
         "de" : {
