@@ -1,5 +1,6 @@
 # Version 1.1.1
-Improve log messages
+- Improved the import process to resolve issues with certain data sources
+- Improved log messages
 
 # Version 1.1.0
 Added support for Apple Watch
