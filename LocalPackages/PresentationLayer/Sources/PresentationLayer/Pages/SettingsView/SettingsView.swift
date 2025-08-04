@@ -119,6 +119,9 @@ public struct SettingsView: View {
             .onAppear {
                 viewModel.exportData()
             }
+            .onDisappear {
+                viewModel.emptyTempDirectory()
+            }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {

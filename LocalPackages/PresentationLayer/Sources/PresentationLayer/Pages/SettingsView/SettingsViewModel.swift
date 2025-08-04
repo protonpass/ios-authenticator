@@ -94,6 +94,10 @@ final class SettingsViewModel {
     private var requestForReview
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.emptyTempDirectory)
+    private(set) var emptyTempDirectory
+
+    @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
