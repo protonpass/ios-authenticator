@@ -90,4 +90,8 @@ public extension UseCaseContainer {
     var openAppSettings: Factory<any OpenAppSettingsUseCase> {
         self { OpenAppSettings() }
     }
+
+    var emptyTempDirectory: Factory<any EmptyTempDirectoryUseCase> {
+        self { EmptyTempDirectory(logger: self.logger) }
+    }
 }
