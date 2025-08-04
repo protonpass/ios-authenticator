@@ -32,6 +32,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func entry(for uri: String) async throws -> Entry
     func export(entries: [Entry]) throws -> String
+    func export(entries: [Entry], with password: String) throws -> String
     func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code]
     func createSteamEntry(params: SteamParams) throws -> Entry
     func createTotpEntry(params: TotpParams) throws -> Entry
@@ -147,6 +148,10 @@ public extension EntryRepository {
 
     nonisolated func export(entries: [Entry]) throws -> String {
         try rustClient.exportEntries(entries: entries.toRustEntries)
+    }
+
+    nonisolated func export(entries: [Entry], with password: String) throws -> String {
+        try rustClient.exportEntriesWithPassword(entries: entries.toRustEntries, password: password)
     }
 
     nonisolated func deserialize(serializedData: [Data]) throws -> [Entry] {

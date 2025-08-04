@@ -3570,6 +3570,26 @@
         }
       }
     },
+    "Export data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data"
+          }
+        }
+      }
+    },
+    "Export data without password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data without password"
+          }
+        }
+      }
+    },
     "Feedback" : {
       "localizations" : {
         "de" : {
@@ -8226,6 +8246,16 @@
         }
       }
     },
+    "Set a password to protect the export file." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a password to protect the export file."
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "de" : {
@@ -10198,6 +10228,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydı Güncelle"
+          }
+        }
+      }
+    },
+    "Use the password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the password"
           }
         }
       }

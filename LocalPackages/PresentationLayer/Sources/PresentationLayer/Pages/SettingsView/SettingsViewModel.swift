@@ -43,7 +43,7 @@ final class SettingsViewModel {
 
     var settingSheet: SettingsSheet?
 
-    var shareURL: URL?
+    var password = ""
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -299,12 +299,22 @@ extension SettingsViewModel {
         haptic()
     }
 
-    func exportData() {
+    func exportData(shouldUsePassword: Bool = false) {
         Task { [weak self] in
             guard let self else {
                 return
             }
-            shareURL = await saveToFile()
+            defer { password = "" }
+            guard let shareURL = await saveToFile(shouldUsePassword: shouldUsePassword) else {
+                return
+            }
+            #if canImport(UIKit)
+            let activityViewController = UIActivityViewController(activityItems: [shareURL],
+                                                                  applicationActivities: nil)
+            UIApplication.topPresentedViewController?.present(activityViewController,
+                                                              animated: true,
+                                                              completion: nil)
+            #endif
         }
     }
 }
@@ -329,11 +339,11 @@ private extension SettingsViewModel {
         return "Proton_Authenticator_backup_\(currentDate).json"
     }
 
-    nonisolated func saveToFile() async -> URL? {
+    nonisolated func saveToFile(shouldUsePassword: Bool) async -> URL? {
         do {
             let fileName = await exportFileName()
-            let content = try await entryDataService.exportEntries()
-
+            let content = try await entryDataService
+                .exportEntries(password: shouldUsePassword ? password.nilIfEmpty : nil)
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
             try content.write(to: tempURL, atomically: true, encoding: .utf8)
             return tempURL

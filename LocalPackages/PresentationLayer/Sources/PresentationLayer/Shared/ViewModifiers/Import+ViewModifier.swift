@@ -373,6 +373,12 @@ private final class ImportViewModel {
                     url.stopAccessingSecurityScopedResource()
                 }
 
+                if let source = sources.first, case let .protonAuthenticator(contents: content, _) = source,
+                   content.contains("salt") {
+                    showPasswordSheet.toggle()
+                    return
+                }
+
                 do {
                     importing = true
                     let numberOfImportedEntries = try await entryDataService.importEntries(from: sources)
@@ -600,7 +606,7 @@ private extension ImportOption {
         case .lastPassAuthenticator:
             .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
         case .protonAuthenticator:
-            .protonAuthenticator(contents: textContent())
+            .protonAuthenticator(contents: textContent(), password: password)
         case .protonPass:
             .protonPass(contents: content)
         case .authy, .microsoft:
