@@ -255,6 +255,22 @@ periphery scan
 
 You can now remove all the unused code.
 
+## Pre-commit
+
+Make sure codes are properly linted and formatted before committing.
+
+First install pre-commit
+```bash
+brew install pre-commit
+```
+
+Then create a pre-commit hook
+```bash
+pre-commit install --hook-type pre-commit
+```
+
+After initializing pre-commit for the repo, the next first commit will take a bit of time because pre-commit needs to download and compile necessary tools configured in `.pre-commit-config.yaml` (swiftlint, swiftformat...)
+
 # Changelog
 For a detailed list of changes in each version of the project, please refer to the [CHANGELOG](CHANGELOG.md) file.
 
