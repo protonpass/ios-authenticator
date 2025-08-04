@@ -38,6 +38,12 @@ struct AuthenticatorApp: App {
     @State private var viewModel = AuthenticatorAppViewModel()
     @Environment(\.scenePhase) private var scenePhase
 
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    #elseif os(macOS)
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    #endif
+
     var body: some Scene {
         WindowGroup {
             mainContainer

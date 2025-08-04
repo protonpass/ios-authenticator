@@ -194,8 +194,17 @@ public final actor LogManager: LoggerProtocol {
 
     public func logsContent(category: LogCategory? = nil) async throws -> String {
         let logs = try await fetchLogs(category: category)
-        let logString = logs.map { log in
-            log.description
+        let logString = logs.compactMap { log in
+            // swiftlint:disable:next todo
+            // TODO: remove logs filtering
+            // Introduced in August 2025, could be removed several months later
+            if log.message.contains("Inserting entry from URI:") ||
+                log.message.contains("Inserting and refreshing entry from parameters:") ||
+                log.message.contains("and params:") {
+                nil
+            } else {
+                log.message
+            }
         }
         .joined(separator: "\n")
         return logString

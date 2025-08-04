@@ -57,7 +57,9 @@ public final class APIClient: APIClientProtocol {
 
 private extension APIClient {
     func exec<E: Endpoint>(endpoint: E) async throws -> E.Response {
+        #if DEBUG
         log(.debug, "Executing endpoint: \(E.self)")
+        #endif
         do {
             let response = try await manager.apiService.exec(endpoint: endpoint)
             #if DEBUG
@@ -65,7 +67,9 @@ private extension APIClient {
             #endif
             return response
         } catch {
+            #if DEBUG
             log(.error, "Failed to execute endpoint: \(E.self), error: \(error.localizedDescription)")
+            #endif
             throw error
         }
     }
