@@ -1,3 +1,6 @@
+# Version 1.1.1
+Improve log messages
+
 # Version 1.1.0
 Added support for Apple Watch
 
