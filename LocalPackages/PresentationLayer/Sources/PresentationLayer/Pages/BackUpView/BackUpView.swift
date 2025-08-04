@@ -72,12 +72,24 @@ struct BackUpView: View {
         .scrollContentBackground(.hidden)
         .errorMessageAlert($viewModel.errorMessage)
         .sheetAlertService()
+        .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
+            TextField("Password", text: $viewModel.password)
+                .autocorrectionDisabled()
+            Button { viewModel.savePassword() } label: {
+                Text("Register the password", bundle: .module)
+            }
+            Button("No", role: .cancel) {
+                viewModel.password = ""
+            }
+        } message: {
+            Text("Set a password to automatically protect the export files.")
+        }
         #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline)
         #endif
-            .toolbar { toolbarContent }
-            .navigationTitle(Text("Backups", bundle: .module))
-            .fullScreenMainBackground()
+        .toolbar { toolbarContent }
+        .navigationTitle(Text("Backups", bundle: .module))
+        .fullScreenMainBackground()
     }
 
     private var isDarkMode: Bool {
@@ -91,16 +103,18 @@ struct BackUpView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         #if os(iOS)
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                viewModel.backup()
-            } label: {
-                Text("Backup now", bundle: .module)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.accent)
-                    .padding(10)
+        if viewModel.backupActivated {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.backup()
+                } label: {
+                    Text("Backup now", bundle: .module)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.accent)
+                        .padding(10)
+                }
+                .adaptiveButtonStyle()
             }
-            .adaptiveButtonStyle()
         }
         #endif
     }

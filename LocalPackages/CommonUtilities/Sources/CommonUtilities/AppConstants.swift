@@ -65,6 +65,7 @@ public enum AppConstants: Sendable {
         public static let iCloudSync = "ICloudBackUp"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"
+        public static let backupPassword = "BackupPassword"
     }
 
     public enum NetworkSettings {

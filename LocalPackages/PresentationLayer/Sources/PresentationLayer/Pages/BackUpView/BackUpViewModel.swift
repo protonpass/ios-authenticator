@@ -20,6 +20,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
@@ -33,6 +34,10 @@ final class BackUpViewModel {
 
     var errorMessage: String?
 
+    var password = ""
+    var showPasswordAlert = false
+    var showAddPasswordAlert = false
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.backUpManager)
     private var backUpManager
@@ -40,6 +45,10 @@ final class BackUpViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.keychainService)
+    private var keychainService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
@@ -72,7 +81,14 @@ final class BackUpViewModel {
                 loading = true
                 let data = try await backUpManager.read(fileName: backup.name)
                 let content = String(data: data, encoding: .utf8) ?? ""
-                let source = TwofaImportSource.protonAuthenticator(contents: content)
+                var password: String?
+                if content.contains("salt"),
+                   let password: String = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                                   isSynced: false) {
+                    // TODO: check if password set in keychain for backup exports
+                    // get password for backup
+                }
+                let source = TwofaImportSource.protonAuthenticator(contents: content, password: password)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {
@@ -85,12 +101,16 @@ final class BackUpViewModel {
     func toggleBackICloudUp() {
         settingsService.toggleICloudBackUp(!backupActivated)
         backupActivated.toggle()
+        showPasswordAlert = backupActivated
     }
 
     func backup() {
         Task {
             do {
-                guard let exportData = try entryDataService.exportEntries().data(using: .utf8) else {
+                let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                                 isSynced: false)
+                guard let exportData = try entryDataService.exportEntries(password: password).data(using: .utf8)
+                else {
                     return
                 }
                 try await backUpManager.write(data: exportData)
@@ -103,6 +123,17 @@ final class BackUpViewModel {
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
+    }
+
+    func savePassword() {
+        guard !password.isEmpty else {
+            return
+        }
+        do {
+            try keychainService.set(password, for: AppConstants.Settings.backupPassword, shouldSync: false)
+        } catch {
+            print(error)
+        }
     }
 }
 

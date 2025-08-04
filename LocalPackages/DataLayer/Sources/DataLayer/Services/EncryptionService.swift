@@ -146,7 +146,7 @@ public extension EncryptionService {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data {
         let encryptionKey = try getEncryptionKey(for: keyId)
-        log(.info, "Encrypting entry \(entry.name) with local encryption key")
+        log(.info, "Encrypting entry \(entry.id) with local encryption key")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: encryptionKey)
