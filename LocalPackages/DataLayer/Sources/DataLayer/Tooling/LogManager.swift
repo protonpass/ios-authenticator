@@ -141,6 +141,12 @@ public final actor LogManager: LoggerProtocol {
     private let subsystem: String
 
     private var logBuffer: [LogEntry] = []
+    private let logsShouldNotContain = [
+        "Inserting entry from URI:",
+        "Inserting and refreshing entry from parameters:",
+        "and params:"
+    ]
+
     private nonisolated(unsafe) var saveTimerSubscription: Cancellable?
 
     private var saveLogsTask: Task<Void, Never>?
@@ -183,6 +189,7 @@ public final actor LogManager: LoggerProtocol {
     // MARK: - Fetch Logs by Category
 
     public func fetchLogs(category: LogCategory? = nil) async throws -> [LogEntry] {
+        try await cleanLogs()
         let descriptor = if let category {
             FetchDescriptor<LogEntryEntity>(predicate: #Predicate { $0.category == category.rawValue },
                                             sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
@@ -285,6 +292,16 @@ private extension LogManager {
         }
         let logs = try await localDataManager.persistentStorage.fetch(fetchDescriptor: fetchDescriptor)
         try await localDataManager.persistentStorage.delete(datas: logs)
+    }
+
+    func cleanLogs() async throws {
+        await saveLogsTask?.value
+        let descriptor = FetchDescriptor<LogEntryEntity>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        let entities = try await localDataManager.persistentStorage.fetch(fetchDescriptor: descriptor)
+            .filter { entity in
+                logsShouldNotContain.contains { entity.message.localizedCaseInsensitiveContains($0) }
+            }
+        try await localDataManager.persistentStorage.delete(datas: entities)
     }
 }
 
