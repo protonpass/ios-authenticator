@@ -127,7 +127,7 @@ public struct SettingsView: View {
                 viewModel.password = ""
             }
         } message: {
-            Text("Set a password to protect the export file.")
+            Text("Set a password to protect the export file.", bundle: .module)
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)
