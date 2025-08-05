@@ -260,12 +260,6 @@ private extension Date {
             formatter.dateStyle = .short
             formatter.timeStyle = .short
 
-            // Some languages might format this differently, so we need to handle it
-            if isToday {
-                return formatter.string(from: self)
-            } else if isYesterday {
-                return #localized("Yesterday, %@", bundle: .module, formatter.string(from: self))
-            }
             return formatter.string(from: self)
         } else {
             formatter.doesRelativeDateFormatting = false

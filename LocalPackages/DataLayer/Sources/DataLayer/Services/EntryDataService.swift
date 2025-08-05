@@ -105,6 +105,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let logger: LoggerProtocol
     @ObservationIgnored
     private let settings: SettingsServicing
+    @ObservationIgnored
+    private let keychainService: KeychainServicing
 
     @ObservationIgnored
     private var backUpEntriesTask: Task<Void, Never>?
@@ -119,6 +121,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 reachabilityManager: any ReachabilityServicing,
                 backUpManager: any BackUpServicing,
                 settings: any SettingsServicing,
+                keychainService: any KeychainServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
@@ -128,6 +131,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
         self.reachabilityManager = reachabilityManager
         self.backUpManager = backUpManager
         self.syncOperation = syncOperation
+        self.keychainService = keychainService
         self.settings = settings
         setUp()
     }
@@ -638,7 +642,10 @@ private extension EntryDataService {
     }
 
     func backUpEntries() {
-        guard settings.iCloudBackUp, let exportData = try? exportEntries().data(using: .utf8) else {
+        let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                         isSynced: false)
+        guard settings.iCloudBackUp,
+              let exportData = try? exportEntries(password: password).data(using: .utf8) else {
             return
         }
         backUpEntriesTask?.cancel()

@@ -152,6 +152,7 @@ final class BackUpViewModel {
         guard !password.isEmpty else {
             return
         }
+        defer { password = "" }
         do {
             try keychainService.set(password, for: AppConstants.Settings.backupPassword, shouldSync: false)
         } catch {

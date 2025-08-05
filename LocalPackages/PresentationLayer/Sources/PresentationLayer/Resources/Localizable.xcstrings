@@ -10292,16 +10292,6 @@
         }
       }
     },
-    "Use the password" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use the password"
-          }
-        }
-      }
-    },
     "Use two-factor authentication to safeguard your accounts." : {
       "localizations" : {
         "de" : {

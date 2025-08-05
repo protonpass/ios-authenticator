@@ -29,7 +29,9 @@ import LocalAuthentication
 import Macro
 import Models
 #if canImport(UIKit)
+import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 #endif
 
 @Observable @MainActor
@@ -44,6 +46,9 @@ final class SettingsViewModel {
     var settingSheet: SettingsSheet?
 
     var password = ""
+    var exportFile = false
+    @ObservationIgnored
+    var fileToExport: TextFile?
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -305,17 +310,17 @@ extension SettingsViewModel {
                 return
             }
             defer { password = "" }
-            guard let shareURL = await saveToFile(shouldUsePassword: shouldUsePassword) else {
-                return
-            }
-            #if canImport(UIKit)
-            let activityViewController = UIActivityViewController(activityItems: [shareURL],
-                                                                  applicationActivities: nil)
-            UIApplication.topPresentedViewController?.present(activityViewController,
-                                                              animated: true,
-                                                              completion: nil)
-            #endif
+            fileToExport = await saveToFile(shouldUsePassword: shouldUsePassword)
+            exportFile = true
         }
+    }
+
+    func exportFileName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
+        let currentDate = dateFormatter.string(from: .now)
+
+        return "Proton_Authenticator_backup_\(currentDate).json"
     }
 }
 
@@ -331,22 +336,11 @@ private extension SettingsViewModel {
         #endif
     }
 
-    func exportFileName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let currentDate = dateFormatter.string(from: .now)
-
-        return "Proton_Authenticator_backup_\(currentDate).json"
-    }
-
-    nonisolated func saveToFile(shouldUsePassword: Bool) async -> URL? {
+    nonisolated func saveToFile(shouldUsePassword: Bool) async -> TextFile? {
         do {
-            let fileName = await exportFileName()
             let content = try await entryDataService
                 .exportEntries(password: shouldUsePassword ? password.nilIfEmpty : nil)
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-            try content.write(to: tempURL, atomically: true, encoding: .utf8)
-            return tempURL
+            return TextFile(initialText: content)
         } catch {
             if let authError = error as? AuthError,
                case let .generic(reason) = authError,
@@ -356,5 +350,28 @@ private extension SettingsViewModel {
             await alertService.showError(error, mainDisplay: false, action: nil)
             return nil
         }
+    }
+}
+
+struct TextFile: FileDocument {
+    static let readableContentTypes = [UTType.plainText]
+
+    let text: String
+
+    init(initialText: String) {
+        text = initialText
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        if let data = configuration.file.regularFileContents {
+            text = String(bytes: data, encoding: .utf8) ?? ""
+        } else {
+            text = ""
+        }
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = Data(text.utf8)
+        return FileWrapper(regularFileWithContents: data)
     }
 }

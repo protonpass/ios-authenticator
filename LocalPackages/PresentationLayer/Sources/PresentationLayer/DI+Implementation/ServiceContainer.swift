@@ -55,7 +55,8 @@ public extension ServiceContainer {
                                               logger: self.logger,
                                               reachabilityManager: ToolsContainer.shared.reachabilityManager(),
                                               backUpManager: self.backUpManager(),
-                                              settings: self.settingsService()) }
+                                              settings: self.settingsService(),
+                                              keychainService: self.keychainService()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {

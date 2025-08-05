@@ -630,22 +630,6 @@
           }
         }
       }
-    },
-    "Yesterday, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yesterday, %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hier, %@"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"
