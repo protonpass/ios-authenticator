@@ -118,6 +118,8 @@ public struct SettingsView: View {
         .alert("Export data", isPresented: $showExportAlert) {
             SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
+                .textContentType(.oneTimeCode)
+                .textInputAutocapitalization(.never)
             Button { viewModel.exportData(shouldUsePassword: true) } label: {
                 Text("Export", bundle: .module)
             }

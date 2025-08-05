@@ -75,6 +75,8 @@ struct BackUpView: View {
         .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
             SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
+                .textContentType(.oneTimeCode)
+                .textInputAutocapitalization(.never)
             Button { viewModel.savePassword() } label: {
                 Text("Save the password", bundle: .module)
             }
@@ -89,6 +91,8 @@ struct BackUpView: View {
                presenting: viewModel.passwordProtectionFile) { backup in
             SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
+                .textContentType(.oneTimeCode)
+                .textInputAutocapitalization(.never)
             Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
                 Text("Decrypt the backup", bundle: .module)
             }
