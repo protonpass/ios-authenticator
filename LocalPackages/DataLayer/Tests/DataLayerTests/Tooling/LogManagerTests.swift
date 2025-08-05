@@ -61,6 +61,8 @@ struct LogManagerTests {
             sut.log(.debug, category: .ui, log)
         }
         
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        
         let logEntries = try await sut.fetchLogs(category: nil)
         #expect(logEntries.count == 12)
         #expect(logEntries.contains { !$0.message.contains("Inserting entry from URI:") })
@@ -94,8 +96,8 @@ struct LogManagerTests {
         }
         
         let content = try await sut.logsContent(category: nil)
-        #expect(!content.contains( "Inserting entry from URI:"))
-        #expect(!content.contains( "Inserting and refreshing entry from parameters:"))
+        #expect(!content.contains("Inserting entry from URI:"))
+        #expect(!content.contains("Inserting and refreshing entry from parameters:"))
         #expect(!content.contains("and params:"))
     }
 }
