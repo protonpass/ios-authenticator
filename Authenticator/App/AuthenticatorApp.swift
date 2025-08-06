@@ -280,7 +280,7 @@ private final class AuthenticatorAppViewModel {
                 view.trailingAnchor.constraint(equalTo: window.trailingAnchor)
             ])
         } else {
-            getFirstWindow()?.subviews.first(where: { $0.tag == tag })?.removeFromSuperview()
+            window.subviews.first(where: { $0.tag == tag })?.removeFromSuperview()
         }
         #endif
     }
