@@ -69,25 +69,16 @@ struct AuthenticatorApp: App {
 private extension AuthenticatorApp {
     var mainContainer: some View {
         Group {
-            if viewModel.showEntries {
-                if viewModel.onboarded {
-                    EntriesView()
-                        .preferredColorScheme(viewModel.theme.preferredColorScheme)
-                        .onOpenURL { url in
-                            viewModel.handleDeepLink(url)
-                        }
-                        .onChange(of: scenePhase) { _, newPhase in
-                            if newPhase == .background {
-                                viewModel.resetBiometricCheck()
-                            }
-                        }
-                } else {
-                    EmptyView()
-                        .fullScreenMainBackground()
-                }
+            if viewModel.onboarded {
+                EntriesView()
+                    .accessibilityHidden(viewModel.showEntries)
+                    .preferredColorScheme(viewModel.theme.preferredColorScheme)
+                    .onOpenURL { url in
+                        viewModel.handleDeepLink(url)
+                    }
             } else {
-                BioLockView(manualUnlock: viewModel.manualUnlock || !viewModel.onboarded,
-                            onUnlock: viewModel.checkBiometrics)
+                EmptyView()
+                    .fullScreenMainBackground()
             }
         }
         .task {
@@ -105,6 +96,7 @@ private extension AuthenticatorApp {
             viewModel.updateWindowUserInterfaceStyle()
             viewModel.setWindowTintColor()
             if !viewModel.manualUnlock, !viewModel.showEntries {
+                viewModel.toggleCover(shouldCover: true)
                 viewModel.checkBiometrics()
             }
         }
@@ -112,11 +104,21 @@ private extension AuthenticatorApp {
             viewModel.resetBiometricCheck()
         }
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
+            switch newPhase {
+            case .active:
                 if !viewModel.manualUnlock, !viewModel.showEntries {
                     viewModel.checkBiometrics()
                 }
+
+            case .background, .inactive:
+                viewModel.resetBiometricCheck()
+
+            default:
+                break
             }
+        }
+        .onChange(of: viewModel.showEntries) { _, newValue in
+            viewModel.toggleCover(shouldCover: !newValue)
         }
         .mainAlertService()
     }
@@ -143,6 +145,9 @@ private final class AuthenticatorAppViewModel {
 
     @ObservationIgnored
     let manualUnlock = ProcessInfo().isiOSAppOnMac
+
+    @ObservationIgnored
+    private var isCheckingBiometric = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.deepLinkService)
@@ -223,6 +228,12 @@ private final class AuthenticatorAppViewModel {
         guard !appSettings.isFirstRun, authenticationService.biometricEnabled else { return }
         Task { [weak self] in
             guard let self else { return }
+            if isCheckingBiometric {
+                return
+            } else {
+                isCheckingBiometric = true
+            }
+            defer { isCheckingBiometric = false }
             do {
                 try await authenticationService.checkBiometrics()
             } catch {
@@ -247,6 +258,29 @@ private final class AuthenticatorAppViewModel {
         case .dark: .dark
         case .light: .light
         case .system: .unspecified
+        }
+        #endif
+    }
+
+    func toggleCover(shouldCover: Bool) {
+        #if canImport(UIKit)
+        guard let window = getFirstWindow() else { return }
+        let tag = 1_912 // Just a random static tag
+        if shouldCover {
+            let vc = UIHostingController(rootView: BioLockView(manualUnlock: manualUnlock || !onboarded,
+                                                               onUnlock: checkBiometrics))
+            let view = vc.view ?? .init()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.tag = tag
+            window.addSubview(view)
+            NSLayoutConstraint.activate([
+                view.topAnchor.constraint(equalTo: window.topAnchor),
+                view.leadingAnchor.constraint(equalTo: window.leadingAnchor),
+                view.bottomAnchor.constraint(equalTo: window.bottomAnchor),
+                view.trailingAnchor.constraint(equalTo: window.trailingAnchor)
+            ])
+        } else {
+            window.subviews.first(where: { $0.tag == tag })?.removeFromSuperview()
         }
         #endif
     }
