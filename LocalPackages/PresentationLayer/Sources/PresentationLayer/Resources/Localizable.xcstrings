@@ -5669,16 +5669,6 @@
         }
       }
     },
-    "No" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No"
-          }
-        }
-      }
-    },
     "No codes imported" : {
       "localizations" : {
         "de" : {

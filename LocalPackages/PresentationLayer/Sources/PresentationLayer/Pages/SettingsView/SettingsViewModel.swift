@@ -309,9 +309,9 @@ extension SettingsViewModel {
             guard let self else {
                 return
             }
-            defer { password = "" }
             fileToExport = await saveToFile(shouldUsePassword: shouldUsePassword)
             exportFile = true
+            password = ""
         }
     }
 

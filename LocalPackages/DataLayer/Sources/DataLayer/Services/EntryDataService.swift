@@ -108,9 +108,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
     @ObservationIgnored
     private let keychainService: KeychainServicing
 
-    @ObservationIgnored
-    private var backUpEntriesTask: Task<Void, Never>?
-
     // MARK: - Init
 
     public init(repository: any EntryRepositoryProtocol,

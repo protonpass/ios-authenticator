@@ -41,7 +41,6 @@ final class BackUpViewModel {
 
     var password = ""
     var showPasswordAlert = false
-    var isShowingPasswordProtectionFile = false
     var passwordProtectionFile: PasswordProtectedBackup?
 
     @ObservationIgnored
@@ -88,7 +87,6 @@ final class BackUpViewModel {
                 let data = try backUpManager.read(fileName: backup.name)
                 let content = String(data: data, encoding: .utf8) ?? ""
                 if content.contains("salt") {
-                    isShowingPasswordProtectionFile = true
                     passwordProtectionFile = PasswordProtectedBackup(content: content)
                     return
                 }
@@ -96,7 +94,7 @@ final class BackUpViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {
-                log(.error, "Failed to load backup: \(backup), error: \(error.localizedDescription)")
+                log(.error, "Failed to load backup: error: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
             }
         }
@@ -115,7 +113,7 @@ final class BackUpViewModel {
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {
-                log(.error, "Failed to load backup: \(backup), error: \(error.localizedDescription)")
+                log(.error, "Failed to load password protected backup: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
             }
         }
@@ -154,7 +152,7 @@ final class BackUpViewModel {
         do {
             try keychainService.set(password, for: AppConstants.Settings.backupPassword, shouldSync: false)
         } catch {
-            print(error)
+            log(.error, "Failed to save password: \(error.localizedDescription)")
         }
     }
 

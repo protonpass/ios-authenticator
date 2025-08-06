@@ -20,6 +20,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import Macro
 import Models
 import SwiftUI
@@ -27,7 +28,6 @@ import SwiftUI
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
     @Environment(\.colorScheme) private var colorScheme
-    @State private var showPicker = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -87,14 +87,14 @@ struct BackUpView: View {
             Button { viewModel.savePassword() } label: {
                 Text("Save the password", bundle: .module)
             }
-            Button("No", role: .cancel) {
+            Button("Cancel", role: .cancel) {
                 viewModel.password = ""
             }
         } message: {
             Text("Set a password to automatically protect the export files.", bundle: .module)
         }
         .alert("Please enter the password used to encrypt this backup.",
-               isPresented: $viewModel.isShowingPasswordProtectionFile,
+               isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
                presenting: viewModel.passwordProtectionFile) { backup in
             SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
