@@ -81,18 +81,17 @@ final class BackUpViewModel {
 
     func load(backup: BackUpFileInfo) {
         Task {
+            var content = ""
             defer { loading = false }
             do {
                 loading = true
                 let data = try backUpManager.read(fileName: backup.name)
-                let content = String(data: data, encoding: .utf8) ?? ""
-                if content.contains("salt") {
-                    passwordProtectionFile = PasswordProtectedBackup(content: content)
-                    return
-                }
+                content = String(data: data, encoding: .utf8) ?? ""
                 let source = TwofaImportSource.protonAuthenticator(contents: content, password: nil)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
+            } catch ImportException.MissingPassword {
+                passwordProtectionFile = PasswordProtectedBackup(content: content)
             } catch {
                 log(.error, "Failed to load backup: error: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription

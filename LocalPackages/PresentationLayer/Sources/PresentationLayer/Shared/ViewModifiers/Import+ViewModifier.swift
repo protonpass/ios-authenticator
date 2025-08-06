@@ -373,12 +373,6 @@ private final class ImportViewModel {
                     url.stopAccessingSecurityScopedResource()
                 }
 
-                if let source = sources.first, case let .protonAuthenticator(contents: content, _) = source,
-                   content.contains("salt") {
-                    showPasswordSheet.toggle()
-                    return
-                }
-
                 do {
                     importing = true
                     let numberOfImportedEntries = try await entryDataService.importEntries(from: sources)

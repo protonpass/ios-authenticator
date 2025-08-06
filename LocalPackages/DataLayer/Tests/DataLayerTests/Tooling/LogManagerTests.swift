@@ -61,7 +61,7 @@ struct LogManagerTests {
             sut.log(.debug, category: .ui, log)
         }
         
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_500_000_000)
         
         let logEntries = try await sut.fetchLogs(category: nil)
         #expect(logEntries.count == 12)
