@@ -3821,6 +3821,16 @@
         }
       }
     },
+    "Folder location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder location"
+          }
+        }
+      }
+    },
     "Free" : {
       "localizations" : {
         "de" : {

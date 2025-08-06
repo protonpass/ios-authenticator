@@ -648,14 +648,11 @@ private extension EntryDataService {
               let exportData = try? exportEntries(password: password).data(using: .utf8) else {
             return
         }
-        backUpEntriesTask?.cancel()
 
-        backUpEntriesTask = Task {
-            do {
-                try await backUpManager.write(data: exportData)
-            } catch {
-                log(.error, "Failed to backup entries: \(error)")
-            }
+        do {
+            try backUpManager.write(data: exportData)
+        } catch {
+            log(.error, "Failed to backup entries: \(error)")
         }
     }
 }

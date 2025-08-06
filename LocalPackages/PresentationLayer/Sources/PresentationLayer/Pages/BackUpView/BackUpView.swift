@@ -27,17 +27,25 @@ import SwiftUI
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showPicker = false
 
     var body: some View {
-        VStack {
+        VStack(spacing: 32) {
             section {
                 SettingRow(title: .localized("Automatic Backup", .module),
                            trailingMode: .toggle(isOn: viewModel.backupActivated,
                                                  onToggle: viewModel.toggleBackICloudUp))
+                SettingDivider()
+                if showBackup() {
+                    Button { viewModel.openICloudFolder() } label: {
+                        row(title: .localized("Folder location", .module), imageName: "chevron.right")
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .frame(maxHeight: 75)
+            .frame(maxHeight: showBackup() ? 120 : 75)
 
-            if viewModel.backupActivated, !viewModel.backups.isEmpty {
+            if showBackup() {
                 section("BACKUPS") {
                     ForEach(viewModel.backups) { backup in
                         Button { viewModel.load(backup: backup) } label: {
@@ -58,14 +66,13 @@ struct BackUpView: View {
                 }
                 .dynamicFont(size: 13, textStyle: .body)
                 .foregroundStyle(.textWeak)
-                .padding(.top, 32)
             }
             Spacer()
         }
         .frame(maxHeight: .infinity)
         .animation(.default, value: viewModel.backupActivated)
         .task {
-            await viewModel.loadData()
+            viewModel.loadData()
         }
         .showSpinner(viewModel.loading)
         .padding(.bottom, 10)
@@ -135,6 +142,10 @@ struct BackUpView: View {
         }
         #endif
     }
+
+    func showBackup() -> Bool {
+        viewModel.backupActivated && !viewModel.backups.isEmpty
+    }
 }
 
 // MARK: - Utils
@@ -165,13 +176,14 @@ private extension BackUpView {
         .padding(.top, DesignConstant.padding * 2)
     }
 
-    func row(title: TextContent) -> some View {
+    func row(title: TextContent,
+             imageName: String = "clock.arrow.trianglehead.counterclockwise.rotate.90") -> some View {
         HStack(spacing: 0) {
             Text(title) // ignore:missing_bundle
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 17, textStyle: .body)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+            Image(systemName: imageName)
                 .foregroundStyle(.textNorm)
         }
         .padding(DesignConstant.padding)

@@ -404,7 +404,7 @@ private extension SettingsView {
     }
 }
 
-private struct SettingDivider: View {
+struct SettingDivider: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {

@@ -59,6 +59,10 @@ final class QAMenuViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private(set) var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.backUpManager)
+    private var backUpManager
+
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
@@ -88,5 +92,9 @@ final class QAMenuViewModel {
                                                     actions: [.ok])))
             }
         }
+    }
+
+    func deleteAll() {
+        try? backUpManager.deleteAllFilesInICloudDocuments()
     }
 }

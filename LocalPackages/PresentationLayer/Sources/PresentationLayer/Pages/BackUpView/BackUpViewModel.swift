@@ -71,9 +71,9 @@ final class BackUpViewModel {
         setUp()
     }
 
-    func loadData() async {
+    func loadData() {
         do {
-            backups = try await backUpManager.getAllDocumentsData()
+            backups = try backUpManager.getAllDocumentsData()
         } catch {
             log(.error, "Failed to load backup files, error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -85,7 +85,7 @@ final class BackUpViewModel {
             defer { loading = false }
             do {
                 loading = true
-                let data = try await backUpManager.read(fileName: backup.name)
+                let data = try backUpManager.read(fileName: backup.name)
                 let content = String(data: data, encoding: .utf8) ?? ""
                 if content.contains("salt") {
                     isShowingPasswordProtectionFile = true
@@ -128,19 +128,17 @@ final class BackUpViewModel {
     }
 
     func backup() {
-        Task {
-            do {
-                let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
-                                                                 isSynced: false)
-                guard let exportData = try entryDataService.exportEntries(password: password).data(using: .utf8)
-                else {
-                    return
-                }
-                try await backUpManager.write(data: exportData)
-                await loadData()
-            } catch {
-                log(.error, "Failed to backup: \(error.localizedDescription)")
+        do {
+            let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                             isSynced: false)
+            guard let exportData = try entryDataService.exportEntries(password: password).data(using: .utf8)
+            else {
+                return
             }
+            try backUpManager.write(data: exportData)
+            loadData()
+        } catch {
+            log(.error, "Failed to backup: \(error.localizedDescription)")
         }
     }
 
@@ -158,6 +156,10 @@ final class BackUpViewModel {
         } catch {
             print(error)
         }
+    }
+
+    func openICloudFolder() {
+        backUpManager.openICloudFolder()
     }
 }
 
