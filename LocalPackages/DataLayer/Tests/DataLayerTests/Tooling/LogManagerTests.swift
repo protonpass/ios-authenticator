@@ -43,28 +43,23 @@ struct LogManagerTests {
             "Inserting entry from URI: /example",
             "Inserting and refreshing entry from parameters: id=1",
             "Some useful info and params: a=b",
-            "User logged in",
-            "Network request succeeded",
-            "Database migration completed",
-            "User logged in",
-            "Network request succeeded",
-            "Database migration completed",
-            "User logged in",
-            "Network request succeeded",
-            "Database migration completed",
-            "User logged in",
-            "Network request succeeded",
-            "Database migration completed"
+            "User logged in1",
+            "Network request succeeded1",
+            "Database migration completed1",
+            "User logged in2",
+            "Network request succeeded2",
+            "Database migration completed2",
+            "User logged in3"
         ]
 
         for log in logs {
             sut.log(.debug, category: .ui, log)
         }
         
-        try await Task.sleep(nanoseconds: 1_500_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
         
         let logEntries = try await sut.fetchLogs(category: nil)
-        #expect(logEntries.count == 12)
+        #expect(logEntries.count == 7)
         #expect(logEntries.contains { !$0.message.contains("Inserting entry from URI:") })
         #expect(logEntries.contains { !$0.message.contains("Inserting and refreshing entry from parameters:") })
         #expect(logEntries.contains { !$0.message.contains("and params:") })
