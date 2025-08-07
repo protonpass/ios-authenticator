@@ -665,21 +665,21 @@ private extension ImportOption {
     var explanation: LocalizedStringKey {
         switch self {
         case .googleAuthenticator:
-            "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
+            "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
         case .twoFas:
             "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
         case .aegisAuthenticator:
-            "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+            "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
         case .bitwardenAuthenticator:
             "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
         case .enteAuth:
             "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
         case .lastPassAuthenticator:
-            "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+            "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
         case .protonAuthenticator:
-            "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
+            "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here."
         case .protonPass:
-            "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+            "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
         case .authy, .microsoft:
             "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }
