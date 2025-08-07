@@ -395,8 +395,6 @@ public extension EntryRepository {
                 entity.updateSyncState(newState: entry.syncState)
             }
 
-//
-//            try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
                                 keyId: entity.keyId,
