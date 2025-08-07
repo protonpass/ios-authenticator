@@ -69,7 +69,7 @@ public extension UserDataSource {
             log(.info, "Successfully decrypted user data")
             return userData
         } catch {
-            log(.error, "Failed to decrypt user data: \(error.localizedDescription)")
+            log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -81,7 +81,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.save(data: encryptedUserData)
             log(.info, "Successfully saved encrypted user data")
         } catch {
-            log(.error, "Failed to save user data: \(error.localizedDescription)")
+            log(.error, "Failed to save user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -94,7 +94,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
             log(.info, "Successfully removed user data with ID: \(userId)")
         } catch {
-            log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription)")
+            log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -105,7 +105,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self)
             log(.info, "Successfully removed all user data")
         } catch {
-            log(.error, "Failed to remove all user data: \(error.localizedDescription)")
+            log(.error, "Failed to remove all user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -124,7 +124,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated user data for ID: \(userData.user.ID)")
         } catch {
-            log(.error, "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription)")
+            log(.error, "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }

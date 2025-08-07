@@ -68,7 +68,7 @@ private extension APIClient {
             return response
         } catch {
             #if DEBUG
-            log(.error, "Failed to execute endpoint: \(E.self), error: \(error.localizedDescription)")
+            log(.error, "Failed to execute endpoint: \(E.self), \(error.localizedDescription), error: \(error)")
             #endif
             throw error
         }

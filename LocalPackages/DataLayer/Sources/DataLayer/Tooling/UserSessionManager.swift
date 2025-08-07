@@ -279,7 +279,7 @@ private extension UserSessionManager {
             let encryptedContent = try encryptionService.symmetricEncrypt(object: data)
             try keychain.set(encryptedContent, for: key, shouldSync: false)
         } catch {
-            log(.error, "Failed to saved user sessions in keychain: \(error)")
+            log(.error, "Failed to save user sessions in keychain: \(error)")
         }
     }
 
@@ -287,7 +287,7 @@ private extension UserSessionManager {
         do {
             try keychain.delete(keyId: credentialsKey, isSynced: false)
         } catch {
-            log(.error, "Failed to saved user sessions in keychain: \(error)")
+            log(.error, "Failed to delete user sessions in keychain: \(error)")
         }
     }
 
