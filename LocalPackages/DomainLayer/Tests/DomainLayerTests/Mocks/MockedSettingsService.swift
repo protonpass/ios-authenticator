@@ -39,7 +39,8 @@ final class MockedSettingsService: SettingsServicing {
     var focusSearchOnLaunch = false
     var iCloudBackUp = false
     var iCloudSync = false
-    var fullBackUp: Bool = false
+    var fullBackUp = false
+    var unsupportedScanning = false
 
 
     func setFirstRun(_ value: Bool) {
@@ -102,5 +103,9 @@ final class MockedSettingsService: SettingsServicing {
     
     func setFullBackup(_ value: Bool) {
         fullBackUp = value
+    }
+
+    func setUnsupportedScanning(_ value: Bool) {
+        unsupportedScanning = value
     }
 }

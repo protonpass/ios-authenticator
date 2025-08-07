@@ -42,6 +42,10 @@ final class ScannerViewModel {
     private(set) var shouldDismiss = false
     private(set) var shouldEnterManually = false
 
+    var unsupportedScanning: Bool {
+        appSettings.unsupportedScanning
+    }
+
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
             imageSelectionStream.send(imageSelection)
@@ -65,6 +69,10 @@ final class ScannerViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     var alertService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
 
     @ObservationIgnored
     private var task: Task<Void, Never>?
@@ -100,20 +108,7 @@ final class ScannerViewModel {
                 hasPayload = true
                 await generateEntry(from: barcode.payload)
             case let .failure(error):
-                if Task.isCancelled { return }
-                if let error = error as? DataScannerViewController.ScanningUnavailable,
-                   error == .cameraRestricted {
-                    if Task.isCancelled { return }
-                    let config = AlertConfiguration.noCameraAccess { [weak self] in
-                        guard let self else { return }
-                        task?.cancel()
-                        shouldEnterManually = true
-                    }
-                    alertService.showAlert(.sheet(config))
-                } else {
-                    if Task.isCancelled { return }
-                    handleError(error.localizedDescription)
-                }
+                handleScanningError(error)
             }
         }
     }
@@ -144,6 +139,28 @@ private extension ScannerViewModel {
                 processPayload(results: scanResult)
             }
             .store(in: &cancellables)
+    }
+
+    func handleScanningError(_ error: any Error) {
+        if let scanningError = error as? DataScannerViewController.ScanningUnavailable {
+            switch scanningError {
+            case .unsupported:
+                appSettings.setUnsupportedScanning(true)
+
+            case .cameraRestricted:
+                let config = AlertConfiguration.noCameraAccess { [weak self] in
+                    guard let self else { return }
+                    task?.cancel()
+                    shouldEnterManually = true
+                }
+                alertService.showAlert(.sheet(config))
+
+            @unknown default:
+                handleError(error.localizedDescription)
+            }
+        } else {
+            handleError(error.localizedDescription)
+        }
     }
 
     func handleError(_ error: String) {

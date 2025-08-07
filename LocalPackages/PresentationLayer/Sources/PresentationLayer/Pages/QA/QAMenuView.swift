@@ -32,6 +32,7 @@ struct QAMenuView: View {
                 onboardingSection
                 fullBackup
                 passBannerSection
+                scannerSection
                 actionsSection
                 installationDateSection
             }
@@ -90,6 +91,17 @@ private extension QAMenuView {
                    label: { Text(verbatim: "Display Pass Banner") })
         }, header: {
             Text(verbatim: "Pass Banner")
+        })
+    }
+
+    var scannerSection: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.unsupportedScanning,
+                   label: { Text(verbatim: "Scanner not available") })
+        }, header: {
+            Text(verbatim: "Scanner")
+        }, footer: {
+            Text(verbatim: "Simulate unavailable scanner")
         })
     }
 

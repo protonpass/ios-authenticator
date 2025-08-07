@@ -42,7 +42,7 @@ struct ScannerView: View {
             .onChange(of: viewModel.shouldDismiss) {
                 dismiss()
             }
-            .onChange(of: viewModel.shouldEnterManually) {
+            .onChange(of: viewModel.shouldEnterManually) { _, _ in
                 enterManually()
             }
             .sheetAlertService()
@@ -58,6 +58,8 @@ struct ScannerView: View {
 private extension ScannerView {
     var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
+                               unsupportedScanning: viewModel.unsupportedScanning,
+                               takePhoto: {},
                                manualEntry: enterManually,
                                photoLibraryEntry: {
                                    showPhotosPicker.toggle()
