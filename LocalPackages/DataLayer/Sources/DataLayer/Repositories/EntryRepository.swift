@@ -280,9 +280,17 @@ public extension EntryRepository {
                 log(.info, "Successfully deleted duplicate entries from local storage")
             }
 
+            let entriesToDecrypt = Array(latestEntriesById.values).sorted {
+                if $0.order != $1.order {
+                    $0.order < $1.order
+                } else {
+                    $0.id < $1.id
+                }
+            }
+
             // Step 4: Decrypt and sort by 'order'
             let decryptedEntries = try encryptionService
-                .decrypt(entries: Array(latestEntriesById.values).sorted { $0.order < $1.order })
+                .decrypt(entries: entriesToDecrypt)
 
             log(.info, "Successfully fetched \(decryptedEntries.count) unique local entries")
             return decryptedEntries
