@@ -27,31 +27,45 @@ import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = ScannerViewModel()
+    @StateObject private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State private var regionOfInterest: CGRect?
     @Environment(Router.self) private var router
 
     var body: some View {
-        DataScanner(with: .barcode,
-                    startScanning: $viewModel.scanning,
-                    automaticDismiss: false,
-                    regionOfInterest: $regionOfInterest,
-                    resultStream: viewModel.scanResponsePublisher)
-            .edgesIgnoringSafeArea(.all)
-            .onChange(of: viewModel.shouldDismiss) {
-                dismiss()
+        Group {
+            if viewModel.unsupportedScanning {
+                CameraView(session: viewModel.cameraSession)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        viewModel.setUpAndStartCameraSession()
+                    }
+                    .onDisappear {
+                        viewModel.stopCameraSession()
+                    }
+            } else {
+                DataScanner(with: .barcode,
+                            startScanning: $viewModel.scanning,
+                            automaticDismiss: false,
+                            regionOfInterest: $regionOfInterest,
+                            resultStream: viewModel.scanResponsePublisher)
             }
-            .onChange(of: viewModel.shouldEnterManually) { _, _ in
-                enterManually()
-            }
-            .sheetAlertService()
-            .photosPicker(isPresented: $showPhotosPicker,
-                          selection: $viewModel.imageSelection,
-                          matching: .images,
-                          photoLibrary: .shared())
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(regionOfInterestOverlay.edgesIgnoringSafeArea(.all))
+        }
+        .edgesIgnoringSafeArea(.all)
+        .onChange(of: viewModel.shouldDismiss) {
+            dismiss()
+        }
+        .onChange(of: viewModel.shouldEnterManually) { _, _ in
+            enterManually()
+        }
+        .sheetAlertService()
+        .photosPicker(isPresented: $showPhotosPicker,
+                      selection: $viewModel.imageSelection,
+                      matching: .images,
+                      photoLibrary: .shared())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(regionOfInterestOverlay.edgesIgnoringSafeArea(.all))
+        .showSpinner(viewModel.takingPhoto)
     }
 }
 
@@ -59,7 +73,7 @@ private extension ScannerView {
     var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
                                unsupportedScanning: viewModel.unsupportedScanning,
-                               takePhoto: {},
+                               takePhoto: viewModel.takePhoto,
                                manualEntry: enterManually,
                                photoLibraryEntry: {
                                    showPhotosPicker.toggle()

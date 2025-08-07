@@ -42,6 +42,16 @@ public extension ParseImageQRCodeContentUseCase {
     func callAsFunction(image: CIImage) throws -> String {
         try execute(image: image)
     }
+
+    #if os(iOS)
+    func callAsFunction(image: UIImage) throws -> String {
+        if let ciImage = image.toCiImage {
+            try execute(image: ciImage)
+        } else {
+            throw AuthError.imageParsing(.failedToConvertToCiImage)
+        }
+    }
+    #endif
 }
 
 public final class ParseImageQRCodeContent: ParseImageQRCodeContentUseCase {

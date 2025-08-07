@@ -92,7 +92,7 @@ struct RestrictedScanningArea: View {
                 }
 
                 Spacer()
-                HStack(alignment: .bottom) {
+                HStack(alignment: unsupportedScanning ? .bottom : .center) {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
                             .resizable()
