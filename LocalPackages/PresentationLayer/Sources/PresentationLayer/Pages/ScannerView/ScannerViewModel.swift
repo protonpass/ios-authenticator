@@ -87,7 +87,8 @@ final class ScannerViewModel: ObservableObject {
     let scanResponsePublisher: PassthroughSubject<Result<ScanResult, Error>, Never> = .init()
 
     @ObservationIgnored
-    private let cameraManager = CameraManager()
+    @LazyInjected(\ServiceContainer.cameraManager)
+    private var cameraManager
 
     init() {
         setUp()

@@ -23,6 +23,17 @@ import AVFoundation
 import Combine
 import SwiftUI
 
+public protocol CameraManagerProtocol: Sendable {
+    var session: AVCaptureSession { get }
+    var isTakingPhoto: CurrentValueSubject<Bool, Never> { get }
+    var takenPhoto: PassthroughSubject<AVCapturePhoto?, Never> { get }
+
+    func setUpSession() throws
+    func startSession()
+    func stopSession()
+    func takePhoto() throws
+}
+
 private class VideoPreviewView: UIView {
     override class var layerClass: AnyClass {
         AVCaptureVideoPreviewLayer.self
@@ -47,13 +58,13 @@ struct CameraView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
-final class CameraManager: NSObject, @unchecked Sendable {
-    let session = AVCaptureSession()
+public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerProtocol {
+    public let session = AVCaptureSession()
     private var setUp = false
     private let photoOutput = AVCapturePhotoOutput()
 
-    let isTakingPhoto = CurrentValueSubject<Bool, Never>(false)
-    let takenPhoto = PassthroughSubject<AVCapturePhoto?, Never>()
+    public let isTakingPhoto = CurrentValueSubject<Bool, Never>(false)
+    public let takenPhoto = PassthroughSubject<AVCapturePhoto?, Never>()
 
     enum CameraError: Error, CustomDebugStringConvertible {
         case noDevices
@@ -78,7 +89,7 @@ final class CameraManager: NSObject, @unchecked Sendable {
         print("\(Self.self) is initialized")
     }
 
-    func setUpSession() throws {
+    public func setUpSession() throws {
         guard !setUp else { return }
         defer { setUp = true }
         session.beginConfiguration()
@@ -103,19 +114,19 @@ final class CameraManager: NSObject, @unchecked Sendable {
         session.commitConfiguration()
     }
 
-    func startSession() {
+    public func startSession() {
         if !session.isRunning {
             session.startRunning()
         }
     }
 
-    func stopSession() {
+    public func stopSession() {
         if session.isRunning {
             session.stopRunning()
         }
     }
 
-    func takePhoto() throws {
+    public func takePhoto() throws {
         if isTakingPhoto.value {
             throw CameraError.pendingPhotoTaking
         }
@@ -125,9 +136,9 @@ final class CameraManager: NSObject, @unchecked Sendable {
 }
 
 extension CameraManager: AVCapturePhotoCaptureDelegate {
-    func photoOutput(_ output: AVCapturePhotoOutput,
-                     didFinishProcessingPhoto photo: AVCapturePhoto,
-                     error: (any Error)?) {
+    public func photoOutput(_ output: AVCapturePhotoOutput,
+                            didFinishProcessingPhoto photo: AVCapturePhoto,
+                            error: (any Error)?) {
         takenPhoto.send(photo)
         isTakingPhoto.send(false)
     }
