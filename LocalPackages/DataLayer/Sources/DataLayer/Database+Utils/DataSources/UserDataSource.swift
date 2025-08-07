@@ -94,7 +94,8 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
             log(.info, "Successfully removed user data with ID: \(userId)")
         } catch {
-            log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription), error: \(error)")
+            log(.error,
+                "Failed to remove user data with ID \(userId): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -124,7 +125,8 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated user data for ID: \(userData.user.ID)")
         } catch {
-            log(.error, "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription), error: \(error)")
+            log(.error,
+                "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
