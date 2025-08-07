@@ -35,6 +35,8 @@ import SimpleToast
 final class EntriesViewModel: ObservableObject {
     var animatingEntry: Entry?
 
+    var reorderingEntries: [EntryUiModel]?
+
     var entries: [EntryUiModel] {
         if let searchResults {
             return searchResults
@@ -206,6 +208,7 @@ final class EntriesViewModel: ObservableObject {
         }
         Task { [weak self] in
             guard let self else { return }
+            defer { reorderingEntries = nil }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
                 await requestForReview()

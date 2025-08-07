@@ -43,6 +43,7 @@ public struct EntriesView: View {
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var hoveringEntry: EntryUiModel?
+    @State private var destinationIndex: Int?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
 
@@ -218,30 +219,55 @@ private extension EntriesView {
 
         ScrollView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
-                ForEach(viewModel.entries) { entry in
+                ForEach(viewModel.reorderingEntries ?? viewModel.entries) { entry in
                     cell(for: entry)
                         .draggable(entry) {
                             cell(for: entry)
                                 .opacity(0.8)
                                 .onAppear {
+                                    viewModel.reorderingEntries = viewModel.entries
                                     draggingEntry = entry
                                 }
                         }
                         .dropDestination(for: EntryUiModel.self) { _, _ in
-                            false
+                            guard
+                                let draggingEntry,
+                                let sourceIndex = viewModel.entries
+                                .firstIndex(where: { $0.id == draggingEntry.id }),
+                                let destinationIndex
+                            else {
+                                viewModel.reorderingEntries = nil
+                                return false
+                            }
+
+                            withAnimation(.bouncy) {
+                                viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
+                                                   toOffset: destinationIndex > sourceIndex ? destinationIndex +
+                                                       1 :
+                                                       destinationIndex)
+                            }
+
+                            return true
                         } isTargeted: { status in
-                            if let draggingEntry,
-                               status,
-                               draggingEntry != entry,
-                               let sourceIndex = viewModel.entries
-                               .firstIndex(where: { $0.id == draggingEntry.id }),
-                               let destinationIndex = viewModel.entries.firstIndex(where: { $0.id == entry.id }) {
-                                withAnimation(.bouncy) {
-                                    viewModel.moveItem(fromOffsets: IndexSet(integer: sourceIndex),
-                                                       toOffset: destinationIndex > sourceIndex ?
-                                                           destinationIndex +
-                                                           1 : destinationIndex)
-                                }
+                            guard
+                                let draggingEntry,
+                                status,
+                                draggingEntry != entry,
+                                let sourceIndex = viewModel.reorderingEntries?
+                                .firstIndex(where: { $0.id == draggingEntry.id })
+                            else { return }
+
+                            destinationIndex = viewModel.reorderingEntries?
+                                .firstIndex(where: { $0.id == entry.id })
+                            guard let destinationIndex else {
+                                return
+                            }
+
+                            withAnimation(.bouncy) {
+                                viewModel.reorderingEntries?.move(fromOffsets: IndexSet(integer: sourceIndex),
+                                                                  toOffset: destinationIndex > sourceIndex ?
+                                                                      destinationIndex + 1 :
+                                                                      destinationIndex)
                             }
                         }
                 }
