@@ -252,38 +252,39 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
+
         do {
-            // Fetch all entries sorted by modification date (newest first) and then by order
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
                 .fetch(predicate: nil,
                        sortingDescriptor: [
-                           SortDescriptor(\.order),
                            SortDescriptor(\.modifiedTime, order: .reverse)
                        ])
 
-            // Identify which entries to keep (newest per ID) and which to remove
-            var entriesToKeep = [EncryptedEntryEntity]()
-            var duplicateEntryIds = [String]()
-            var seenIds = Set<String>()
+            // Step 2: Deduplicate based on most recent modifiedTime
+            var latestEntriesById = [String: EncryptedEntryEntity]()
+            var entriesToDelete = [EncryptedEntryEntity]()
 
             for entry in encryptedEntries {
-                if seenIds.contains(entry.id) {
-                    duplicateEntryIds.append(entry.id)
+                if latestEntriesById[entry.id] == nil {
+                    latestEntriesById[entry.id] = entry // First (i.e., latest) occurrence
                 } else {
-                    seenIds.insert(entry.id)
-                    entriesToKeep.append(entry)
+                    entriesToDelete.append(entry) // Older duplicate
                 }
             }
 
-            // Remove duplicates from storage if any found
-            if !duplicateEntryIds.isEmpty {
-                log(.info, "Found \(duplicateEntryIds.count) duplicate entries to remove")
-                try await localRemoves(duplicateEntryIds)
+            // Step 3: Delete duplicates
+            if !entriesToDelete.isEmpty {
+                log(.info, "Found \(entriesToDelete.count) duplicate entries to remove")
+                try await localDataManager.persistentStorage.delete(datas: entriesToDelete)
+                log(.info, "Successfully deleted duplicate entries from local storage")
             }
 
-            let entries = try encryptionService.decrypt(entries: entriesToKeep)
-            log(.info, "Successfully fetched \(entries.count) unique local entries")
-            return entries
+            // Step 4: Decrypt and sort by 'order'
+            let decryptedEntries = try encryptionService
+                .decrypt(entries: Array(latestEntriesById.values).sorted { $0.order < $1.order })
+
+            log(.info, "Successfully fetched \(decryptedEntries.count) unique local entries")
+            return decryptedEntries
         } catch {
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
             throw error
@@ -321,7 +322,7 @@ public extension EntryRepository {
             let newEncryptedEntries = try newEntries.map { try encrypt($0, shouldEncryptWithLocalKey: true) }
 
             try await localDataManager.persistentStorage.batchSave(content: newEncryptedEntries)
-            log(.info, "Successfully saved \(encryptedEntries.count) entries locally")
+            log(.info, "Successfully saved \(newEncryptedEntries.count) new entries locally")
         } catch {
             log(.error, "Failed to save entries: \(error.localizedDescription)")
             throw error
