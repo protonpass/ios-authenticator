@@ -1,3 +1,9 @@
+# Version 1.1.3
+- Fixed codes failing to update in search mode
+- Fixed crashes when reordering list entries
+- Resolved "scanning unavailable" error on some devices
+- Upgraded Rust library from 0.25.26 to 0.25.7
+
 # Version 1.1.2
 - Fixed flickering biometric lock
 - Improved import process
