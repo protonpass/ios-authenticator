@@ -129,4 +129,8 @@ public extension ServiceContainer {
         self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
                                               logger: self.logger) }
     }
+
+    var cameraManager: Factory<any CameraManagerProtocol> {
+        self { CameraManager() }
+    }
 }

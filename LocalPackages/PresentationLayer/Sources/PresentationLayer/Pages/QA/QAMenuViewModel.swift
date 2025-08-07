@@ -48,6 +48,12 @@ final class QAMenuViewModel {
         }
     }
 
+    var unsupportedScanning: Bool {
+        didSet {
+            appSettings.setUnsupportedScanning(unsupportedScanning)
+        }
+    }
+
     @ObservationIgnored
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
@@ -64,6 +70,7 @@ final class QAMenuViewModel {
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
         fullBackupActivated = appSettings.fullBackUp
+        unsupportedScanning = appSettings.unsupportedScanning
     }
 
     func updateInstallationTimestamp(_ date: Date) {
