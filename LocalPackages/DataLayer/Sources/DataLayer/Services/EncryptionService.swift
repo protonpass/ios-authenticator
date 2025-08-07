@@ -180,6 +180,9 @@ public extension EncryptionService {
 public extension EncryptionService {
     func saveUserRemoteKey(keyId: String, remoteKey: Data) throws {
         log(.info, "Saving remote proton key with id \(keyId)")
+        if contains(keyId: keyId) {
+            try keysProvider.clear(keyId: keyId)
+        }
         try keysProvider.set(remoteKey, for: keyId)
     }
 

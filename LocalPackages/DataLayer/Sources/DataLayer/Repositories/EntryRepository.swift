@@ -786,8 +786,7 @@ extension EntryRepository {
                 encryptedKeysData /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
-                let keyDecrypted = try userSessionManager
-                    .userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
+                let keyDecrypted = try userSessionManager.userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
                 try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
                 newKeysAdded += 1
             }

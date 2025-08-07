@@ -40,8 +40,10 @@ private struct HighlightedText: View, @preconcurrency Equatable {
     var body: some View {
         if text.isEmpty {
             Text(placeholder) // ignore:missing_bundle
+                .lineLimit(1)
         } else {
             Text(attributedString) // ignore:missing_bundle
+                .lineLimit(1)
         }
     }
 
