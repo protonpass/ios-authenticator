@@ -121,6 +121,9 @@ public struct EntriesView: View {
                         searchEnabled = false
                     }
                 }
+                .onChange(of: viewModel.dataState) { _, _ in
+                    viewModel.refreshSearchResults()
+                }
                 .sheetDestinations($router.presentedSheet)
             #if os(iOS)
                 .fullScreenDestination($router.presentedFullscreenSheet)
