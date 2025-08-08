@@ -35,9 +35,6 @@ import UIKit
 
 @main
 struct AuthenticatorApp: App {
-    @State private var viewModel = AuthenticatorAppViewModel()
-    @Environment(\.scenePhase) private var scenePhase
-
     #if os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     #elseif os(macOS)
@@ -46,11 +43,9 @@ struct AuthenticatorApp: App {
 
     var body: some Scene {
         WindowGroup {
-            mainContainer
+            MainContentView()
         }
-        .onChange(of: viewModel.theme) { _, _ in
-            viewModel.updateWindowUserInterfaceStyle()
-        }
+
         #if os(macOS)
         .windowResizability(.contentMinSize)
         .windowToolbarStyle(.expanded)
@@ -66,7 +61,19 @@ struct AuthenticatorApp: App {
     }
 }
 
-private extension AuthenticatorApp {
+struct MainContentView: View {
+    @State private var viewModel = AuthenticatorAppViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+
+    var body: some View {
+        mainContainer
+            .onChange(of: viewModel.theme) { _, _ in
+                viewModel.updateWindowUserInterfaceStyle()
+            }
+    }
+}
+
+private extension MainContentView {
     var mainContainer: some View {
         Group {
             if viewModel.onboarded {
@@ -95,8 +102,8 @@ private extension AuthenticatorApp {
         .onAppear {
             viewModel.updateWindowUserInterfaceStyle()
             viewModel.setWindowTintColor()
+            viewModel.toggleCover(shouldCover: !viewModel.showEntries)
             if !viewModel.manualUnlock, !viewModel.showEntries {
-                viewModel.toggleCover(shouldCover: true)
                 viewModel.checkBiometrics()
             }
         }
@@ -108,6 +115,8 @@ private extension AuthenticatorApp {
             case .active:
                 if !viewModel.manualUnlock, !viewModel.showEntries {
                     viewModel.checkBiometrics()
+                } else {
+                    viewModel.toggleCover(shouldCover: !viewModel.showEntries)
                 }
 
             case .background, .inactive:
@@ -125,7 +134,7 @@ private extension AuthenticatorApp {
 }
 
 @Observable @MainActor
-private final class AuthenticatorAppViewModel {
+private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     var onboarded: Bool {
         appSettings.onboarded
     }
@@ -267,6 +276,9 @@ private final class AuthenticatorAppViewModel {
         guard let window = getFirstWindow() else { return }
         let tag = 1_912 // Just a random static tag
         if shouldCover {
+            // Only add if not already present
+            guard window.viewWithTag(tag) == nil else { return }
+
             let vc = UIHostingController(rootView: BioLockView(manualUnlock: manualUnlock || !onboarded,
                                                                onUnlock: checkBiometrics))
             let view = vc.view ?? .init()
@@ -283,6 +295,10 @@ private final class AuthenticatorAppViewModel {
             window.subviews.first(where: { $0.tag == tag })?.removeFromSuperview()
         }
         #endif
+    }
+
+    static func == (lhs: AuthenticatorAppViewModel, rhs: AuthenticatorAppViewModel) -> Bool {
+        lhs.showEntries == rhs.showEntries && lhs.onboarded == rhs.onboarded
     }
 }
 
