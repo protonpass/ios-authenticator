@@ -103,7 +103,11 @@ final class OnboardingViewModel {
                 return false
             }
         case .biometric:
-            currentStep = .iCloudSync
+            if #available(iOS 18, *) {
+                currentStep = .iCloudSync
+            } else {
+                return false
+            }
         case .iCloudSync:
             return false
         }

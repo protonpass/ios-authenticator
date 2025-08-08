@@ -342,13 +342,13 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
 
 @Model
 public final class LogEntryEntity: @unchecked Sendable {
-    var timestamp: Date
-    var level: String
-    var message: String
-    var category: String // Stored as string for SwiftData compatibility
-    var file: String
-    var function: String
-    var line: Int
+    var timestamp: Date = Date()
+    var level: String = "info"
+    var message: String = ""
+    var category: String = "System" // Stored as string for SwiftData compatibility
+    var file: String = ""
+    var function: String = ""
+    var line: Int = 0
 
     init(timestamp: Date = Date.now,
          level: String,
