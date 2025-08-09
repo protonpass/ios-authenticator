@@ -28,6 +28,9 @@ public protocol KeychainServicing: Sendable {
     func get<T: Decodable & Sendable>(keyId: String, isSynced: Bool) throws -> T
     func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws
     func delete(keyId: String, isSynced: Bool) throws
+
+    @_spi(QA)
+    func deleteAll() throws
 }
 
 public final class KeychainService: KeychainServicing {
@@ -56,6 +59,11 @@ public final class KeychainService: KeychainServicing {
 
     public func delete(keyId: String, isSynced: Bool = false) throws {
         try keychain.synchronizable(isSynced).remove(keyId)
+    }
+
+    public func deleteAll() throws {
+        try keychain.synchronizable(true).removeAll()
+        try keychain.synchronizable(false).removeAll()
     }
 }
 

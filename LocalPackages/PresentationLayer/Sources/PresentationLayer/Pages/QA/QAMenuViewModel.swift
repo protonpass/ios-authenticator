@@ -58,6 +58,9 @@ final class QAMenuViewModel {
     private let appSettings = resolve(\ServiceContainer.settingsService)
 
     @ObservationIgnored
+    private let keychainService = resolve(\ServiceContainer.keychainService)
+
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
 
@@ -94,6 +97,17 @@ final class QAMenuViewModel {
                                                     message: .verbatim(error.localizedDescription),
                                                     actions: [.ok])))
             }
+        }
+    }
+
+    func deleteAllKeychainData() {
+        do {
+            try keychainService.deleteAll()
+        } catch {
+            alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                titleBundle: .module,
+                                                message: .verbatim("Error when deleting keychain data: \(error.localizedDescription), error: \(error)"),
+                                                actions: [.ok])))
         }
     }
 }
