@@ -30,7 +30,7 @@ public protocol KeychainServicing: Sendable {
     func delete(keyId: String, isSynced: Bool) throws
 
     @_spi(QA)
-    func deleteAll() throws
+    func deleteAll(synchronized: Bool) throws
 }
 
 public final class KeychainService: KeychainServicing {
@@ -61,9 +61,8 @@ public final class KeychainService: KeychainServicing {
         try keychain.synchronizable(isSynced).remove(keyId)
     }
 
-    public func deleteAll() throws {
-        try keychain.synchronizable(true).removeAll()
-        try keychain.synchronizable(false).removeAll()
+    public func deleteAll(synchronized: Bool) throws {
+        try keychain.synchronizable(synchronized).removeAll()
     }
 }
 

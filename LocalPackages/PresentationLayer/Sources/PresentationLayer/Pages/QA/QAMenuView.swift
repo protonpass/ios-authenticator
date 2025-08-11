@@ -114,9 +114,15 @@ private extension QAMenuView {
             }
 
             Button {
-                viewModel.deleteAllKeychainData()
+                viewModel.deleteAllKeychainData(synchronized: true)
             } label: {
-                Text(verbatim: "Remove all data stored in keychain")
+                Text(verbatim: "Remove all synchronized data stored in keychain")
+            }
+
+            Button {
+                viewModel.deleteAllKeychainData(synchronized: false)
+            } label: {
+                Text(verbatim: "Remove all non synchronized data stored in keychain")
             }
         }, header: {
             Text(verbatim: "Actions")

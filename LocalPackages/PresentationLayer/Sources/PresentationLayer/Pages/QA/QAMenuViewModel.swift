@@ -24,6 +24,7 @@ import DataLayer
 import FactoryKit
 import Foundation
 
+// swiftlint:disable line_length
 @MainActor
 @Observable
 final class QAMenuViewModel {
@@ -100,9 +101,13 @@ final class QAMenuViewModel {
         }
     }
 
-    func deleteAllKeychainData() {
+    func deleteAllKeychainData(synchronized: Bool) {
         do {
-            try keychainService.deleteAll()
+            try keychainService.deleteAll(synchronized: synchronized)
+            alertService.showAlert(.sheet(.init(title: "Keychain data deleted",
+                                                titleBundle: .module,
+                                                message: .verbatim("Data deleted"),
+                                                actions: [.ok])))
         } catch {
             alertService.showAlert(.sheet(.init(title: "An error occurred",
                                                 titleBundle: .module,
@@ -111,3 +116,5 @@ final class QAMenuViewModel {
         }
     }
 }
+
+// swiftlint:enable line_length
