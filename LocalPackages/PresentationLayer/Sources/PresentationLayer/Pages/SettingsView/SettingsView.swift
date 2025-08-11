@@ -137,6 +137,8 @@ public struct SettingsView: View {
     }
 }
 
+// swiftlint:disable line_length
+
 // MARK: - Sections
 
 private extension SettingsView {
@@ -351,6 +353,8 @@ private extension SettingsView {
         active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
     }
 }
+
+// swiftlint:enable line_length
 
 // MARK: - Utils
 

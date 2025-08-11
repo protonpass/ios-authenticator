@@ -342,6 +342,7 @@ public struct LogEntry: Sendable, Equatable, Identifiable {
 
 @Model
 public final class LogEntryEntity: @unchecked Sendable {
+    // swiftlint:disable:next redundant_type_annotation
     var timestamp: Date = Date()
     var level: String = "info"
     var message: String = ""
