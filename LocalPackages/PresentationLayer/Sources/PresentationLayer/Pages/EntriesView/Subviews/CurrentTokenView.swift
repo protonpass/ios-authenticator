@@ -29,7 +29,6 @@ struct CurrentTokenView: View, @preconcurrency Equatable {
     var body: some View {
         mainContent
             .animation(.bouncy, value: configuration.animateCodeChange ? code : "")
-            .privacySensitive()
             .if(configuration.animateCodeChange) { view in
                 view.contentTransition(.numericText())
             }

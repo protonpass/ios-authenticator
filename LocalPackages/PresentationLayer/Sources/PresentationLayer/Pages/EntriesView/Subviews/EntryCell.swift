@@ -287,7 +287,6 @@ private struct CodeView: View, @preconcurrency Equatable {
                     .monospaced()
                     .foregroundStyle(.textNorm)
                     .textShadow()
-                    .privacySensitive()
             }
             .animation(.default, value: showCopyBadge)
             .opacity(showCopyBadge ? 0 : 1)
