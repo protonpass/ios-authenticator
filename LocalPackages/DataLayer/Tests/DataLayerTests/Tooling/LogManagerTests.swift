@@ -36,6 +36,7 @@ struct LogManagerTests {
         sut = LogManager(localDataManager: localDataManager)
     }
     
+    @available(iOS 18, *)
     @Test("Test removing bad logs")
     func removeBadLogs() async throws {
         

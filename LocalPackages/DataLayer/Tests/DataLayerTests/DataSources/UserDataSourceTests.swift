@@ -49,6 +49,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Returns decrypted user data if present")
     func getValidUserData() async throws {
         let userData = UserData.mock()
@@ -57,6 +58,7 @@ struct UserDataSourceTests {
         #expect(userData == decryptedUserData)
     }
     
+    @available(iOS 18, *)
     @Test("Removing user by id")
     func removeUserById() async throws {
         let userData = UserData.mock()
@@ -67,6 +69,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Removing user by data")
     func removeUserByData() async throws {
         let userData = UserData.mock()
@@ -77,6 +80,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Removing all users data")
     func removeAllUsers() async throws {
         let userData = UserData.mock()

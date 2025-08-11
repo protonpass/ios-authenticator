@@ -38,6 +38,7 @@ struct EntryRepositoryTests {
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
                                                                                  isStoredInMemoryOnly: true))
+
         let localDataManager = MockLocalDataManager(persistentStorage: persistenceService)
         encryptionService = EncryptionService(keysProvider: MockKeyProvider(),
                                               logger: MockLogger())
@@ -175,7 +176,7 @@ struct EntryRepositoryTests {
     
     // MARK: - CRUD
 
-
+    @available(iOS 18, *)
     @Test("Test saving an entry in db")
     func savingAnEntry() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
@@ -215,6 +216,7 @@ struct EntryRepositoryTests {
         #expect(entries.count == 2)
     }
     
+    @available(iOS 18, *)
     @Test("Test saving mutiple entry in db")
     func savingArrayOfEntry() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
@@ -261,6 +263,7 @@ struct EntryRepositoryTests {
         #expect(fetchedEntries.count == 3)
     }
     
+    @available(iOS 18, *)
     @Test("Test removing all entries in db")
     func removingAllEntries() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
@@ -307,6 +310,7 @@ struct EntryRepositoryTests {
         #expect(fetchedEntries.count == 0)
     }
     
+    @available(iOS 18, *)
     @Test("Test removing one entry from db")
     func removingOneEntry() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
@@ -360,6 +364,7 @@ struct EntryRepositoryTests {
         #expect(fetchedEntries.count == 1)
     }
 
+    @available(iOS 18, *)
     @Test("Test updating one entry from db")
     func updateOneEntry() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
@@ -420,7 +425,7 @@ struct EntryRepositoryTests {
         #expect(fetchedEntries.map(\.entry.note).contains("new note") == true)
     }
     
-    
+    @available(iOS 18, *)
     @Test("Test updating the order of an entries")
     func reorderEntry() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
