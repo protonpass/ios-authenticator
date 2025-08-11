@@ -47,7 +47,7 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
 
     // MARK: - UserInfoProviding
 
-    public var userData: UserData?
+    public var userData: UserInformation?
 
     public var getUserDataResult: Result<UserData?, Error> = .success(nil)
     public private(set) var getUserDataCalled = false

@@ -197,7 +197,7 @@ extension UserData: Codable {
 
 extension UserData: @unchecked @retroactive Sendable {}
 
-public struct UserInformation: Codable, Identifiable, Sendable {
+public struct UserInformation: Codable, Identifiable, Sendable, Equatable {
     public let id: String
     public let passphrases: [String: String]
     public let keys: [Key]
@@ -211,7 +211,7 @@ public struct UserInformation: Codable, Identifiable, Sendable {
     }
 }
 
-extension UserData {
+public extension UserData {
     var toUserInformation: UserInformation {
         UserInformation(id: user.ID,
                         passphrases: passphrases,
