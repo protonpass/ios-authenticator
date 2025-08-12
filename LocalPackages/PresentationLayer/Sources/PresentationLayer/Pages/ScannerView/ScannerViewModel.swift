@@ -90,6 +90,9 @@ final class ScannerViewModel: ObservableObject {
     @LazyInjected(\ServiceContainer.cameraManager)
     private var cameraManager
 
+    @ObservationIgnored
+    private var taskCamera: Task<Void, Never>?
+
     init() {
         setUp()
     }
@@ -118,23 +121,30 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func setUpAndStartCameraSession() {
-        do {
-            try cameraManager.setUpSession()
-            cameraManager.startSession()
-        } catch {
-            handleError(error.localizedDescription)
+        taskCamera?.cancel()
+        taskCamera = Task {
+            do {
+                try await cameraManager.setUpSession()
+                await cameraManager.startSession()
+            } catch {
+                handleError(error.localizedDescription)
+            }
         }
     }
 
     func stopCameraSession() {
-        cameraManager.stopSession()
+        Task {
+            await cameraManager.stopSession()
+        }
     }
 
     func takePhoto() {
-        do {
-            try cameraManager.takePhoto()
-        } catch {
-            handleError(error.localizedDescription)
+        Task {
+            do {
+                try await cameraManager.takePhoto()
+            } catch {
+                handleError(error.localizedDescription)
+            }
         }
     }
 
