@@ -136,7 +136,7 @@ private extension UserDataSource {
     func encrypt(userData: UserData) throws -> EncryptedUserDataEntity {
         let userInformation = userData.toUserInformation
         let encryptedData = try encryptionService.symmetricEncrypt(object: userInformation)
-        return EncryptedUserDataEntity(id: userData.user.ID, encryptedData: encryptedData)
+        return EncryptedUserDataEntity(id: userInformation.id, encryptedData: encryptedData)
     }
 
     // swiftlint:disable untyped_error_in_catch line_length
