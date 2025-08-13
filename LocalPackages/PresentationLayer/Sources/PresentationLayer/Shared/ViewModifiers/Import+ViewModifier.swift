@@ -567,8 +567,7 @@ private final class ImportViewModel {
                                             "No new codes detected",
                                             .module),
                                         actions: [action])
-        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
-        alertService.showAlert(alert)
+        showAlert(config)
         #if os(iOS)
         hapticsManager(.notify(.success))
         #endif
@@ -576,8 +575,7 @@ private final class ImportViewModel {
 
     func alertNoCameraPermission() {
         let config = AlertConfiguration.noCameraAccess()
-        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
-        alertService.showAlert(alert)
+        showAlert(config)
     }
 
     func setUpAndStartCameraSession() {
@@ -638,13 +636,18 @@ private extension ImportViewModel {
     }
 
     func showError(_ message: String) {
-        let alert = AlertConfiguration(title: "An error occurred",
-                                       titleBundle: .module,
-                                       message: .verbatim(message),
-                                       actions: [.init(title: "OK",
-                                                       titleBundle: .module,
-                                                       role: .cancel)])
-        alertService.showAlert(.sheet(alert))
+        let config = AlertConfiguration(title: "An error occurred",
+                                        titleBundle: .module,
+                                        message: .verbatim(message),
+                                        actions: [.init(title: "OK",
+                                                        titleBundle: .module,
+                                                        role: .cancel)])
+        showAlert(config)
+    }
+
+    func showAlert(_ config: AlertConfiguration) {
+        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
+        alertService.showAlert(alert)
     }
 }
 
