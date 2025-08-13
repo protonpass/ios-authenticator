@@ -55,7 +55,7 @@ struct UserDataSourceTests {
         let userData = UserData.mock()
         try await sut.save(userData)
         let decryptedUserData = try #require(try await sut.getUserData())
-        #expect(userData.toUserInformation == decryptedUserData)
+        #expect(userData == decryptedUserData)
     }
     
     @available(iOS 18, *)

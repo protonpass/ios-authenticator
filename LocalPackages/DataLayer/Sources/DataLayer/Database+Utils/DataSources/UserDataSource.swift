@@ -26,7 +26,7 @@ import ProtonCoreLogin
 import SimplyPersist
 
 public protocol UserDataProvider {
-    func getUserData() async throws -> UserInformation?
+    func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     // periphery:ignore
     func remove(_ userId: String) async throws
@@ -56,7 +56,7 @@ public final class UserDataSource: UserDataProvider {
 }
 
 public extension UserDataSource {
-    func getUserData() async throws -> UserInformation? {
+    func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage.fetchAll()
         log(.info, "Got \(encryptedUsersData.count) user's data")
@@ -134,28 +134,27 @@ public extension UserDataSource {
 
 private extension UserDataSource {
     func encrypt(userData: UserData) throws -> EncryptedUserDataEntity {
-        let userInformation = userData.toUserInformation
-        let encryptedData = try encryptionService.symmetricEncrypt(object: userInformation)
-        return EncryptedUserDataEntity(id: userInformation.id, encryptedData: encryptedData)
+        let encryptedData = try encryptionService.symmetricEncrypt(object: userData)
+        return EncryptedUserDataEntity(id: userData.user.ID, encryptedData: encryptedData)
     }
 
-    // swiftlint:disable untyped_error_in_catch line_length
-    func decrypt(encryptedData: Data) throws -> UserInformation {
-        do {
-            let userdata: UserData = try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
-            return userdata.toUserInformation
-        } catch let firstError {
-            do {
-                return try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
-            } catch {
-                throw DecodingError.typeMismatch(UserInformation.self,
-                                                 DecodingError.Context(codingPath: [],
-                                                                       debugDescription: "Failed to decode as \(UserData.self) (\(firstError)) or \(UserInformation.self) (\(error))"))
-            }
-        }
+    func decrypt(encryptedData: Data) throws -> UserData {
+        try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+        /*
+         do {
+             let userdata: UserData = try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             return userdata.toUserInformation
+         } catch let firstError {
+             do {
+                 return try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             } catch {
+                 throw DecodingError.typeMismatch(UserInformation.self,
+                                                  DecodingError.Context(codingPath: [],
+                                                                        debugDescription: "Failed to decode as \(UserData.self) (\(firstError)) or \(UserInformation.self) (\(error))"))
+             }
+         }
+          */
     }
-
-    // swiftlint:enable untyped_error_in_catch line_length
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
@@ -197,25 +196,27 @@ extension UserData: Codable {
 
 extension UserData: @unchecked @retroactive Sendable {}
 
-public struct UserInformation: Codable, Identifiable, Sendable, Equatable {
-    public let id: String
-    public let passphrases: [String: String]
-    public let keys: [Key]
-    public let email: String
+/*
+ public struct UserInformation: Codable, Identifiable, Sendable, Equatable {
+     public let id: String
+     public let passphrases: [String: String]
+     public let keys: [Key]
+     public let email: String
 
-    public init(id: String, passphrases: [String: String], keys: [Key], email: String) {
-        self.id = id
-        self.passphrases = passphrases
-        self.keys = keys
-        self.email = email
-    }
-}
+     public init(id: String, passphrases: [String: String], keys: [Key], email: String) {
+         self.id = id
+         self.passphrases = passphrases
+         self.keys = keys
+         self.email = email
+     }
+ }
 
-public extension UserData {
-    var toUserInformation: UserInformation {
-        UserInformation(id: user.ID,
-                        passphrases: passphrases,
-                        keys: user.keys,
-                        email: user.email ?? "")
-    }
-}
+ public extension UserData {
+     var toUserInformation: UserInformation {
+         UserInformation(id: user.ID,
+                         passphrases: passphrases,
+                         keys: user.keys,
+                         email: user.email ?? "")
+     }
+ }
+ */

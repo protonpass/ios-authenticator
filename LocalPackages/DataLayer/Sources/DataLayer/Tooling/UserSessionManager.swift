@@ -62,7 +62,7 @@ public protocol APIManagerProtocol: Sendable {
 }
 
 public protocol UserInfoProviding: Sendable {
-    var userData: UserInformation? { get }
+    var userData: UserData? { get }
 
     func save(_ userData: UserData) async throws
     func userKeyEncrypt(object: some Codable) throws -> String
@@ -94,7 +94,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     #endif
 
     private let cachedCredentials: any MutexProtected<Credentials?> = SafeMutex.create(nil)
-    private let cachedUserData: any MutexProtected<UserInformation?> = SafeMutex.create(nil)
+    private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
     private let humanHelper: any MutexProtected<HumanCheckHelper?> = SafeMutex.create(nil)
 
     private nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
@@ -111,7 +111,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     public var authSessionInvalidatedDelegateForLoginAndSignup: (any ProtonCoreServices
         .AuthSessionInvalidatedDelegate)?
 
-    public var userData: UserInformation? {
+    public var userData: UserData? {
         cachedUserData.value
     }
 
@@ -464,8 +464,8 @@ public extension UserSessionManager {
             userDataLoaded.send(true)
             return
         }
-        let userInformation = try await userDataProvider.getUserData()
-        cachedUserData.modify { $0 = userInformation }
+        let userData = try await userDataProvider.getUserData()
+        cachedUserData.modify { $0 = userData }
         if userData != nil {
             userDataLoaded.send(true)
         }
@@ -473,7 +473,7 @@ public extension UserSessionManager {
 
     func save(_ userData: UserData) async throws {
         try await userDataProvider.save(userData)
-        cachedUserData.modify { $0 = userData.toUserInformation }
+        cachedUserData.modify { $0 = userData }
         userDataLoaded.send(true)
     }
 
@@ -484,8 +484,8 @@ public extension UserSessionManager {
             throw AuthError.generic(.missingUserData)
         }
 
-        guard let userKey = userData.keys.first(where: { $0.active == 1 }) else {
-            throw AuthError.crypto(.missingUserKey(userID: userData.id))
+        guard let userKey = userData.user.keys.first(where: { $0.active == 1 }) else {
+            throw AuthError.crypto(.missingUserKey(userID: userData.user.ID))
         }
 
         guard let passphrase = userData.passphrases[userKey.keyID] else {
@@ -516,7 +516,7 @@ public extension UserSessionManager {
             throw AuthError.generic(.missingUserData)
         }
 
-        guard let userKey = userData.keys.first(where: { $0.keyID == remoteEncryptedKey.userKeyID }),
+        guard let userKey = userData.user.keys.first(where: { $0.keyID == remoteEncryptedKey.userKeyID }),
               userKey.active == 1 else {
             throw AuthError.crypto(.inactiveUserKey(userKeyId: remoteEncryptedKey.userKeyID))
         }
@@ -528,12 +528,12 @@ public extension UserSessionManager {
 
         let armoredEncryptedData = try armorMessage(encryptedData)
 
-        let decryptionKeys = userData.keys.map {
+        let decryptionKeys = userData.user.keys.map {
             DecryptionKey(privateKey: .init(value: $0.privateKey),
                           passphrase: .init(value: userData.passphrases[$0.keyID] ?? ""))
         }
 
-        let verificationKeys = userData.keys.map(\.publicKey).map { ArmoredKey(value: $0) }
+        let verificationKeys = userData.user.keys.map(\.publicKey).map { ArmoredKey(value: $0) }
         let decryptedData: VerifiedData = try Decryptor.decryptAndVerify(decryptionKeys: decryptionKeys,
                                                                          value: .init(value: armoredEncryptedData),
                                                                          verificationKeys: verificationKeys)
@@ -548,7 +548,7 @@ public extension UserSessionManager {
         }
 
         return remoteKeys.first { remoteKey in
-            userData.keys.contains(where: { $0.keyID == remoteKey.userKeyID && $0.active == 1 })
+            userData.user.keys.contains(where: { $0.keyID == remoteKey.userKeyID && $0.active == 1 })
         }
     }
 
