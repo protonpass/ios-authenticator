@@ -104,9 +104,9 @@ final class QAMenuViewModel {
     func deleteAllKeychainData(synchronized: Bool) {
         do {
             try keychainService.deleteAll(synchronized: synchronized)
-            alertService.showAlert(.sheet(.init(title: "Keychain data deleted",
+            alertService.showAlert(.sheet(.init(title: "OK",
                                                 titleBundle: .module,
-                                                message: .verbatim("Data deleted"),
+                                                message: .verbatim("Keychain data deleted"),
                                                 actions: [.ok])))
         } catch {
             alertService.showAlert(.sheet(.init(title: "An error occurred",

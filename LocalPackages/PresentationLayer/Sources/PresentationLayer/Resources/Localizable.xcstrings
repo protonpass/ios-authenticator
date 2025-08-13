@@ -5053,16 +5053,6 @@
         }
       }
     },
-    "Keychain data deleted" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keychain data deleted"
-          }
-        }
-      }
-    },
     "Last backup: %@" : {
       "localizations" : {
         "en" : {
