@@ -83,22 +83,42 @@ struct ImportingServiceModifier: ViewModifier {
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
-                DataScanner(with: .barcode,
-                            startScanning: $viewModel.scanning,
-                            automaticDismiss: true) { results in
-                    viewModel.processPayload(results: results)
-                }.overlay(alignment: .topTrailing) {
-                    Button {
-                        showScanner = false
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24)
-                            .foregroundStyle(.textNorm)
+                if viewModel.unsupportedScanning {
+                    CameraView(session: viewModel.cameraSession)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .onAppear {
+                            viewModel.setUpAndStartCameraSession()
+                        }
+                        .onDisappear {
+                            viewModel.stopCameraSession()
+                        }
+                        .overlay(alignment: .bottom) {
+                            Button { viewModel.takePhoto() } label: {
+                                Image(.insetFilledCircle)
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .showSpinner(viewModel.takingPhoto)
+                } else {
+                    DataScanner(with: .barcode,
+                                startScanning: $viewModel.scanning,
+                                automaticDismiss: true) { results in
+                        viewModel.processPayload(results: results)
+                    }.overlay(alignment: .topTrailing) {
+                        Button {
+                            showScanner = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24)
+                                .foregroundStyle(.textNorm)
+                        }
+                        .adaptiveButtonStyle()
+                        .padding()
                     }
-                    .adaptiveButtonStyle()
-                    .padding()
                 }
             }
         #endif
@@ -262,6 +282,7 @@ private final class ImportViewModel {
     var scanning = true
     var showWrongPasswordAlert = false
     private(set) var importing = false
+    private(set) var takingPhoto = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -280,6 +301,14 @@ private final class ImportViewModel {
     @LazyInjected(\ToolsContainer.hapticsManager)
     private var hapticsManager
     #endif
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.cameraManager)
+    private var cameraManager
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
 
     @ObservationIgnored
     private var currentSelected: ImportOption?
@@ -301,7 +330,21 @@ private final class ImportViewModel {
     private let mainDisplay: Bool
 
     @ObservationIgnored
+    private var taskCamera: Task<Void, Never>?
+
+    @ObservationIgnored
     private let onComplete: (@MainActor () -> Void)?
+
+    @ObservationIgnored
+    private var processing = false
+
+    var unsupportedScanning: Bool {
+        appSettings.unsupportedScanning
+    }
+
+    var cameraSession: AVCaptureSession {
+        cameraManager.session
+    }
 
     init(mainDisplay: Bool, onComplete: (@MainActor () -> Void)?) {
         self.mainDisplay = mainDisplay
@@ -312,6 +355,21 @@ private final class ImportViewModel {
             .sink { [weak self] newImageSelection in
                 guard let self, !newImageSelection.isEmpty else { return }
                 parseImage(newImageSelection)
+            }
+            .store(in: &cancellables)
+
+        cameraManager.isTakingPhoto
+            .sink { [weak self] value in
+                guard let self else { return }
+                takingPhoto = value
+            }
+            .store(in: &cancellables)
+
+        cameraManager.takenPhoto
+            .compactMap(\.self)
+            .sink { [weak self] photo in
+                guard let self else { return }
+                parseCapturedPhoto(photo)
             }
             .store(in: &cancellables)
     }
@@ -443,7 +501,9 @@ private final class ImportViewModel {
     #if os(iOS)
     func processPayload(results: Result<ScanResult?, Error>) {
         Task { [weak self] in
-            guard let self else { return }
+            guard let self, !processing else { return }
+            processing = true
+            defer { processing = false }
             do {
                 switch results {
                 case let .success(result):
@@ -482,6 +542,41 @@ private final class ImportViewModel {
         hapticsManager(.notify(.success))
         #endif
     }
+
+    func setUpAndStartCameraSession() {
+        taskCamera?.cancel()
+        taskCamera = Task { [weak self] in
+            guard let self else {
+                return
+            }
+            do {
+                try await cameraManager.setUpSession()
+                await cameraManager.startSession()
+            } catch {
+                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            }
+        }
+    }
+
+    func stopCameraSession() {
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            await cameraManager.stopSession()
+        }
+    }
+
+    func takePhoto() {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await cameraManager.takePhoto()
+            } catch {
+                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            }
+        }
+    }
 }
 
 private extension ImportViewModel {
@@ -499,6 +594,26 @@ private extension ImportViewModel {
                        bundle: .module,
                        url.lastPathComponent)
         alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+    }
+
+    func parseCapturedPhoto(_ photo: AVCapturePhoto) {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = photo.fileDataRepresentation(),
+                      let image = UIImage(data: data) else {
+                    throw AuthError.imageParsing(.failedToParseCapturedPhoto)
+                }
+                let content = try parseImageQRCodeContent(image: image)
+                let numberOfImportedEntries = try await entryDataService
+                    .importEntries(from: .googleQr(contents: content))
+                showCompletion(numberOfImportedEntries)
+            } catch {
+                alertService.showError(#localized("Could not process the image", bundle: .module),
+                                       mainDisplay: mainDisplay,
+                                       action: nil)
+            }
+        }
     }
 }
 

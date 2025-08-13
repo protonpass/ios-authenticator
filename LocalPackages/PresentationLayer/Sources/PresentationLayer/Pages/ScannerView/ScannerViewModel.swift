@@ -122,7 +122,8 @@ final class ScannerViewModel: ObservableObject {
 
     func setUpAndStartCameraSession() {
         taskCamera?.cancel()
-        taskCamera = Task {
+        taskCamera = Task { [weak self] in
+            guard let self else { return }
             do {
                 try await cameraManager.setUpSession()
                 await cameraManager.startSession()
@@ -133,13 +134,15 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func stopCameraSession() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             await cameraManager.stopSession()
         }
     }
 
     func takePhoto() {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await cameraManager.takePhoto()
             } catch {
