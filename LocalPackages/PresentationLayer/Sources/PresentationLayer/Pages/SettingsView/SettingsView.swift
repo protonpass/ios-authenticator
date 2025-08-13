@@ -137,6 +137,8 @@ public struct SettingsView: View {
     }
 }
 
+// swiftlint:disable line_length
+
 // MARK: - Sections
 
 private extension SettingsView {
@@ -150,17 +152,19 @@ private extension SettingsView {
 
                 SettingDivider()
             } else {
-                SettingRow(title: .localized("Backup", .module),
-                           subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                                .module),
-                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
-                                                 onToggle: viewModel.toggleICloudSyncBackup))
-                    .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
-                        + ","
-                        + #localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                     bundle: .module),
-                        activateStatus(viewModel.iCloudSync))
-                SettingDivider()
+                if #available(iOS 18, *) {
+                    SettingRow(title: .localized("Backup", .module),
+                               subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                    .module),
+                               trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                     onToggle: viewModel.toggleICloudSyncBackup))
+                        .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
+                            + ","
+                            + #localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                         bundle: .module),
+                            activateStatus(viewModel.iCloudSync))
+                    SettingDivider()
+                }
             }
 
             #if os(iOS)
@@ -349,6 +353,8 @@ private extension SettingsView {
         active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
     }
 }
+
+// swiftlint:enable line_length
 
 // MARK: - Utils
 
