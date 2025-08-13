@@ -54,7 +54,7 @@ public extension View {
     }
 }
 
-private extension AlertDisplay? {
+public extension AlertDisplay? {
     var titleText: Text {
         // swiftlint:disable discouraged_optional_self
         if let title = self?.title,

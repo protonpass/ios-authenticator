@@ -83,23 +83,7 @@ struct ImportingServiceModifier: ViewModifier {
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
-                DataScanner(with: .barcode,
-                            startScanning: $viewModel.scanning,
-                            automaticDismiss: true) { results in
-                    viewModel.processPayload(results: results)
-                }.overlay(alignment: .topTrailing) {
-                    Button {
-                        showScanner = false
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24)
-                            .foregroundStyle(.textNorm)
-                    }
-                    .adaptiveButtonStyle()
-                    .padding()
-                }
+                scannerView()
             }
         #endif
             .photosPicker(isPresented: $showPhotosPicker,
@@ -131,6 +115,90 @@ struct ImportingServiceModifier: ViewModifier {
             showPhotosPicker.toggle()
         case .importFromFiles:
             viewModel.importEntries(from: .googleAuthenticator)
+        }
+    }
+
+    @ViewBuilder
+    func scannerView() -> some View {
+        if viewModel.unsupportedScanning {
+            CameraView(session: viewModel.cameraSession)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    viewModel.setUpAndStartCameraSession()
+                }
+                .onDisappear {
+                    viewModel.stopCameraSession()
+                }
+                .overlay {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                showScanner = false
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24)
+                                    .foregroundStyle(.textNorm)
+                            }
+                            .adaptiveButtonStyle()
+                            .padding()
+                        }
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button { viewModel.takePhoto() } label: {
+                                Image(.insetFilledCircle)
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundStyle(.white)
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .showSpinner(viewModel.takingPhoto)
+                .alert(viewModel.alert.titleText,
+                       isPresented: $viewModel.isShowingAlert,
+                       presenting: viewModel.alert,
+                       actions: { display in
+                           display.actions
+                       },
+                       message: { display in
+                           if let message = display.message {
+                               Text(message) // ignore:missing_bundle
+                           }
+                       })
+        } else {
+            DataScanner(with: .barcode,
+                        startScanning: $viewModel.scanning,
+                        automaticDismiss: true) { results in
+                viewModel.processPayload(results: results)
+            }.overlay(alignment: .topTrailing) {
+                Button {
+                    showScanner = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm)
+                }
+                .adaptiveButtonStyle()
+                .padding()
+            }
+            .alert(viewModel.alert.titleText,
+                   isPresented: $viewModel.isShowingAlert,
+                   presenting: viewModel.alert,
+                   actions: { display in
+                       display.actions
+                   },
+                   message: { display in
+                       if let message = display.message {
+                           Text(message) // ignore:missing_bundle
+                       }
+                   })
         }
     }
 
@@ -262,6 +330,11 @@ private final class ImportViewModel {
     var scanning = true
     var showWrongPasswordAlert = false
     private(set) var importing = false
+    private(set) var takingPhoto = false
+
+    // Bindable alert state
+    var alert: AlertDisplay?
+    var isShowingAlert = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -280,6 +353,14 @@ private final class ImportViewModel {
     @LazyInjected(\ToolsContainer.hapticsManager)
     private var hapticsManager
     #endif
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.cameraManager)
+    private var cameraManager
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
 
     @ObservationIgnored
     private var currentSelected: ImportOption?
@@ -303,6 +384,17 @@ private final class ImportViewModel {
     @ObservationIgnored
     private let onComplete: (@MainActor () -> Void)?
 
+    @ObservationIgnored
+    private var processing = false
+
+    var unsupportedScanning: Bool {
+        appSettings.unsupportedScanning
+    }
+
+    var cameraSession: AVCaptureSession {
+        cameraManager.session
+    }
+
     init(mainDisplay: Bool, onComplete: (@MainActor () -> Void)?) {
         self.mainDisplay = mainDisplay
         self.onComplete = onComplete
@@ -312,6 +404,21 @@ private final class ImportViewModel {
             .sink { [weak self] newImageSelection in
                 guard let self, !newImageSelection.isEmpty else { return }
                 parseImage(newImageSelection)
+            }
+            .store(in: &cancellables)
+
+        cameraManager.isTakingPhoto
+            .sink { [weak self] value in
+                guard let self else { return }
+                takingPhoto = value
+            }
+            .store(in: &cancellables)
+
+        cameraManager.takenPhoto
+            .compactMap(\.self)
+            .sink { [weak self] photo in
+                guard let self else { return }
+                parseCapturedPhoto(photo)
             }
             .store(in: &cancellables)
     }
@@ -339,7 +446,8 @@ private final class ImportViewModel {
                                          bundle: .main,
                                          currentSelected.title,
                                          type.preferredFilenameExtension ?? type.identifier)
-                alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+                showError(message)
+
                 return
             }
             Task { [weak self] in
@@ -366,7 +474,7 @@ private final class ImportViewModel {
                             guard let provenance else { return }
                             sources.append(provenance)
                         } catch {
-                            alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                            showError(error.localizedDescription)
                             return
                         }
                     }
@@ -384,12 +492,12 @@ private final class ImportViewModel {
                 } catch let AuthError.importing(reason) where reason == .fileTooLarge {
                     alertFileTooLargeError(url)
                 } catch {
-                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                    showError(error.localizedDescription)
                 }
             }
 
         case let .failure(error):
-            alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+            showError(error.localizedDescription)
         }
     }
 
@@ -431,11 +539,8 @@ private final class ImportViewModel {
             }
             showCompletion(numberOfImportedEntries)
             if !errors.isEmpty {
-                alertService
-                    .showError(#localized("Several images could not be processed. See logs for more details.",
-                                          bundle: .module),
-                               mainDisplay: mainDisplay,
-                               action: nil)
+                showError(#localized("Several images could not be processed. See logs for more details.",
+                                     bundle: .module))
             }
         }
     }
@@ -443,7 +548,9 @@ private final class ImportViewModel {
     #if os(iOS)
     func processPayload(results: Result<ScanResult?, Error>) {
         Task { [weak self] in
-            guard let self else { return }
+            guard let self, !processing else { return }
+            processing = true
+            defer { processing = false }
             do {
                 switch results {
                 case let .success(result):
@@ -452,10 +559,10 @@ private final class ImportViewModel {
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
                 case let .failure(error):
-                    alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                    showError(error.localizedDescription)
                 }
             } catch {
-                alertService.showError(error, mainDisplay: mainDisplay, action: nil)
+                showError(error.localizedDescription)
             }
         }
     }
@@ -477,10 +584,32 @@ private final class ImportViewModel {
                                             .module),
                                         actions: [action])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
+        presentAlert(alert)
         alertService.showAlert(alert)
         #if os(iOS)
         hapticsManager(.notify(.success))
         #endif
+    }
+
+    func setUpAndStartCameraSession() {
+        do {
+            try cameraManager.setUpSession()
+            cameraManager.startSession()
+        } catch {
+            showError(error.localizedDescription)
+        }
+    }
+
+    func stopCameraSession() {
+        cameraManager.stopSession()
+    }
+
+    func takePhoto() {
+        do {
+            try cameraManager.takePhoto()
+        } catch {
+            showError(error.localizedDescription)
+        }
     }
 }
 
@@ -489,7 +618,7 @@ private extension ImportViewModel {
         let message = #localized("File \"%@\" exceeds maximum allowed size",
                                  bundle: .module,
                                  url.lastPathComponent)
-        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+        showError(message)
     }
 
     func alertBadContentError(_ url: URL) {
@@ -498,7 +627,42 @@ private extension ImportViewModel {
             #localized("Invalid file format for \"%@\". Please make sure your file is in a supported format and try again.",
                        bundle: .module,
                        url.lastPathComponent)
-        alertService.showError(message, mainDisplay: mainDisplay, action: nil)
+        showError(message)
+    }
+
+    func parseCapturedPhoto(_ photo: AVCapturePhoto) {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = photo.fileDataRepresentation(),
+                      let image = UIImage(data: data) else {
+                    throw AuthError.imageParsing(.failedToParseCapturedPhoto)
+                }
+                let content = try parseImageQRCodeContent(image: image)
+                let numberOfImportedEntries = try await entryDataService
+                    .importEntries(from: .googleQr(contents: content))
+                showCompletion(numberOfImportedEntries)
+            } catch {
+                showError(#localized("Could not process the image", bundle: .module))
+            }
+        }
+    }
+
+    func showError(_ message: String) {
+        let alert = AlertConfiguration(title: "An error occurred",
+                                       titleBundle: .module,
+                                       message: .verbatim(message),
+                                       actions: [.init(title: "OK",
+                                                       titleBundle: .module,
+                                                       role: .cancel)])
+
+        presentAlert(.sheet(alert))
+    }
+
+    // Helper to present any alert
+    func presentAlert(_ alert: AlertDisplay) {
+        self.alert = alert
+        isShowingAlert = true
     }
 }
 
