@@ -23,10 +23,10 @@
 @preconcurrency import Combine
 import SwiftUI
 
-public protocol CameraManagerProtocol: Actor {
-    nonisolated var session: AVCaptureSession { get }
-    nonisolated var isTakingPhoto: CurrentValueSubject<Bool, Never> { get }
-    nonisolated var takenPhoto: PassthroughSubject<AVCapturePhoto?, Never> { get }
+public protocol CameraManagerProtocol {
+    var session: AVCaptureSession { get }
+    var isTakingPhoto: CurrentValueSubject<Bool, Never> { get }
+    var takenPhoto: PassthroughSubject<AVCapturePhoto?, Never> { get }
 
     func setUpSession() throws
     func startSession()
@@ -58,13 +58,16 @@ struct CameraView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
-public actor CameraManager: NSObject, CameraManagerProtocol {
-    public nonisolated let session = AVCaptureSession()
+public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerProtocol {
+    public let session = AVCaptureSession()
     private var setUp = false
     private let photoOutput = AVCapturePhotoOutput()
 
     public let isTakingPhoto = CurrentValueSubject<Bool, Never>(false)
-    public nonisolated let takenPhoto = PassthroughSubject<AVCapturePhoto?, Never>()
+    public let takenPhoto = PassthroughSubject<AVCapturePhoto?, Never>()
+
+    private let queue = DispatchQueue(label: "me.proton.authenticator.camera-manager",
+                                      qos: .userInitiated)
 
     enum CameraError: Error, CustomDebugStringConvertible {
         case noDevices
@@ -118,14 +121,20 @@ public actor CameraManager: NSObject, CameraManagerProtocol {
     }
 
     public func startSession() {
-        if !session.isRunning {
-            session.startRunning()
+        queue.async { [weak self] in
+            guard let self else { return }
+            if !session.isRunning {
+                session.startRunning()
+            }
         }
     }
 
     public func stopSession() {
-        if session.isRunning {
-            session.stopRunning()
+        queue.async { [weak self] in
+            guard let self else { return }
+            if session.isRunning {
+                session.stopRunning()
+            }
         }
     }
 
@@ -139,9 +148,9 @@ public actor CameraManager: NSObject, CameraManagerProtocol {
 }
 
 extension CameraManager: AVCapturePhotoCaptureDelegate {
-    public nonisolated func photoOutput(_ output: AVCapturePhotoOutput,
-                                        didFinishProcessingPhoto photo: AVCapturePhoto,
-                                        error: (any Error)?) {
+    public func photoOutput(_ output: AVCapturePhotoOutput,
+                            didFinishProcessingPhoto photo: AVCapturePhoto,
+                            error: (any Error)?) {
         takenPhoto.send(photo)
         isTakingPhoto.send(false)
     }

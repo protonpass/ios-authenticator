@@ -377,9 +377,6 @@ private final class ImportViewModel {
     private let mainDisplay: Bool
 
     @ObservationIgnored
-    private var taskCamera: Task<Void, Never>?
-
-    @ObservationIgnored
     private let onComplete: (@MainActor () -> Void)?
 
     @ObservationIgnored
@@ -590,37 +587,23 @@ private final class ImportViewModel {
     }
 
     func setUpAndStartCameraSession() {
-        taskCamera?.cancel()
-        taskCamera = Task { [weak self] in
-            guard let self else {
-                return
-            }
-            do {
-                try await cameraManager.setUpSession()
-                await cameraManager.startSession()
-            } catch {
-                showError(error.localizedDescription)
-            }
+        do {
+            try cameraManager.setUpSession()
+            cameraManager.startSession()
+        } catch {
+            showError(error.localizedDescription)
         }
     }
 
     func stopCameraSession() {
-        Task { [weak self] in
-            guard let self else {
-                return
-            }
-            await cameraManager.stopSession()
-        }
+        cameraManager.stopSession()
     }
 
     func takePhoto() {
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await cameraManager.takePhoto()
-            } catch {
-                showError(error.localizedDescription)
-            }
+        do {
+            try cameraManager.takePhoto()
+        } catch {
+            showError(error.localizedDescription)
         }
     }
 }
