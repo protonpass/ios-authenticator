@@ -112,6 +112,18 @@ private extension QAMenuView {
             } label: {
                 Text(verbatim: "Remove all data (iCloud, local and remote)")
             }
+
+            Button {
+                viewModel.deleteAllKeychainData(synchronized: true)
+            } label: {
+                Text(verbatim: "Remove all synchronized data stored in keychain")
+            }
+
+            Button {
+                viewModel.deleteAllKeychainData(synchronized: false)
+            } label: {
+                Text(verbatim: "Remove all non synchronized data stored in keychain")
+            }
         }, header: {
             Text(verbatim: "Actions")
         })

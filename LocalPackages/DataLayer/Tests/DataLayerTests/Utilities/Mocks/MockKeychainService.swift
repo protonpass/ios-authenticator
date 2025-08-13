@@ -22,6 +22,8 @@ import DataLayer
 import Foundation
 
 final class MockKeychainService: @unchecked Sendable, KeychainServicing {
+ 
+    
     
     private var storage: [String: Any] = [:]
     private var globalSyncState: Bool = false
@@ -58,5 +60,9 @@ final class MockKeychainService: @unchecked Sendable, KeychainServicing {
         storage.removeAll()
         callLog.removeAll()
         globalSyncState = false
+    }
+    
+    func deleteAll(synchronized: Bool) throws {
+    
     }
 }
