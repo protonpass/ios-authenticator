@@ -96,10 +96,10 @@ public final class KeysManager: KeysProvider {
 
         // At this point either migration is done or no key is generated (first installation)
         // so we proceed as normal (get if exist and random if not)
-        if let lockedSymmetricKeyData: Data = try keychain.get(keyId: keychainKey, isSynced: true) {
+        if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: true) {
             try migrationSymmetricKeyToUnsync(lockedSymmetricKeyData)
             return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
-        } else if let lockedSymmetricKeyData: Data = try keychain.get(keyId: keychainKey, isSynced: false) {
+        } else if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: false) {
             return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
         } else {
             return try buildSymmetricKey(mainKey: mainKey)
