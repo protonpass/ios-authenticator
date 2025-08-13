@@ -52,29 +52,12 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <true/>
-    <key>ITSEncryptionExportComplianceCode</key>
-    <string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<true/>
+	<key>ITSEncryptionExportComplianceCode</key>
+	<string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.text</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>EntryUiModel</string>
-			<key>UTTypeIdentifier</key>
-			<string>me.proton.authenticator</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>entryUIModelType</string>
-				</array>
-			</dict>
-		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
