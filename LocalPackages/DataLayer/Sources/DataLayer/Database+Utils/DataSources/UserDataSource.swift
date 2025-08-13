@@ -20,7 +20,7 @@
 
 import Foundation
 import Models
-import ProtonCoreDataModel
+@preconcurrency import ProtonCoreDataModel
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 import SimplyPersist
@@ -140,6 +140,20 @@ private extension UserDataSource {
 
     func decrypt(encryptedData: Data) throws -> UserData {
         try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+        /*
+         do {
+             let userdata: UserData = try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             return userdata.toUserInformation
+         } catch let firstError {
+             do {
+                 return try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             } catch {
+                 throw DecodingError.typeMismatch(UserInformation.self,
+                                                  DecodingError.Context(codingPath: [],
+                                                                        debugDescription: "Failed to decode as \(UserData.self) (\(firstError)) or \(UserInformation.self) (\(error))"))
+             }
+         }
+          */
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -181,3 +195,28 @@ extension UserData: Codable {
 }
 
 extension UserData: @unchecked @retroactive Sendable {}
+
+/*
+ public struct UserInformation: Codable, Identifiable, Sendable, Equatable {
+     public let id: String
+     public let passphrases: [String: String]
+     public let keys: [Key]
+     public let email: String
+
+     public init(id: String, passphrases: [String: String], keys: [Key], email: String) {
+         self.id = id
+         self.passphrases = passphrases
+         self.keys = keys
+         self.email = email
+     }
+ }
+
+ public extension UserData {
+     var toUserInformation: UserInformation {
+         UserInformation(id: user.ID,
+                         passphrases: passphrases,
+                         keys: user.keys,
+                         email: user.email ?? "")
+     }
+ }
+ */

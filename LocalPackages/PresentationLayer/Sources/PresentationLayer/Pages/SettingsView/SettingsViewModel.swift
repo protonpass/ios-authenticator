@@ -144,7 +144,7 @@ final class SettingsViewModel {
     }
 
     var emailAddress: String {
-        userSessionManager.userData?.email ?? ""
+        userSessionManager.userData?.user.email ?? ""
     }
 
     init(bundle: Bundle = .main) {

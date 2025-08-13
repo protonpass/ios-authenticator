@@ -614,7 +614,3 @@ final class ForceUpgradeControllerImpl: ForceUpgradeController {
                              config: ForceUpgradeConfig,
                              responseDelegate: ForceUpgradeResponseDelegate?) {}
 }
-
-public extension UserData {
-    var email: String { user.email ?? "" }
-}
