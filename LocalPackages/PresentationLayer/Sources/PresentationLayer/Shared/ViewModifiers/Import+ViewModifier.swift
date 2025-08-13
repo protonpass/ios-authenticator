@@ -150,7 +150,7 @@ struct ImportingServiceModifier: ViewModifier {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 24)
-                                    .foregroundStyle(.textNorm)
+                                    .foregroundStyle(.white)
                             }
                             .adaptiveButtonStyle()
                             .padding()
@@ -164,6 +164,7 @@ struct ImportingServiceModifier: ViewModifier {
                                     .frame(width: 60, height: 60)
                                     .foregroundStyle(.white)
                             }
+                            .padding()
                             Spacer()
                         }
                     }
