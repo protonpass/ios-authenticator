@@ -83,86 +83,7 @@ struct ImportingServiceModifier: ViewModifier {
             }
         #if os(iOS)
             .sheet(isPresented: $showScanner) {
-                if viewModel.unsupportedScanning {
-                    CameraView(session: viewModel.cameraSession)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .onAppear {
-                            viewModel.setUpAndStartCameraSession()
-                        }
-                        .onDisappear {
-                            viewModel.stopCameraSession()
-                        }
-                        .overlay {
-                            VStack {
-                                HStack {
-                                    Spacer()
-                                    Button {
-                                        showScanner = false
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 24)
-                                            .foregroundStyle(.textNorm)
-                                    }
-                                    .adaptiveButtonStyle()
-                                    .padding()
-                                }
-                                Spacer()
-                                HStack {
-                                    Spacer()
-                                    Button { viewModel.takePhoto() } label: {
-                                        Image(.insetFilledCircle)
-                                            .resizable()
-                                            .frame(width: 60, height: 60)
-                                            .foregroundStyle(.white)
-                                    }
-                                    Spacer()
-                                }
-                            }
-                        }
-                        .showSpinner(viewModel.takingPhoto)
-                        .alert(viewModel.alert.titleText,
-                               isPresented: $viewModel.isShowingAlert,
-                               presenting: viewModel.alert,
-                               actions: { display in
-                                   display.actions
-                               },
-                               message: { display in
-                                   if let message = display.message {
-                                       Text(message) // ignore:missing_bundle
-                                   }
-                               })
-                } else {
-                    DataScanner(with: .barcode,
-                                startScanning: $viewModel.scanning,
-                                automaticDismiss: true) { results in
-                        viewModel.processPayload(results: results)
-                    }.overlay(alignment: .topTrailing) {
-                        Button {
-                            showScanner = false
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24)
-                                .foregroundStyle(.textNorm)
-                        }
-                        .adaptiveButtonStyle()
-                        .padding()
-                    }
-                    .alert(viewModel.alert.titleText,
-                           isPresented: $viewModel.isShowingAlert,
-                           presenting: viewModel.alert,
-                           actions: { display in
-                               display.actions
-                           },
-                           message: { display in
-                               if let message = display.message {
-                                   Text(message) // ignore:missing_bundle
-                               }
-                           })
-                }
+                scannerView()
             }
         #endif
             .photosPicker(isPresented: $showPhotosPicker,
@@ -194,6 +115,90 @@ struct ImportingServiceModifier: ViewModifier {
             showPhotosPicker.toggle()
         case .importFromFiles:
             viewModel.importEntries(from: .googleAuthenticator)
+        }
+    }
+
+    @ViewBuilder
+    func scannerView() -> some View {
+        if viewModel.unsupportedScanning {
+            CameraView(session: viewModel.cameraSession)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    viewModel.setUpAndStartCameraSession()
+                }
+                .onDisappear {
+                    viewModel.stopCameraSession()
+                }
+                .overlay {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                showScanner = false
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24)
+                                    .foregroundStyle(.textNorm)
+                            }
+                            .adaptiveButtonStyle()
+                            .padding()
+                        }
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button { viewModel.takePhoto() } label: {
+                                Image(.insetFilledCircle)
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundStyle(.white)
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .showSpinner(viewModel.takingPhoto)
+                .alert(viewModel.alert.titleText,
+                       isPresented: $viewModel.isShowingAlert,
+                       presenting: viewModel.alert,
+                       actions: { display in
+                           display.actions
+                       },
+                       message: { display in
+                           if let message = display.message {
+                               Text(message) // ignore:missing_bundle
+                           }
+                       })
+        } else {
+            DataScanner(with: .barcode,
+                        startScanning: $viewModel.scanning,
+                        automaticDismiss: true) { results in
+                viewModel.processPayload(results: results)
+            }.overlay(alignment: .topTrailing) {
+                Button {
+                    showScanner = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24)
+                        .foregroundStyle(.textNorm)
+                }
+                .adaptiveButtonStyle()
+                .padding()
+            }
+            .alert(viewModel.alert.titleText,
+                   isPresented: $viewModel.isShowingAlert,
+                   presenting: viewModel.alert,
+                   actions: { display in
+                       display.actions
+                   },
+                   message: { display in
+                       if let message = display.message {
+                           Text(message) // ignore:missing_bundle
+                       }
+                   })
         }
     }
 
