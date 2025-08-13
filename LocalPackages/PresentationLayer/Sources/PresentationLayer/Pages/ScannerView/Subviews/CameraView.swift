@@ -58,7 +58,7 @@ struct CameraView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
-public actor CameraManager: NSObject, /*@unchecked Sendable,*/ CameraManagerProtocol {
+public actor CameraManager: NSObject, CameraManagerProtocol {
     public nonisolated let session = AVCaptureSession()
     private var setUp = false
     private let photoOutput = AVCapturePhotoOutput()
