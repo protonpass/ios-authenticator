@@ -110,9 +110,19 @@ struct ImportingServiceModifier: ViewModifier {
     func handle(_ option: GoogleImportType) {
         switch option {
         case .scanQrCode:
-            showScanner.toggle()
+            let status = AVCaptureDevice.authorizationStatus(for: .video)
+            switch status {
+            case .authorized, .notDetermined:
+                showScanner.toggle()
+            case .denied, .restricted:
+                viewModel.alertNoCameraPermission()
+            @unknown default:
+                showScanner.toggle()
+            }
+
         case .pickPhoto:
             showPhotosPicker.toggle()
+
         case .importFromFiles:
             viewModel.importEntries(from: .googleAuthenticator)
         }
@@ -159,17 +169,6 @@ struct ImportingServiceModifier: ViewModifier {
                     }
                 }
                 .showSpinner(viewModel.takingPhoto)
-                .alert(viewModel.alert.titleText,
-                       isPresented: $viewModel.isShowingAlert,
-                       presenting: viewModel.alert,
-                       actions: { display in
-                           display.actions
-                       },
-                       message: { display in
-                           if let message = display.message {
-                               Text(message) // ignore:missing_bundle
-                           }
-                       })
         } else {
             DataScanner(with: .barcode,
                         startScanning: $viewModel.scanning,
@@ -188,17 +187,6 @@ struct ImportingServiceModifier: ViewModifier {
                 .adaptiveButtonStyle()
                 .padding()
             }
-            .alert(viewModel.alert.titleText,
-                   isPresented: $viewModel.isShowingAlert,
-                   presenting: viewModel.alert,
-                   actions: { display in
-                       display.actions
-                   },
-                   message: { display in
-                       if let message = display.message {
-                           Text(message) // ignore:missing_bundle
-                       }
-                   })
         }
     }
 
@@ -331,10 +319,6 @@ private final class ImportViewModel {
     var showWrongPasswordAlert = false
     private(set) var importing = false
     private(set) var takingPhoto = false
-
-    // Bindable alert state
-    var alert: AlertDisplay?
-    var isShowingAlert = false
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -584,11 +568,16 @@ private final class ImportViewModel {
                                             .module),
                                         actions: [action])
         let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
-        presentAlert(alert)
         alertService.showAlert(alert)
         #if os(iOS)
         hapticsManager(.notify(.success))
         #endif
+    }
+
+    func alertNoCameraPermission() {
+        let config = AlertConfiguration.noCameraAccess()
+        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
+        alertService.showAlert(alert)
     }
 
     func setUpAndStartCameraSession() {
@@ -655,14 +644,7 @@ private extension ImportViewModel {
                                        actions: [.init(title: "OK",
                                                        titleBundle: .module,
                                                        role: .cancel)])
-
-        presentAlert(.sheet(alert))
-    }
-
-    // Helper to present any alert
-    func presentAlert(_ alert: AlertDisplay) {
-        self.alert = alert
-        isShowingAlert = true
+        alertService.showAlert(.sheet(alert))
     }
 }
 
