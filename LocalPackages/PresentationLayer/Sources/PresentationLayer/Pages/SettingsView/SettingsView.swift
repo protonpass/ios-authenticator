@@ -304,7 +304,7 @@ private extension SettingsView {
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("Feedback", .module)) {
+            SettingRow(title: .localized("Report an issue", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)
             }
 
