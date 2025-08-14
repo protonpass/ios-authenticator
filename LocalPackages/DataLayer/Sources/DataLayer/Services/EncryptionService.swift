@@ -98,8 +98,8 @@ public final class EncryptionService: EncryptionServicing {
 
     public func getEncryptionKey(for keyId: String) throws -> Data {
         log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keysProvider.get(keyId: keyId)
-        log(.info, "Retrieved key: \(String(describing: key))")
+        let key = try keysProvider.get(keyId: keyId)
+        log(.info, "Retrieved key for \(keyId)")
         return key
     }
 
@@ -132,13 +132,13 @@ public extension EncryptionService {
                                             contentFormatVersion: entry.contentFormatVersion)
             return .decrypted(orderedEntry)
         } catch {
-            log(.error, "Failed to decrypt entry \(entry.id)")
+            log(.error, "Failed to decrypt entry \(entry.id) \(error.localizedDescription)")
             return .nonDecryptable
         }
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
-        log(.info, "Decrypting entries")
+        log(.info, "Decrypting \(entries.count) entries")
         return try entries.map { entry in
             try decrypt(entry: entry)
         }
@@ -146,7 +146,7 @@ public extension EncryptionService {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data {
         let encryptionKey = try getEncryptionKey(for: keyId)
-        log(.info, "Encrypting entry \(entry.name) with local encryption key")
+        log(.info, "Encrypting entry \(entry.id) with key \(keyId)")
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: encryptionKey)

@@ -384,7 +384,7 @@ public extension EntryDataService {
 
 private extension EntryDataService {
     func startUpdatingTotpCode(_ entries: [Entry]) {
-        log(.debug, "Starting Updating TOTP codes for \(entries.count) entries")
+        log(.debug, "Starting updating TOTP codes for \(entries.count) entries")
 
         entryUpdateTask?.cancel()
         entryUpdateTask = Task { [weak self] in
