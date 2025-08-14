@@ -999,14 +999,7 @@
       }
     },
     "Backup data protection" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup data protection"
-          }
-        }
-      }
+
     },
     "Backup from %@" : {
       "localizations" : {
@@ -2391,14 +2384,7 @@
       }
     },
     "Decrypt the backup" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Decrypt the backup"
-          }
-        }
-      }
+
     },
     "Delete" : {
       "localizations" : {
@@ -3591,94 +3577,10 @@
       }
     },
     "Export data" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data"
-          }
-        }
-      }
+
     },
     "Export data without password" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data without password"
-          }
-        }
-      }
-    },
-    "Feedback" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comentarios"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Comentarios"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre avis"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opinia"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedback"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обратная связь"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geri bildirim"
-          }
-        }
-      }
+
     },
     "File \"%@\" exceeds maximum allowed size" : {
       "comment" : "Placeholder is the file name",
@@ -3822,14 +3724,7 @@
       }
     },
     "Folder location" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folder location"
-          }
-        }
-      }
+
     },
     "Free" : {
       "localizations" : {
@@ -4672,72 +4567,12 @@
         }
       }
     },
-    "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
+    "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gehe in der Proton Pass-Erweiterung, der Web- oder Desktop-App zu **Einstellungen > Export**\n\nAchte darauf, das **ZIP-Format ohne Dateianhänge** auszuwählen.\n\nDadurch wird eine ZIP-Datei erstellt, die du hier verwenden kannst."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In Proton Pass extension, web or desktop app, go to **Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En la extensión de Proton Pass, aplicación web o de escritorio, ve a **Ajustes > Exportar**\n\nAsegúrate de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En la extensión de Proton Pass, en la aplicación web o de escritorio, vaya a **Ajustes > Exportar**\n\nAsegúrese de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nVous créerez ainsi un fichier ZIP que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nell'estensione, app web o desktop di Proton Pass, vai a **Impostazioni > Esporta**\n\nAssicurati di scegliere il **formato zip senza allegati**.\n\nQuesto creerà un file zip che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga in de Proton Pass-extensie, web- of desktop-app naar **Instellingen > Exporteren**\n\nZorg ervoor dat u het **zip-formaat zonder bestandsbijlagen** kiest.\n\nHiermee wordt een zip-bestand gemaakt dat u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W rozszerzeniu Proton Pass, aplikacji internetowej lub komputerowej przejdź do **Ustawienia > Eksportuj**\n\nPamiętaj, aby wybrać **format zip bez załączników**.\n\nSpowoduje to utworzenie pliku zip, którego możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **Configurações > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В расширении Proton Pass, веб- или компьютерном приложении перейдите в **Настройки > Экспорт**.\n\nОбязательно выберите **формат zip без вложений**.\n\nБудет создан zip-файл, который вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Pass uzantısında, web veya masaüstü uygulamasında **Ayarlar > Dışa Aktar** bölümüne gidin\n\n**Dosya ekleri olmayan zip biçimini** seçtiğinizden emin olun.\n\nBu işlem, burada kullanabileceğiniz bir zip dosyası oluşturacaktır."
+            "value" : "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
           }
         }
       }
@@ -6596,11 +6431,54 @@
       }
     },
     "Please enter the password used to encrypt this backup." : {
+
+    },
+    "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please enter the password used to encrypt this backup."
+            "value" : "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        }
+      }
+    },
+    "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
           }
         }
       }
@@ -6675,76 +6553,6 @@
         }
       }
     },
-    "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Daten > Codes exportieren**\n\nWähle **Klartext**. Dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go to **Settings > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a **Ajustes > Datos > Exportar códigos**\n\nElige **Texto sin formato**, esto creará un archivo txt que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vaya a **Ajustes > Datos > Exportar códigos**\n\nElija **Texto sin formato**; esto creará un archivo txt que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accédez à **Paramètres > Données > Exporter les codes**\n\nChoisissez **Texte brut** et cela créera un fichier txt que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai a **Impostazioni > Dati > Esporta codici**\n\nScegli **Testo semplice**, questo creerà un file txt che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar **Instellingen > Gegevens > Codes exporteren**\n\nKies **Platte tekst**, hiermee wordt een txt-bestand gemaakt dat u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Dane > Eksportuj kody**\n\nWybierz **Zwykły tekst**, co spowoduje utworzenie pliku txt, którego możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acesse **Configurações > Dados > Exportar códigos**\n\nEscolha **Texto simples**, isso criará um arquivo txt que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейдите в **Настройки > Данные > Экспорт кодов**.\n\nВыберите **Обычный текст**, будет создан txt-файл, который вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lütfen **Ayarlar > Veri > Kodları dışa aktar** bölümüne gidin\n\n**Düz metin** seçeneğini belirleyin. Bu işlem, burada kullanabileceğiniz bir txt dosyası oluşturacaktır."
-          }
-        }
-      }
-    },
     "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
         "de" : {
@@ -6811,216 +6619,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lütfen **Ayarlar > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
-          }
-        }
-      }
-    },
-    "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Import & Export > Export**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go to **Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vaya a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accédez à **Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai a **Impostazioni > Importa ed Esporta > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar **Instellingen > Importeren en exporteren > Exporteren**\n\nHiermee wordt een Json-bestand gemaakt dat u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Importuj i eksportuj > Eksportuj**\n\nSpowoduje to utworzenie pliku Json, którego możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acesse **Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейдите в **Настройки > Импорт и экспорт > Экспорт**.\n\nБудет создан Json-файл, который вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lütfen **Ayarlar > İçe ve Dışa Aktar > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
-          }
-        }
-      }
-    },
-    "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Konten übertragen > Konten in Datei exportieren**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go to **Settings > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a **Ajustes > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vaya a **Ajustes > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes vers un fichier**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai a **Impostazioni > Trasferisci account > Esporta account in un file**\n\nQuesto creerà un file Json che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar **Instellingen > Accounts overdragen > Accounts naar bestand exporteren**\n\nHiermee wordt een Json-bestand gemaakt dat u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta do pliku**\n\nSpowoduje to utworzenie pliku Json, którego możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acesse **Configurações > Transferir contas > Exportar contas para arquivo**\n\nIsso criará um arquivo Json que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейдите в **Настройки > Перенос аккаунтов > Экспортировать аккаунты в файл**.\n\nБудет создан Json-файл, который вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lütfen **Ayarlar > Hesapları aktar > Hesapları dosyaya aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
-          }
-        }
-      }
-    },
-    "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gehe zu **Einstellungen > Konten übertragen > Konten exportieren**\n\nDadurch werden ein oder mehrere QR-Codes erstellt, die du hier verwenden kannst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please go to **Settings > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ve a **Ajustes > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puedes usar aquí."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vaya a **Ajustes > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puede usar aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accédez à **Paramètres > Transférer les comptes > Exporter les comptes**\n\nCela créera un ou plusieurs QR codes que vous pourrez utiliser ici."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vai a **Impostazioni > Trasferisci account > Esporta account**\n\nQuesto creerà uno o più codici QR che potrai usare qui."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ga naar **Instellingen > Accounts overdragen > Accounts exporteren**\n\nHiermee worden een of meer QR-codes gemaakt die u hier kunt gebruiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przejdź do **Ustawienia > Przenieś konta > Eksportuj konta**\n\nSpowoduje to utworzenie jednego lub większej liczby kodów QR, których możesz tutaj użyć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acesse **Configurações > Transferir contas > Exportar contas**\n\nIsso criará um ou mais códigos QR que você pode usar aqui."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейдите в **Настройки > Перенос аккаунтов > Экспортировать аккаунты**.\n\nБудет создан один или несколько QR-кодов, которые вы сможете использовать здесь."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lütfen **Ayarlar > Hesapları aktar > Hesapları dışa aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir veya daha fazla QR kodu oluşturacaktır."
           }
         }
       }
@@ -7515,6 +7113,16 @@
         }
       }
     },
+    "Report an issue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report an issue"
+          }
+        }
+      }
+    },
     "Retry" : {
       "localizations" : {
         "de" : {
@@ -7656,14 +7264,7 @@
       }
     },
     "Save the password" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save the password"
-          }
-        }
-      }
+
     },
     "Scan a QR code" : {
       "localizations" : {
@@ -8297,24 +7898,10 @@
       }
     },
     "Set a password to automatically protect the export files." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set a password to automatically protect the export files."
-          }
-        }
-      }
+
     },
     "Set a password to protect the export file." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set a password to protect the export file."
-          }
-        }
-      }
+
     },
     "Settings" : {
       "localizations" : {

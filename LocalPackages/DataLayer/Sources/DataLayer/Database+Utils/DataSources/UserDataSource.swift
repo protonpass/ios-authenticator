@@ -20,7 +20,7 @@
 
 import Foundation
 import Models
-import ProtonCoreDataModel
+@preconcurrency import ProtonCoreDataModel
 import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 import SimplyPersist
@@ -69,7 +69,7 @@ public extension UserDataSource {
             log(.info, "Successfully decrypted user data")
             return userData
         } catch {
-            log(.error, "Failed to decrypt user data: \(error.localizedDescription)")
+            log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -81,7 +81,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.save(data: encryptedUserData)
             log(.info, "Successfully saved encrypted user data")
         } catch {
-            log(.error, "Failed to save user data: \(error.localizedDescription)")
+            log(.error, "Failed to save user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -94,7 +94,8 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self, predicate: predicate)
             log(.info, "Successfully removed user data with ID: \(userId)")
         } catch {
-            log(.error, "Failed to remove user data with ID \(userId): \(error.localizedDescription)")
+            log(.error,
+                "Failed to remove user data with ID \(userId): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -105,7 +106,7 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self)
             log(.info, "Successfully removed all user data")
         } catch {
-            log(.error, "Failed to remove all user data: \(error.localizedDescription)")
+            log(.error, "Failed to remove all user data: \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -124,7 +125,8 @@ public extension UserDataSource {
             try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated user data for ID: \(userData.user.ID)")
         } catch {
-            log(.error, "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription)")
+            log(.error,
+                "Failed to update user data for ID \(userData.user.ID): \(error.localizedDescription), error: \(error)")
             throw error
         }
     }
@@ -138,6 +140,20 @@ private extension UserDataSource {
 
     func decrypt(encryptedData: Data) throws -> UserData {
         try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+        /*
+         do {
+             let userdata: UserData = try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             return userdata.toUserInformation
+         } catch let firstError {
+             do {
+                 return try encryptionService.symmetricDecrypt(encryptedData: encryptedData)
+             } catch {
+                 throw DecodingError.typeMismatch(UserInformation.self,
+                                                  DecodingError.Context(codingPath: [],
+                                                                        debugDescription: "Failed to decode as \(UserData.self) (\(firstError)) or \(UserInformation.self) (\(error))"))
+             }
+         }
+          */
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -179,3 +195,28 @@ extension UserData: Codable {
 }
 
 extension UserData: @unchecked @retroactive Sendable {}
+
+/*
+ public struct UserInformation: Codable, Identifiable, Sendable, Equatable {
+     public let id: String
+     public let passphrases: [String: String]
+     public let keys: [Key]
+     public let email: String
+
+     public init(id: String, passphrases: [String: String], keys: [Key], email: String) {
+         self.id = id
+         self.passphrases = passphrases
+         self.keys = keys
+         self.email = email
+     }
+ }
+
+ public extension UserData {
+     var toUserInformation: UserInformation {
+         UserInformation(id: user.ID,
+                         passphrases: passphrases,
+                         keys: user.keys,
+                         email: user.email ?? "")
+     }
+ }
+ */

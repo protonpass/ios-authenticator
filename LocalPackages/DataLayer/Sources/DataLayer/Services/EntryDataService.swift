@@ -266,7 +266,7 @@ public extension EntryDataService {
 
             updateData(entries)
         } catch {
-            log(.error, "Failed to fullRefresh: \(error.localizedDescription)")
+            log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
             if let coreError = error as? ResponseError,
                coreError.bestShotAtReasonableErrorCode == APIErrorCode.potentiallyBlocked {
                 log(.info, "No internet connection or Proton is blocked. Loading local entries.")

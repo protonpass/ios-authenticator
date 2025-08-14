@@ -24,6 +24,7 @@ import DataLayer
 import FactoryKit
 import Foundation
 
+// swiftlint:disable line_length
 @MainActor
 @Observable
 final class QAMenuViewModel {
@@ -48,8 +49,17 @@ final class QAMenuViewModel {
         }
     }
 
+    var unsupportedScanning: Bool {
+        didSet {
+            appSettings.setUnsupportedScanning(unsupportedScanning)
+        }
+    }
+
     @ObservationIgnored
     private let appSettings = resolve(\ServiceContainer.settingsService)
+
+    @ObservationIgnored
+    private let keychainService = resolve(\ServiceContainer.keychainService)
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -68,6 +78,7 @@ final class QAMenuViewModel {
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
         fullBackupActivated = appSettings.fullBackUp
+        unsupportedScanning = appSettings.unsupportedScanning
     }
 
     func updateInstallationTimestamp(_ date: Date) {
@@ -94,7 +105,24 @@ final class QAMenuViewModel {
         }
     }
 
+    func deleteAllKeychainData(synchronized: Bool) {
+        do {
+            try keychainService.deleteAll(synchronized: synchronized)
+            alertService.showAlert(.sheet(.init(title: "OK",
+                                                titleBundle: .module,
+                                                message: .verbatim("Keychain data deleted"),
+                                                actions: [.ok])))
+        } catch {
+            alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                titleBundle: .module,
+                                                message: .verbatim("Error when deleting keychain data: \(error.localizedDescription), error: \(error)"),
+                                                actions: [.ok])))
+        }
+    }
+
     func deleteAll() {
         try? backUpManager.deleteAllFilesInICloudDocuments()
     }
 }
+
+// swiftlint:enable line_length

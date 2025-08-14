@@ -215,8 +215,9 @@ public extension EntryRepository {
                         log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
                         return
                     }
-                    entities.switchToDelete()
-                    try? await localDataManager.persistentStorage.batchSave(content: entities)
+                    try? await localDataManager.persistentStorage.performTransaction {
+                        entities.switchToDelete()
+                    }
                     return
                 }
             }
@@ -257,38 +258,47 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
+
         do {
-            // Fetch all entries sorted by modification date (newest first) and then by order
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
                 .fetch(predicate: nil,
                        sortingDescriptor: [
-                           SortDescriptor(\.order),
                            SortDescriptor(\.modifiedTime, order: .reverse)
                        ])
 
-            // Identify which entries to keep (newest per ID) and which to remove
-            var entriesToKeep = [EncryptedEntryEntity]()
-            var duplicateEntryIds = [String]()
-            var seenIds = Set<String>()
+            // Step 2: Deduplicate based on most recent modifiedTime
+            var latestEntriesById = [String: EncryptedEntryEntity]()
+            var entriesToDelete = [EncryptedEntryEntity]()
 
             for entry in encryptedEntries {
-                if seenIds.contains(entry.id) {
-                    duplicateEntryIds.append(entry.id)
+                if latestEntriesById[entry.id] == nil {
+                    latestEntriesById[entry.id] = entry // First (i.e., latest) occurrence
                 } else {
-                    seenIds.insert(entry.id)
-                    entriesToKeep.append(entry)
+                    entriesToDelete.append(entry) // Older duplicate
                 }
             }
 
-            // Remove duplicates from storage if any found
-            if !duplicateEntryIds.isEmpty {
-                log(.info, "Found \(duplicateEntryIds.count) duplicate entries to remove")
-                try await localRemoves(duplicateEntryIds)
+            // Step 3: Delete duplicates
+            if !entriesToDelete.isEmpty {
+                log(.info, "Found \(entriesToDelete.count) duplicate entries to remove")
+                try await localDataManager.persistentStorage.delete(datas: entriesToDelete)
+                log(.info, "Successfully deleted duplicate entries from local storage")
             }
 
-            let entries = try encryptionService.decrypt(entries: entriesToKeep)
-            log(.info, "Successfully fetched \(entries.count) unique local entries")
-            return entries
+            let entriesToDecrypt = Array(latestEntriesById.values).sorted {
+                if $0.order != $1.order {
+                    $0.order < $1.order
+                } else {
+                    $0.id < $1.id
+                }
+            }
+
+            // Step 4: Decrypt and sort by 'order'
+            let decryptedEntries = try encryptionService
+                .decrypt(entries: entriesToDecrypt)
+
+            log(.info, "Successfully fetched \(decryptedEntries.count) unique local entries")
+            return decryptedEntries
         } catch {
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
             throw error
@@ -326,7 +336,7 @@ public extension EntryRepository {
             let newEncryptedEntries = try newEntries.map { try encrypt($0, shouldEncryptWithLocalKey: true) }
 
             try await localDataManager.persistentStorage.batchSave(content: newEncryptedEntries)
-            log(.info, "Successfully saved \(encryptedEntries.count) entries locally")
+            log(.info, "Successfully saved \(newEncryptedEntries.count) new entries locally")
         } catch {
             log(.error, "Failed to save entries: \(error.localizedDescription)")
             throw error
@@ -336,21 +346,24 @@ public extension EntryRepository {
     private func localUpdates(encryptedEntries: [EncryptedEntryEntity],
                               entriesToUpdate: [OrderedEntry]) async throws {
         do {
-            for orderedEntry in entriesToUpdate {
-                guard let keyId = orderedEntry.keyId,
-                      let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
+            try await localDataManager.persistentStorage.performTransaction { [weak self] in
+                guard let self else {
+                    return
+                }
+                for orderedEntry in entriesToUpdate {
+                    guard let keyId = orderedEntry.keyId,
+                          let encryptedEntry = encryptedEntries.first(where: { $0.id == orderedEntry.id })
 
-                else { continue }
+                    else { continue }
 
-                let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
-                                                                  keyId: keyId)
-                encryptedEntry.updateEncryptedData(encryptedData,
-                                                   with: keyId,
-                                                   remoteModifiedTime: orderedEntry.modifiedTime)
-                encryptedEntry.update(with: orderedEntry)
+                    let encryptedData = try encryptionService.encrypt(entry: orderedEntry.entry,
+                                                                      keyId: keyId)
+                    encryptedEntry.updateEncryptedData(encryptedData,
+                                                       with: keyId,
+                                                       remoteModifiedTime: orderedEntry.modifiedTime)
+                    encryptedEntry.update(with: orderedEntry)
+                }
             }
-
-            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
             log(.info, "Successfully updated \(encryptedEntries.count) entries locally")
         } catch {
             log(.error, "Failed to update entries: \(error.localizedDescription)")
@@ -388,12 +401,13 @@ public extension EntryRepository {
 
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                               keyId: entity.keyId)
-            entity.updateEncryptedData(encryptedData,
-                                       with: entity.keyId,
-                                       remoteModifiedTime: entry.modifiedTime)
-            entity.updateSyncState(newState: entry.syncState)
+            try await localDataManager.persistentStorage.performTransaction {
+                entity.updateEncryptedData(encryptedData,
+                                           with: entity.keyId,
+                                           remoteModifiedTime: entry.modifiedTime)
+                entity.updateSyncState(newState: entry.syncState)
+            }
 
-            try await localDataManager.persistentStorage.save(data: entity)
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
                                 keyId: entity.keyId,
@@ -428,12 +442,12 @@ public extension EntryRepository {
                 return
             }
 
-            for entry in encryptedEntries {
-                guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
-                entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
+            try await localDataManager.persistentStorage.performTransaction {
+                for entry in encryptedEntries {
+                    guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
+                    entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
+                }
             }
-
-            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
             await log(.info, "Successfully saved updated order to local storage")
         } catch {
             await log(.error, "Failed to update entry order: \(error.localizedDescription)")
@@ -443,12 +457,11 @@ public extension EntryRepository {
 
     func unsyncAllEntries() async throws {
         let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage.fetch()
-
-        for entry in encryptedEntries {
-            entry.updateSyncState(newState: .unsynced)
+        try await localDataManager.persistentStorage.performTransaction {
+            for entry in encryptedEntries {
+                entry.updateSyncState(newState: .unsynced)
+            }
         }
-
-        try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
     }
 
     func reset(keyIds: [String]) async throws {
@@ -790,8 +803,7 @@ extension EntryRepository {
                 encryptedKeysData /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
                 log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
 
-                let keyDecrypted = try userSessionManager
-                    .userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
+                let keyDecrypted = try userSessionManager.userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
                 try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
                 newKeysAdded += 1
             }

@@ -37,6 +37,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var iCloudSync: Bool { get }
     var iCloudBackUp: Bool { get }
     var fullBackUp: Bool { get }
+    var unsupportedScanning: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -51,6 +52,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleFocusSearchOnLaunch(_ value: Bool)
     func toggleICloudSync(_ value: Bool)
     func toggleICloudBackUp(_ value: Bool)
+    func setUnsupportedScanning(_ value: Bool)
 
     /// For QA purpose
     func setInstallationTimestamp(_ value: TimeInterval)
@@ -74,6 +76,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var iCloudSync: Bool
     public private(set) var iCloudBackUp: Bool
     public private(set) var fullBackUp: Bool
+    public private(set) var unsupportedScanning: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -83,7 +86,8 @@ public final class SettingsService: SettingsServicing {
             AppConstants.Settings.hapticFeedbackEnabled: true,
             AppConstants.Settings.iCloudSync: false,
             AppConstants.Settings.iCloudBackUp: false,
-            AppConstants.Settings.fullBackUp: false
+            AppConstants.Settings.fullBackUp: false,
+            AppConstants.Settings.unsupportedScanning: false
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
@@ -104,6 +108,7 @@ public final class SettingsService: SettingsServicing {
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
         iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
         iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
+        unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
     }
 }
 
@@ -193,6 +198,12 @@ public extension SettingsService {
         update(currentValue: &fullBackUp,
                newValue: value,
                key: AppConstants.Settings.fullBackUp)
+    }
+
+    func setUnsupportedScanning(_ value: Bool) {
+        update(currentValue: &unsupportedScanning,
+               newValue: value,
+               key: AppConstants.Settings.unsupportedScanning)
     }
 }
 

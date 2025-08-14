@@ -52,21 +52,37 @@ private extension LocalDataManager {
         let cloudKitDatabase: ModelConfiguration
             .CloudKitDatabase = iCloudSyncEnabled ? .private("iCloud.me.proton.authenticator") : .none
         do {
-            let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
-                                                 isStoredInMemoryOnly: false,
-                                                 cloudKitDatabase: cloudKitDatabase)
-            let localDataConfig = ModelConfiguration("localData",
-                                                     schema: Schema([
-                                                         LogEntryEntity.self,
-                                                         EncryptedUserDataEntity.self
-                                                     ]),
+            if #available(iOS 18, *) {
+                let entryConfig = ModelConfiguration(schema: Schema([EncryptedEntryEntity.self]),
                                                      isStoredInMemoryOnly: false,
-                                                     cloudKitDatabase: .none)
-            return try PersistenceService(for: EncryptedEntryEntity.self,
-                                          LogEntryEntity.self,
-                                          EncryptedUserDataEntity.self,
-                                          configurations: entryConfig,
-                                          localDataConfig)
+                                                     cloudKitDatabase: cloudKitDatabase)
+                let localDataConfig = ModelConfiguration("localData",
+                                                         schema: Schema([
+                                                             LogEntryEntity.self,
+                                                             EncryptedUserDataEntity.self
+                                                         ]),
+                                                         isStoredInMemoryOnly: false,
+                                                         cloudKitDatabase: .none)
+                return try PersistenceService(for: EncryptedEntryEntity.self,
+                                              LogEntryEntity.self,
+                                              EncryptedUserDataEntity.self,
+                                              configurations: entryConfig,
+                                              localDataConfig)
+            } else {
+                // iOS 17 fallback: Single store (no CloudKit)
+                let allInOneConfig = ModelConfiguration(schema: Schema([
+                    EncryptedEntryEntity.self,
+                    LogEntryEntity.self,
+                    EncryptedUserDataEntity.self
+                ]),
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .none)
+
+                return try PersistenceService(for: EncryptedEntryEntity.self,
+                                              LogEntryEntity.self,
+                                              EncryptedUserDataEntity.self,
+                                              configurations: allInOneConfig)
+            }
         } catch {
             fatalError("Should have persistence storage \(error)")
         }

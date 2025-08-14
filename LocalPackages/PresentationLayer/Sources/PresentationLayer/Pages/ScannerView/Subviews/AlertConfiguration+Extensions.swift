@@ -24,7 +24,7 @@ import DataLayer
 import UIKit
 
 extension AlertConfiguration {
-    static func noCameraAccess(onEnterManually: @MainActor @escaping () -> Void) -> Self {
+    static func noCameraAccess(onEnterManually: (@MainActor () -> Void)? = nil) -> Self {
         let openSettingsAction = ActionConfig(title: "Open Settings", titleBundle: .module) {
             if let url = URL(string: UIApplication.openSettingsURLString),
                UIApplication.shared.canOpenURL(url) {
@@ -32,13 +32,22 @@ extension AlertConfiguration {
             }
         }
 
-        let enterManuallyAction = ActionConfig(title: "Enter manually",
-                                               titleBundle: .module,
-                                               action: onEnterManually)
+        var actions = [ActionConfig]()
+        actions.append(openSettingsAction)
+
+        if let onEnterManually {
+            let enterManuallyAction = ActionConfig(title: "Enter manually",
+                                                   titleBundle: .module,
+                                                   action: onEnterManually)
+            actions.append(enterManuallyAction)
+        }
+
+        actions.append(.cancel)
+
         return .init(title: "Camera usage restricted",
                      titleBundle: .module,
                      message: .localized("Please enable camera access from Settings", .module),
-                     actions: [openSettingsAction, enterManuallyAction, ActionConfig.cancel])
+                     actions: actions)
     }
 
     static func logout(onLogout: @MainActor @escaping () -> Void) -> Self {

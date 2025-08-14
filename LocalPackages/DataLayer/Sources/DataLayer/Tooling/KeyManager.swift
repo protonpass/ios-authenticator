@@ -97,14 +97,12 @@ public final class KeysManager: KeysProvider {
         // At this point either migration is done or no key is generated (first installation)
         // so we proceed as normal (get if exist and random if not)
         if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: true) {
-            let lockedData = Locked<Data>(encryptedValue: lockedSymmetricKeyData)
-            let unlockedData = try lockedData.unlock(with: mainKey)
-            return .init(data: unlockedData)
+            try migrationSymmetricKeyToUnsync(lockedSymmetricKeyData)
+            return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
+        } else if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: false) {
+            return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
         } else {
-            let randomData = try Data.random()
-            let lockedData = try Locked<Data>(clearValue: randomData, with: mainKey)
-            try keychain.set(lockedData.encryptedValue, for: keychainKey, shouldSync: true)
-            return .init(data: randomData)
+            return try buildSymmetricKey(mainKey: mainKey)
         }
     }
 
@@ -132,5 +130,30 @@ public final class KeysManager: KeysProvider {
         cachedKeys.modify {
             $0.removeValue(forKey: keyId)
         }
+    }
+}
+
+private extension KeysManager {
+    func migrationSymmetricKeyToUnsync(_ lockedSymmetricKeyData: Data) throws {
+        try keychain.delete(keyId: keychainKey, isSynced: true)
+        try keychain.set(lockedSymmetricKeyData, for: keychainKey, shouldSync: false)
+    }
+
+    func buildSymmetricKey(mainKey: MainKey) throws -> SymmetricKey {
+        let randomData = try Data.random()
+        let lockedData = try Locked<Data>(clearValue: randomData, with: mainKey)
+        try keychain.set(lockedData.encryptedValue, for: keychainKey, shouldSync: false)
+        return .init(data: randomData)
+    }
+
+    func unlockSymmetricKey(mainKey: MainKey, _ lockedSymmetricKeyData: Data) throws -> SymmetricKey {
+        let lockedData = Locked<Data>(encryptedValue: lockedSymmetricKeyData)
+        var unlockedData: Data
+        do {
+            unlockedData = try lockedData.unlock(with: mainKey)
+        } catch {
+            return try buildSymmetricKey(mainKey: mainKey)
+        }
+        return .init(data: unlockedData)
     }
 }

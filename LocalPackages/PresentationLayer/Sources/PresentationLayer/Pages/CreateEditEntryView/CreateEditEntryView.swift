@@ -65,7 +65,15 @@ struct CreateEditEntryView: View {
                                               binding: $viewModel.name,
                                               field: .name))
 
-                    textField(secretFieldConfig)
+                    if #available(iOS 18, *) {
+                        textField(secretFieldConfig)
+                    } else {
+                        textField(TextFieldConfig(title: "Secret (Required)",
+                                                  placeholder: "Secret",
+                                                  binding: $viewModel.secret,
+                                                  field: .secret,
+                                                  capitalization: .characters))
+                    }
 
                     if viewModel.type == .totp {
                         textField(TextFieldConfig(title: "Issuer",

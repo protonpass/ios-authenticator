@@ -25,6 +25,8 @@ public enum ImageParsingFailureReason: CustomDebugStringConvertible, Equatable, 
     case importFailed
     case failedDetectingQRCode
     case qrCodeEmpty
+    case failedToConvertToCiImage
+    case failedToParseCapturedPhoto
 
     public var debugDescription: String {
         switch self {
@@ -36,6 +38,10 @@ public enum ImageParsingFailureReason: CustomDebugStringConvertible, Equatable, 
             "Error detecting QR code"
         case .qrCodeEmpty:
             "Empty QR code"
+        case .failedToConvertToCiImage:
+            "Failed to convert to CIImage"
+        case .failedToParseCapturedPhoto:
+            "Failed to parse captured photo"
         }
     }
 }

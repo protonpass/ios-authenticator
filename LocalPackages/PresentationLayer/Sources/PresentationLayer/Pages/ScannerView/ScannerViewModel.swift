@@ -21,11 +21,8 @@
 //
 
 #if os(iOS)
-import Combine
-
 import AuthenticatorRustCore
-
-// periphery:ignore
+import Combine
 import DataLayer
 import DocScanner
 import FactoryKit
@@ -37,10 +34,19 @@ import SwiftUI
 import VisionKit
 
 @Observable @MainActor
-final class ScannerViewModel {
+final class ScannerViewModel: ObservableObject {
     var scanning = true
+    private(set) var takingPhoto = false
     private(set) var shouldDismiss = false
     private(set) var shouldEnterManually = false
+
+    var unsupportedScanning: Bool {
+        appSettings.unsupportedScanning
+    }
+
+    var cameraSession: AVCaptureSession {
+        cameraManager.session
+    }
 
     @ObservationIgnored var imageSelection: PhotosPickerItem? {
         didSet {
@@ -56,15 +62,17 @@ final class ScannerViewModel {
     @LazyInjected(\UseCaseContainer.parseImageQRCodeContent)
     private(set) var parseImageQRCodeContent
 
-    #if os(iOS)
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.hapticsManager)
     private var hapticsManager
-    #endif
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     var alertService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService)
+    private var appSettings
 
     @ObservationIgnored
     private var task: Task<Void, Never>?
@@ -77,6 +85,10 @@ final class ScannerViewModel {
 
     @ObservationIgnored
     let scanResponsePublisher: PassthroughSubject<Result<ScanResult, Error>, Never> = .init()
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.cameraManager)
+    private var cameraManager
 
     init() {
         setUp()
@@ -100,21 +112,29 @@ final class ScannerViewModel {
                 hasPayload = true
                 await generateEntry(from: barcode.payload)
             case let .failure(error):
-                if Task.isCancelled { return }
-                if let error = error as? DataScannerViewController.ScanningUnavailable,
-                   error == .cameraRestricted {
-                    if Task.isCancelled { return }
-                    let config = AlertConfiguration.noCameraAccess { [weak self] in
-                        guard let self else { return }
-                        task?.cancel()
-                        shouldEnterManually = true
-                    }
-                    alertService.showAlert(.sheet(config))
-                } else {
-                    if Task.isCancelled { return }
-                    handleError(error.localizedDescription)
-                }
+                handleScanningError(error)
             }
+        }
+    }
+
+    func setUpAndStartCameraSession() {
+        do {
+            try cameraManager.setUpSession()
+            cameraManager.startSession()
+        } catch {
+            handleError(error.localizedDescription)
+        }
+    }
+
+    func stopCameraSession() {
+        cameraManager.stopSession()
+    }
+
+    func takePhoto() {
+        do {
+            try cameraManager.takePhoto()
+        } catch {
+            handleError(error.localizedDescription)
         }
     }
 
@@ -144,15 +164,49 @@ private extension ScannerViewModel {
                 processPayload(results: scanResult)
             }
             .store(in: &cancellables)
+
+        cameraManager.isTakingPhoto
+            .sink { [weak self] value in
+                guard let self else { return }
+                takingPhoto = value
+            }
+            .store(in: &cancellables)
+
+        cameraManager.takenPhoto
+            .compactMap(\.self)
+            .sink { [weak self] photo in
+                guard let self else { return }
+                parseCapturedPhoto(photo)
+            }
+            .store(in: &cancellables)
+    }
+
+    func handleScanningError(_ error: any Error) {
+        if let scanningError = error as? DataScannerViewController.ScanningUnavailable {
+            switch scanningError {
+            case .unsupported:
+                appSettings.setUnsupportedScanning(true)
+
+            case .cameraRestricted:
+                let config = AlertConfiguration.noCameraAccess { [weak self] in
+                    guard let self else { return }
+                    task?.cancel()
+                    shouldEnterManually = true
+                }
+                alertService.showAlert(.sheet(config))
+
+            @unknown default:
+                handleError(error.localizedDescription)
+            }
+        } else {
+            handleError(error.localizedDescription)
+        }
     }
 
     func handleError(_ error: String) {
         if Task.isCancelled { return }
         alertService.showError(error, mainDisplay: false)
-
-        #if os(iOS)
         hapticsManager(.notify(.error))
-        #endif
     }
 
     func parseImage(_ imageSelection: PhotosPickerItem) {
@@ -170,14 +224,28 @@ private extension ScannerViewModel {
         }
     }
 
+    func parseCapturedPhoto(_ photo: AVCapturePhoto) {
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = photo.fileDataRepresentation(),
+                      let image = UIImage(data: data) else {
+                    throw AuthError.imageParsing(.failedToParseCapturedPhoto)
+                }
+                let content = try parseImageQRCodeContent(image: image)
+                await generateEntry(from: content)
+            } catch {
+                handleError(#localized("Could not process the image", bundle: .module))
+            }
+        }
+    }
+
     func generateEntry(from barcodePayload: String) async {
         do {
             if Task.isCancelled { return }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
-            #if os(iOS)
             hapticsManager(.notify(.success))
-            #endif
         } catch AuthError.generic(.duplicatedEntry) {
             if Task.isCancelled { return }
             handleError(#localized("This item already exists", bundle: .module))

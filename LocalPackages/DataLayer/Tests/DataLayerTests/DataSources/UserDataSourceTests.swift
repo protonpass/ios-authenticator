@@ -49,6 +49,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Returns decrypted user data if present")
     func getValidUserData() async throws {
         let userData = UserData.mock()
@@ -57,6 +58,7 @@ struct UserDataSourceTests {
         #expect(userData == decryptedUserData)
     }
     
+    @available(iOS 18, *)
     @Test("Removing user by id")
     func removeUserById() async throws {
         let userData = UserData.mock()
@@ -67,6 +69,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Removing user by data")
     func removeUserByData() async throws {
         let userData = UserData.mock()
@@ -77,6 +80,7 @@ struct UserDataSourceTests {
         #expect(result == nil)
     }
     
+    @available(iOS 18, *)
     @Test("Removing all users data")
     func removeAllUsers() async throws {
         let userData = UserData.mock()
@@ -96,11 +100,11 @@ struct UserDataSourceTests {
 
         try await sut.save(userData)
         let result = try #require(try await sut.getUserData())
-        #expect(result.addresses.count == 1)
+        #expect(result.passphrases.isEmpty)
 
-        try await sut.update(userData.cleanAddresses())
+        try await sut.update(userData.updatePassphrase())
         let result2 = try #require(try await sut.getUserData())
-        #expect(result2.addresses.isEmpty == true)
+        #expect(result2.passphrases.isEmpty == false)
     }
 }
 
@@ -149,6 +153,10 @@ private extension UserData {
     
     func cleanAddresses() -> UserData {
         UserData(credential: self.credential, user: self.user, salts: self.salts, passphrases: self.passphrases, addresses: [], scopes: self.scopes)
+    }
+    
+    func updatePassphrase() -> UserData {
+        UserData(credential: self.credential, user: self.user, salts: self.salts, passphrases: ["test": "test"], addresses: [], scopes: self.scopes)
     }
 }
 

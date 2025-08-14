@@ -164,6 +164,8 @@ public struct SettingsView: View {
     }
 }
 
+// swiftlint:disable line_length
+
 // MARK: - Sections
 
 private extension SettingsView {
@@ -176,18 +178,21 @@ private extension SettingsView {
                 }
 
                 SettingDivider()
+            } else {
+                if #available(iOS 18, *) {
+                    SettingRow(title: .localized("Backup", .module),
+                               subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                                    .module),
+                               trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                     onToggle: viewModel.toggleICloudSyncBackup))
+                        .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
+                            + ","
+                            + #localized("Proton Authenticator will periodically save all the data to iCloud.",
+                                         bundle: .module),
+                            activateStatus(viewModel.iCloudSync))
+                    SettingDivider()
+                }
             }
-            SettingRow(title: .localized("Backup", .module),
-                       subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                            .module),
-                       trailingMode: .toggle(isOn: viewModel.iCloudSync,
-                                             onToggle: viewModel.toggleICloudSyncBackup))
-                .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
-                    + ","
-                    + #localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                 bundle: .module),
-                    activateStatus(viewModel.iCloudSync))
-            SettingDivider()
 
             #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
@@ -321,7 +326,7 @@ private extension SettingsView {
 
     var supportSection: some View {
         section("SUPPORT") {
-            SettingRow(title: .localized("Feedback", .module)) {
+            SettingRow(title: .localized("Report an issue", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)
             }
 
@@ -370,6 +375,8 @@ private extension SettingsView {
         active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
     }
 }
+
+// swiftlint:enable line_length
 
 // MARK: - Utils
 

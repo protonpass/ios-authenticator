@@ -35,6 +35,8 @@ import SimpleToast
 final class EntriesViewModel: ObservableObject {
     var animatingEntry: Entry?
 
+    var reorderingEntries: [EntryUiModel]?
+
     var entries: [EntryUiModel] {
         if let searchResults {
             return searchResults
@@ -149,10 +151,9 @@ final class EntriesViewModel: ObservableObject {
             .removeDuplicates()
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] newSearch in
+            .sink { [weak self] query in
                 guard let self else { return }
-                let lastestQuery = newSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                executeSearch(query: lastestQuery)
+                executeSearch(query: query)
             }
             .store(in: &cancellables)
 
@@ -207,6 +208,7 @@ final class EntriesViewModel: ObservableObject {
         }
         Task { [weak self] in
             guard let self else { return }
+            defer { reorderingEntries = nil }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
                 await requestForReview()
@@ -288,27 +290,31 @@ extension EntriesViewModel {
     }
 
     func delete(_ entry: EntryUiModel) {
-        let action: ActionConfig = .init(title: "Yes",
-                                         titleBundle: .module,
-                                         role: .destructive,
-                                         action: { [weak self] in
-                                             guard let self else { return }
-                                             deleteTask = Task { @MainActor [weak self] in
-                                                 guard let self else { return }
-                                                 defer { deleteTask = nil }
-                                                 do {
-                                                     try await entryDataService.delete(entry)
-                                                 } catch {
-                                                     handle(error)
-                                                 }
-                                             }
-                                         })
+        let action = ActionConfig(title: "Yes",
+                                  titleBundle: .module,
+                                  role: .destructive,
+                                  action: { [weak self] in
+                                      guard let self else { return }
+                                      deleteTask = Task { @MainActor [weak self] in
+                                          guard let self else { return }
+                                          defer { deleteTask = nil }
+                                          do {
+                                              try await entryDataService.delete(entry)
+                                          } catch {
+                                              handle(error)
+                                          }
+                                      }
+                                  })
         alertService.showAlert(.main(.init(title: "Delete entry",
                                            titleBundle: .module,
                                            // swiftlint:disable:next line_length
                                            message: .localized("Are you sure you want to delete this entry? This action is irreversible.",
                                                                .module),
                                            actions: [action])))
+    }
+
+    func refreshSearchResults() {
+        executeSearch(query: query)
     }
 }
 
@@ -322,13 +328,13 @@ private extension EntriesViewModel {
     }
 
     func executeSearch(query: String) {
+        searchTask?.cancel()
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if query.isEmpty {
-            searchTask?.cancel()
             searchResults = nil
             return
         }
 
-        searchTask?.cancel()
         searchTask = Task { [weak self] in
             guard let self, let data = entryDataService.dataState.data else {
                 return

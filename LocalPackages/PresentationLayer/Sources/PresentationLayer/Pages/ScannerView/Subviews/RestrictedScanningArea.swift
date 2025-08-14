@@ -42,17 +42,22 @@ struct RestrictedScanningAreaConfig {
 
 struct RestrictedScanningArea: View {
     @Environment(\.dismiss) private var dismiss
-
     @Binding private var regionOfInterest: CGRect?
+    private let unsupportedScanning: Bool
     private let configuration: RestrictedScanningAreaConfig
+    private let takePhoto: () -> Void
     private let manualEntry: () -> Void
     private let photoLibraryEntry: () -> Void
 
     init(configuration: RestrictedScanningAreaConfig = .default,
          regionOfInterest: Binding<CGRect?> = Binding.constant(nil),
+         unsupportedScanning: Bool,
+         takePhoto: @escaping () -> Void,
          manualEntry: @escaping () -> Void = {},
          photoLibraryEntry: @escaping () -> Void = {}) {
         self.configuration = configuration
+        self.unsupportedScanning = unsupportedScanning
+        self.takePhoto = takePhoto
         self.manualEntry = manualEntry
         self.photoLibraryEntry = photoLibraryEntry
         _regionOfInterest = regionOfInterest
@@ -77,38 +82,53 @@ struct RestrictedScanningArea: View {
                         return Color.clear
                     })
 
-                Text("Point your camera at the QR code", bundle: .module)
-                    .foregroundStyle(.white)
-                    .dynamicFont(size: 24, textStyle: .title2, weight: .medium)
-                    .padding(.top, 20)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 36)
+                if !unsupportedScanning {
+                    Text("Point your camera at the QR code", bundle: .module)
+                        .foregroundStyle(.white)
+                        .dynamicFont(size: 24, textStyle: .title2, weight: .medium)
+                        .padding(.top, 20)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 36)
+                }
 
                 Spacer()
-                HStack {
+                HStack(alignment: unsupportedScanning ? .bottom : .center) {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
                             .resizable()
-                            .frame(width: 20, height: 20)
+                            .padding(20)
+                            .frame(width: 60, height: 60)
                             .foregroundStyle(.white)
                     }
 
                     Spacer()
-                    Button(action: manualEntry) {
-                        Text("Enter manually", bundle: .module)
-                            .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 36)
-                            .padding(.vertical, 10)
-                            .background(Color(red: 0.1, green: 0.1, blue: 0.15).opacity(0.7))
-                            .clipShape(.capsule)
+                    VStack(spacing: 32) {
+                        Button(action: manualEntry) {
+                            Text("Enter manually", bundle: .module)
+                                .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 36)
+                                .padding(.vertical, 10)
+                                .background(Color(red: 0.1, green: 0.1, blue: 0.15).opacity(0.7))
+                                .clipShape(.capsule)
+                        }
+
+                        if unsupportedScanning {
+                            Button(action: takePhoto) {
+                                Image(.insetFilledCircle)
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundStyle(.white)
+                            }
+                        }
                     }
                     Spacer()
 
                     Button(action: photoLibraryEntry) {
                         Image(systemName: "photo.stack")
                             .resizable()
-                            .frame(width: 28, height: 28)
+                            .padding(16)
+                            .frame(width: 60, height: 60)
                             .foregroundStyle(.white)
                     }
                 }

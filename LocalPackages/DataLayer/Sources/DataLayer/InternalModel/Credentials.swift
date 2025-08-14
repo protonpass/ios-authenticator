@@ -36,6 +36,7 @@ extension Credential: Codable, @retroactive Hashable {
         case userID
         case scopes
         case mailboxPassword
+        case isCredentialLess
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -46,6 +47,7 @@ extension Credential: Codable, @retroactive Hashable {
         hasher.combine(userID)
         hasher.combine(scopes)
         hasher.combine(mailboxPassword)
+        hasher.combine(isCredentialLess)
     }
 
     public init(from decoder: any Decoder) throws {
@@ -55,7 +57,8 @@ extension Credential: Codable, @retroactive Hashable {
                   userName: "",
                   userID: "",
                   scopes: [],
-                  mailboxPassword: "")
+                  mailboxPassword: "",
+                  isCredentialLess: false)
         let values = try decoder.container(keyedBy: CodingKeys.self)
         UID = try values.decode(String.self, forKey: .UID)
         accessToken = try values.decode(String.self, forKey: .accessToken)
@@ -64,6 +67,7 @@ extension Credential: Codable, @retroactive Hashable {
         userID = try values.decode(String.self, forKey: .userID)
         scopes = try values.decode([String].self, forKey: .scopes)
         mailboxPassword = try values.decode(String.self, forKey: .mailboxPassword)
+        isCredentialLess = try values.decodeIfPresent(Bool.self, forKey: .isCredentialLess) ?? false
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -75,5 +79,6 @@ extension Credential: Codable, @retroactive Hashable {
         try container.encode(userID, forKey: .userID)
         try container.encode(scopes, forKey: .scopes)
         try container.encode(mailboxPassword, forKey: .mailboxPassword)
+        try container.encode(isCredentialLess, forKey: .isCredentialLess)
     }
 }

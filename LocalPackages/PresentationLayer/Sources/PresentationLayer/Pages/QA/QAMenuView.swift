@@ -32,6 +32,7 @@ struct QAMenuView: View {
                 onboardingSection
                 fullBackup
                 passBannerSection
+                scannerSection
                 actionsSection
                 installationDateSection
             }
@@ -98,12 +99,35 @@ private extension QAMenuView {
         })
     }
 
+    var scannerSection: some View {
+        Section(content: {
+            Toggle(isOn: $viewModel.unsupportedScanning,
+                   label: { Text(verbatim: "Scanner not available") })
+        }, header: {
+            Text(verbatim: "Scanner")
+        }, footer: {
+            Text(verbatim: "Simulate unavailable scanner")
+        })
+    }
+
     var actionsSection: some View {
         Section(content: {
             Button {
                 showFullDeleteAlert = true
             } label: {
                 Text(verbatim: "Remove all data (iCloud, local and remote)")
+            }
+
+            Button {
+                viewModel.deleteAllKeychainData(synchronized: true)
+            } label: {
+                Text(verbatim: "Remove all synchronized data stored in keychain")
+            }
+
+            Button {
+                viewModel.deleteAllKeychainData(synchronized: false)
+            } label: {
+                Text(verbatim: "Remove all non synchronized data stored in keychain")
             }
         }, header: {
             Text(verbatim: "Actions")

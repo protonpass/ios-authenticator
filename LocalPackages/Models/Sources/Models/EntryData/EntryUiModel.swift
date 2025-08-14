@@ -22,8 +22,7 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transferable,
-    Codable {
+public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Codable {
     public var orderedEntry: OrderedEntry
     public let code: Code
     public let issuerInfo: AuthIssuerInfo?
@@ -49,14 +48,6 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Transfe
                      code: code,
                      issuerInfo: issuerInfo)
     }
-
-    public static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .entryUIModelType)
-    }
-}
-
-public extension UTType {
-    static let entryUIModelType = UTType(exportedAs: "me.proton.authenticator")
 }
 
 public extension EntryUiModel {
