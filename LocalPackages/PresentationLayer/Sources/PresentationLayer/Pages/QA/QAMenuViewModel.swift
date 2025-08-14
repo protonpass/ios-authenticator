@@ -69,6 +69,10 @@ final class QAMenuViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private(set) var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.logManager)
+    private(set) var logManager
+
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
@@ -113,6 +117,23 @@ final class QAMenuViewModel {
                                                 titleBundle: .module,
                                                 message: .verbatim("Error when deleting keychain data: \(error.localizedDescription), error: \(error)"),
                                                 actions: [.ok])))
+        }
+    }
+
+    func deleteAllLogs() {
+        Task {
+            do {
+                try await logManager.deleteAllLogs()
+                alertService.showAlert(.sheet(.init(title: "OK",
+                                                    titleBundle: .module,
+                                                    message: .verbatim("Logs were deleted"),
+                                                    actions: [.ok])))
+            } catch {
+                alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                    titleBundle: .module,
+                                                    message: .verbatim("Error when deleting logs: \(error.localizedDescription), error: \(error)"),
+                                                    actions: [.ok])))
+            }
         }
     }
 }

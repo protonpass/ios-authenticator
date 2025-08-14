@@ -97,6 +97,9 @@ public protocol LoggerProtocol: Sendable {
                          line: Int)
     func logsContent(category: LogCategory?) async throws -> String
     func fetchLogs(category: LogCategory?) async throws -> [LogEntry]
+
+    @_spi(QA)
+    func deleteAllLogs() async throws
 }
 
 public extension LoggerProtocol {
@@ -210,11 +213,15 @@ public final actor LogManager: LoggerProtocol {
                 log.message.contains("and params:") {
                 nil
             } else {
-                log.message
+                log.description
             }
         }
         .joined(separator: "\n")
         return logString
+    }
+
+    public func deleteAllLogs() async throws {
+        try await localDataManager.persistentStorage.delete(LogEntryEntity.self)
     }
 }
 
