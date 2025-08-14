@@ -59,11 +59,11 @@ public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage.fetchAll()
-        log(.info, "Got \(encryptedUsersData.count) user's data")
         guard let encryptedUserData = encryptedUsersData.first else {
             log(.info, "No user data found")
             return nil
         }
+        log(.info, "Got \(encryptedUsersData.count) user's data")
         do {
             let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
             log(.info, "Successfully decrypted user data")
