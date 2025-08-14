@@ -7306,7 +7306,14 @@
       }
     },
     "Save the password" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the password"
+          }
+        }
+      }
     },
     "Scan a QR code" : {
       "localizations" : {
@@ -7950,7 +7957,14 @@
       }
     },
     "Set a password to protect the export file." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a password to protect the export file."
+          }
+        }
+      }
     },
     "Settings" : {
       "localizations" : {
