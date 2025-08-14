@@ -45,8 +45,6 @@ public protocol EncryptionServicing: Sendable {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
-    func encrypt(entries: [Entry]) throws -> [Data]
-    // periphery:ignore
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 
@@ -111,10 +109,14 @@ public final class EncryptionService: EncryptionServicing {
 
 public extension EncryptionService {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
-        log(.info, "Decrypting entry with id \(entry.id)")
+        log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
         guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
+            log(.warning, "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id)")
             return .nonDecryptable
+        }
+
+        if AppConstants.isQaBuild {
+            log(.debug, "Decrypting with key hex \(entry.keyId): \(encryptionKey.hexString)")
         }
 
         do {
@@ -146,18 +148,13 @@ public extension EncryptionService {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data {
         let encryptionKey = try getEncryptionKey(for: keyId)
-        log(.info, "Encrypting entry \(entry.id) with key \(keyId)")
+        log(.info, "Encrypting entry \(entry.id) with key id \(keyId)")
+        if AppConstants.isQaBuild {
+            log(.debug, "Encrypting with key hex \(keyId): \(encryptionKey.hexString)")
+        }
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: encryptionKey)
-    }
-
-    func encrypt(entries: [Entry]) throws -> [Data] {
-        let localKey = try localEncryptionKey
-        log(.info, "Encrypting \(entries.count) entries with local encryption key")
-
-        return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
-                                                          key: localKey)
     }
 
     func symmetricEncrypt(object: some Codable) throws -> Data {
@@ -246,5 +243,11 @@ public extension EncryptionService {
 private extension EncryptionService {
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
+    }
+}
+
+private extension Data {
+    var hexString: String {
+        map { String(format: "%02hhx", $0) }.joined()
     }
 }

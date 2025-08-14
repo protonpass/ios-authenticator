@@ -37,4 +37,6 @@ final class MockLogger: LoggerProtocol {
     func fetchLogs(category: LogCategory?) async throws -> [LogEntry] {
         []
     }
+
+    func deleteAllLogs() async throws {}
 }
