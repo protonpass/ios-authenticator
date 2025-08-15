@@ -190,6 +190,19 @@ final class EntriesViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        // Observe data changes to refresh search results when TOTP codes update
+        entryDataService.$dataState
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                // If search is active, refresh the search results with updated data
+                if searchResults != nil && !query.isEmpty {
+                    refreshSearchResults()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
