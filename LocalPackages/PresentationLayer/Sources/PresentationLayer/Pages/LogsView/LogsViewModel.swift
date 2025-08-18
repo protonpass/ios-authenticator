@@ -46,7 +46,11 @@ final class LogsViewModel {
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Authenticator_logs_\(currentDate)"
+        return if let gitCommitHash = Bundle.main.gitCommitHash {
+            "Authenticator_logs_\(gitCommitHash)_\(currentDate)"
+        } else {
+            "Authenticator_logs_\(currentDate)"
+        }
     }
 
     init() {
