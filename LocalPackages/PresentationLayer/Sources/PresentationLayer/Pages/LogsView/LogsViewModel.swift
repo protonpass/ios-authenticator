@@ -41,6 +41,10 @@ final class LogsViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.encryptionService)
+    private var encryptionService
+
     private var exportFileName: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
@@ -73,7 +77,8 @@ private extension LogsViewModel {
 
     func exportLogs() async -> URL? {
         do {
-            return try await logManager.exportLogs(fileName: exportFileName)
+            return try await logManager.exportLogs(fileName: exportFileName,
+                                                   localEncryptionKeyId: encryptionService.localEncryptionKeyId)
         } catch {
             logManager.log(.error, category: .ui, error.localizedDescription)
             return nil
