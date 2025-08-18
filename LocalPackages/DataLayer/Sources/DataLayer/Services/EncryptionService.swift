@@ -110,8 +110,13 @@ public final class EncryptionService: EncryptionServicing {
 public extension EncryptionService {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
-        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            log(.warning, "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id)")
+
+        let encryptionKey: Data
+        do {
+            encryptionKey = try getEncryptionKey(for: entry.keyId)
+        } catch {
+            log(.warning,
+                "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
             return .nonDecryptable
         }
 
@@ -134,7 +139,13 @@ public extension EncryptionService {
                                             contentFormatVersion: entry.contentFormatVersion)
             return .decrypted(orderedEntry)
         } catch {
-            log(.error, "Failed to decrypt entry \(entry.id) \(error.localizedDescription)")
+            if AppConstants.isQaBuild {
+                log(.error,
+                    "Failed to decrypt entry \(entry.id) with key \(entry.keyId), hex \(encryptionKey.hexString). \(error.localizedDescription)")
+            } else {
+                log(.error,
+                    "Failed to decrypt entry \(entry.id) with key \(entry.keyId) \(error.localizedDescription)")
+            }
             return .nonDecryptable
         }
     }
@@ -148,9 +159,10 @@ public extension EncryptionService {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data {
         let encryptionKey = try getEncryptionKey(for: keyId)
-        log(.info, "Encrypting entry \(entry.id) with key id \(keyId)")
         if AppConstants.isQaBuild {
-            log(.debug, "Encrypting with key hex \(keyId): \(encryptionKey.hexString)")
+            log(.debug, "Encrypting entry \(entry.id) with key \(keyId), hex \(encryptionKey.hexString)")
+        } else {
+            log(.debug, "Encrypting entry \(entry.id) with key id \(keyId)")
         }
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
