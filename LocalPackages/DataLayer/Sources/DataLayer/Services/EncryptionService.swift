@@ -140,6 +140,7 @@ public extension EncryptionService {
             return .decrypted(orderedEntry)
         } catch {
             if AppConstants.isQaBuild {
+                // swiftlint:disable:next line_length
                 log(.error,
                     "Failed to decrypt entry \(entry.id) with key \(entry.keyId), hex \(encryptionKey.hexString). \(error.localizedDescription)")
             } else {

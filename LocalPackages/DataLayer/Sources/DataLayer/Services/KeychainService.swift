@@ -45,7 +45,9 @@ public final class KeychainService: KeychainServicing {
     }
 
     public func get<T: Decodable & Sendable>(keyId: String, isSynced: Bool) throws -> T {
-        guard let data = try keychain.synchronizable(isSynced).getData(keyId) else {
+        guard let data = try keychain
+            .synchronizable(isSynced)
+            .getData(keyId, ignoringAttributeSynchronizable: false) else {
             throw KeychainError.itemNotFound
         }
         let decoded = try JSONDecoder().decode(T.self, from: data)
