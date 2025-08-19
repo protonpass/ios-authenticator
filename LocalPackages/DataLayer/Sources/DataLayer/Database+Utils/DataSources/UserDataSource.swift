@@ -64,28 +64,20 @@ public extension UserDataSource {
             return nil
         }
         log(.info, "Got \(encryptedUsersData.count) user's data")
-        // loop to see if userdata can be decrypted remove all non decryptable userdata
-        var userDataToRemove: [EncryptedUserDataEntity] = []
-        var userData: UserData?
+
         for encryptedUserData in encryptedUsersData {
             do {
-                userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
-                log(.info, "Successfully decrypted user data")
+                let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
+                log(.info, "Successfully decrypted user data with userId: \(userData.user.ID)")
+                return userData
             } catch {
-                log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
-                userDataToRemove.append(encryptedUserData)
+                log(.error,
+                    "Failed to decrypt user data with id \(encryptedUserData.id): \(error.localizedDescription), error: \(error)")
+                throw AuthError.generic(.corruptedUserData)
             }
         }
 
-        if userDataToRemove.isEmpty {
-            return userData
-        } else if !userDataToRemove.isEmpty, userData == nil {
-            // Should return an error to start logout flow in userSessionManager
-            throw AuthError.generic(.corruptedUserData)
-        } else {
-            try await localDataManager.persistentStorage.delete(datas: userDataToRemove)
-            return userData
-        }
+        return nil
     }
 
     func save(_ userData: UserData) async throws {
