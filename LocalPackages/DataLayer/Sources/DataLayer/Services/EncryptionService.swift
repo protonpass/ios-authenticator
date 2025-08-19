@@ -86,14 +86,22 @@ public final class EncryptionService: EncryptionServicing {
         self.keysProvider = keysProvider
         localEncryptionKeyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
-        setup()
     }
 
     public func getEncryptionKey(for keyId: String) throws -> Data {
-        log(.info, "Fetching encryption key for \(keyId)")
-        let key = try keysProvider.get(keyId: keyId)
-        log(.info, "Retrieved key for \(keyId)")
-        return key
+        do {
+            log(.info, "Fetching encryption key for \(keyId)")
+            let key = try keysProvider.get(keyId: keyId)
+            log(.info, "Retrieved key for \(keyId)")
+            return key
+        } catch {
+            if let keychainError = error as? KeychainError,
+               keychainError == .itemNotFound,
+               keyId == localEncryptionKeyId {
+                return try generateLocalEncryptionKey()
+            }
+            throw error
+        }
     }
 
     public func generateKey() -> Data {
@@ -249,20 +257,15 @@ public extension EncryptionService {
 }
 
 private extension EncryptionService {
-    func setup() {
+    func generateLocalEncryptionKey() throws -> Data {
         do {
-            _ = try keysProvider.get(keyId: localEncryptionKeyId)
-            return
-        } catch {
-            log(.warning,
-                "Generating a new local encryption key because \(error.localizedDescription), error: \(error)")
-        }
-
-        do {
+            log(.info, "Generating new local encryption key with id \(localEncryptionKeyId)")
             let newKey = authenticatorCrypto.generateKey()
             try keysProvider.set(newKey, for: localEncryptionKeyId)
+            return newKey
         } catch {
             log(.warning, "Failed to set the local key \(error.localizedDescription), error: \(error)")
+            throw error
         }
     }
 
