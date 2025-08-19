@@ -289,10 +289,12 @@ public extension EntryRepository {
             }
 
             // Step 4: Decrypt and sort by 'order'
-            let decryptedEntries = try encryptionService
-                .decrypt(entries: entriesToDecrypt)
+            let decryptedEntries = try encryptionService.decrypt(entries: entriesToDecrypt)
 
-            log(.info, "Successfully fetched \(decryptedEntries.count) unique local entries")
+            let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
+            let decryptableCount = decryptedEntries.count(where: { !$0.isNonDecryptable })
+            log(.info,
+                "Successfully fetched \(decryptableCount) decryptable, \(nonDecryptableCount) non decryptable")
             return decryptedEntries
         } catch {
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")

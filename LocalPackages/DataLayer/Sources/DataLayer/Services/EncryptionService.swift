@@ -37,6 +37,14 @@ public enum EntryState: Sendable {
             nil
         }
     }
+
+    public var isNonDecryptable: Bool {
+        if case .nonDecryptable = self {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 public protocol EncryptionServicing: Sendable {
@@ -84,13 +92,14 @@ public final class EncryptionService: EncryptionServicing {
 
     public var localEncryptionKey: Data {
         get throws {
-            if let key: Data = try? keysProvider.get(keyId: localEncryptionKeyId) {
-                return key
+            do {
+                return try keysProvider.get(keyId: localEncryptionKeyId)
+            } catch {
+                log(.warning, "Generating a new local encryption key because \(error.localizedDescription)")
+                let newKey = authenticatorCrypto.generateKey()
+                try keysProvider.set(newKey, for: localEncryptionKeyId)
+                return newKey
             }
-            log(.info, "Generating a new local encryption key")
-            let newKey = authenticatorCrypto.generateKey()
-            try keysProvider.set(newKey, for: localEncryptionKeyId)
-            return newKey
         }
     }
 
@@ -140,8 +149,8 @@ public extension EncryptionService {
             return .decrypted(orderedEntry)
         } catch {
             if AppConstants.isQaBuild {
-                // swiftlint:disable:next line_length
                 log(.error,
+                    // swiftlint:disable:next line_length
                     "Failed to decrypt entry \(entry.id) with key \(entry.keyId), hex \(encryptionKey.hexString). \(error.localizedDescription)")
             } else {
                 log(.error,
