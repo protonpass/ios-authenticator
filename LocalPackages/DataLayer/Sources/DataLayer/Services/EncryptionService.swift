@@ -254,14 +254,15 @@ private extension EncryptionService {
             _ = try keysProvider.get(keyId: localEncryptionKeyId)
             return
         } catch {
-            log(.warning, "Generating a new local encryption key because \(error.localizedDescription)")
+            log(.warning,
+                "Generating a new local encryption key because \(error.localizedDescription), error: \(error)")
         }
 
         do {
             let newKey = authenticatorCrypto.generateKey()
             try keysProvider.set(newKey, for: localEncryptionKeyId)
         } catch {
-            log(.warning, "Failed to set the local key \(error.localizedDescription)")
+            log(.warning, "Failed to set the local key \(error.localizedDescription), error: \(error)")
         }
     }
 
