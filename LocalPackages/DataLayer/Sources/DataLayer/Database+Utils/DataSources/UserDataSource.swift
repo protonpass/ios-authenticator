@@ -69,7 +69,7 @@ public extension UserDataSource {
         var userData: UserData?
         for encryptedUserData in encryptedUsersData {
             do {
-                let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
+                userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
                 log(.info, "Successfully decrypted user data")
             } catch {
                 log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
