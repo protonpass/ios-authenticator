@@ -41,12 +41,20 @@ final class LogsViewModel {
     @LazyInjected(\ServiceContainer.alertService)
     private var alertService
 
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.encryptionService)
+    private var encryptionService
+
     private var exportFileName: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
         let currentDate = dateFormatter.string(from: .now)
 
-        return "Authenticator_logs_\(currentDate)"
+        return if let gitCommitHash = Bundle.main.gitCommitHash {
+            "Authenticator_logs_\(gitCommitHash)_\(currentDate)"
+        } else {
+            "Authenticator_logs_\(currentDate)"
+        }
     }
 
     init() {
@@ -69,7 +77,8 @@ private extension LogsViewModel {
 
     func exportLogs() async -> URL? {
         do {
-            return try await logManager.exportLogs(fileName: exportFileName)
+            return try await logManager.exportLogs(fileName: exportFileName,
+                                                   localEncryptionKeyId: encryptionService.localEncryptionKeyId)
         } catch {
             logManager.log(.error, category: .ui, error.localizedDescription)
             return nil
