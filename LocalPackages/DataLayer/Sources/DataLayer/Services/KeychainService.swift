@@ -45,7 +45,8 @@ public final class KeychainService: KeychainServicing {
     }
 
     public func get<T: Decodable & Sendable>(keyId: String, isSynced: Bool) throws -> T {
-        guard let data = try keychain.synchronizable(isSynced).getData(keyId) else {
+        guard let data = try keychain.synchronizable(isSynced)
+            .getData(keyId /* , ignoringAttributeSynchronizable: !isSynced */ ) else {
             throw KeychainError.itemNotFound
         }
 
@@ -57,7 +58,9 @@ public final class KeychainService: KeychainServicing {
 
                 // 🔄 Rewrite as raw Data so future reads don't need fallback
                 do {
-                    try keychain.synchronizable(isSynced).set(decoded, key: keyId)
+                    try keychain.synchronizable(isSynced).set(decoded,
+                                                              key: keyId,
+                                                              ignoringAttributeSynchronizable: !isSynced)
                 } catch {
                     logger.log(.error,
                                category: .database,
@@ -86,10 +89,14 @@ public final class KeychainService: KeychainServicing {
     public func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws {
         if let data = item as? Data {
             // ✅ Always store raw Data going forward
-            try keychain.synchronizable(shouldSync).set(data, key: keyId)
+            try keychain.synchronizable(shouldSync).set(data,
+                                                        key: keyId,
+                                                        ignoringAttributeSynchronizable: !shouldSync)
         } else {
             let data = try JSONEncoder().encode(item)
-            try keychain.synchronizable(shouldSync).set(data, key: keyId)
+            try keychain.synchronizable(shouldSync).set(data,
+                                                        key: keyId,
+                                                        ignoringAttributeSynchronizable: !shouldSync)
         }
     }
 
