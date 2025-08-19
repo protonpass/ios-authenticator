@@ -59,24 +59,43 @@ public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage.fetchAll()
-        guard let encryptedUserData = encryptedUsersData.first else {
+        guard !encryptedUsersData.isEmpty else {
             log(.info, "No user data found")
             return nil
         }
         log(.info, "Got \(encryptedUsersData.count) user's data")
-        do {
-            let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
-            log(.info, "Successfully decrypted user data")
+        // loop to see if userdata can be decrypted remove all non decryptable userdata
+        var userDataToRemove: [EncryptedUserDataEntity] = []
+        var userData: UserData?
+        for encryptedUserData in encryptedUsersData {
+            do {
+                let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
+                log(.info, "Successfully decrypted user data")
+            } catch {
+                log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
+                userDataToRemove.append(encryptedUserData)
+            }
+        }
+
+        if userDataToRemove.isEmpty {
             return userData
-        } catch {
-            log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
-            throw error
+        } else if !userDataToRemove.isEmpty, userData == nil {
+            // Should return an error to start logout flow in userSessionManager
+            throw AuthError.generic(.corruptedUserData)
+        } else {
+            try await localDataManager.persistentStorage.delete(datas: userDataToRemove)
+            return userData
         }
     }
 
     func save(_ userData: UserData) async throws {
         log(.info, "Saving user data for ID: \(userData.user.ID)")
         do {
+            let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage
+                .fetchAll()
+            if !encryptedUsersData.isEmpty {
+                try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self)
+            }
             let encryptedUserData = try encrypt(userData: userData)
             try await localDataManager.persistentStorage.save(data: encryptedUserData)
             log(.info, "Successfully saved encrypted user data")

@@ -49,7 +49,6 @@ public enum EntryState: Sendable {
 
 public protocol EncryptionServicing: Sendable {
     var localEncryptionKeyId: String { get }
-    var localEncryptionKey: Data { get throws }
 
     func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
@@ -87,20 +86,7 @@ public final class EncryptionService: EncryptionServicing {
         self.keysProvider = keysProvider
         localEncryptionKeyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
-        _ = try? localEncryptionKey
-    }
-
-    public var localEncryptionKey: Data {
-        get throws {
-            do {
-                return try keysProvider.get(keyId: localEncryptionKeyId)
-            } catch {
-                log(.warning, "Generating a new local encryption key because \(error.localizedDescription)")
-                let newKey = authenticatorCrypto.generateKey()
-                try keysProvider.set(newKey, for: localEncryptionKeyId)
-                return newKey
-            }
-        }
+        setup()
     }
 
     public func getEncryptionKey(for keyId: String) throws -> Data {
@@ -263,6 +249,22 @@ public extension EncryptionService {
 }
 
 private extension EncryptionService {
+    func setup() {
+        do {
+            _ = try keysProvider.get(keyId: localEncryptionKeyId)
+            return
+        } catch {
+            log(.warning, "Generating a new local encryption key because \(error.localizedDescription)")
+        }
+
+        do {
+            let newKey = authenticatorCrypto.generateKey()
+            try keysProvider.set(newKey, for: localEncryptionKeyId)
+        } catch {
+            log(.warning, "Failed to set the local key \(error.localizedDescription)")
+        }
+    }
+
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
     }

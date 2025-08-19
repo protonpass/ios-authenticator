@@ -48,13 +48,49 @@ public final class KeychainService: KeychainServicing {
         guard let data = try keychain.synchronizable(isSynced).getData(keyId) else {
             throw KeychainError.itemNotFound
         }
+
+        // Special case: Data
+        if T.self == Data.self {
+            // Fallback: try legacy JSON-encoded Data (base64 in JSON string)
+            if let decoded = try? JSONDecoder().decode(Data.self, from: data) {
+                logger.log(.info, category: .database, "Migrating legacy JSON-encoded Data for key \(keyId)")
+
+                // 🔄 Rewrite as raw Data so future reads don't need fallback
+                do {
+                    try keychain.synchronizable(isSynced).set(decoded, key: keyId)
+                } catch {
+                    logger.log(.error,
+                               category: .database,
+                               "Failed to migrate legacy Data for key \(keyId): \(error)")
+                }
+
+                if let decodedReturn = decoded as? T {
+                    return decodedReturn
+                } else {
+                    throw KeychainError.invalidData
+                }
+            }
+
+            // Try interpreting as raw Data
+            if let casted = data as? T {
+                return casted
+            } else {
+                throw KeychainError.invalidData
+            }
+        }
+
         let decoded = try JSONDecoder().decode(T.self, from: data)
         return decoded
     }
 
     public func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws {
-        let data = try JSONEncoder().encode(item)
-        try keychain.synchronizable(shouldSync).set(data, key: keyId)
+        if let data = item as? Data {
+            // ✅ Always store raw Data going forward
+            try keychain.synchronizable(shouldSync).set(data, key: keyId)
+        } else {
+            let data = try JSONEncoder().encode(item)
+            try keychain.synchronizable(shouldSync).set(data, key: keyId)
+        }
     }
 
     public func delete(keyId: String, isSynced: Bool = false) throws {
