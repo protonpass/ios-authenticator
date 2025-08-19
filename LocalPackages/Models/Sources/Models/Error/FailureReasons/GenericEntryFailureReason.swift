@@ -30,6 +30,7 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
     case failedToRandomizeData
     case missingUserData
     case missingRemoteId
+    case corruptedUserData
 
     public var debugDescription: String {
         switch self {
@@ -51,6 +52,8 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
             "Missing user data"
         case .missingRemoteId:
             "Missing remote id for entity"
+        case .corruptedUserData:
+            "Corrupted user data"
         }
     }
 

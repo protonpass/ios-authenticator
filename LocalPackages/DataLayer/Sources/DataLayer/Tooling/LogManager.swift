@@ -130,6 +130,11 @@ public extension LoggerProtocol {
         var metaData = [String]()
         metaData.append(Bundle.main.displayedAppVersion)
         metaData.append("Local encryption key id: \(localEncryptionKeyId)")
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            metaData.append("OS type: macOs")
+        } else {
+            metaData.append("OS type: iOS")
+        }
         metaData.append("OS version: \(ProcessInfo.processInfo.operatingSystemVersionString)")
 
         logContent = metaData.joined(separator: "\n") + "\n" + logContent

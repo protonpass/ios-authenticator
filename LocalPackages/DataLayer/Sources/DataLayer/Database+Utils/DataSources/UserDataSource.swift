@@ -59,24 +59,35 @@ public extension UserDataSource {
     func getUserData() async throws -> UserData? {
         log(.info, "Fetching user data", function: #function, line: #line)
         let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage.fetchAll()
-        guard let encryptedUserData = encryptedUsersData.first else {
+        guard !encryptedUsersData.isEmpty else {
             log(.info, "No user data found")
             return nil
         }
         log(.info, "Got \(encryptedUsersData.count) user's data")
-        do {
-            let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
-            log(.info, "Successfully decrypted user data")
-            return userData
-        } catch {
-            log(.error, "Failed to decrypt user data: \(error.localizedDescription), error: \(error)")
-            throw error
+
+        for encryptedUserData in encryptedUsersData {
+            do {
+                let userData = try decrypt(encryptedData: encryptedUserData.encryptedData)
+                log(.info, "Successfully decrypted user data with userId: \(userData.user.ID)")
+                return userData
+            } catch {
+                log(.error,
+                    "Failed to decrypt user data with id \(encryptedUserData.id): \(error.localizedDescription), error: \(error)")
+                throw AuthError.generic(.corruptedUserData)
+            }
         }
+
+        return nil
     }
 
     func save(_ userData: UserData) async throws {
         log(.info, "Saving user data for ID: \(userData.user.ID)")
         do {
+            let encryptedUsersData: [EncryptedUserDataEntity] = try await localDataManager.persistentStorage
+                .fetchAll()
+            if !encryptedUsersData.isEmpty {
+                try await localDataManager.persistentStorage.delete(EncryptedUserDataEntity.self)
+            }
             let encryptedUserData = try encrypt(userData: userData)
             try await localDataManager.persistentStorage.save(data: encryptedUserData)
             log(.info, "Successfully saved encrypted user data")
