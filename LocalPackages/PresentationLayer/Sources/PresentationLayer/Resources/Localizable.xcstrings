@@ -844,16 +844,58 @@
     },
     "Automatic Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisches Backup"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Automatic Backup"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respaldo Automático"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sauvegardes automatiques"
+            "value" : "Sauvegarde automatique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup automatico"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatische backup"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup automático"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматическое резервное копирование"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik Yedekleme"
           }
         }
       }
@@ -1010,52 +1052,226 @@
     },
     "Backup from %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup von %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup from %@"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respaldar desde %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sauvegarde de %@"
+            "value" : "Sauvegarde depuis %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup da %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-up van %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Backup\" de %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ üzerinden yedekle"
           }
         }
       }
     },
     "Backup now" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt sichern"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer copia de seguridad ahora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effectuer une sauvegarde maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui backup ora"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nu back-up maken"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fazer backup agora"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать резервную копию"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şimdi yedekle"
           }
         }
       }
     },
     "Backups" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherungen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backups"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copias de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegardes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-ups"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backups"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервные копии"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedekler"
           }
         }
       }
     },
     "BACKUPS" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SICHERUNGEN"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "BACKUPS"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "COPIAS DE SEGURIDAD"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "SAUVEGARDES"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACKUP"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACK-UPS"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACKUPS"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "РЕЗЕРВНЫЕ КОПИИ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YEDEKLER"
           }
         }
       }
@@ -4604,10 +4820,46 @@
     },
     "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehe in der Proton Pass-Erweiterung, der Web- oder Desktop-App zu **☰ > Einstellungen > Export**\n\nAchte darauf, das **ZIP-Format ohne Dateianhänge** auszuwählen.\n\nDadurch wird eine ZIP-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la extensión de Proton Pass, aplicación web o de escritorio, ve a **☰ > Ajustes > Exportar**\n\nAsegúrate de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **☰ > Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nUn fichier ZIP sera ainsi créé que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nell’estensione Proton Pass, nell’app web o desktop, vai su ☰ > Impostazioni > Esporta.\n\nAssicurati di scegliere il formato zip senza allegati dei file.\n\nQuesto creerà un file zip che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proton Pass eklentisinde, web veya masaüstü uygulamasında, **☰ > Ayarlar > Dışa Aktar** seçeneğine gidin"
           }
         }
       }
@@ -5035,16 +5287,46 @@
     },
     "Last backup: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte Sicherung: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Last backup: %@"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última copia de seguridad: %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dernière sauvegarde : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimo backup: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Último backup: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son yedekleme: %@"
           }
         }
       }
@@ -6031,16 +6313,46 @@
     },
     "Only the last 5 backups are kept." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es werden nur die letzten 5 Sicherungen behalten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Only the last 5 backups are kept."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se conservan las 5 últimas copias de seguridad."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seules les 5 dernières sauvegardes sont conservées."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vengono conservati solo gli ultimi backup."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somente os últimos 5 backups são mantidos."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca son 5 yedekleme tutulur."
           }
         }
       }
@@ -6477,50 +6789,230 @@
     },
     "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **⋮ > Einstellungen > Import & Export > Export**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez accéder les **⋮ > Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **⋮Impostazioni > Importa ed Esporta > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **⋮ >Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **⋮ > Ayarlar > İçe Aktarma ve Dışa Aktarma > Dışa Aktarma** bölümüne gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
           }
         }
       }
     },
     "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **⚙ > Export**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **⚙ > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "**⚙ > Export** dans les paramètres \n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai a **Impostazioni > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **⚙ > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **⚙ > Dışa Aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
           }
         }
       }
     },
     "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **⚙ > Konten übertragen > Konten in Datei exportieren**\n\nDadurch wird eine JSON-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **⚙ > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **⚙ > Transférer les comptes > Exporter les comptes vers un fichier**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai su **⚙ > Trasferisci account > Esporta account in file**.\n\nQuesto creerà un file JSON che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse**⚙ > Transferir contas > Exportar contas para arquivo**\n\nIsso criará um arquivo Json que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **⚙ > Hesapları aktar > Hesapları dosyaya aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
           }
         }
       }
     },
     "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **☰ > Daten > Codes exportieren**\n\nWähle **Klartext**. Dadurch wird eine TXT-Datei erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **☰ > Datos > Exportar códigos**\n\nElige **Texto sin formato**, esto creará un archivo txt que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **☰ > Données > Exporter les codes**\n\nChoisissez **Texte brut** et cela créera un fichier txt que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai su **☰ > Dati > Esporta codici**\n\nScegli **Testo semplice**; questo creerà un file TXT che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **☰ > Dados > Exportar códigos**\n\nEscolha **Texto simples**, isso criará um arquivo txt que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **☰ > Veri > Kodları dışa aktar** seçeneğine gidin.\n\n**Düz metin** seçeneğini seçin, bu şekilde burada kullanabileceğiniz bir txt dosyası oluşturulacaktır."
           }
         }
       }
     },
     "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte gehe zu **☰ > Konten übertragen > Konten exportieren**\n\nDadurch werden ein oder mehrere QR-Codes erstellt, die du hier verwenden kannst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve a **☰ > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puedes usar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accédez à **☰ > Transférer les comptes > Exporter les comptes**\n\nCela créera un ou plusieurs QR codes que vous pourrez utiliser ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai su **☰ > Trasferisci account > Esporta account**\n\nQuesto creerà uno o più codici QR che potrai usare qui."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acesse **☰ > Transferir contas > Exportar contas**\n\nIsso criará um ou mais códigos QR que você pode usar aqui."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lütfen **☰ > Hesapları aktar > Hesapları dışa aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir veya daha fazla QR kodu oluşturacaktır."
           }
         }
       }
@@ -6694,7 +7186,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pointez votre appareil photo vers le code QR"
+            "value" : "Pointez votre appareil photo vers le QR code"
           }
         },
         "it" : {
@@ -7157,10 +7649,52 @@
     },
     "Report an issue" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Fehler melden"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Report an issue"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informar de un problema"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler un problème"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segnala un problema"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reportar um problema"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщить о проблеме"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir hatayı bildir"
           }
         }
       }
@@ -7344,7 +7878,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scanner un code QR"
+            "value" : "Scanner un QR code"
           }
         },
         "it" : {
@@ -9061,7 +9595,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le code QR n'est pas valide. Veuillez essayer d'en scanner un autre."
+            "value" : "Le QR code n'est pas valide. Veuillez essayer d'en scanner un autre."
           }
         },
         "it" : {

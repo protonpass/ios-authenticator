@@ -70,8 +70,15 @@ public final class ImportingService: ImportingServicing {
             results.append(result.toImportResult)
         }
 
-        log(.debug, "Successfully parsed entries from sources: \(sourceNames)")
-        return results.reduce(.empty) { $0 + $1 }
+        let combinedResults = results.reduce(.empty) { $0 + $1 }
+        let entryCount = combinedResults.entries.count
+        let errorCount = combinedResults.errors.count
+        log(.info, "Successfully parsed \(entryCount) entries, \(errorCount) errors from \(sourceNames)")
+        if errorCount > 0 {
+            let errorMessage = combinedResults.errors.map(\.description).joined(separator: ", ")
+            log(.debug, "Parsing errors for \(sourceNames) \(errorMessage)")
+        }
+        return combinedResults
     }
 }
 

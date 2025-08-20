@@ -129,6 +129,12 @@ private extension QAMenuView {
             } label: {
                 Text(verbatim: "Remove all non synchronized data stored in keychain")
             }
+
+            Button {
+                viewModel.deleteAllLogs()
+            } label: {
+                Text(verbatim: "Remove all local logs")
+            }
         }, header: {
             Text(verbatim: "Actions")
         })

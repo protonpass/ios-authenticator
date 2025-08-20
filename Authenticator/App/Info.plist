@@ -19,6 +19,8 @@
 	</array>
 	<key>IS_QA_BUILD =
 	<string>$(IS_QA_BUILD =
+	<key>GIT_COMMIT_HASH</key>
+	<string></string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>protonpass</string>

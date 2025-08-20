@@ -191,7 +191,11 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         (apiService as? PMAPIService)?.loggingDelegate = self
         updateTools()
         Task {
-            try? await loadAndCacheUserData()
+            do {
+                try await loadAndCacheUserData()
+            } catch {
+                try? await logout()
+            }
         }
         Publishers.CombineLatest(isAuthenticated, userDataLoaded)
             .receive(on: DispatchQueue.main)

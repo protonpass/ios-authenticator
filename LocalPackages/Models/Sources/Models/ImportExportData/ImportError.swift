@@ -20,12 +20,16 @@
 
 import Foundation
 
-public struct ImportError: Sendable, Equatable, Hashable {
+public struct ImportError: Sendable, Equatable, Hashable, CustomStringConvertible {
     public let context: String
     public let message: String
 
     public init(context: String, message: String) {
         self.context = context
         self.message = message
+    }
+
+    public var description: String {
+        "\(context): \(message)"
     }
 }

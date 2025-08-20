@@ -37,15 +37,20 @@ public enum EntryState: Sendable {
             nil
         }
     }
+
+    public var isNonDecryptable: Bool {
+        if case .nonDecryptable = self {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 public protocol EncryptionServicing: Sendable {
     var localEncryptionKeyId: String { get }
-    var localEncryptionKey: Data { get throws }
 
     func encrypt(entry: Entry, keyId: String) throws -> Data
-    // periphery:ignore
-    func encrypt(entries: [Entry]) throws -> [Data]
     // periphery:ignore
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
@@ -81,26 +86,22 @@ public final class EncryptionService: EncryptionServicing {
         self.keysProvider = keysProvider
         localEncryptionKeyId = "encryptionKey-\(deviceIdentifier)"
         self.authenticatorCrypto = authenticatorCrypto
-        _ = try? localEncryptionKey
-    }
-
-    public var localEncryptionKey: Data {
-        get throws {
-            if let key: Data = try? keysProvider.get(keyId: localEncryptionKeyId) {
-                return key
-            }
-            log(.info, "Generating a new local encryption key")
-            let newKey = authenticatorCrypto.generateKey()
-            try keysProvider.set(newKey, for: localEncryptionKeyId)
-            return newKey
-        }
     }
 
     public func getEncryptionKey(for keyId: String) throws -> Data {
-        log(.info, "Fetching encryption key for \(keyId)")
-        let key: Data = try keysProvider.get(keyId: keyId)
-        log(.info, "Retrieved key: \(String(describing: key))")
-        return key
+        do {
+            log(.info, "Fetching encryption key for \(keyId)")
+            let key = try keysProvider.get(keyId: keyId)
+            log(.info, "Retrieved key for \(keyId)")
+            return key
+        } catch {
+            if let keychainError = error as? KeychainError,
+               keychainError == .itemNotFound,
+               keyId == localEncryptionKeyId {
+                return try generateLocalEncryptionKey()
+            }
+            throw error
+        }
     }
 
     public func generateKey() -> Data {
@@ -111,10 +112,19 @@ public final class EncryptionService: EncryptionServicing {
 
 public extension EncryptionService {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
-        log(.info, "Decrypting entry with id \(entry.id)")
-        guard let encryptionKey = try? getEncryptionKey(for: entry.keyId) else {
-            log(.warning, "Could not retrieve encryption key for \(entry.keyId)")
+        log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
+
+        let encryptionKey: Data
+        do {
+            encryptionKey = try getEncryptionKey(for: entry.keyId)
+        } catch {
+            log(.warning,
+                "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
             return .nonDecryptable
+        }
+
+        if AppConstants.isQaBuild {
+            log(.debug, "Decrypting with key hex \(entry.keyId): \(encryptionKey.hexString)")
         }
 
         do {
@@ -132,13 +142,20 @@ public extension EncryptionService {
                                             contentFormatVersion: entry.contentFormatVersion)
             return .decrypted(orderedEntry)
         } catch {
-            log(.error, "Failed to decrypt entry \(entry.id)")
+            if AppConstants.isQaBuild {
+                log(.error,
+                    // swiftlint:disable:next line_length
+                    "Failed to decrypt entry \(entry.id) with key \(entry.keyId), hex \(encryptionKey.hexString). \(error.localizedDescription)")
+            } else {
+                log(.error,
+                    "Failed to decrypt entry \(entry.id) with key \(entry.keyId) \(error.localizedDescription)")
+            }
             return .nonDecryptable
         }
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
-        log(.info, "Decrypting entries")
+        log(.info, "Decrypting \(entries.count) entries")
         return try entries.map { entry in
             try decrypt(entry: entry)
         }
@@ -146,18 +163,14 @@ public extension EncryptionService {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data {
         let encryptionKey = try getEncryptionKey(for: keyId)
-        log(.info, "Encrypting entry \(entry.id) with local encryption key")
+        if AppConstants.isQaBuild {
+            log(.debug, "Encrypting entry \(entry.id) with key \(keyId), hex \(encryptionKey.hexString)")
+        } else {
+            log(.debug, "Encrypting entry \(entry.id) with key id \(keyId)")
+        }
 
         return try authenticatorCrypto.encryptEntry(model: entry.toRustEntry,
                                                     key: encryptionKey)
-    }
-
-    func encrypt(entries: [Entry]) throws -> [Data] {
-        let localKey = try localEncryptionKey
-        log(.info, "Encrypting \(entries.count) entries with local encryption key")
-
-        return try authenticatorCrypto.encryptManyEntries(models: entries.toRustEntries,
-                                                          key: localKey)
     }
 
     func symmetricEncrypt(object: some Codable) throws -> Data {
@@ -244,7 +257,25 @@ public extension EncryptionService {
 }
 
 private extension EncryptionService {
+    func generateLocalEncryptionKey() throws -> Data {
+        do {
+            log(.info, "Generating new local encryption key with id \(localEncryptionKeyId)")
+            let newKey = authenticatorCrypto.generateKey()
+            try keysProvider.set(newKey, for: localEncryptionKeyId)
+            return newKey
+        } catch {
+            log(.warning, "Failed to set the local key \(error.localizedDescription), error: \(error)")
+            throw error
+        }
+    }
+
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
+    }
+}
+
+private extension Data {
+    var hexString: String {
+        map { String(format: "%02hhx", $0) }.joined()
     }
 }

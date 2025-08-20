@@ -97,6 +97,9 @@ public protocol LoggerProtocol: Sendable {
                          line: Int)
     func logsContent(category: LogCategory?) async throws -> String
     func fetchLogs(category: LogCategory?) async throws -> [LogEntry]
+
+    @_spi(QA)
+    func deleteAllLogs() async throws
 }
 
 public extension LoggerProtocol {
@@ -119,8 +122,22 @@ public extension LoggerProtocol {
 
     // MARK: - Export Logs (Per Category)
 
-    func exportLogs(fileName: String, category: LogCategory? = nil) async throws -> URL? {
-        let logContent = try await logsContent(category: category)
+    func exportLogs(fileName: String,
+                    category: LogCategory? = nil,
+                    localEncryptionKeyId: String) async throws -> URL? {
+        var logContent = try await logsContent(category: category)
+
+        var metaData = [String]()
+        metaData.append(Bundle.main.displayedAppVersion)
+        metaData.append("Local encryption key id: \(localEncryptionKeyId)")
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            metaData.append("OS type: macOs")
+        } else {
+            metaData.append("OS type: iOS")
+        }
+        metaData.append("OS version: \(ProcessInfo.processInfo.operatingSystemVersionString)")
+
+        logContent = metaData.joined(separator: "\n") + "\n" + logContent
 
         let filename = if let category {
             "\(fileName)_\(category.rawValue).logs"
@@ -210,11 +227,15 @@ public final actor LogManager: LoggerProtocol {
                 log.message.contains("and params:") {
                 nil
             } else {
-                log.message
+                log.description
             }
         }
         .joined(separator: "\n")
         return logString
+    }
+
+    public func deleteAllLogs() async throws {
+        try await localDataManager.persistentStorage.delete(LogEntryEntity.self)
     }
 }
 
