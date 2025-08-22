@@ -177,7 +177,6 @@ private extension QAMenuView {
                     }
                 }
             }
-
         }, header: {
             Text(verbatim: "Keychain Content")
         })
@@ -193,7 +192,8 @@ private extension QAMenuView {
 
             if let content = viewModel.entriesContent {
                 VStack(alignment: .leading, spacing: 15) {
-                    Text(verbatim: "Total amount of entries stored on the device: \(content.numberOfDecryptedEntries + content.numberOfUnDecryptableEntries)")
+                    Text(verbatim: "Total amount of entries stored on the device: " +
+                        "\(content.numberOfDecryptedEntries + content.numberOfUnDecryptableEntries)")
                     Text(verbatim: "Total amount of decryptable entries: \(content.numberOfDecryptedEntries)")
                     Text(verbatim: "Total amount of nonDecryptable entries: \(content.numberOfUnDecryptableEntries)")
                 }
