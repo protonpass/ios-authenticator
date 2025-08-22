@@ -31,6 +31,8 @@ public protocol KeychainServicing: Sendable {
 
     @_spi(QA)
     func deleteAll(synchronized: Bool) throws
+    @_spi(QA)
+    func getAllContent() -> [[String: Any]]
 }
 
 public final class KeychainService: KeychainServicing {
@@ -57,9 +59,7 @@ public final class KeychainService: KeychainServicing {
 
                 // 🔄 Rewrite as raw Data so future reads don't need fallback
                 do {
-                    try keychain.synchronizable(isSynced).set(decoded,
-                                                              key: keyId,
-                                                              ignoringAttributeSynchronizable: !isSynced)
+                    try set(decoded, for: keyId, shouldSync: isSynced)
                 } catch {
                     logger.log(.error,
                                category: .database,
@@ -75,6 +75,7 @@ public final class KeychainService: KeychainServicing {
 
             // Try interpreting as raw Data
             if let casted = data as? T {
+                logger.log(.info, category: .database, "Getting raw Data for key \(keyId)")
                 return casted
             } else {
                 throw KeychainError.invalidData
@@ -105,6 +106,10 @@ public final class KeychainService: KeychainServicing {
 
     public func deleteAll(synchronized: Bool) throws {
         try keychain.synchronizable(synchronized).removeAll()
+    }
+
+    public func getAllContent() -> [[String: Any]] {
+        keychain.allItems()
     }
 }
 
