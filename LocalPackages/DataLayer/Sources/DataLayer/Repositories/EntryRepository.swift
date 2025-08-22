@@ -506,10 +506,9 @@ public extension EntryRepository {
             }
 
             let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
-            var combinedResults: [RemoteEncryptedEntry] = []
 
-            combinedResults = try await withThrowingTaskGroup(of: (Int, [RemoteEncryptedEntry])
-                .self) { [weak self] group in
+            let combinedResults: [RemoteEncryptedEntry] =
+                try await withThrowingTaskGroup(of: (Int, [RemoteEncryptedEntry]).self) { [weak self] group in
                     guard let self else { return [] }
 
                     for (index, batch) in batches.enumerated() {
@@ -537,8 +536,10 @@ public extension EntryRepository {
             }
             let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
                 .fetch(predicate: predicate, sortingDescriptor: [SortDescriptor(\.order)])) ?? []
-            encryptedEntries.updateData(with: combinedResults)
-            try await localDataManager.persistentStorage.batchSave(content: encryptedEntries)
+
+            try await localDataManager.persistentStorage.performTransaction {
+                encryptedEntries.updateData(with: combinedResults)
+            }
             return combinedResults
         } catch {
             log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
