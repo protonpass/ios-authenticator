@@ -37,7 +37,7 @@ final class MockKeyProvider: @unchecked Sendable, KeysProvider {
     
     func get(keyId: String) throws -> Data {
         guard let keyData = dataKey[keyId] else {
-            throw MockError.noKeyData
+            throw KeychainError.itemNotFound
         }
         return keyData
     }
@@ -49,8 +49,4 @@ final class MockKeyProvider: @unchecked Sendable, KeysProvider {
     func clear(keyId: String) throws {
         dataKey.removeValue(forKey: keyId)
     }
-}
-
-enum MockError: Error {
-    case noKeyData
 }
