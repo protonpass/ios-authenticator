@@ -1,3 +1,7 @@
+# Version 1.1.4
+- Fixed occasional code disappearing
+- Fixed occasional login sessions not persisting
+
 # Version 1.1.3
 - Fixed codes failing to update in search mode
 - Fixed crashes when reordering list entries

@@ -273,9 +273,3 @@ private extension EncryptionService {
         logger.log(level, category: .data, message, function: function, line: line)
     }
 }
-
-private extension Data {
-    var hexString: String {
-        map { String(format: "%02hhx", $0) }.joined()
-    }
-}

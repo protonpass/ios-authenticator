@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import SwiftUI
 
 struct QAMenuView: View {
@@ -34,6 +35,8 @@ struct QAMenuView: View {
                 passBannerSection
                 scannerSection
                 actionsSection
+                keychainContent
+                dataContent
                 installationDateSection
             }
             .showSpinner(viewModel.isLoading)
@@ -114,6 +117,12 @@ private extension QAMenuView {
             }
 
             Button {
+                viewModel.deleteAllKeychainData()
+            } label: {
+                Text(verbatim: "Remove all data stored in keychain")
+            }
+
+            Button {
                 viewModel.deleteAllKeychainData(synchronized: true)
             } label: {
                 Text(verbatim: "Remove all synchronized data stored in keychain")
@@ -132,6 +141,65 @@ private extension QAMenuView {
             }
         }, header: {
             Text(verbatim: "Actions")
+        })
+    }
+
+    var keychainContent: some View {
+        Section(content: {
+            Button {
+                viewModel.loadKeychainContent()
+            } label: {
+                Text(verbatim: "Refresh content of keychain")
+            }
+
+            VStack {
+                ForEach(viewModel.keychainContent) { element in
+                    Text(verbatim: "Key: \(element.key)\n")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ForEach(element.content.keys.sorted(), id: \.self) { key in
+                        VStack(alignment: .leading) {
+                            Text(verbatim: "Key: \(key)")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text(verbatim: "Content: \(String(describing: element.content[key]))")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if let data = element.content[key] as? Data {
+                                Text(verbatim: "Hexa of content: \(data.hexString)")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            Text(verbatim: "")
+                        }
+                    }
+
+                    if element.id != viewModel.keychainContent.last?.id {
+                        Divider()
+                    }
+                }
+            }
+        }, header: {
+            Text(verbatim: "Keychain Content")
+        })
+    }
+
+    var dataContent: some View {
+        Section(content: {
+            Button {
+                viewModel.loadEntryContent()
+            } label: {
+                Text(verbatim: "Refresh display of data")
+            }
+
+            if let content = viewModel.entriesContent {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text(verbatim: "Total amount of entries stored on the device: " +
+                        "\(content.numberOfDecryptedEntries + content.numberOfUnDecryptableEntries)")
+                    Text(verbatim: "Total amount of decryptable entries: \(content.numberOfDecryptedEntries)")
+                    Text(verbatim: "Total amount of nonDecryptable entries: \(content.numberOfUnDecryptableEntries)")
+                }
+            }
+        }, header: {
+            Text(verbatim: "Entry Content")
         })
     }
 
