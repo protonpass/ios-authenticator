@@ -206,7 +206,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu girişi %@ hesabı için eklemek ister misiniz?"
+            "value" : "%@ hesabı için bu kaydı eklemek ister misiniz?"
           }
         }
       }
@@ -471,6 +471,12 @@
             "value" : "Hoje, %@"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня, %@"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -544,7 +550,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kilidi Açın"
+            "value" : "Kilidi aç"
           }
         }
       }
@@ -709,6 +715,12 @@
             "value" : "Ayer, %@"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayer, %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -731,6 +743,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ontem, %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вчера, %@"
           }
         },
         "tr" : {

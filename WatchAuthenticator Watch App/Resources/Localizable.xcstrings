@@ -21,6 +21,12 @@
             "value" : "Copiada al portapapeles"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiado al portapapeles"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33,10 +39,22 @@
             "value" : "Copiato negli appunti"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gekopieerd naar het telefoonklembord"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copiado para a área de transferência do celular"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скопировано в буфер обмена"
           }
         },
         "tr" : {
@@ -112,7 +130,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Arama kriterleriniz \"%@\" girisine uyan herhangi bir kayıt bulunamadı"
+            "value" : "\"%@\" arama ölçütünüze uyan bir kayıt bulunamadı"
           }
         }
       }
@@ -137,6 +155,12 @@
             "value" : "No hay códigos sincronizados con tu teléfono."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay códigos sincronizados con su teléfono"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -149,16 +173,28 @@
             "value" : "Nessun codice sincronizzato con il tuo telefono"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er werden geen codes gesynchroniseerd met uw telefoon"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sem código sincronizados com seu celular"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коды не синхронизированы с вашим телефоном"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Telefonunuzla eşitlenen kod yok"
+            "value" : "Telefonunuzla eşitlenen bir kod yok"
           }
         }
       }
@@ -228,7 +264,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yeniden deneyin"
+            "value" : "Yeniden dene"
           }
         }
       }
@@ -253,6 +289,12 @@
             "value" : "Sincronizar ahora"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizar ahora"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -265,10 +307,22 @@
             "value" : "Sincronizza ora"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchroniseer nu"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sincronizar agora"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронизировать сейчас"
           }
         },
         "tr" : {

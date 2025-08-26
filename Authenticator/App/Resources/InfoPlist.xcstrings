@@ -279,7 +279,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2FA kodlarını tarayabilmek için kameranın kullanımına ihtiyaç vardır"
+            "value" : "İki adımlı doğrulama kodlarını tarayabilmek için kameranın kullanılması gerekir"
           }
         }
       }
@@ -350,7 +350,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uygulamanın kilidini açmak için Face ID kullanın"
+            "value" : "Uygulama kilidi Face ID ile açılsın"
           }
         }
       }
