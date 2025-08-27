@@ -750,7 +750,7 @@ private extension ImportOption {
         case .lastPassAuthenticator:
             .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
         case .protonAuthenticator:
-            .protonAuthenticator(contents: textContent())
+            .protonAuthenticator(contents: textContent(), password: password)
         case .protonPass:
             .protonPass(contents: content)
         case .authy, .microsoft:

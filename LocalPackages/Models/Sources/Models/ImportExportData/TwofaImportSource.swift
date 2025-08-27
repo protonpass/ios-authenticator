@@ -28,7 +28,7 @@ public enum TwofaImportSource: Sendable, Equatable {
     case ente(contents: String)
     case googleQr(contents: String)
     case lastpass(contents: TwofaImportFileType)
-    case protonAuthenticator(contents: String)
+    case protonAuthenticator(contents: String, password: String?)
     case protonPass(contents: Data)
 
     public func updatePassword(_ password: String?) -> Self {
@@ -37,6 +37,8 @@ public enum TwofaImportSource: Sendable, Equatable {
             .twofas(contents: contents, password: password)
         case let .aegis(contents: contents, _):
             .aegis(contents: contents, password: password)
+        case let .protonAuthenticator(contents: contents, _):
+            .protonAuthenticator(contents: contents, password: password)
         default:
             self
         }

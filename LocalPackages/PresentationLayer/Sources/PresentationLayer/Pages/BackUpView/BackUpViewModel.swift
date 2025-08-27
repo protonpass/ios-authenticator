@@ -20,10 +20,16 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
 import Models
+
+struct PasswordProtectedBackup: Identifiable {
+    let id = UUID()
+    let content: String
+}
 
 @Observable @MainActor
 final class BackUpViewModel {
@@ -33,6 +39,10 @@ final class BackUpViewModel {
 
     var errorMessage: String?
 
+    var password = ""
+    var showPasswordAlert = false
+    var passwordProtectionFile: PasswordProtectedBackup?
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.backUpManager)
     private var backUpManager
@@ -40,6 +50,10 @@ final class BackUpViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.keychainService)
+    private var keychainService
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
@@ -56,9 +70,9 @@ final class BackUpViewModel {
         setUp()
     }
 
-    func loadData() async {
+    func loadData() {
         do {
-            backups = try await backUpManager.getAllDocumentsData()
+            backups = try backUpManager.getAllDocumentsData()
         } catch {
             log(.error, "Failed to load backup files, error: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -67,16 +81,38 @@ final class BackUpViewModel {
 
     func load(backup: BackUpFileInfo) {
         Task {
+            var content = ""
             defer { loading = false }
             do {
                 loading = true
-                let data = try await backUpManager.read(fileName: backup.name)
-                let content = String(data: data, encoding: .utf8) ?? ""
-                let source = TwofaImportSource.protonAuthenticator(contents: content)
+                let data = try backUpManager.read(fileName: backup.name)
+                content = String(data: data, encoding: .utf8) ?? ""
+                let source = TwofaImportSource.protonAuthenticator(contents: content, password: nil)
+                let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
+                showCompletion(numberOfImportedEntries)
+            } catch ImportException.MissingPassword {
+                passwordProtectionFile = PasswordProtectedBackup(content: content)
+            } catch {
+                log(.error, "Failed to load backup: error: \(error.localizedDescription)")
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func loadPasswordProtectedBackup(backup: PasswordProtectedBackup) {
+        Task {
+            defer {
+                loading = false
+                password = ""
+            }
+            do {
+                loading = true
+                let source = TwofaImportSource.protonAuthenticator(contents: backup.content,
+                                                                   password: password.nilIfEmpty)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
             } catch {
-                log(.error, "Failed to load backup: \(backup), error: \(error.localizedDescription)")
+                log(.error, "Failed to load password protected backup: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
             }
         }
@@ -85,24 +121,42 @@ final class BackUpViewModel {
     func toggleBackICloudUp() {
         settingsService.toggleICloudBackUp(!backupActivated)
         backupActivated.toggle()
+        showPasswordAlert = backupActivated
     }
 
     func backup() {
-        Task {
-            do {
-                guard let exportData = try entryDataService.exportEntries().data(using: .utf8) else {
-                    return
-                }
-                try await backUpManager.write(data: exportData)
-                await loadData()
-            } catch {
-                log(.error, "Failed to backup: \(error.localizedDescription)")
+        do {
+            let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                             isSynced: false)
+            guard let exportData = try entryDataService.exportEntries(password: password).data(using: .utf8)
+            else {
+                return
             }
+            try backUpManager.write(data: exportData)
+            loadData()
+        } catch {
+            log(.error, "Failed to backup: \(error.localizedDescription)")
         }
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
         logger.log(level, category: .data, message, function: function, line: line)
+    }
+
+    func savePassword() {
+        guard !password.isEmpty else {
+            return
+        }
+        defer { password = "" }
+        do {
+            try keychainService.set(password, for: AppConstants.Settings.backupPassword, shouldSync: false)
+        } catch {
+            log(.error, "Failed to save password: \(error.localizedDescription)")
+        }
+    }
+
+    func openICloudFolder() {
+        backUpManager.openICloudFolder()
     }
 }
 

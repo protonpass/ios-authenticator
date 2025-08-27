@@ -24,6 +24,7 @@ import FactoryKit
 import Macro
 import Models
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum SettingsSheet {
     case logs
@@ -55,6 +56,7 @@ public struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
     @State private var showImportOptions = false
+    @State private var showExportAlert = false
 
     public init() {}
 
@@ -113,15 +115,40 @@ public struct SettingsView: View {
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
+        .alert("Export data", isPresented: $showExportAlert) {
+            SecureField("Password", text: $viewModel.password)
+                .autocorrectionDisabled()
+                .textContentType(.oneTimeCode)
+                .textInputAutocapitalization(.never)
+            Button { viewModel.exportData(shouldUsePassword: true) } label: {
+                Text("Export", bundle: .module)
+            }
+            Button { viewModel.exportData(shouldUsePassword: false) } label: {
+                Text("Export data without password", bundle: .module)
+            }
+            Button("Cancel", role: .cancel) {
+                viewModel.password = ""
+            }
+        } message: {
+            Text("Set a password to protect the export file.", bundle: .module)
+        }
         #if os(macOS)
-            .frame(minWidth: 800, minHeight: 600)
+        .frame(minWidth: 800, minHeight: 600)
         #endif
-            .onAppear {
-                viewModel.exportData()
+        .onDisappear {
+            viewModel.emptyTempDirectory()
+        }
+        .fileExporter(isPresented: $viewModel.exportFile,
+                      document: viewModel.fileToExport,
+                      contentTypes: [.plainText],
+                      defaultFilename: viewModel.exportFileName()) { result in
+            switch result {
+            case let .success(url):
+                print("Saved to \(url)")
+            case let .failure(error):
+                print(error.localizedDescription)
             }
-            .onDisappear {
-                viewModel.emptyTempDirectory()
-            }
+        }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -291,13 +318,8 @@ private extension SettingsView {
 
             SettingDivider()
 
-            if let exportedDocument = viewModel.shareURL {
-                ShareLink(item: exportedDocument) {
-                    SettingRow(title: .localized("Export", .module))
-                }
-                #if os(macOS)
-                .offset(x: -7)
-                #endif
+            Button { showExportAlert.toggle() } label: {
+                SettingRow(title: .localized("Export", .module))
             }
         }
     }
@@ -389,7 +411,7 @@ private extension SettingsView {
     }
 }
 
-private struct SettingDivider: View {
+struct SettingDivider: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {

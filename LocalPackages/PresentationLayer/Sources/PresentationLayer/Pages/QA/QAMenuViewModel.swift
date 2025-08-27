@@ -87,6 +87,10 @@ final class QAMenuViewModel {
     private(set) var alertService
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.backUpManager)
+    private var backUpManager
+
+    @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
 
@@ -174,6 +178,10 @@ final class QAMenuViewModel {
                                                     actions: [.ok])))
             }
         }
+    }
+
+    func deleteAll() {
+        try? backUpManager.deleteAllFilesInICloudDocuments()
     }
 
     func loadKeychainContent() {

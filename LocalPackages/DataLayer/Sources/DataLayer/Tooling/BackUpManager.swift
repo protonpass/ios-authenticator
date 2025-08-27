@@ -18,15 +18,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import CommonUtilities
 import Foundation
 import Macro
 import Models
+import UIKit
 
-public protocol BackUpServicing: Actor {
+@MainActor
+public protocol BackUpServicing: Sendable {
     func write(data: Data) throws
     func read(fileName: String) throws -> Data
     func getAllDocumentsData() throws -> [BackUpFileInfo]
+    // periphery:ignore
+    func delete(fileName: String) throws
+    func deleteAllFilesInICloudDocuments() throws
+    func openICloudFolder()
 }
 
 public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
@@ -47,7 +52,8 @@ public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
     }
 }
 
-public actor BackUpManager: BackUpServicing {
+@MainActor
+public final class BackUpManager: BackUpServicing {
     private let coordinator: NSFileCoordinator
     private let maxBackupCount: Int
     private let dateFormatter: DateFormatter
@@ -60,7 +66,7 @@ public actor BackUpManager: BackUpServicing {
     }
 
     private var containerURL: URL? {
-        FileManager.default.url(forUbiquityContainerIdentifier: AppConstants.icloudContainerIdentifier)
+        FileManager.default.url(forUbiquityContainerIdentifier: nil)
     }
 
     private var documentURL: URL? {
@@ -121,8 +127,56 @@ public actor BackUpManager: BackUpServicing {
         return data
     }
 
+    public func deleteAllFilesInICloudDocuments() throws {
+        guard let documentURL else {
+            return
+        }
+
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+                                                                   includingPropertiesForKeys: nil,
+                                                                   options: [])
+
+        for fileURL in fileURLs {
+            try FileManager.default.removeItem(at: fileURL)
+        }
+    }
+
+    public func openICloudFolder() {
+        guard let documentURL else {
+            return
+        }
+
+        if !FileManager.default.fileExists(atPath: documentURL.path, isDirectory: nil) {
+            do {
+                try FileManager.default.createDirectory(at: documentURL, withIntermediateDirectories: true)
+            } catch {
+                return
+            }
+        }
+
+        if let filesAppURL = URL(string: "shareddocuments://\(documentURL.path)") {
+            if UIApplication.shared.canOpenURL(filesAppURL) {
+                UIApplication.shared.open(filesAppURL)
+            } else {
+                print("Could not open Files app. Please make sure it's installed.")
+            }
+        } else {
+            print("Could not create proper URL to open iCloud folder.")
+        }
+    }
+
     public func getAllDocumentsData() throws -> [BackUpFileInfo] {
         try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+    }
+
+    // periphery:ignore
+    public func delete(fileName: String) throws {
+        guard let documentURL else {
+            throw AuthError.backup(.noDestinationFolder)
+        }
+
+        let targetURL = documentURL.appendingPathComponent(fileName)
+        try coordinatedDelete(at: targetURL)
     }
 }
 
@@ -236,16 +290,6 @@ private extension BackUpManager {
         .sorted { $0.1 > $1.1 }
         .map(\.0)
     }
-
-    // periphery:ignore
-    func delete(fileName: String) throws {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        try coordinatedDelete(at: targetURL)
-    }
 }
 
 private extension Date {
@@ -260,12 +304,6 @@ private extension Date {
             formatter.dateStyle = .short
             formatter.timeStyle = .short
 
-            // Some languages might format this differently, so we need to handle it
-            if isToday {
-                return #localized("Today, %@", bundle: .module, formatter.string(from: self))
-            } else if isYesterday {
-                return #localized("Yesterday, %@", bundle: .module, formatter.string(from: self))
-            }
             return formatter.string(from: self)
         } else {
             formatter.doesRelativeDateFormatting = false

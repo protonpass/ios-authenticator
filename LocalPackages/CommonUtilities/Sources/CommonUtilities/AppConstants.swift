@@ -66,6 +66,7 @@ public enum AppConstants: Sendable {
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"
         public static let unsupportedScanning = "UnsupportedScanning"
+        public static let backupPassword = "BackupPassword"
     }
 
     public enum NetworkSettings {

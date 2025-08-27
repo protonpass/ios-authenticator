@@ -62,8 +62,8 @@ public final class ImportingService: ImportingServicing {
                 try parseGoogleQr(contents)
             case let .lastpass(contents):
                 try parseLastpass(contents)
-            case let .protonAuthenticator(contents):
-                try parseAuthenticator(contents)
+            case let .protonAuthenticator(contents, password: password):
+                try parseAuthenticator(contents, password: password)
             case let .protonPass(contents):
                 try parsePass(contents)
             }
@@ -92,13 +92,16 @@ private extension ImportingService {
         return try importer.importFrom2fas(contents: content, password: password)
     }
 
-    func parseAuthenticator(_ content: String) throws -> AuthenticatorImportResult {
+    func parseAuthenticator(_ content: String, password: String?) throws -> AuthenticatorImportResult {
         log(.debug, "Parsing Proton Authenticator content")
         guard !content.isEmpty else {
             log(.warning, "Proton Authenticator content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
-        return try importer.importFromProtonAuthenticator(contents: content)
+        guard let password else {
+            return try importer.importFromProtonAuthenticator(contents: content)
+        }
+        return try importer.importFromProtonAuthenticatorWithPassword(contents: content, password: password)
     }
 
     func parsePass(_ content: Data) throws -> AuthenticatorImportResult {

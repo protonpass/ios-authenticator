@@ -43,9 +43,9 @@
 		<key>iCloud.me.proton.authenticator</key>
 		<dict>
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
-			<false/>
+			<true/>
 			<key>NSUbiquitousContainerName</key>
-			<string>Proton_Authenticator</string>
+			<string>Proton Authenticator</string>
 			<key>NSUbiquitousContainerSupportedFolderLevels</key>
 			<string>None</string>
 		</dict>

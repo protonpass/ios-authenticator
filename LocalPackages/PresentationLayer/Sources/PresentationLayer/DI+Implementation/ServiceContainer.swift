@@ -55,7 +55,8 @@ public extension ServiceContainer {
                                               logger: self.logger,
                                               reachabilityManager: ToolsContainer.shared.reachabilityManager(),
                                               backUpManager: self.backUpManager(),
-                                              settings: self.settingsService()) }
+                                              settings: self.settingsService(),
+                                              keychainService: self.keychainService()) }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
@@ -118,7 +119,7 @@ public extension ServiceContainer {
     }
 
     var backUpManager: Factory<any BackUpServicing> {
-        self { BackUpManager() }
+        self { @MainActor in BackUpManager() }
     }
 
     var totpCountdownManager: Factory<any TOTPCountdownProtocol> {

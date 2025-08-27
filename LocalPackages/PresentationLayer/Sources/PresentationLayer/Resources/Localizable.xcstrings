@@ -1046,6 +1046,16 @@
         }
       }
     },
+    "Backup data protection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup data protection"
+          }
+        }
+      }
+    },
     "Backup from %@" : {
       "localizations" : {
         "de" : {
@@ -2632,6 +2642,16 @@
         }
       }
     },
+    "Decrypt the backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrypt the backup"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "de" : {
@@ -3822,6 +3842,26 @@
         }
       }
     },
+    "Export data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data"
+          }
+        }
+      }
+    },
+    "Export data without password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data without password"
+          }
+        }
+      }
+    },
     "File \"%@\" exceeds maximum allowed size" : {
       "comment" : "Placeholder is the file name",
       "localizations" : {
@@ -3959,6 +3999,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Açılışta arama alanına odaklanılsın"
+          }
+        }
+      }
+    },
+    "Folder location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder location"
           }
         }
       }
@@ -6817,6 +6867,16 @@
         }
       }
     },
+    "Please enter the password used to encrypt this backup." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter the password used to encrypt this backup."
+          }
+        }
+      }
+    },
     "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here." : {
       "localizations" : {
         "de" : {
@@ -7971,6 +8031,16 @@
         }
       }
     },
+    "Save the password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the password"
+          }
+        }
+      }
+    },
     "Scan a QR code" : {
       "localizations" : {
         "de" : {
@@ -8598,6 +8668,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hizmet sağlayıcınızı seçin"
+          }
+        }
+      }
+    },
+    "Set a password to automatically protect the export files." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a password to automatically protect the export files."
+          }
+        }
+      }
+    },
+    "Set a password to protect the export file." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a password to protect the export file."
           }
         }
       }

@@ -48,12 +48,18 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
     func getTotpParams(entry: Entry) throws -> TotpParams
-    func exportEntries() throws -> String
+    func exportEntries(password: String?) throws -> String
     func importEntries(from sources: [TwofaImportSource]) async throws -> Int
     func stopTotpGenerator()
     func startTotpGenerator()
 
     func unsyncAllEntries() async throws
+}
+
+public extension EntryDataServiceProtocol {
+    func exportEntries(password: String? = nil) throws -> String {
+        try exportEntries(password: password)
+    }
 }
 
 public extension EntryDataServiceProtocol {
@@ -99,9 +105,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let logger: LoggerProtocol
     @ObservationIgnored
     private let settings: SettingsServicing
-
     @ObservationIgnored
-    private var backUpEntriesTask: Task<Void, Never>?
+    private let keychainService: KeychainServicing
 
     // MARK: - Init
 
@@ -113,6 +118,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 reachabilityManager: any ReachabilityServicing,
                 backUpManager: any BackUpServicing,
                 settings: any SettingsServicing,
+                keychainService: any KeychainServicing,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
@@ -122,6 +128,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
         self.reachabilityManager = reachabilityManager
         self.backUpManager = backUpManager
         self.syncOperation = syncOperation
+        self.keychainService = keychainService
         self.settings = settings
         setUp()
     }
@@ -320,13 +327,18 @@ public extension EntryDataService {
         return try repository.getTotpParams(entry: entry)
     }
 
-    func exportEntries() throws -> String {
+    func exportEntries(password: String?) throws -> String {
         log(.debug, "Exporting entries")
         guard let data = dataState.data else {
             throw AuthError.generic(.exportEmptyData)
         }
-        let entries = data.map(\.orderedEntry)
-        return try repository.export(entries: entries.map(\.entry))
+        let entries = data.map(\.orderedEntry.entry)
+
+        if let password {
+            return try repository.export(entries: entries, with: password)
+        } else {
+            return try repository.export(entries: entries)
+        }
     }
 
     nonisolated func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
@@ -627,17 +639,17 @@ private extension EntryDataService {
     }
 
     func backUpEntries() {
-        guard settings.iCloudBackUp, let exportData = try? exportEntries().data(using: .utf8) else {
+        let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                         isSynced: false)
+        guard settings.iCloudBackUp,
+              let exportData = try? exportEntries(password: password).data(using: .utf8) else {
             return
         }
-        backUpEntriesTask?.cancel()
 
-        backUpEntriesTask = Task {
-            do {
-                try await backUpManager.write(data: exportData)
-            } catch {
-                log(.error, "Failed to backup entries: \(error)")
-            }
+        do {
+            try backUpManager.write(data: exportData)
+        } catch {
+            log(.error, "Failed to backup entries: \(error)")
         }
     }
 }
