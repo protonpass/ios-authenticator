@@ -24,12 +24,29 @@ import DataLayer
 import FactoryKit
 import Foundation
 
+struct KeychainContent: Identifiable {
+    let id: String
+    let content: [String: Any]
+
+    var key: String {
+        content["key"] as? String ?? ""
+    }
+}
+
+struct EntryContent: Identifiable {
+    let id: String = UUID().uuidString
+    let numberOfDecryptedEntries: Int
+    let numberOfUnDecryptableEntries: Int
+}
+
 // swiftlint:disable line_length
 @MainActor
 @Observable
 final class QAMenuViewModel {
     var installationDate: Date
     var isLoading = false
+    var keychainContent = [KeychainContent]()
+    var entriesContent: EntryContent?
 
     var onboarded: Bool {
         didSet {
@@ -77,12 +94,18 @@ final class QAMenuViewModel {
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logManager
 
+    @ObservationIgnored
+    @LazyInjected(\RepositoryContainer.entryRepository)
+    private(set) var entryRepository
+
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
         fullBackupActivated = appSettings.fullBackUp
         unsupportedScanning = appSettings.unsupportedScanning
+        loadKeychainContent()
+        loadEntryContent()
     }
 
     func updateInstallationTimestamp(_ date: Date) {
@@ -124,6 +147,22 @@ final class QAMenuViewModel {
         }
     }
 
+    func deleteAllKeychainData() {
+        do {
+            try keychainService.deleteAll(synchronized: true)
+            try keychainService.deleteAll(synchronized: false)
+            alertService.showAlert(.sheet(.init(title: "OK",
+                                                titleBundle: .module,
+                                                message: .verbatim("Keychain data deleted"),
+                                                actions: [.ok])))
+        } catch {
+            alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                titleBundle: .module,
+                                                message: .verbatim("Error when deleting keychain data: \(error.localizedDescription), error: \(error)"),
+                                                actions: [.ok])))
+        }
+    }
+
     func deleteAllLogs() {
         Task {
             do {
@@ -143,6 +182,23 @@ final class QAMenuViewModel {
 
     func deleteAll() {
         try? backUpManager.deleteAllFilesInICloudDocuments()
+    }
+
+    func loadKeychainContent() {
+        keychainContent = keychainService.getAllContent().map { element in KeychainContent(id: UUID().uuidString,
+                                                                                           content: element) }
+    }
+
+    func loadEntryContent() {
+        Task {
+            guard let content = try? await entryRepository.getAllLocalEntries() else {
+                return
+            }
+            let nonDecryptableEntries = content.filter(\.isNonDecryptable).count
+            let decryptableEntries = content.count(where: { !$0.isNonDecryptable })
+            entriesContent = EntryContent(numberOfDecryptedEntries: decryptableEntries,
+                                          numberOfUnDecryptableEntries: nonDecryptableEntries)
+        }
     }
 }
 

@@ -206,7 +206,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu girişi %@ hesabı için eklemek ister misiniz?"
+            "value" : "%@ hesabı için bu kaydı eklemek ister misiniz?"
           }
         }
       }
@@ -486,7 +486,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kilidi Açın"
+            "value" : "Kilidi aç"
           }
         }
       }

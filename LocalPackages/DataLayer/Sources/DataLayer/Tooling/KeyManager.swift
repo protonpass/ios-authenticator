@@ -81,8 +81,6 @@ public final class KeysManager: KeysProvider {
     private let keyMaker: any MainKeyProvider
     private let keychainKey = "SymmetricKey"
 
-    private let cachedKeys: any MutexProtected<[String: Data]> = SafeMutex.create([:])
-
     public init(keychain: any KeychainServicing,
                 keyMaker: any MainKeyProvider = Keymaker()) {
         self.keychain = keychain
@@ -107,29 +105,16 @@ public final class KeysManager: KeysProvider {
     }
 
     public func get(keyId: String) throws -> Data {
-        if let key = cachedKeys.value[keyId] {
-            return key
-        }
-
         let keyData: Data = try keychain.get(keyId: keyId, isSynced: true)
-        cachedKeys.modify {
-            $0[keyId] = keyData
-        }
         return keyData
     }
 
     public func set(_ keyData: Data, for keyId: String) throws {
         try keychain.set(keyData, for: keyId, shouldSync: true)
-        cachedKeys.modify {
-            $0[keyId] = keyData
-        }
     }
 
     public func clear(keyId: String, isSynced: Bool) throws {
         try keychain.delete(keyId: keyId, isSynced: isSynced)
-        cachedKeys.modify {
-            $0.removeValue(forKey: keyId)
-        }
     }
 }
 

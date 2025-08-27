@@ -207,7 +207,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Face ID ile ekstra bir güvenlik katmanı ekleyin."
+            "value" : "Face ID ile ek bir güvenlik katmanı ekleyin."
           }
         }
       }
@@ -277,7 +277,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optik ID ile ekstra bir güvenlik katmanı ekleyin."
+            "value" : "Optik ID ile ek bir güvenlik katmanı ekleyin."
           }
         }
       }
@@ -347,7 +347,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Touch ID ile ekstra bir güvenlik katmanı ekleyin."
+            "value" : "Touch ID ile ek bir güvenlik katmanı ekleyin."
           }
         }
       }
@@ -627,7 +627,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kod değişimini canlandırın"
+            "value" : "Kod değişimi canlandırılsın"
           }
         }
       }
@@ -767,7 +767,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu kaydı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+            "value" : "Bu kaydı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
           }
         }
       }
@@ -847,7 +847,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Automatisches Backup"
+            "value" : "Automatische Sicherung"
           }
         },
         "en" : {
@@ -860,6 +860,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respaldo Automático"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia de seguridad automática"
           }
         },
         "fr" : {
@@ -877,7 +883,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Automatische backup"
+            "value" : "Automatische back-up"
           }
         },
         "pt-BR" : {
@@ -895,7 +901,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Otomatik Yedekleme"
+            "value" : "Otomatik yedekleme"
           }
         }
       }
@@ -965,7 +971,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verilerinizi şifreli iCloud senkronizasyonu ile güvenli bir şekilde yedekleyin."
+            "value" : "Verilerinizi şifrelenmiş iCloud eşitlemesi ile güvenli olarak yedekleyin."
           }
         }
       }
@@ -1055,7 +1061,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup von %@"
+            "value" : "Sicherung vom %@"
           }
         },
         "en" : {
@@ -1065,6 +1071,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respaldar desde %@"
+          }
+        },
+        "es-419" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respaldar desde %@"
@@ -1094,6 +1106,12 @@
             "value" : "\"Backup\" de %@"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия от %@"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1117,6 +1135,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer copia de seguridad ahora"
+          }
+        },
+        "es-419" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hacer copia de seguridad ahora"
@@ -1180,6 +1204,12 @@
             "value" : "Copias de seguridad"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copias de seguridad"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1233,6 +1263,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "COPIAS DE SEGURIDAD"
+          }
+        },
+        "es-419" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "COPIAS DE SEGURIDAD"
@@ -1551,7 +1587,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Güvenliğinizi yanınızda taşıyın.\nVerilerinizi aktararak korunmaya devam edin."
+            "value" : "Güvenliğinizi yanınızda taşıyın.\nKorunmak için verilerinizi aktarın."
           }
         }
       }
@@ -1621,7 +1657,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İzlenmeden gezin ve engellenmiş içeriğe erişin."
+            "value" : "İzlenmeden gezinin ve engellenmiş içeriklere erişin."
           }
         }
       }
@@ -1691,7 +1727,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kamera kullanımı kısıtlandı"
+            "value" : "Kamera erişimine izin verilmemiş"
           }
         }
       }
@@ -1831,7 +1867,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bir veya daha fazla fotoğraf seçin"
+            "value" : "Bir veya birkaç fotoğraf seçin"
           }
         }
       }
@@ -2111,7 +2147,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mevcut kodu kopyala"
+            "value" : "Geçerli kodu kopyala"
           }
         }
       }
@@ -2251,7 +2287,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Görüntü işlenemedi"
+            "value" : "Görsel işlenemedi"
           }
         }
       }
@@ -2321,7 +2357,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Arama kriterleriniz \"%@\" girisine uyan herhangi bir kayıt bulunamadı"
+            "value" : "\"%@\" arama ölçütünüze uyan bir kayıt bulunamadı"
           }
         }
       }
@@ -2461,7 +2497,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yeni kod oluşturun"
+            "value" : "Yeni kod oluştur"
           }
         }
       }
@@ -2601,7 +2637,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu cihazdaki veriler güncellenmeyecek ve değişiklikler diğer cihazlara yansımayacaktır.\n\nProton hesabınızdan çıkış yapacaksınız."
+            "value" : "Bu aygıttaki veriler güncellenmeyecek ve değişiklikler diğer aygıtlara yansıtılmayacak.\n\nProton hesabınızdan çıkış yapacaksınız."
           }
         }
       }
@@ -2751,7 +2787,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kaydı silin"
+            "value" : "Kaydı sil"
           }
         }
       }
@@ -2891,7 +2927,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Basamak stili"
+            "value" : "Rakam biçimi"
           }
         }
       }
@@ -2961,7 +2997,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Basamak"
+            "value" : "Rakamlar"
           }
         }
       }
@@ -3031,7 +3067,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Devre dışı"
+            "value" : "Kapalı"
           }
         }
       }
@@ -3101,7 +3137,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "PROTON'U KEŞFEDİN"
+            "value" : "PROTON NEDİR KEŞFEDİN"
           }
         }
       }
@@ -3311,7 +3347,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Biyometriği etkinleştir"
+            "value" : "Biyometrik kullanılsın"
           }
         }
       }
@@ -3451,7 +3487,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud senkronizasyonunu etkinleştir"
+            "value" : "iCloud eşitlemesini aç"
           }
         }
       }
@@ -3521,7 +3557,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optik ID'yi Etkinleştirin"
+            "value" : "Optik ID özelliğini aç"
           }
         }
       }
@@ -3661,7 +3697,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Etkin"
+            "value" : "Açık"
           }
         }
       }
@@ -3731,7 +3767,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elle girin"
+            "value" : "El ile yazın"
           }
         }
       }
@@ -3962,7 +3998,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Başlatıldığında aramaya odaklanın"
+            "value" : "Açılışta arama alanına odaklanılsın"
           }
         }
       }
@@ -4183,7 +4219,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Başlangıç"
+            "value" : "Başlayalım"
           }
         }
       }
@@ -4323,7 +4359,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ayarlar'a git"
+            "value" : "Ayarlara git"
           }
         }
       }
@@ -4393,7 +4429,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dokunsal geribildirim"
+            "value" : "Dokunsal geri bildirim"
           }
         }
       }
@@ -4463,7 +4499,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kodları Gizle"
+            "value" : "Kodları gizle"
           }
         }
       }
@@ -4603,7 +4639,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kodları İçe Aktar"
+            "value" : "Kodları içe aktar"
           }
         }
       }
@@ -4673,7 +4709,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ konumundan kodları içe aktarın"
+            "value" : "Kodları %@ üzerinden içe aktar"
           }
         }
       }
@@ -4743,7 +4779,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dosyalardan İçe Aktar"
+            "value" : "Dosyalardan içe aktar"
           }
         }
       }
@@ -4813,7 +4849,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ üzerinden içe aktarma işlemi, %2$@ dosya biçimini desteklemiyor."
+            "value" : "%1$@ üzerinden içe aktarımda %2$@ dosya biçimini desteklenmiyor."
           }
         }
       }
@@ -4838,6 +4874,12 @@
             "value" : "En la extensión de Proton Pass, aplicación web o de escritorio, ve a **☰ > Ajustes > Exportar**\n\nAsegúrate de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la extensión de Proton Pass, aplicación web o de escritorio, vaya a **☰ > Ajustes > Exportar**\n\nAsegúrese de elegir el **formato zip sin archivos adjuntos**.\n\nEsto creará un archivo zip que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4850,16 +4892,28 @@
             "value" : "Nell’estensione Proton Pass, nell’app web o desktop, vai su ☰ > Impostazioni > Esporta.\n\nAssicurati di scegliere il formato zip senza allegati dei file.\n\nQuesto creerà un file zip che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga in de Proton Pass-extensie, web- of desktop-app naar **☰ > Instellingen > Exporteren**\n\nZorg ervoor dat u het **zip-formaat zonder bestandsbijlagen** kiest.\n\nHiermee wordt een zip-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В расширении Proton Pass, веб- или компьютерном приложении перейдите в **☰ > Настройки > Экспорт**.\n\nОбязательно выберите **формат zip без вложений**.\n\nБудет создан zip-файл, который вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proton Pass eklentisinde, web veya masaüstü uygulamasında, **☰ > Ayarlar > Dışa Aktar** seçeneğine gidin"
+            "value" : "Proton Pass eklentisinde, internet veya bilgisayar uygulamasında, **☰ > Ayarlar > Dışa aktar** bölümüne gidin"
           }
         }
       }
@@ -4930,7 +4984,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"%@\" için geçersiz dosya biçimi. Lütfen dosyanızın desteklenen bir biçimde olduğundan emin olun ve yeniden deneyin."
+            "value" : "\"%@\" için dosya biçimi geçersiz. Lütfen dosyanızın desteklenen bir biçimde olduğundan emin olun ve yeniden deneyin."
           }
         }
       }
@@ -5000,7 +5054,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Geçersiz gizli anahtar: %@"
+            "value" : "Gizli anahtar geçersiz: %@"
           }
         }
       }
@@ -5070,7 +5124,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sağlayıcı"
+            "value" : "Veren kuruluş"
           }
         }
       }
@@ -5210,7 +5264,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "öğe adı: %@"
+            "value" : "öge adı: %@"
           }
         }
       }
@@ -5305,6 +5359,12 @@
             "value" : "Última copia de seguridad: %@"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última copia de seguridad: %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5317,10 +5377,22 @@
             "value" : "Ultimo backup: %@"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste back-up: %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Último backup: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последняя резервная копия: %@"
           }
         },
         "tr" : {
@@ -5466,7 +5538,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kayıtlar"
+            "value" : "Günlük kayıtları"
           }
         }
       }
@@ -5676,7 +5748,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daha fazla yardıma mı ihtiyacınız var?"
+            "value" : "Daha fazla yardım mı gerekli?"
           }
         }
       }
@@ -5746,7 +5818,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yeni Kayıt"
+            "value" : "Yeni kayıt"
           }
         }
       }
@@ -5886,7 +5958,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hiçbir kod içe aktarılmadı"
+            "value" : "Herhangi bir kod içe aktarılmadı"
           }
         }
       }
@@ -5956,7 +6028,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Henüz kod yok"
+            "value" : "Henüz bir kod yok"
           }
         }
       }
@@ -6026,7 +6098,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dışa aktarma yok"
+            "value" : "Herhangi bir dışa aktarma yok"
           }
         }
       }
@@ -6096,7 +6168,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Düzenleyen yok"
+            "value" : "Herhangi bir veren kuruluş yok"
           }
         }
       }
@@ -6166,7 +6238,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yeni kod bulunamadı"
+            "value" : "Herhangi bir yeni kod yok"
           }
         }
       }
@@ -6236,7 +6308,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Başlık yok"
+            "value" : "Başlıksız"
           }
         }
       }
@@ -6331,6 +6403,12 @@
             "value" : "Solo se conservan las 5 últimas copias de seguridad."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se conservan las últimas 5 copias de seguridad."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6343,10 +6421,22 @@
             "value" : "Vengono conservati solo gli ultimi backup."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen de laatste 5 back-ups worden bewaard."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Somente os últimos 5 backups são mantidos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняются только 5 последних резервных копий."
           }
         },
         "tr" : {
@@ -6772,7 +6862,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen Ayarlar'dan kamera erişimini etkinleştirin"
+            "value" : "Lütfen ayarlar içinden kameraya erişme izni verin"
           }
         }
       }
@@ -6807,6 +6897,12 @@
             "value" : "Ve a **Ajustes > Importar y exportar > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **⋮ > Ajustes > Importar y Exportar > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6819,16 +6915,28 @@
             "value" : "Vai a **⋮Impostazioni > Importa ed Esporta > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **⋮ >Instellingen > Importeren en exporteren > Exporteren**\n\nHiermee wordt een JSON-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesse **⋮ >Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **⋮ > Настройки > Импорт и экспорт > Экспорт**\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **⋮ > Ayarlar > İçe Aktarma ve Dışa Aktarma > Dışa Aktarma** bölümüne gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+            "value" : "Lütfen **⋮ > Ayarlar > İçe ve dışa aktarma > Dışa aktarma** bölümüne gidin.\n\nBöylece burada kullanabileceğiniz bir JSON dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -6853,6 +6961,12 @@
             "value" : "Ve a **⚙ > Exportar**\n\nEsto creará un archivo Json que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **⚙ > Exportar**\n\nEsto creará un archivo Json que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6865,16 +6979,28 @@
             "value" : "Vai a **Impostazioni > Esporta**\n\nQuesto creerà un file Json che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **⚙ > Exporteren**\n\nHiermee wordt een JSON-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesse **⚙ > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **⚙ > Экспорт**\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **⚙ > Dışa Aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+            "value" : "Lütfen **⚙ > Dışa aktar** bölümüne gidin.\n\nBöylece burada kullanabileceğiniz bir JSON dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -6899,6 +7025,12 @@
             "value" : "Ve a **⚙ > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **⚙ > Transferir cuentas > Exportar cuentas a un archivo**\n\nEsto creará un archivo Json que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6911,16 +7043,28 @@
             "value" : "Vai su **⚙ > Trasferisci account > Esporta account in file**.\n\nQuesto creerà un file JSON che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **⚙ > Accounts overdragen > Accounts naar bestand exporteren**\n\nHiermee wordt een JSON-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesse**⚙ > Transferir contas > Exportar contas para arquivo**\n\nIsso criará um arquivo Json que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **⚙ > Перенос аккаунтов > Экспортировать аккаунты в файл**\n\nБудет создан Json-файл, который вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **⚙ > Hesapları aktar > Hesapları dosyaya aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+            "value" : "Lütfen **⚙ > Hesapları aktar > Hesapları dosyaya aktar** bölümüne gidin.\n\nBöylece burada kullanabileceğiniz bir JSON dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -6945,6 +7089,12 @@
             "value" : "Ve a **☰ > Datos > Exportar códigos**\n\nElige **Texto sin formato**, esto creará un archivo txt que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **☰ > Datos > Exportar códigos**\n\nElija **Texto sin formato**, esto creará un archivo txt que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6957,16 +7107,28 @@
             "value" : "Vai su **☰ > Dati > Esporta codici**\n\nScegli **Testo semplice**; questo creerà un file TXT che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **☰ > Gegevens > Codes exporteren**\n\nKies **Platte tekst**, hiermee wordt een txt-bestand gemaakt dat u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesse **☰ > Dados > Exportar códigos**\n\nEscolha **Texto simples**, isso criará um arquivo txt que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **☰ > Данные > Экспорт кодов**\n\nВыберите **Обычный текст**, будет создан txt-файл, который вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **☰ > Veri > Kodları dışa aktar** seçeneğine gidin.\n\n**Düz metin** seçeneğini seçin, bu şekilde burada kullanabileceğiniz bir txt dosyası oluşturulacaktır."
+            "value" : "Lütfen **☰ > Veri > Kodları dışa aktar** bölümüne gidin.\n\n**Düz metin** seçeneğini seçin. Böylece burada kullanabileceğiniz bir txt dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -6991,6 +7153,12 @@
             "value" : "Ve a **☰ > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puedes usar aquí."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaya a **☰ > Transferir cuentas > Exportar cuentas**\n\nEsto creará uno o más códigos QR que puede usar aquí."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7003,16 +7171,28 @@
             "value" : "Vai su **☰ > Trasferisci account > Esporta account**\n\nQuesto creerà uno o più codici QR che potrai usare qui."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ga naar **Instellingen > Accounts overdragen > Accounts exporteren**\n\nHiermee worden een of meer QR-codes gemaakt die u hier kunt gebruiken."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesse **☰ > Transferir contas > Exportar contas**\n\nIsso criará um ou mais códigos QR que você pode usar aqui."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейдите в **☰ > Перенос аккаунтов > Экспортировать аккаунты**\n\nБудет создан один или несколько QR-кодов, которые вы сможете использовать здесь."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **☰ > Hesapları aktar > Hesapları dışa aktar** seçeneğine gidin.\n\nBu ayar, burada kullanabileceğiniz bir veya daha fazla QR kodu oluşturacaktır."
+            "value" : "Lütfen **☰ > Hesapları aktar > Hesapları dışa aktar** seçeneğine gidin.\n\nBöylece burada kullanabileceğiniz bir veya daha fazla kare kod oluşturabilirsiniz."
           }
         }
       }
@@ -7082,7 +7262,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **Ayarlar > 2FAS Yedekleme > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir 2fas dosyası oluşturacaktır."
+            "value" : "Lütfen **Ayarlar > 2FAS yedekleme > Dışa aktar** bölümüne gidin\n\nBöyleceburada kullanabileceğiniz bir 2fas dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -7152,7 +7332,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lütfen **Ayarlar > Dışa Aktar** bölümüne gidin\n\nBu işlem, burada kullanabileceğiniz bir Json dosyası oluşturacaktır."
+            "value" : "Lütfen **Ayarlar > Dışa aktar** bölümüne gidin\n\nBöylece burada kullanabileceğiniz bir JSON dosyası oluşturabilirsiniz."
           }
         }
       }
@@ -7222,7 +7402,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kameranızı QR koduna doğrultun"
+            "value" : "Kameranıza kare kodu gösterin"
           }
         }
       }
@@ -7292,7 +7472,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hesaplarınızı ekstra bir güvenlik katmanıyla koruyun."
+            "value" : "Hesaplarınızı ek bir güvenlik katmanıyla koruyun."
           }
         }
       }
@@ -7432,7 +7612,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Posta kutunuzu spam, izleme ve hedefli reklamlardan koruyun."
+            "value" : "E-posta kutunuzu istenmeyen iletilerden, izlenmekten ve reklamlardan koruyun."
           }
         }
       }
@@ -7502,7 +7682,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Korumalı dosya"
+            "value" : "Korunmuş dosya"
           }
         }
       }
@@ -7572,7 +7752,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cihazlar arasında uçtan uca şifreli senkronizasyonu etkinleştirmek için Proton hesabı gereklidir."
+            "value" : "Aygıtlar arasında uçtan uca şifrelenmiş eşitlemeyi açmak için bir Proton hesabı gereklidir."
           }
         }
       }
@@ -7642,7 +7822,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proton Kimlik Doğrulayıcı, tüm verileri periyodik olarak iCloud'a kaydedecektir."
+            "value" : "Proton Authenticator, tüm verileri düzenli olarak iCloud üzerine kaydedecek."
           }
         }
       }
@@ -7667,6 +7847,12 @@
             "value" : "Informar de un problema"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informar un problema"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7677,6 +7863,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Segnala un problema"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meld een probleem"
           }
         },
         "pt-BR" : {
@@ -7694,7 +7886,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bir hatayı bildir"
+            "value" : "Bir sorun bildireceğim"
           }
         }
       }
@@ -7764,7 +7956,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yeniden deneyin"
+            "value" : "Yeniden dene"
           }
         }
       }
@@ -7834,7 +8026,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İndirim"
+            "value" : "Kaydet"
           }
         }
       }
@@ -7914,7 +8106,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "QR kodu tarayın"
+            "value" : "Kare kodu tarayın"
           }
         }
       }
@@ -8124,7 +8316,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gizli Anahtar"
+            "value" : "Gizli anahtar"
           }
         }
       }
@@ -8194,7 +8386,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gizli Anahtar (Gerekli)"
+            "value" : "Gizli anahtar (zorunlu)"
           }
         }
       }
@@ -8404,7 +8596,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mevcut 2FA sağlayıcınızı seçin"
+            "value" : "Kullandığınız iki adımlı doğrulama hizmeti sağlayıcısını seçin"
           }
         }
       }
@@ -8475,7 +8667,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sağlayıcınızı seçin"
+            "value" : "Hizmet sağlayıcınızı seçin"
           }
         }
       }
@@ -8635,7 +8827,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Birden fazla görüntü işlenemedi. Daha fazla ayrıntı için günlükleri inceleyin."
+            "value" : "Birkaç görsel işlenemedi. Ayrıntılı bilgi almak için günlük kayıtlarını inceleyin."
           }
         }
       }
@@ -8915,7 +9107,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Senkronizasyonu durdur"
+            "value" : "Eşitlemeyi durdur"
           }
         }
       }
@@ -8985,7 +9177,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kimlik hırsızlığı ve sızıntılarını önlemek için güçlü, benzersiz parolalar saklayın."
+            "value" : "Kimlik hırsızlığını ve veri sızıntılarını önlemek için güçlü ve benzersiz parolalar kullanın."
           }
         }
       }
@@ -9202,13 +9394,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Başarıyla %lld öğe içe aktarıldı"
+                  "value" : "%lld öge içe aktarıldı"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Başarıyla %lld öğe içe aktarıldı"
+                  "value" : "%lld öge içe aktarıldı"
                 }
               }
             }
@@ -9351,7 +9543,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cihazlar arasında senkronizasyon"
+            "value" : "Aygıtlar arasında eşitleme"
           }
         }
       }
@@ -9421,7 +9613,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cihazlar arasında Proton hesabı ile senkronize et"
+            "value" : "Proton hesabı ile aygıtlar arasında eşitleyin"
           }
         }
       }
@@ -9491,7 +9683,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cihazlarınız arasındaki eşitleme duraklatıldı"
+            "value" : "Aygıtlarınız arasında eşitleme duraklatıldı"
           }
         }
       }
@@ -9561,7 +9753,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belirteci panoya kopyalamak için dokunun. Silmek için sola, düzenlemek için sağa kaydırın."
+            "value" : "Kodu panoya kopyalamak için dokunun. Silmek için sola, düzenlemek için sağa kaydırın."
           }
         }
       }
@@ -9631,7 +9823,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "QR kodu geçerli değil. Lütfen farklı bir tane taramayı deneyin."
+            "value" : "Kare kod geçerli değil. Lütfen başka bir kod taramayı deneyin."
           }
         }
       }
@@ -9771,7 +9963,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu öğe zaten mevcut"
+            "value" : "Bu öge zaten var"
           }
         }
       }
@@ -9981,7 +10173,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Başlık (Gerekli)"
+            "value" : "Başlık (zorunlu)"
           }
         }
       }
@@ -10051,7 +10243,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Biyometrik kimlik doğrulamasını kullanmak için cihaz ayarlarınızda bu uygulama için Face ID/Touch ID'yi etkinleştirmeniz gerekir."
+            "value" : "Biyometrik kimlik doğrulamasını kullanmak için aygıt ayarlarınızdan bu uygulama için Face ID/Touch ID özelliğini açmanız gerekir."
           }
         }
       }
@@ -10331,7 +10523,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Maalesef, %1$@ şu anda uygulamalarından veri dışa aktarmayı desteklemiyor. Bu özelliği talep etmek için lütfen %2$@ ile iletişime geçmeyi düşünebilirsiniz.\n\nŞimdilik verilerinizi manuel olarak içe aktarın."
+            "value" : "Ne yazık ki, %1$@ şu anda uygulamalarından verileri dışa aktarmayı desteklemiyor. Bu özelliği istemek için lütfen %2$@ ile görüşmeyi düşünebilirsiniz.\n\nŞimdilik verilerinizi el ile içe aktarın."
           }
         }
       }
@@ -10471,7 +10663,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kaydı Güncelle"
+            "value" : "Kaydı güncelle"
           }
         }
       }
@@ -10541,7 +10733,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hesaplarınızı korumak için iki faktörlü kimlik doğrulama kullanın."
+            "value" : "Hesaplarınızı korumak için iki adımlı doğrulama kullanın."
           }
         }
       }
@@ -10681,7 +10873,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yanlış parola"
+            "value" : "Parola yanlış"
           }
         }
       }
@@ -10821,7 +11013,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu seçeneği, satırın sağındaki geçiş düğmesine tıklayarak değiştirebilirsiniz."
+            "value" : "Bu seçeneği, satırın sağındaki değiştirme düğmesine tıklayarak değiştirebilirsiniz."
           }
         }
       }
@@ -10891,7 +11083,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İçe aktarma dosyanız bir parola ile korunuyor. Devam etmek için lütfen parolayı girin."
+            "value" : "İçe aktarma dosyanız bir parola ile korunuyor. İlerlemek için lütfen parolayı yazın."
           }
         }
       }
@@ -10961,7 +11153,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oturumunuzun süresi doldu veya iptal edildi, lütfen Proton hesabınıza yeniden giriş yapın."
+            "value" : "Oturumunuzun süresi dolmuş veya iptal edilmiş. Lütfen Proton hesabınızda yeniden oturum açın."
           }
         }
       }
