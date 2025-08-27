@@ -157,31 +157,35 @@ private extension QAMenuView {
                 Text(verbatim: "Refresh content of keychain")
             }
 
-            VStack {
-                ForEach(viewModel.keychainContent) { element in
-                    Text(verbatim: "Key: \(element.key)\n")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    ForEach(element.content.keys.sorted(), id: \.self) { key in
-                        VStack(alignment: .leading) {
-                            Text(verbatim: "Key: \(key)")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(verbatim: "Content: \(String(describing: element.content[key]))")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if let data = element.content[key] as? Data {
-                                Text(verbatim: "Hexa of content: \(data.hexString)")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+            NavigationLink(destination: {
+                List {
+                    ForEach(viewModel.keychainContent) { element in
+                        NavigationLink(destination: {
+                            List {
+                                ForEach(element.content.keys.sorted(), id: \.self) { key in
+                                    VStack(alignment: .leading) {
+                                        Text(verbatim: "Key: \(key)")
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        Text(verbatim: "Content: \(String(describing: element.content[key]))")
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        if let data = element.content[key] as? Data {
+                                            Text(verbatim: "Hexa of content: \(data.hexString)")
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                        }
+                                        Text(verbatim: "")
+                                    }
+                                }
                             }
-                            Text(verbatim: "")
-                        }
-                    }
-
-                    if element.id != viewModel.keychainContent.last?.id {
-                        Divider()
+                            .navigationTitle(Text(verbatim: element.key))
+                        }, label: {
+                            Text(verbatim: element.key)
+                        })
                     }
                 }
-            }
+                .navigationTitle(Text(verbatim: "\(viewModel.keychainContent.count) keys"))
+            }, label: {
+                Text(verbatim: "View all \(viewModel.keychainContent.count) keys")
+            })
         }, header: {
             Text(verbatim: "Keychain Content")
         })
