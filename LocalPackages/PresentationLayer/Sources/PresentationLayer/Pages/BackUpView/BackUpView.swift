@@ -82,16 +82,22 @@ struct BackUpView: View {
         .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
             SecureField("Password", text: $viewModel.password)
                 .autocorrectionDisabled()
-                .textContentType(.oneTimeCode)
+                .textContentType(.password)
+                .textInputAutocapitalization(.never)
+            SecureField("Confirm password", text: $viewModel.confirmedPassword)
+                .autocorrectionDisabled()
+                .textContentType(.password)
                 .textInputAutocapitalization(.never)
             Button { viewModel.savePassword() } label: {
-                Text("Save the password", bundle: .module)
+                Text("Save password", bundle: .module)
             }
+            .disabled(!viewModel.passwordSavable)
             Button("Cancel", role: .cancel) {
                 viewModel.password = ""
+                viewModel.confirmedPassword = ""
             }
         } message: {
-            Text("Set a password to automatically protect the export files.", bundle: .module)
+            Text("Set a password to protect backup files.", bundle: .module)
         }
         .alert("Please enter the password used to encrypt this backup.",
                isPresented: $viewModel.passwordProtectionFile.mappedToBool(),

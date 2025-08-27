@@ -40,8 +40,13 @@ final class BackUpViewModel {
     var errorMessage: String?
 
     var password = ""
+    var confirmedPassword = ""
     var showPasswordAlert = false
     var passwordProtectionFile: PasswordProtectedBackup?
+
+    var passwordSavable: Bool {
+        !password.isEmpty && password == confirmedPassword
+    }
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.backUpManager)
@@ -119,24 +124,17 @@ final class BackUpViewModel {
     }
 
     func toggleBackICloudUp() {
-        settingsService.toggleICloudBackUp(!backupActivated)
-        backupActivated.toggle()
-        showPasswordAlert = backupActivated
+        if backupActivated {
+            settingsService.toggleICloudBackUp(false)
+            backupActivated = false
+        } else {
+            showPasswordAlert = true
+        }
     }
 
     func backup() {
-        do {
-            let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
-                                                             isSynced: false)
-            guard let exportData = try entryDataService.exportEntries(password: password).data(using: .utf8)
-            else {
-                return
-            }
-            try backUpManager.write(data: exportData)
-            loadData()
-        } catch {
-            log(.error, "Failed to backup: \(error.localizedDescription)")
-        }
+        entryDataService.backUpEntries()
+        loadData()
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
@@ -144,12 +142,16 @@ final class BackUpViewModel {
     }
 
     func savePassword() {
-        guard !password.isEmpty else {
-            return
+        defer {
+            password = ""
+            confirmedPassword = ""
         }
-        defer { password = "" }
         do {
-            try keychainService.set(password, for: AppConstants.Settings.backupPassword, shouldSync: false)
+            try keychainService.set(password,
+                                    for: AppConstants.Settings.backupPassword,
+                                    shouldSync: false)
+            settingsService.toggleICloudBackUp(true)
+            backupActivated = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }

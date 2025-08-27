@@ -2012,6 +2012,16 @@
         }
       }
     },
+    "Confirm password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm password"
+          }
+        }
+      }
+    },
     "Copied" : {
       "localizations" : {
         "de" : {
@@ -3848,16 +3858,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Export data"
-          }
-        }
-      }
-    },
-    "Export data without password" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export data without password"
           }
         }
       }
@@ -6657,6 +6657,16 @@
         }
       }
     },
+    "Password protected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password protected"
+          }
+        }
+      }
+    },
     "Plain" : {
       "localizations" : {
         "de" : {
@@ -6723,6 +6733,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Düz"
+          }
+        }
+      }
+    },
+    "Plain text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain text"
           }
         }
       }
@@ -8031,12 +8051,12 @@
         }
       }
     },
-    "Save the password" : {
+    "Save password" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save the password"
+            "value" : "Save password"
           }
         }
       }
@@ -8672,12 +8692,12 @@
         }
       }
     },
-    "Set a password to automatically protect the export files." : {
+    "Set a password to protect backup files." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set a password to automatically protect the export files."
+            "value" : "Set a password to protect backup files."
           }
         }
       }

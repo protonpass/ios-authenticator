@@ -82,10 +82,10 @@ private extension QAMenuView {
 
     var fullBackup: some View {
         Section(content: {
-            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "New backup section") })
+            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "iCloud backup section") })
             if viewModel.fullBackupActivated {
                 Button { viewModel.deleteAll() } label: {
-                    Text(verbatim: "Delete all backedup data")
+                    Text(verbatim: "Delete all backups")
                 }
             }
         }, header: {

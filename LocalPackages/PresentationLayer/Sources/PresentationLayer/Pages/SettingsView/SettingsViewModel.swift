@@ -46,9 +46,12 @@ final class SettingsViewModel {
     var settingSheet: SettingsSheet?
 
     var password = ""
-    var exportFile = false
-    @ObservationIgnored
+    var confirmedPassword = ""
     var fileToExport: TextFile?
+
+    var passwordProtectedExportable: Bool {
+        !password.isEmpty && password == confirmedPassword
+    }
 
     @ObservationIgnored
     private let bundle: Bundle
@@ -310,8 +313,8 @@ extension SettingsViewModel {
                 return
             }
             fileToExport = await saveToFile(shouldUsePassword: shouldUsePassword)
-            exportFile = true
             password = ""
+            confirmedPassword = ""
         }
     }
 

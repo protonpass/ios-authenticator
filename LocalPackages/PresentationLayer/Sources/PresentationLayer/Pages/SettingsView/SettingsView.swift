@@ -57,6 +57,7 @@ public struct SettingsView: View {
     @State private var router = Router()
     @State private var showImportOptions = false
     @State private var showExportAlert = false
+    @State private var showPasswordExportAlert = false
 
     public init() {}
 
@@ -116,39 +117,56 @@ public struct SettingsView: View {
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)
         .alert("Export data", isPresented: $showExportAlert) {
-            SecureField("Password", text: $viewModel.password)
-                .autocorrectionDisabled()
-                .textContentType(.oneTimeCode)
-                .textInputAutocapitalization(.never)
-            Button { viewModel.exportData(shouldUsePassword: true) } label: {
-                Text("Export", bundle: .module)
+            Button { showPasswordExportAlert.toggle() } label: {
+                Text("Password protected", bundle: .module)
             }
             Button { viewModel.exportData(shouldUsePassword: false) } label: {
-                Text("Export data without password", bundle: .module)
+                Text("Plain text", bundle: .module)
             }
-            Button("Cancel", role: .cancel) {
-                viewModel.password = ""
-            }
-        } message: {
-            Text("Set a password to protect the export file.", bundle: .module)
+
+            Button("Cancel", role: .cancel) {}
         }
+        .alert("Export data",
+               isPresented: $showPasswordExportAlert,
+               actions: {
+                   SecureField("Password", text: $viewModel.password)
+                       .autocorrectionDisabled()
+                       .textContentType(.password)
+                       .textInputAutocapitalization(.never)
+                   SecureField("Confirm password", text: $viewModel.confirmedPassword)
+                       .autocorrectionDisabled()
+                       .textContentType(.password)
+                       .textInputAutocapitalization(.never)
+
+                   Button { viewModel.exportData(shouldUsePassword: true) } label: {
+                       Text("Export", bundle: .module)
+                   }
+                   .disabled(!viewModel.passwordProtectedExportable)
+
+                   Button("Cancel", role: .cancel) {
+                       viewModel.password = ""
+                       viewModel.confirmedPassword = ""
+                   }
+               }, message: {
+                   Text("Set a password to protect the export file.", bundle: .module)
+               })
         #if os(macOS)
-        .frame(minWidth: 800, minHeight: 600)
+               .frame(minWidth: 800, minHeight: 600)
         #endif
-        .onDisappear {
-            viewModel.emptyTempDirectory()
-        }
-        .fileExporter(isPresented: $viewModel.exportFile,
-                      document: viewModel.fileToExport,
-                      contentTypes: [.plainText],
-                      defaultFilename: viewModel.exportFileName()) { result in
-            switch result {
-            case let .success(url):
-                print("Saved to \(url)")
-            case let .failure(error):
-                print(error.localizedDescription)
-            }
-        }
+               .onDisappear {
+                   viewModel.emptyTempDirectory()
+               }
+               .fileExporter(isPresented: $viewModel.fileToExport.mappedToBool(),
+                             document: viewModel.fileToExport,
+                             contentTypes: [.plainText],
+                             defaultFilename: viewModel.exportFileName()) { result in
+                   switch result {
+                   case let .success(url):
+                       print("Saved to \(url)")
+                   case let .failure(error):
+                       print(error.localizedDescription)
+                   }
+               }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
