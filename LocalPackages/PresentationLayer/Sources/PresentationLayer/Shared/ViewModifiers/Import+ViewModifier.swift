@@ -32,6 +32,7 @@ import Models
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
+import VisionKit
 
 // swiftlint:disable file_length
 public extension View {
@@ -556,7 +557,11 @@ private final class ImportViewModel {
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
                 case let .failure(error):
-                    showError(error.localizedDescription)
+                    if let scanningError = error as? DataScannerViewController.ScanningUnavailable {
+                        appSettings.setUnsupportedScanning(true)
+                    } else {
+                        showError(error.localizedDescription)
+                    }
                 }
             } catch {
                 showError(error.localizedDescription)
