@@ -173,21 +173,21 @@ struct ImportingServiceModifier: ViewModifier {
         } else {
             DataScanner(with: .barcode,
                         startScanning: $viewModel.scanning,
-                        automaticDismiss: true) { results in
-                viewModel.processPayload(results: results)
-            }.overlay(alignment: .topTrailing) {
-                Button {
-                    showScanner = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm)
+                        automaticDismiss: true,
+                        resultStream: viewModel.scanResultStream)
+                .overlay(alignment: .topTrailing) {
+                    Button {
+                        showScanner = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm)
+                    }
+                    .adaptiveButtonStyle()
+                    .padding()
                 }
-                .adaptiveButtonStyle()
-                .padding()
-            }
         }
     }
 
@@ -370,7 +370,10 @@ private final class ImportViewModel {
     private let onComplete: (@MainActor () -> Void)?
 
     @ObservationIgnored
-    private var processing = false
+    let scanResultStream = PassthroughSubject<Result<ScanResult, any Error>, Never>()
+
+    @ObservationIgnored
+    private var processTask: Task<Void, Never>?
 
     var unsupportedScanning: Bool {
         appSettings.unsupportedScanning
@@ -404,6 +407,15 @@ private final class ImportViewModel {
             .sink { [weak self] photo in
                 guard let self else { return }
                 parseCapturedPhoto(photo)
+            }
+            .store(in: &cancellables)
+
+        scanResultStream
+            // Debounce to mitigate duplicated results because camera scanning is too fast
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main, options: nil)
+            .sink { [weak self] result in
+                guard let self else { return }
+                processPayload(results: result)
             }
             .store(in: &cancellables)
     }
@@ -531,11 +543,11 @@ private final class ImportViewModel {
     }
 
     #if os(iOS)
-    func processPayload(results: Result<ScanResult?, Error>) {
-        Task { [weak self] in
-            guard let self, !processing else { return }
-            processing = true
-            defer { processing = false }
+    func processPayload(results: Result<ScanResult, Error>) {
+        guard processTask == nil else { return }
+        processTask = Task { [weak self] in
+            guard let self else { return }
+            defer { processTask = nil }
             do {
                 switch results {
                 case let .success(result):
