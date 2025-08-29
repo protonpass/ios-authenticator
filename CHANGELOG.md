@@ -1,3 +1,10 @@
+# Version 1.2.0
+Secure data export: you can now protect your exported data with a password for enhanced security.
+
+Improvements:
+- Fix for an issue where scanning a Google QR code occasionally created duplicate entries
+- Support otpauth URIs with colons
+
 # Version 1.1.4
 - Fixed occasional code disappearing
 - Fixed occasional login sessions not persisting
