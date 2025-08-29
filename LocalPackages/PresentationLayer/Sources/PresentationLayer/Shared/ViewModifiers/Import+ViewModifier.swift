@@ -44,7 +44,7 @@ public extension View {
     }
 }
 
-enum FocusField: Hashable {
+private enum FocusField: Hashable {
     case field
 }
 
@@ -175,7 +175,8 @@ struct ImportingServiceModifier: ViewModifier {
                         startScanning: $viewModel.scanning,
                         automaticDismiss: true) { results in
                 viewModel.processPayload(results: results)
-            }.overlay(alignment: .topTrailing) {
+            }
+            .overlay(alignment: .topTrailing) {
                 Button {
                     showScanner = false
                 } label: {
@@ -183,7 +184,7 @@ struct ImportingServiceModifier: ViewModifier {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24)
-                        .foregroundStyle(.textNorm)
+                        .foregroundStyle(.white)
                 }
                 .adaptiveButtonStyle()
                 .padding()
@@ -208,6 +209,7 @@ struct ImportingServiceModifier: ViewModifier {
             }
             .frame(height: 60)
             .padding(.trailing, 16)
+
             VStack(alignment: .center, spacing: 30) {
                 VStack(spacing: 8) {
                     Text("Protected file", bundle: .module)
@@ -232,28 +234,21 @@ struct ImportingServiceModifier: ViewModifier {
                         Rectangle()
                             .foregroundStyle(.clear)
                             .frame(height: 1)
-                            .background(colorScheme == .light ? .black.opacity(0.08) : Color.white
-                                .opacity(0.12))
+                            .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
                     }
 
                 CapsuleButton(title: "Import",
                               textColor: .white,
-                              style: .borderedFilled) {
-                    viewModel.encryptedImport()
-                }.disabled(viewModel.password.isEmpty)
+                              style: .borderedFilled,
+                              action: viewModel.encryptedImport)
+                    .disabled(viewModel.password.isEmpty)
+
                 Spacer()
             }
             .padding(.horizontal, 36)
         }
         .defaultFocus($focusedField, .field)
         .fullScreenMainBackground()
-        .onChange(of: viewModel.showPasswordSheet) {
-            if viewModel.showPasswordSheet {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    focusedField = .field
-                }
-            }
-        }
         .alert("Wrong password",
                isPresented: $viewModel.showWrongPasswordAlert,
                actions: {
@@ -315,7 +310,14 @@ private extension View {
 private final class ImportViewModel {
     var showImporter: ImportOption?
     var password: String = ""
-    var showPasswordSheet = false
+    var showPasswordSheet = false {
+        didSet {
+            if !showPasswordSheet {
+                password = ""
+            }
+        }
+    }
+
     var scanning = true
     var showWrongPasswordAlert = false
     private(set) var importing = false
