@@ -73,6 +73,7 @@ private extension ScannerView {
     var regionOfInterestOverlay: some View {
         RestrictedScanningArea(regionOfInterest: $regionOfInterest,
                                unsupportedScanning: viewModel.unsupportedScanning,
+                               takingPhoto: viewModel.takingPhoto,
                                takePhoto: viewModel.takePhoto,
                                manualEntry: enterManually,
                                photoLibraryEntry: {

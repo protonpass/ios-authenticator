@@ -150,7 +150,6 @@ public struct EntriesView: View {
                     }
                 }
                 .fullScreenMainBackground()
-                .importingService($showImportOptions, onMainDisplay: true)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
@@ -477,6 +476,7 @@ private extension EntriesView {
                                           maxWidth: maxWidth,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
+                                .importingService($showImportOptions, onMainDisplay: true)
                         }
                         .frame(minWidth: 262, maxWidth: .infinity)
                     }
