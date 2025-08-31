@@ -62,7 +62,7 @@ public final class ImportingService: ImportingServicing {
                 try parseGoogleQr(contents)
             case let .lastpass(contents):
                 try parseLastpass(contents)
-            case let .protonAuthenticator(contents, password: password):
+            case let .protonAuthenticator(contents, password):
                 try parseAuthenticator(contents, password: password)
             case let .protonPass(contents):
                 try parsePass(contents)
