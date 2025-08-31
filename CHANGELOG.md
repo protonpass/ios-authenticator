@@ -4,16 +4,18 @@ Secure data export: you can now protect your exported data with a password for e
 Improvements:
 - Fix for an issue where scanning a Google QR code occasionally created duplicate entries
 - Support otpauth URIs with colons
+- Upgraded Rust library from 0.25.9 to 0.25.10
 
 # Version 1.1.4
 - Fixed occasional code disappearing
 - Fixed occasional login sessions not persisting
+- Upgraded Rust library from 0.25.8 to 0.25.9
 
 # Version 1.1.3
 - Fixed codes failing to update in search mode
 - Fixed crashes when reordering list entries
 - Resolved "scanning unavailable" error on some devices
-- Upgraded Rust library from 0.25.26 to 0.25.8
+- Upgraded Rust library from 0.25.6 to 0.25.8
 
 # Version 1.1.2
 - Fixed flickering biometric lock
