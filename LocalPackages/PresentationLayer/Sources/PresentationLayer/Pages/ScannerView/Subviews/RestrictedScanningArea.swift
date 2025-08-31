@@ -44,6 +44,7 @@ struct RestrictedScanningArea: View {
     @Environment(\.dismiss) private var dismiss
     @Binding private var regionOfInterest: CGRect?
     private let unsupportedScanning: Bool
+    private let takingPhoto: Bool
     private let configuration: RestrictedScanningAreaConfig
     private let takePhoto: () -> Void
     private let manualEntry: () -> Void
@@ -52,11 +53,13 @@ struct RestrictedScanningArea: View {
     init(configuration: RestrictedScanningAreaConfig = .default,
          regionOfInterest: Binding<CGRect?> = Binding.constant(nil),
          unsupportedScanning: Bool,
+         takingPhoto: Bool,
          takePhoto: @escaping () -> Void,
          manualEntry: @escaping () -> Void = {},
          photoLibraryEntry: @escaping () -> Void = {}) {
         self.configuration = configuration
         self.unsupportedScanning = unsupportedScanning
+        self.takingPhoto = takingPhoto
         self.takePhoto = takePhoto
         self.manualEntry = manualEntry
         self.photoLibraryEntry = photoLibraryEntry
@@ -120,6 +123,7 @@ struct RestrictedScanningArea: View {
                                     .frame(width: 60, height: 60)
                                     .foregroundStyle(.white)
                             }
+                            .disabled(takingPhoto)
                         }
                     }
                     Spacer()

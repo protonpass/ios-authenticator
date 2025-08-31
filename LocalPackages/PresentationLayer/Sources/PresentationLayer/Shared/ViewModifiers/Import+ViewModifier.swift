@@ -32,6 +32,7 @@ import Models
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
+import VisionKit
 
 // swiftlint:disable file_length
 public extension View {
@@ -44,12 +45,12 @@ public extension View {
     }
 }
 
-enum FocusField: Hashable {
+private enum FocusField: Hashable {
     case field
 }
 
 struct ImportingServiceModifier: ViewModifier {
-    @State private var viewModel: ImportViewModel
+    @StateObject private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
     @State private var showPhotosPicker = false
     @State private var showScanner = false
@@ -164,6 +165,7 @@ struct ImportingServiceModifier: ViewModifier {
                                     .frame(width: 60, height: 60)
                                     .foregroundStyle(.white)
                             }
+                            .disabled(viewModel.takingPhoto)
                             .padding()
                             Spacer()
                         }
@@ -173,21 +175,21 @@ struct ImportingServiceModifier: ViewModifier {
         } else {
             DataScanner(with: .barcode,
                         startScanning: $viewModel.scanning,
-                        automaticDismiss: true) { results in
-                viewModel.processPayload(results: results)
-            }.overlay(alignment: .topTrailing) {
-                Button {
-                    showScanner = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm)
+                        automaticDismiss: true,
+                        resultStream: viewModel.scanResultStream)
+                .overlay(alignment: .topTrailing) {
+                    Button {
+                        showScanner = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm)
+                    }
+                    .adaptiveButtonStyle()
+                    .padding()
                 }
-                .adaptiveButtonStyle()
-                .padding()
-            }
         }
     }
 
@@ -208,6 +210,7 @@ struct ImportingServiceModifier: ViewModifier {
             }
             .frame(height: 60)
             .padding(.trailing, 16)
+
             VStack(alignment: .center, spacing: 30) {
                 VStack(spacing: 8) {
                     Text("Protected file", bundle: .module)
@@ -232,28 +235,21 @@ struct ImportingServiceModifier: ViewModifier {
                         Rectangle()
                             .foregroundStyle(.clear)
                             .frame(height: 1)
-                            .background(colorScheme == .light ? .black.opacity(0.08) : Color.white
-                                .opacity(0.12))
+                            .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
                     }
 
                 CapsuleButton(title: "Import",
                               textColor: .white,
-                              style: .borderedFilled) {
-                    viewModel.encryptedImport()
-                }.disabled(viewModel.password.isEmpty)
+                              style: .borderedFilled,
+                              action: viewModel.encryptedImport)
+                    .disabled(viewModel.password.isEmpty)
+
                 Spacer()
             }
             .padding(.horizontal, 36)
         }
         .defaultFocus($focusedField, .field)
         .fullScreenMainBackground()
-        .onChange(of: viewModel.showPasswordSheet) {
-            if viewModel.showPasswordSheet {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    focusedField = .field
-                }
-            }
-        }
         .alert("Wrong password",
                isPresented: $viewModel.showWrongPasswordAlert,
                actions: {
@@ -312,10 +308,17 @@ private extension View {
 }
 
 @Observable @MainActor
-private final class ImportViewModel {
+private final class ImportViewModel: ObservableObject {
     var showImporter: ImportOption?
     var password: String = ""
-    var showPasswordSheet = false
+    var showPasswordSheet = false {
+        didSet {
+            if !showPasswordSheet {
+                password = ""
+            }
+        }
+    }
+
     var scanning = true
     var showWrongPasswordAlert = false
     private(set) var importing = false
@@ -370,7 +373,13 @@ private final class ImportViewModel {
     private let onComplete: (@MainActor () -> Void)?
 
     @ObservationIgnored
-    private var processing = false
+    let scanResultStream = PassthroughSubject<Result<ScanResult, any Error>, Never>()
+
+    @ObservationIgnored
+    private var processTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var parseTask: Task<Void, Never>?
 
     var unsupportedScanning: Bool {
         appSettings.unsupportedScanning
@@ -404,6 +413,15 @@ private final class ImportViewModel {
             .sink { [weak self] photo in
                 guard let self else { return }
                 parseCapturedPhoto(photo)
+            }
+            .store(in: &cancellables)
+
+        scanResultStream
+            // Debounce to mitigate duplicated results because camera scanning is too fast
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main, options: nil)
+            .sink { [weak self] result in
+                guard let self else { return }
+                processPayload(results: result)
             }
             .store(in: &cancellables)
     }
@@ -531,11 +549,11 @@ private final class ImportViewModel {
     }
 
     #if os(iOS)
-    func processPayload(results: Result<ScanResult?, Error>) {
-        Task { [weak self] in
-            guard let self, !processing else { return }
-            processing = true
-            defer { processing = false }
+    func processPayload(results: Result<ScanResult, Error>) {
+        guard processTask == nil else { return }
+        processTask = Task { [weak self] in
+            guard let self else { return }
+            defer { processTask = nil }
             do {
                 switch results {
                 case let .success(result):
@@ -544,7 +562,11 @@ private final class ImportViewModel {
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
                 case let .failure(error):
-                    showError(error.localizedDescription)
+                    if let scanningError = error as? DataScannerViewController.ScanningUnavailable {
+                        appSettings.setUnsupportedScanning(true)
+                    } else {
+                        showError(error.localizedDescription)
+                    }
                 }
             } catch {
                 showError(error.localizedDescription)
@@ -619,8 +641,10 @@ private extension ImportViewModel {
     }
 
     func parseCapturedPhoto(_ photo: AVCapturePhoto) {
-        Task { [weak self] in
+        guard parseTask == nil else { return }
+        parseTask = Task { [weak self] in
             guard let self else { return }
+            defer { parseTask = nil }
             do {
                 guard let data = photo.fileDataRepresentation(),
                       let image = UIImage(data: data) else {

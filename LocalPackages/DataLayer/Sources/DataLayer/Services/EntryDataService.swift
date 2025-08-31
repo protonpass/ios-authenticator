@@ -41,6 +41,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
     func fullRefresh() async throws
+    func backUpEntries()
 
     @_spi(QA)
     func deleteAll() async throws
@@ -317,6 +318,20 @@ public extension EntryDataService {
             throw error
         }
     }
+
+    func backUpEntries() {
+        guard settings.iCloudBackUp else { return }
+
+        do {
+            let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
+                                                           isSynced: false)
+            if let exportData = try exportEntries(password: password).data(using: .utf8) {
+                try backUpManager.write(data: exportData)
+            }
+        } catch {
+            log(.error, "Failed to backup entries: \(error)")
+        }
+    }
 }
 
 // MARK: - Rust exposure
@@ -328,7 +343,8 @@ public extension EntryDataService {
     }
 
     func exportEntries(password: String?) throws -> String {
-        log(.debug, "Exporting entries")
+        log(.debug, password != nil ? "Exporting entries with password" : "Exporting entries")
+
         guard let data = dataState.data else {
             throw AuthError.generic(.exportEmptyData)
         }
@@ -636,21 +652,6 @@ private extension EntryDataService {
         }
 
         return mergedOrderedItems
-    }
-
-    func backUpEntries() {
-        let password: String? = try? keychainService.get(keyId: AppConstants.Settings.backupPassword,
-                                                         isSynced: false)
-        guard settings.iCloudBackUp,
-              let exportData = try? exportEntries(password: password).data(using: .utf8) else {
-            return
-        }
-
-        do {
-            try backUpManager.write(data: exportData)
-        } catch {
-            log(.error, "Failed to backup entries: \(error)")
-        }
     }
 }
 

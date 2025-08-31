@@ -23,8 +23,6 @@ import DataLayer
 import Models
 
 final class MockedEntryDataService: EntryDataServiceProtocol {
-
-    
     init() {}
 
     var dataState: DataState<[EntryUiModel]> = .loading
@@ -85,4 +83,6 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
     func extractingOrderedEntry() -> [Models.OrderedEntry] {
         []
     }
+
+    func backUpEntries() {}
 }
