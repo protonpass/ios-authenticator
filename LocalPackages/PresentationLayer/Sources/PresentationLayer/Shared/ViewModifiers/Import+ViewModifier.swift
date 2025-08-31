@@ -50,7 +50,7 @@ enum FocusField: Hashable {
 }
 
 struct ImportingServiceModifier: ViewModifier {
-    @State private var viewModel: ImportViewModel
+    @StateObject private var viewModel: ImportViewModel
     @State private var showImportFromGoogleOptions = false
     @State private var showPhotosPicker = false
     @State private var showScanner = false
@@ -165,6 +165,7 @@ struct ImportingServiceModifier: ViewModifier {
                                     .frame(width: 60, height: 60)
                                     .foregroundStyle(.white)
                             }
+                            .disabled(viewModel.takingPhoto)
                             .padding()
                             Spacer()
                         }
@@ -313,7 +314,7 @@ private extension View {
 }
 
 @Observable @MainActor
-private final class ImportViewModel {
+private final class ImportViewModel: ObservableObject {
     var showImporter: ImportOption?
     var password: String = ""
     var showPasswordSheet = false
@@ -375,6 +376,9 @@ private final class ImportViewModel {
 
     @ObservationIgnored
     private var processTask: Task<Void, Never>?
+
+    @ObservationIgnored
+    private var parseTask: Task<Void, Never>?
 
     var unsupportedScanning: Bool {
         appSettings.unsupportedScanning
@@ -636,8 +640,10 @@ private extension ImportViewModel {
     }
 
     func parseCapturedPhoto(_ photo: AVCapturePhoto) {
-        Task { [weak self] in
+        guard parseTask == nil else { return }
+        parseTask = Task { [weak self] in
             guard let self else { return }
+            defer { parseTask = nil }
             do {
                 guard let data = photo.fileDataRepresentation(),
                       let image = UIImage(data: data) else {
