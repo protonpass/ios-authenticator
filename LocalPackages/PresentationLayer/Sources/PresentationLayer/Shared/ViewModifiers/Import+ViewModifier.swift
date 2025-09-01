@@ -409,6 +409,7 @@ private final class ImportViewModel: ObservableObject {
             .store(in: &cancellables)
 
         cameraManager.takenPhoto
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main, options: nil)
             .compactMap(\.self)
             .sink { [weak self] photo in
                 guard let self else { return }
