@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import AuthenticatorRustCore
+import Combine
 import DataLayer
 import FactoryKit
 import LocalAuthentication
@@ -93,5 +94,9 @@ extension ToolsContainer {
 
     var apiClient: Factory<any APIClientProtocol> {
         self { APIClient(manager: ServiceContainer.shared.userSessionManager(), logger: self.logManager()) }
+    }
+
+    var importingContexts: Factory<CurrentValueSubject<[ImportingContext], Never>> {
+        self { .init([]) }
     }
 }

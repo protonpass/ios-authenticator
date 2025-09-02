@@ -35,12 +35,24 @@ import UniformTypeIdentifiers
 import VisionKit
 
 // swiftlint:disable file_length
-public extension View {
+enum ImportingContext: Sendable {
+    case onboarding, homepage, settings
+
+    var isMainDisplay: Bool {
+        if case .homepage = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+extension View {
     func importingService(_ showImportOptions: Binding<Bool>,
-                          onMainDisplay: Bool,
+                          context: ImportingContext,
                           onComplete: (@MainActor () -> Void)? = nil) -> some View {
         modifier(ImportingServiceModifier(showImportOptions: showImportOptions,
-                                          mainDisplay: onMainDisplay,
+                                          context: context,
                                           onComplete: onComplete))
     }
 }
@@ -61,9 +73,9 @@ struct ImportingServiceModifier: ViewModifier {
     @Binding var showImportOptions: Bool
 
     init(showImportOptions: Binding<Bool>,
-         mainDisplay: Bool,
+         context: ImportingContext,
          onComplete: (@MainActor () -> Void)?) {
-        _viewModel = .init(wrappedValue: ImportViewModel(mainDisplay: mainDisplay,
+        _viewModel = .init(wrappedValue: ImportViewModel(context: context,
                                                          onComplete: onComplete))
         _showImportOptions = showImportOptions
     }
@@ -97,6 +109,12 @@ struct ImportingServiceModifier: ViewModifier {
                           allowsMultipleSelection: viewModel.showImporter == .googleAuthenticator,
                           onCompletion: viewModel.processImportedFile)
             .showSpinner(viewModel.importing)
+            .onAppear {
+                viewModel.addContext()
+            }
+            .onDisappear {
+                viewModel.removeContext()
+            }
     }
 
     func handle(_ selectedOption: ImportOption) {
@@ -367,9 +385,6 @@ private final class ImportViewModel: ObservableObject {
     private let imageSelectionStream: CurrentValueSubject<[PhotosPickerItem], Never> = .init([])
 
     @ObservationIgnored
-    private let mainDisplay: Bool
-
-    @ObservationIgnored
     private let onComplete: (@MainActor () -> Void)?
 
     @ObservationIgnored
@@ -381,6 +396,13 @@ private final class ImportViewModel: ObservableObject {
     @ObservationIgnored
     private var parseTask: Task<Void, Never>?
 
+    @ObservationIgnored
+    let context: ImportingContext
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.importingContexts)
+    private var importingContexts: CurrentValueSubject<[ImportingContext], Never>
+
     var unsupportedScanning: Bool {
         appSettings.unsupportedScanning
     }
@@ -389,9 +411,11 @@ private final class ImportViewModel: ObservableObject {
         cameraManager.session
     }
 
-    init(mainDisplay: Bool, onComplete: (@MainActor () -> Void)?) {
-        self.mainDisplay = mainDisplay
+    init(context: ImportingContext,
+         onComplete: (@MainActor () -> Void)?) {
+        self.context = context
         self.onComplete = onComplete
+
         imageSelectionStream
             .receive(on: DispatchQueue.main)
             .compactMap(\.self)
@@ -409,7 +433,6 @@ private final class ImportViewModel: ObservableObject {
             .store(in: &cancellables)
 
         cameraManager.takenPhoto
-            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main, options: nil)
             .compactMap(\.self)
             .sink { [weak self] photo in
                 guard let self else { return }
@@ -425,6 +448,18 @@ private final class ImportViewModel: ObservableObject {
                 processPayload(results: result)
             }
             .store(in: &cancellables)
+    }
+
+    func addContext() {
+        var currentContexts = importingContexts.value
+        currentContexts.append(context)
+        importingContexts.send(currentContexts)
+    }
+
+    func removeContext() {
+        var currentContexts = importingContexts.value
+        currentContexts.removeAll(where: { $0 == context })
+        importingContexts.send(currentContexts)
     }
 
     func importEntries(from option: ImportOption) {
@@ -551,7 +586,7 @@ private final class ImportViewModel: ObservableObject {
 
     #if os(iOS)
     func processPayload(results: Result<ScanResult, Error>) {
-        guard processTask == nil else { return }
+        guard processTask == nil, importingContexts.value.last == context else { return }
         processTask = Task { [weak self] in
             guard let self else { return }
             defer { processTask = nil }
@@ -642,7 +677,7 @@ private extension ImportViewModel {
     }
 
     func parseCapturedPhoto(_ photo: AVCapturePhoto) {
-        guard parseTask == nil else { return }
+        guard parseTask == nil, importingContexts.value.last == context else { return }
         parseTask = Task { [weak self] in
             guard let self else { return }
             defer { parseTask = nil }
@@ -672,7 +707,7 @@ private extension ImportViewModel {
     }
 
     func showAlert(_ config: AlertConfiguration) {
-        let alert: AlertDisplay = mainDisplay ? .main(config) : .sheet(config)
+        let alert: AlertDisplay = context.isMainDisplay ? .main(config) : .sheet(config)
         alertService.showAlert(alert)
     }
 }

@@ -476,7 +476,7 @@ private extension EntriesView {
                                           maxWidth: maxWidth,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
-                                .importingService($showImportOptions, onMainDisplay: true)
+                                .importingService($showImportOptions, context: .homepage)
                         }
                         .frame(minWidth: 262, maxWidth: .infinity)
                     }

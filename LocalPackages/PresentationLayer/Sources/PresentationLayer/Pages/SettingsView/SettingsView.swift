@@ -109,7 +109,7 @@ public struct SettingsView: View {
                 .toastDisplay()
                 .fullScreenMainBackground()
                 .sheetAlertService()
-                .importingService($showImportOptions, onMainDisplay: false)
+                .importingService($showImportOptions, context: .settings)
                 .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
                     viewModel.settingSheet?.destination
                 }
