@@ -229,18 +229,18 @@ struct ImportingServiceModifier: ViewModifier {
             .frame(height: 60)
             .padding(.trailing, 16)
 
-            VStack(alignment: .center, spacing: 30) {
-                VStack(spacing: 8) {
-                    Text("Protected file", bundle: .module)
-                        .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.textNorm)
-                    Text("Your import file is protected by a password. Please enter the password to proceed.",
-                         bundle: .module)
-                        .dynamicFont(size: 20, textStyle: .title3)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.textWeak)
-                }
+            VStack(alignment: .center) {
+                Text("Protected file", bundle: .module)
+                    .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.textNorm)
+
+                Text("Your import file is protected by a password. Please enter the password to proceed.",
+                     bundle: .module)
+                    .dynamicFont(size: 20, textStyle: .title3)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.textWeak)
+                    .padding(.bottom, 32)
 
                 SecureField("Password", text: $viewModel.password)
                     .dynamicFont(size: 20, textStyle: .title3)
@@ -249,12 +249,12 @@ struct ImportingServiceModifier: ViewModifier {
                 #if os(iOS)
                     .textInputAutocapitalization(.never)
                 #endif
-                    .overlay(alignment: .bottom) {
-                        Rectangle()
-                            .foregroundStyle(.clear)
-                            .frame(height: 1)
-                            .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
-                    }
+
+                Rectangle()
+                    .foregroundStyle(.clear)
+                    .frame(height: 1)
+                    .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
+                    .padding(.bottom, 32)
 
                 CapsuleButton(title: "Import",
                               textColor: .white,
@@ -282,29 +282,30 @@ struct ImportingServiceModifier: ViewModifier {
 }
 
 private extension View {
-    // periphery:ignore
-    func importOptionsDialog(isPresented: Binding<Bool>,
-                             onSelect: @escaping (ImportOption) -> Void) -> some View {
-        confirmationDialog("Select your provider",
-                           isPresented: isPresented,
-                           titleVisibility: .visible) {
-            ForEach(ImportOption.allCases, id: \.self) { option in
-                Button { onSelect(option) } label: {
-                    Text(verbatim: option.title)
-                }
-            }
-        }
-    }
-
+    @ViewBuilder
     func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
                                        onSelect: @escaping (GoogleImportType) -> Void) -> some View {
-        confirmationDialog("Select your provider",
-                           isPresented: isPresented,
-                           titleVisibility: .hidden) {
-            ForEach(GoogleImportType.allCases, id: \.self) { option in
-                if displayGoogleImportOption(option) {
-                    Button { onSelect(option) } label: {
-                        Text(option.title, bundle: .module)
+        if AppConstants.isIpad {
+            alert(Text("Import from Google Authenticator", bundle: .module),
+                  isPresented: isPresented) {
+                ForEach(GoogleImportType.allCases, id: \.self) { option in
+                    if displayGoogleImportOption(option) {
+                        Button { onSelect(option) } label: {
+                            Text(option.title, bundle: .module)
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel, action: {})
+            }
+        } else {
+            confirmationDialog(Text("Import from Google Authenticator", bundle: .module),
+                               isPresented: isPresented,
+                               titleVisibility: .hidden) {
+                ForEach(GoogleImportType.allCases, id: \.self) { option in
+                    if displayGoogleImportOption(option) {
+                        Button { onSelect(option) } label: {
+                            Text(option.title, bundle: .module)
+                        }
                     }
                 }
             }

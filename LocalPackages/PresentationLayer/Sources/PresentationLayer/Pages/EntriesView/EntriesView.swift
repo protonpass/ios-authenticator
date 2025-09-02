@@ -476,7 +476,6 @@ private extension EntriesView {
                                           maxWidth: maxWidth,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
-                                .importingService($showImportOptions, context: .homepage)
                         }
                         .frame(minWidth: 262, maxWidth: .infinity)
                     }
@@ -485,6 +484,7 @@ private extension EntriesView {
                     .refreshable { [weak viewModel] in
                         viewModel?.reloadData()
                     }
+                    .importingService($showImportOptions, context: .homepage)
             } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()
