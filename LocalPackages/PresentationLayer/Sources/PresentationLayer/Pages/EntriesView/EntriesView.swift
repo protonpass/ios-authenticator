@@ -308,6 +308,9 @@ private extension EntriesView {
     }
 
     func handle(_ action: EntryAction) {
+        // Reset `reorderingEntries` to exit dragging mode
+        // otherwise the list is not updated after deleting an entry
+        viewModel.reorderingEntries = nil
         switch action {
         case let .copyCurrentCode(entry):
             viewModel.copyTokenToClipboard(entry, current: true)
