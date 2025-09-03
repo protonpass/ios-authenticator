@@ -20,6 +20,7 @@
 //
 
 import CommonUtilities
+import Models
 import SwiftUI
 
 struct QAMenuView: View {
@@ -31,6 +32,7 @@ struct QAMenuView: View {
         NavigationStack {
             List {
                 onboardingSection
+                sortOptionSection
                 fullBackup
                 passBannerSection
                 scannerSection
@@ -78,6 +80,30 @@ private extension QAMenuView {
         }, header: {
             Text(verbatim: "Onboarding")
         })
+    }
+
+    var sortOptionSection: some View {
+        Section {
+            HStack {
+                Text(verbatim: "Sort by")
+                Spacer()
+                Menu(content: {
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Button(action: {
+                            viewModel.sortOption = option
+                        }, label: {
+                            if option == viewModel.sortOption {
+                                Label(option.description, systemImage: "checkmark")
+                            } else {
+                                Text(verbatim: option.description)
+                            }
+                        })
+                    }
+                }, label: {
+                    Text(verbatim: viewModel.sortOption.description)
+                })
+            }
+        }
     }
 
     var fullBackup: some View {

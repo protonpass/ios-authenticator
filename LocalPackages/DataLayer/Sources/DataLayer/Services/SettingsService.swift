@@ -38,6 +38,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var iCloudBackUp: Bool { get }
     var fullBackUp: Bool { get }
     var unsupportedScanning: Bool { get }
+    var sortOption: SortOption { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -53,6 +54,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleICloudSync(_ value: Bool)
     func toggleICloudBackUp(_ value: Bool)
     func setUnsupportedScanning(_ value: Bool)
+    func setSortOption(_ value: SortOption)
 
     /// For QA purpose
     func setInstallationTimestamp(_ value: TimeInterval)
@@ -77,6 +79,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var iCloudBackUp: Bool
     public private(set) var fullBackUp: Bool
     public private(set) var unsupportedScanning: Bool
+    public private(set) var sortOption: SortOption
 
     public init(store: UserDefaults) {
         self.store = store
@@ -109,6 +112,7 @@ public final class SettingsService: SettingsServicing {
         iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
         iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
         unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
+        sortOption = store.value(for: AppConstants.Settings.sortOption)
     }
 }
 
@@ -204,6 +208,12 @@ public extension SettingsService {
         update(currentValue: &unsupportedScanning,
                newValue: value,
                key: AppConstants.Settings.unsupportedScanning)
+    }
+
+    func setSortOption(_ value: SortOption) {
+        update(currentValue: &sortOption,
+               newValue: value,
+               key: AppConstants.Settings.sortOption)
     }
 }
 
