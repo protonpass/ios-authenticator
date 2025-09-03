@@ -39,9 +39,9 @@ final class EntriesViewModel: ObservableObject {
 
     var entries: [EntryUiModel] {
         if let searchResults {
-            return searchResults
+            return searchResults.sorted(by: settingsService.sortOption)
         } else if let data = entryDataService.dataState.data {
-            return data
+            return data.sorted(by: settingsService.sortOption)
         }
 
         return []
@@ -57,6 +57,10 @@ final class EntriesViewModel: ObservableObject {
 
     var isAuthenticated: Bool {
         userSessionManager.isAuthenticatedWithUserData.value
+    }
+
+    var isManualSort: Bool {
+        settingsService.sortOption.isManual
     }
 
     @ObservationIgnored
@@ -350,6 +354,27 @@ private extension EntriesViewModel {
         data.filter {
             $0.orderedEntry.entry.name.lowercased().contains(query) ||
                 $0.orderedEntry.entry.issuer.lowercased().contains(query)
+        }
+    }
+}
+
+private extension [EntryUiModel] {
+    func sorted(by option: SortOption) -> Self {
+        switch option {
+        case .manual:
+            self
+        case .issuerAsc:
+            sorted(by: { $0.orderedEntry.entry.issuer < $1.orderedEntry.entry.issuer })
+        case .issuerDesc:
+            sorted(by: { $0.orderedEntry.entry.issuer > $1.orderedEntry.entry.issuer })
+        case .creationDateAsc:
+            sorted(by: { $0.orderedEntry.creationDate < $1.orderedEntry.creationDate })
+        case .creationDateDesc:
+            sorted(by: { $0.orderedEntry.creationDate > $1.orderedEntry.creationDate })
+        case .modificationDateAsc:
+            sorted(by: { $0.orderedEntry.modifiedTime < $1.orderedEntry.modifiedTime })
+        case .modificationDateDesc:
+            sorted(by: { $0.orderedEntry.modifiedTime > $1.orderedEntry.modifiedTime })
         }
     }
 }

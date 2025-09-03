@@ -198,9 +198,9 @@ private extension EntriesView {
                         .disabled(viewModel.deleteTask != nil)
                     }
             }
-            .onMove { source, destination in
+            .onMove(perform: viewModel.isManualSort ? { source, destination in
                 viewModel.moveItem(fromOffsets: source, toOffset: destination)
-            }
+            } : nil)
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
         }
@@ -220,12 +220,15 @@ private extension EntriesView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
                 ForEach(viewModel.reorderingEntries ?? viewModel.entries) { entry in
                     cell(for: entry)
-                        .draggable(entry.orderedEntry.id) {
-                            cell(for: entry)
-                                .opacity(0.8)
-                                .onAppear {
-                                    viewModel.reorderingEntries = viewModel.entries
-                                    draggingEntry = entry
+                        .if(viewModel.isManualSort) { view in
+                            view
+                                .draggable(entry.orderedEntry.id) {
+                                    cell(for: entry)
+                                        .opacity(0.8)
+                                        .onAppear {
+                                            viewModel.reorderingEntries = viewModel.entries
+                                            draggingEntry = entry
+                                        }
                                 }
                         }
                         .dropDestination(for: String.self) { _, _ in
