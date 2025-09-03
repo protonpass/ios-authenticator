@@ -58,17 +58,28 @@ struct Watch_Widget: Widget {
 
 private struct WidgetContent: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     var body: some View {
         switch family {
         case .accessoryCircular:
-            Image(.authenticator)
-                .padding(6)
-                .background(.background)
+            if renderingMode == .fullColor {
+                Image(.authenticator)
+                    .padding(6)
+                    .background(.background)
+            } else {
+                Image(.authenticatorGlyph)
+            }
 
         case .accessoryRectangular:
             HStack(alignment: .center) {
-                Image(.authenticator)
-                    .padding(6)
+                if renderingMode == .fullColor {
+                    Image(.authenticator)
+                        .padding(6)
+                } else {
+                    Image(.authenticatorGlyph)
+                }
+
                 VStack(alignment: .leading) {
                     Text(verbatim: "Proton")
                         .fontWeight(.medium)
