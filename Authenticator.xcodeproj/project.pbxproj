@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		537EAE8F2E670F2700C930E8 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537EAE8E2E670F2700C930E8 /* WidgetKit.framework */; };
+		537EAE912E670F2700C930E8 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537EAE902E670F2700C930E8 /* SwiftUI.framework */; };
+		537EAE9C2E670F2800C930E8 /* Watch WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 537EAE8D2E670F2700C930E8 /* Watch WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5B5E0C992D5618E500E7BCD4 /* Macro in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C982D5618E500E7BCD4 /* Macro */; };
 		5B5E0C9C2D5618FC00E7BCD4 /* AuthenticatorRustCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0C9B2D5618FC00E7BCD4 /* AuthenticatorRustCore */; };
 		5B5E0D552D5A332D00E7BCD4 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 5B5E0D542D5A332D00E7BCD4 /* Sentry */; };
@@ -33,6 +36,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		537EAE9A2E670F2800C930E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 537EAE8C2E670F2700C930E8;
+			remoteInfo = "Watch WidgetExtension";
+		};
 		5B87652C2D52539E00B4CC30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5B87650F2D52539D00B4CC30 /* Project object */;
@@ -71,6 +81,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		537EAE9D2E670F2800C930E8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				537EAE9C2E670F2800C930E8 /* Watch WidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5BF510202E3261A30025E5D2 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -85,6 +106,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		537EAE8D2E670F2700C930E8 /* Watch WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Watch WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		537EAE8E2E670F2700C930E8 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		537EAE902E670F2700C930E8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5B5E0C5C2D5612D400E7BCD4 /* Macro */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Macro; path = LocalPackages/Macro; sourceTree = "<group>"; };
 		5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AuthenticatorRustCore; path = LocalPackages/AuthenticatorRustCore; sourceTree = "<group>"; };
 		5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Autofill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +130,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		537EAEA22E670F2800C930E8 /* Exceptions for "Watch Widget" folder in "Watch WidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 537EAE8C2E670F2700C930E8 /* Watch WidgetExtension */;
+		};
 		5B5E0D6E2D5A38DD00E7BCD4 /* Exceptions for "Autofill" folder in "Autofill" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -128,6 +159,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		537EAE922E670F2700C930E8 /* Watch Widget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				537EAEA22E670F2800C930E8 /* Exceptions for "Watch Widget" folder in "Watch WidgetExtension" target */,
+			);
+			path = "Watch Widget";
+			sourceTree = "<group>";
+		};
 		5B5E0D5F2D5A38DD00E7BCD4 /* Autofill */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -138,8 +177,6 @@
 		};
 		5B5E0F512D6F3C6A00E7BCD4 /* TestPlan */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = TestPlan;
 			sourceTree = "<group>";
 		};
@@ -153,42 +190,41 @@
 		};
 		5B87652E2D52539E00B4CC30 /* AuthenticatorTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = AuthenticatorTests;
 			sourceTree = "<group>";
 		};
 		5B8765382D52539E00B4CC30 /* AuthenticatorUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = AuthenticatorUITests;
 			sourceTree = "<group>";
 		};
 		5BF510002E3261A10025E5D2 /* WatchAuthenticator Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "WatchAuthenticator Watch App";
 			sourceTree = "<group>";
 		};
 		5BF5100E2E3261A30025E5D2 /* WatchAuthenticator Watch AppTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "WatchAuthenticator Watch AppTests";
 			sourceTree = "<group>";
 		};
 		5BF510182E3261A30025E5D2 /* WatchAuthenticator Watch AppUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "WatchAuthenticator Watch AppUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		537EAE8A2E670F2700C930E8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				537EAE912E670F2700C930E8 /* SwiftUI.framework in Frameworks */,
+				537EAE8F2E670F2700C930E8 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B5E0D592D5A38DD00E7BCD4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -281,6 +317,7 @@
 				5BF510002E3261A10025E5D2 /* WatchAuthenticator Watch App */,
 				5BF5100E2E3261A30025E5D2 /* WatchAuthenticator Watch AppTests */,
 				5BF510182E3261A30025E5D2 /* WatchAuthenticator Watch AppUITests */,
+				537EAE922E670F2700C930E8 /* Watch Widget */,
 				5B87656E2D527F9C00B4CC30 /* Frameworks */,
 				5B8765182D52539D00B4CC30 /* Products */,
 			);
@@ -296,6 +333,7 @@
 				5BF50FFF2E3261A10025E5D2 /* WatchAuthenticator Watch App.app */,
 				5BF5100B2E3261A30025E5D2 /* WatchAuthenticator Watch AppTests.xctest */,
 				5BF510152E3261A30025E5D2 /* WatchAuthenticator Watch AppUITests.xctest */,
+				537EAE8D2E670F2700C930E8 /* Watch WidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -307,6 +345,8 @@
 				5BF511BB2E337CE00025E5D2 /* WatchConnectivity.framework */,
 				5BF607E02D79FDB900904FC8 /* CloudKit.framework */,
 				5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */,
+				537EAE8E2E670F2700C930E8 /* WidgetKit.framework */,
+				537EAE902E670F2700C930E8 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -314,6 +354,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		537EAE8C2E670F2700C930E8 /* Watch WidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 537EAEA12E670F2800C930E8 /* Build configuration list for PBXNativeTarget "Watch WidgetExtension" */;
+			buildPhases = (
+				537EAE892E670F2700C930E8 /* Sources */,
+				537EAE8A2E670F2700C930E8 /* Frameworks */,
+				537EAE8B2E670F2700C930E8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				537EAE922E670F2700C930E8 /* Watch Widget */,
+			);
+			name = "Watch WidgetExtension";
+			packageProductDependencies = (
+			);
+			productName = "Watch WidgetExtension";
+			productReference = 537EAE8D2E670F2700C930E8 /* Watch WidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5B5E0D5B2D5A38DD00E7BCD4 /* Autofill */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5B5E0D6A2D5A38DD00E7BCD4 /* Build configuration list for PBXNativeTarget "Autofill" */;
@@ -420,10 +482,12 @@
 				5BF50FFB2E3261A10025E5D2 /* Sources */,
 				5BF50FFC2E3261A10025E5D2 /* Frameworks */,
 				5BF50FFD2E3261A10025E5D2 /* Resources */,
+				537EAE9D2E670F2800C930E8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				537EAE9B2E670F2800C930E8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5BF510002E3261A10025E5D2 /* WatchAuthenticator Watch App */,
@@ -495,6 +559,9 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1630;
 				TargetAttributes = {
+					537EAE8C2E670F2700C930E8 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 					5B5E0D5B2D5A38DD00E7BCD4 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -561,11 +628,19 @@
 				5BF50FFE2E3261A10025E5D2 /* WatchAuthenticator Watch App */,
 				5BF5100A2E3261A30025E5D2 /* WatchAuthenticator Watch AppTests */,
 				5BF510142E3261A30025E5D2 /* WatchAuthenticator Watch AppUITests */,
+				537EAE8C2E670F2700C930E8 /* Watch WidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		537EAE8B2E670F2700C930E8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B5E0D5A2D5A38DD00E7BCD4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -678,6 +753,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		537EAE892E670F2700C930E8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B5E0D582D5A38DD00E7BCD4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -730,6 +812,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		537EAE9B2E670F2800C930E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 537EAE8C2E670F2700C930E8 /* Watch WidgetExtension */;
+			targetProxy = 537EAE9A2E670F2800C930E8 /* PBXContainerItemProxy */;
+		};
 		5B87652D2D52539E00B4CC30 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5B8765162D52539D00B4CC30 /* Authenticator */;
@@ -758,6 +845,114 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		537EAE9E2E670F2800C930E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Watch Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Watch Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		537EAE9F2E670F2800C930E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=xros*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Watch Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Watch Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Proton Authenticator Watch Widget Distribution";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
+		537EAEA02E670F2800C930E8 /* Release-QA */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=xros*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = 2SB5Z68H26;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Watch Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Watch Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.proton.authenticator.watch.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Proton Authenticator Watch Widget Distribution";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = "Release-QA";
+		};
 		5B5E0D432D5A2CBF00E7BCD4 /* Release-QA */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1582,6 +1777,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		537EAEA12E670F2800C930E8 /* Build configuration list for PBXNativeTarget "Watch WidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				537EAE9E2E670F2800C930E8 /* Debug */,
+				537EAE9F2E670F2800C930E8 /* Release */,
+				537EAEA02E670F2800C930E8 /* Release-QA */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5B5E0D6A2D5A38DD00E7BCD4 /* Build configuration list for PBXNativeTarget "Autofill" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
