@@ -308,6 +308,9 @@ private extension EntriesView {
     }
 
     func handle(_ action: EntryAction) {
+        // Reset `reorderingEntries` to exit dragging mode
+        // otherwise the list is not updated after deleting an entry
+        viewModel.reorderingEntries = nil
         switch action {
         case let .copyCurrentCode(entry):
             viewModel.copyTokenToClipboard(entry, current: true)
@@ -476,7 +479,6 @@ private extension EntriesView {
                                           maxWidth: maxWidth,
                                           action: { showImportOptions.toggle() })
                                 .impactHaptic()
-                                .importingService($showImportOptions, onMainDisplay: true)
                         }
                         .frame(minWidth: 262, maxWidth: .infinity)
                     }
@@ -485,6 +487,7 @@ private extension EntriesView {
                     .refreshable { [weak viewModel] in
                         viewModel?.reloadData()
                     }
+                    .importingService($showImportOptions, context: .homepage)
             } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
                 VStack {
                     Spacer()

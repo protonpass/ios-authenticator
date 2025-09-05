@@ -39,7 +39,7 @@ public struct OnboardingView: View {
         .tint(.purpleInteraction)
         .task { viewModel.getSupportedBiometric() }
         .importingService($showImportOptions,
-                          onMainDisplay: false,
+                          context: .onboarding,
                           onComplete: goNext)
         .onChange(of: viewModel.biometricEnabled, goNext)
         .onChange(of: viewModel.iCloudSyncEnabled, goNext)

@@ -1,9 +1,11 @@
 # Version 1.2.0
 Secure data export: you can now protect your exported data with a password for enhanced security.
+Apple Watch complications: quickly access Proton Authenticator with four new complication options.
 
 Improvements:
 - Fix for an issue where scanning a Google QR code occasionally created duplicate entries
 - Support otpauth URIs with colons
+- Fix iPad entries not reloading after delete
 - Upgraded Rust library from 0.25.9 to 0.25.10
 
 # Version 1.1.4

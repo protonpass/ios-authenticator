@@ -5012,6 +5012,16 @@
         }
       }
     },
+    "Import from Google Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import from Google Authenticator"
+          }
+        }
+      }
+    },
     "Importing from %1$@ doesn't support %2$@ file format." : {
       "localizations" : {
         "de" : {
@@ -9019,77 +9029,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kullandığınız iki adımlı doğrulama hizmeti sağlayıcısını seçin"
-          }
-        }
-      }
-    },
-    "Select your provider" : {
-      "comment" : "Title of the alert to ask for which provider to import from",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle deinen Anbieter"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select your provider"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecciona tu proveedor"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seleccione su proveedor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sélectionnez votre fournisseur"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seleziona il tuo provider"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecteer uw provider"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wybierz dostawcę"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecione seu provedor"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выберите провайдера"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hizmet sağlayıcınızı seçin"
           }
         }
       }
