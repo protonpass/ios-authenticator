@@ -2074,6 +2074,12 @@
             "value" : "Confirmar la contraseña"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmar contraseña"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6915,6 +6921,12 @@
             "value" : "Protegido con contraseña"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protegido con contraseña"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6930,7 +6942,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "wachtwoord beveiligd"
+            "value" : "Wachtwoord beveiligd"
           }
         },
         "pt-BR" : {
@@ -7037,6 +7049,12 @@
             "value" : "Texto sin formato"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto plano"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7052,7 +7070,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Platte tekst"
+            "value" : "Onopgemaakte tekst"
           }
         },
         "pt-BR" : {
@@ -8441,6 +8459,12 @@
             "value" : "Guardar la contraseña"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar contraseña"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9053,6 +9077,12 @@
             "value" : "Establezca una contraseña para proteger los archivos de copia de seguridad."
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cree una contraseña para proteger los archivos de copia de seguridad."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9068,7 +9098,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stel een wachtwoord in om uw back-up bestanden te beschermen."
+            "value" : "Stel een wachtwoord in om uw back-upbestanden te beschermen."
           }
         },
         "pt-BR" : {
