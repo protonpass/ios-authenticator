@@ -206,11 +206,21 @@ extension SettingsViewModel {
     }
 
     func toggleICloudSyncBackup() {
-        settingsService.toggleICloudSync(!iCloudSync)
-        iCloudSync.toggle()
-        toggleICloudSyncTask?.cancel()
-        toggleICloudSyncTask = Task {
-            await localDataManager.refreshLocalStorage()
+        guard toggleICloudSyncTask == nil else { return }
+        toggleICloudSyncTask = Task { [weak self] in
+            guard let self else { return }
+            defer { toggleICloudSyncTask = nil }
+            do {
+                let reason = #localized("Please authenticate", bundle: .module)
+                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                       reason: reason) {
+                    settingsService.toggleICloudSync(!iCloudSync)
+                    iCloudSync.toggle()
+                }
+                await localDataManager.refreshLocalStorage()
+            } catch {
+                handle(error)
+            }
         }
     }
 
@@ -274,11 +284,7 @@ extension SettingsViewModel {
                         .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
                 }
             } catch {
-                if let laError = error as? LAError, laError.code == .userCancel {
-                    logManager.log(.error, category: .ui, error.localizedDescription)
-                } else {
-                    handle(error)
-                }
+                handle(error)
             }
         }
     }
@@ -341,8 +347,12 @@ extension SettingsViewModel {
 
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
-        logManager.log(.error, category: .ui, error.localizedDescription)
-        alertService.showError(error, mainDisplay: false, action: nil)
+        if let laError = error as? LAError, laError.code == .userCancel {
+            logManager.log(.error, category: .ui, error.localizedDescription)
+        } else {
+            logManager.log(.error, category: .ui, error.localizedDescription)
+            alertService.showError(error, mainDisplay: false, action: nil)
+        }
     }
 
     func haptic() {
