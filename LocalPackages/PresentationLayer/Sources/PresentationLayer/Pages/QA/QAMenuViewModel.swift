@@ -112,26 +112,6 @@ final class QAMenuViewModel {
         appSettings.setInstallationTimestamp(date.timeIntervalSince1970)
     }
 
-    func deleteAllData() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            defer { isLoading = false }
-            isLoading = true
-            do {
-                try await entryDataService.deleteAll()
-                alertService.showAlert(.sheet(.init(title: "Done",
-                                                    titleBundle: .module,
-                                                    message: .verbatim("Deleted all data"),
-                                                    actions: [.ok])))
-            } catch {
-                alertService.showAlert(.sheet(.init(title: "An error occurred",
-                                                    titleBundle: .module,
-                                                    message: .verbatim(error.localizedDescription),
-                                                    actions: [.ok])))
-            }
-        }
-    }
-
     func deleteAllKeychainData(synchronized: Bool) {
         do {
             try keychainService.deleteAll(synchronized: synchronized)

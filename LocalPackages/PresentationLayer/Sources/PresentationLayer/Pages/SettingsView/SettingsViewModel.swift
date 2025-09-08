@@ -34,6 +34,10 @@ import UIKit
 import UniformTypeIdentifiers
 #endif
 
+enum SyncConfiguration: Sendable {
+    case local, iCloud, iCloudAndProton
+}
+
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var fullBackupEnabled = false
@@ -51,6 +55,14 @@ final class SettingsViewModel {
 
     var passwordProtectedExportable: Bool {
         !password.isEmpty && password == confirmedPassword
+    }
+
+    var syncConfiguration: SyncConfiguration {
+        if iCloudSync, syncEnabled {
+            return .iCloudAndProton
+        }
+
+        return iCloudSync ? .iCloud : .local
     }
 
     @ObservationIgnored
