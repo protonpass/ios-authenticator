@@ -5373,6 +5373,26 @@
         }
       }
     },
+    "Issuer (A-Z)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (A-Z)"
+          }
+        }
+      }
+    },
+    "Issuer (Z-A)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (Z-A)"
+          }
+        }
+      }
+    },
     "issuer %@" : {
       "localizations" : {
         "de" : {
@@ -5647,6 +5667,46 @@
         }
       }
     },
+    "Last created (newest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last created (newest)"
+          }
+        }
+      }
+    },
+    "Last created (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last created (oldest)"
+          }
+        }
+      }
+    },
+    "Last update (newest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (newest)"
+          }
+        }
+      }
+    },
+    "Last update (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (oldest)"
+          }
+        }
+      }
+    },
     "Light" : {
       "localizations" : {
         "de" : {
@@ -5853,6 +5913,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VERİLERİNİZİ YÖNETİN"
+          }
+        }
+      }
+    },
+    "Manual" : {
+      "comment" : "Option to enter manual sorting mode (by drag and drop entries)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
           }
         }
       }
@@ -9519,6 +9590,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atla"
+          }
+        }
+      }
+    },
+    "Sort options" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort options"
           }
         }
       }

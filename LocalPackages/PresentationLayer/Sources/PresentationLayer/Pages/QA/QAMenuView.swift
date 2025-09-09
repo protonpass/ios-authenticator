@@ -20,6 +20,7 @@
 //
 
 import CommonUtilities
+import Models
 import SwiftUI
 
 struct QAMenuView: View {

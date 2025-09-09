@@ -23,6 +23,7 @@
 import DataLayer
 import FactoryKit
 import Foundation
+import Models
 
 struct KeychainContent: Identifiable {
     let id: String
