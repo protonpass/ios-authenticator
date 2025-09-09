@@ -55,12 +55,6 @@ final class QAMenuViewModel {
         }
     }
 
-    var sortOption: SortOption {
-        didSet {
-            appSettings.setSortOption(sortOption)
-        }
-    }
-
     var displayPassBanner: Bool {
         didSet {
             appSettings.togglePassBanner(displayPassBanner)
@@ -108,7 +102,6 @@ final class QAMenuViewModel {
     init() {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
-        sortOption = appSettings.sortOption
         displayPassBanner = appSettings.showPassBanner
         fullBackupActivated = appSettings.fullBackUp
         unsupportedScanning = appSettings.unsupportedScanning

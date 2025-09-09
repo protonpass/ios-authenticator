@@ -59,8 +59,8 @@ final class EntriesViewModel: ObservableObject {
         userSessionManager.isAuthenticatedWithUserData.value
     }
 
-    var isManualSort: Bool {
-        settingsService.sortOption.isManual
+    var sortOption: SortOption {
+        settingsService.sortOption
     }
 
     @ObservationIgnored
@@ -114,7 +114,8 @@ final class EntriesViewModel: ObservableObject {
     #endif
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.settingsService) private(set) var settingsService
+    @LazyInjected(\ServiceContainer.settingsService)
+    private(set) var settingsService
 
     @ObservationIgnored
     @LazyInjected(\UseCaseContainer.requestForReview)

@@ -198,7 +198,7 @@ private extension EntriesView {
                         .disabled(viewModel.deleteTask != nil)
                     }
             }
-            .onMove(perform: viewModel.isManualSort ? { source, destination in
+            .onMove(perform: viewModel.sortOption.isManual ? { source, destination in
                 viewModel.moveItem(fromOffsets: source, toOffset: destination)
             } : nil)
             .padding(.horizontal)
@@ -220,7 +220,7 @@ private extension EntriesView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
                 ForEach(viewModel.reorderingEntries ?? viewModel.entries) { entry in
                     cell(for: entry)
-                        .if(viewModel.isManualSort) { view in
+                        .if(viewModel.sortOption.isManual) { view in
                             view
                                 .draggable(entry.orderedEntry.id) {
                                     cell(for: entry)
@@ -533,17 +533,47 @@ private extension EntriesView {
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                router.presentedSheet = .settings
-            } label: {
-                Image(.settingsGear)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 44, height: 44)
+            HStack {
+                Menu(content: {
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Button(action: {
+                            viewModel.settingsService.setSortOption(option)
+                        }, label: {
+                            if option == viewModel.sortOption {
+                                Label(option.description, systemImage: "checkmark")
+                            } else {
+                                Text(option.description, bundle: .module)
+                            }
+                        })
+
+                        switch option {
+                        case .creationDateDesc, .issuerDesc, .manual:
+                            Divider()
+                        default:
+                            EmptyView()
+                        }
+                    }
+                }, label: {
+                    Image(.settingsGear)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 44, height: 44)
+                        .impactHaptic()
+                        .accessibilityLabel("Sort options")
+                })
+
+                Button {
+                    router.presentedSheet = .settings
+                } label: {
+                    Image(.settingsGear)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 44, height: 44)
+                }
+                .adaptiveButtonStyle()
+                .impactHaptic()
+                .accessibilityLabel("Settings")
             }
-            .adaptiveButtonStyle()
-            .impactHaptic()
-            .accessibilityLabel("Settings")
         }
         #endif
     }

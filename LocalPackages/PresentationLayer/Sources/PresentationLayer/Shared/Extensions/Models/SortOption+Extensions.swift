@@ -19,10 +19,10 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Models
+import SwiftUI
 
 extension SortOption {
-    // TODO: localize this
-    var description: String {
+    var description: LocalizedStringKey {
         switch self {
         case .manual:
             "Manual"
@@ -31,13 +31,13 @@ extension SortOption {
         case .issuerDesc:
             "Issuer (Z-A)"
         case .creationDateAsc:
-            "Creation date (oldest first)"
+            "Oldest to newest"
         case .creationDateDesc:
-            "Creation date (newest first)"
+            "Newest to oldest"
         case .modificationDateAsc:
-            "Modification date (oldest first)"
+            "Earliest update first"
         case .modificationDateDesc:
-            "Modification date (newest first)"
+            "Latest update first"
         }
     }
 }

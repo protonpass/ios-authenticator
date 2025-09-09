@@ -3360,6 +3360,16 @@
         }
       }
     },
+    "Earliest update first" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Earliest update first"
+          }
+        }
+      }
+    },
     "Edit" : {
       "localizations" : {
         "de" : {
@@ -5373,6 +5383,26 @@
         }
       }
     },
+    "Issuer (A-Z)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (A-Z)"
+          }
+        }
+      }
+    },
+    "Issuer (Z-A)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (Z-A)"
+          }
+        }
+      }
+    },
     "issuer %@" : {
       "localizations" : {
         "de" : {
@@ -5647,6 +5677,16 @@
         }
       }
     },
+    "Latest update first" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest update first"
+          }
+        }
+      }
+    },
     "Light" : {
       "localizations" : {
         "de" : {
@@ -5857,6 +5897,17 @@
         }
       }
     },
+    "Manual" : {
+      "comment" : "Option to enter manual sorting mode (by drag and drop entries)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
+          }
+        }
+      }
+    },
     "Match system" : {
       "localizations" : {
         "de" : {
@@ -6063,6 +6114,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yeni kayıt"
+          }
+        }
+      }
+    },
+    "Newest to oldest" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Newest to oldest"
           }
         }
       }
@@ -6623,6 +6684,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
+          }
+        }
+      }
+    },
+    "Oldest to newest" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oldest to newest"
           }
         }
       }
@@ -9519,6 +9590,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atla"
+          }
+        }
+      }
+    },
+    "Sort options" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort options"
           }
         }
       }
