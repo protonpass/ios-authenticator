@@ -81,8 +81,8 @@ public struct SettingsView: View {
                     discoverySection
                 }
                 deleteAllDataButton
+                    .padding(.vertical, 32)
                 versionLabel
-                    .padding(.top, 32)
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
@@ -153,7 +153,7 @@ public struct SettingsView: View {
                    Text("Set a password to protect the export file.", bundle: .module)
                })
         .sheet(isPresented: $showDeleteAllDataSheet) {
-            DeleteAllDataView(config: viewModel.syncConfiguration)
+            DeleteAllDataView(mode: viewModel.getSyncMode())
                 .interactiveDismissDisabled()
         }
         #if os(macOS)
@@ -392,6 +392,7 @@ private extension SettingsView {
                .padding(DesignConstant.padding)
                .background(.clear)
                .buttonStyle(.plain)
+               .plainListRow()
     }
 
     @ViewBuilder

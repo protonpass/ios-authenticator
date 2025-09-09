@@ -34,10 +34,6 @@ import UIKit
 import UniformTypeIdentifiers
 #endif
 
-enum SyncConfiguration: Sendable {
-    case local, iCloud, iCloudAndProton
-}
-
 @Observable @MainActor
 final class SettingsViewModel {
     private(set) var fullBackupEnabled = false
@@ -55,14 +51,6 @@ final class SettingsViewModel {
 
     var passwordProtectedExportable: Bool {
         !password.isEmpty && password == confirmedPassword
-    }
-
-    var syncConfiguration: SyncConfiguration {
-        if iCloudSync, syncEnabled {
-            return .iCloudAndProton
-        }
-
-        return iCloudSync ? .iCloud : .local
     }
 
     @ObservationIgnored
@@ -199,6 +187,19 @@ extension SettingsViewModel {
     func setUp() async {
         versionString = #localized("Version %@", bundle: .module, bundle.displayedAppVersion)
         await requestForReview()
+    }
+
+    func getSyncMode() -> SyncMode {
+        var mode: SyncMode = []
+        if iCloudSync {
+            mode.insert(.iCloud)
+        }
+
+        if syncEnabled {
+            mode.insert(.proton)
+        }
+
+        return mode
     }
 
     func authenticateAndPerform(_ block: () throws -> Void) async {

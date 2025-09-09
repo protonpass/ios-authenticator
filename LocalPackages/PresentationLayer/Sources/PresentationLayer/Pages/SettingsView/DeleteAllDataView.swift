@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Models
 import SwiftUI
 
 struct DeleteAllDataView: View {
@@ -27,7 +28,7 @@ struct DeleteAllDataView: View {
     @State private var viewModel = DeleteAllDataViewModel()
     @State private var confirmationText = ""
     @State private var showCompleteAlert = false
-    let config: SyncConfiguration
+    let mode: SyncMode
 
     private var deletionAllowed: Bool {
         confirmationText == "DELETE"
@@ -78,81 +79,94 @@ struct DeleteAllDataView: View {
 
 private extension DeleteAllDataView {
     var idle: some View {
-        VStack(alignment: .center) {
-            HStack {
-                Spacer()
-                Button(action: dismiss.callAsFunction) {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
-                }
-                .adaptiveButtonStyle()
-            }
-            .frame(height: 60)
-            .padding(.bottom, 36)
-
-            Text("Delete all data", bundle: .module)
-                .foregroundStyle(.textNorm)
-                .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
-
-            Text(config.title, bundle: .module)
-                .foregroundStyle(.textWeak)
-                .dynamicFont(size: 20, textStyle: .title3)
-                .padding(.top, 8)
-                .padding(.bottom, 32)
-
-            TextField(text: $confirmationText, label: { EmptyView() })
-                .foregroundStyle(.textNorm)
-                .textFieldStyle(.plain)
-                .textInputAutocapitalization(.characters)
-                .dynamicFont(size: 20, textStyle: .title3)
-
-            Rectangle()
-                .foregroundStyle(.clear)
-                .frame(height: 1)
-                .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
-
-            Button(action: viewModel.delete) {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("Delete all data", bundle: .module)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-                    .background(.red)
-                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
-                            radius: 12,
-                            x: 0,
-                            y: 1)
-                    .overlay(Capsule()
-                        .inset(by: 0.25)
-                        .stroke(colorScheme == .dark ? .white.opacity(0.12) : .black.opacity(0.20),
-                                lineWidth: 0.5))
-                    .clipShape(.capsule)
+                    .foregroundStyle(.textNorm)
+                    .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
+
+                Text("Proceed with caution. This action is irreversible.", bundle: .module)
+                    .foregroundStyle(.textWeak)
+                    .dynamicFont(size: 20, textStyle: .title3)
+
+                Text("Following data will be deleted:", bundle: .module)
+                    .foregroundStyle(.textNorm)
+                    .dynamicFont(size: 17, textStyle: .body)
+
+                deletionLabel("Data on this device")
+
+                if mode.contains(.iCloud) {
+                    deletionLabel("Data in iCloud")
+                }
+
+                if mode.contains(.proton) {
+                    deletionLabel("Data on Proton servers")
+                }
+
+                TextField("Please type \"DELETE\" to proceed.", text: $confirmationText)
+                    .foregroundStyle(.textNorm)
+                    .textFieldStyle(.plain)
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled()
+                    .dynamicFont(size: 20, textStyle: .title3)
+                    .padding(.top)
+
+                Rectangle()
+                    .foregroundStyle(.clear)
+                    .frame(height: 1)
+                    .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
+
+                deleteButton(viewModel.delete)
+                    .padding(.top, 32)
+
+                Spacer()
             }
-            .animation(.default, value: deletionAllowed)
-            .disabled(!deletionAllowed)
-            .opacity(deletionAllowed ? 1 : 0.5)
-            .padding(.top, 32)
-
-            Spacer()
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                }
+            }
         }
-        .padding()
-        .tint(.red)
     }
-}
 
-private extension SyncConfiguration {
-    var title: LocalizedStringKey {
-        switch self {
-        case .local:
-            "You're about to delete all data on this device. Please type \"DELETE\" to proceed."
-        case .iCloud:
-            "You're about to delete all data on this device and iCloud. Please type \"DELETE\" to proceed."
-        case .iCloudAndProton:
-            // swiftlint:disable:next line_length
-            "You're about to delete all data on this device, iCloud and Proton servers. Please type \"DELETE\" to proceed."
+    func deletionLabel(_ text: LocalizedStringKey) -> some View {
+        Label(text, systemImage: "xmark")
+            .foregroundStyle(.error)
+            .dynamicFont(size: 17, textStyle: .body)
+    }
+
+    func deleteButton(_ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text("Delete all data", bundle: .module)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(height: 52)
+                .background(LinearGradient(stops:
+                    [
+                        .init(color: Color(red: 1, green: 0.31, blue: 0.31), location: 0),
+                        .init(color: Color(red: 0.6, green: 0.19, blue: 0.19), location: 1)
+                    ],
+                    startPoint: .init(x: 0.5, y: 0),
+                    endPoint: .init(x: 0.5, y: 1)))
+                .cornerRadius(26)
+                .shadow(color: Color(red: 1, green: 0.37, blue: 0.37).opacity(0.25),
+                        radius: 12,
+                        x: 0,
+                        y: 1)
+                .overlay(RoundedRectangle(cornerRadius: 26)
+                    .inset(by: 0.25)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 0.5))
         }
+        .animation(.default, value: deletionAllowed)
+        .disabled(!deletionAllowed)
+        .opacity(deletionAllowed ? 1 : 0.5)
     }
 }

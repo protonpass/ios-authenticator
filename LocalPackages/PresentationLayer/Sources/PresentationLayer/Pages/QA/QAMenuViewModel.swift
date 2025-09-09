@@ -79,10 +79,6 @@ final class QAMenuViewModel {
     private let keychainService = resolve(\ServiceContainer.keychainService)
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.entryDataService)
-    private(set) var entryDataService
-
-    @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)
     private(set) var alertService
 
