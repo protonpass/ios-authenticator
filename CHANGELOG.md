@@ -1,3 +1,11 @@
+# Version 1.3.0
+Sort options: you can now sort entries in 7 different modes
+
+Improvements:
+- Authentication required when enabling or disabling iCloud sync
+- Added option to delete all data
+- Upgraded Rust library from 0.25.10 to 0.25.11
+
 # Version 1.2.0
 Secure data export: you can now protect your exported data with a password for enhanced security.
 Apple Watch complications: quickly access Proton Authenticator with four new complication options.

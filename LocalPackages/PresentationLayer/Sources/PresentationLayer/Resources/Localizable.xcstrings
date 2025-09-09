@@ -492,6 +492,16 @@
         }
       }
     },
+    "All your data is deleted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All your data is deleted"
+          }
+        }
+      }
+    },
     "An error occurred" : {
       "localizations" : {
         "de" : {
@@ -1145,7 +1155,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"Backup\" de %@"
+            "value" : "Backup de %@"
           }
         },
         "ru" : {
@@ -2672,6 +2682,36 @@
         }
       }
     },
+    "Data in iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data in iCloud"
+          }
+        }
+      }
+    },
+    "Data on Proton servers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on Proton servers"
+          }
+        }
+      }
+    },
+    "Data on this device" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on this device"
+          }
+        }
+      }
+    },
     "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account." : {
       "localizations" : {
         "de" : {
@@ -2870,6 +2910,16 @@
         }
       }
     },
+    "Delete all data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all data"
+          }
+        }
+      }
+    },
     "Delete entry" : {
       "localizations" : {
         "de" : {
@@ -2936,6 +2986,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydı sil"
+          }
+        }
+      }
+    },
+    "Deleting all your data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleting all your data"
           }
         }
       }
@@ -4247,6 +4307,16 @@
         }
       }
     },
+    "Following data will be deleted:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Following data will be deleted:"
+          }
+        }
+      }
+    },
     "Free" : {
       "localizations" : {
         "de" : {
@@ -5020,10 +5090,58 @@
     },
     "Import from Google Authenticator" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Google Authenticator importieren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import from Google Authenticator"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar desde Google Authenticator"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer depuis Google Authenticator"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa da Google Authenticator"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren van Google Authenticator"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar do Google Authenticator"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Authenticator üzerinden içe aktar"
           }
         }
       }
@@ -5145,7 +5263,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
+            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Configurações > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
           }
         },
         "ru" : {
@@ -5369,6 +5487,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veren kuruluş"
+          }
+        }
+      }
+    },
+    "Issuer (A-Z)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (A-Z)"
+          }
+        }
+      }
+    },
+    "Issuer (Z-A)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issuer (Z-A)"
           }
         }
       }
@@ -5647,6 +5785,46 @@
         }
       }
     },
+    "Last created (newest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last created (newest)"
+          }
+        }
+      }
+    },
+    "Last created (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last created (oldest)"
+          }
+        }
+      }
+    },
+    "Last update (newest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (newest)"
+          }
+        }
+      }
+    },
+    "Last update (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (oldest)"
+          }
+        }
+      }
+    },
     "Light" : {
       "localizations" : {
         "de" : {
@@ -5853,6 +6031,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VERİLERİNİZİ YÖNETİN"
+          }
+        }
+      }
+    },
+    "Manual" : {
+      "comment" : "Option to enter manual sorting mode (by drag and drop entries)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
           }
         }
       }
@@ -7332,7 +7521,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Acesse **⋮ >Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+            "value" : "Acesse **⋮ >Configurações > Importar e Exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
           }
         },
         "ru" : {
@@ -7745,6 +7934,17 @@
         }
       }
     },
+    "Please type \"DELETE\" to proceed." : {
+      "comment" : "⚠️ Please do not translate \"DELETE\"",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please type \"DELETE\" to proceed."
+          }
+        }
+      }
+    },
     "Point your camera at the QR code" : {
       "localizations" : {
         "de" : {
@@ -7811,6 +8011,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kameranıza kare kodu gösterin"
+          }
+        }
+      }
+    },
+    "Proceed with caution. This action is irreversible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed with caution. This action is irreversible."
           }
         }
       }
@@ -9104,7 +9314,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Defina uma senha para proteger os arquivos de \"backup\"."
+            "value" : "Defina uma senha para proteger os arquivos de backup."
           }
         },
         "tr" : {
@@ -9519,6 +9729,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atla"
+          }
+        }
+      }
+    },
+    "Sort options" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort options"
           }
         }
       }

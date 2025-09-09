@@ -78,7 +78,7 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
     
     func unsyncAllEntries() async throws {}
     
-    func deleteAll() async throws {}
+    func deleteAllEntries() async throws {}
     
     func extractingOrderedEntry() -> [Models.OrderedEntry] {
         []

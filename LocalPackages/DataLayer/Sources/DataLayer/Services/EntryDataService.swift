@@ -43,8 +43,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func fullRefresh() async throws
     func backUpEntries()
 
-    @_spi(QA)
-    func deleteAll() async throws
+    func deleteAllEntries() async throws
 
     // MARK: - Expose repo functionalities to not have to inject several data source in view models
 
@@ -296,23 +295,30 @@ public extension EntryDataService {
         }
     }
 
-    func deleteAll() async throws {
+    func deleteAllEntries() async throws {
         log(.debug, "Deleting all entries")
         do {
             let localEntries = try await repository.getAllLocalEncryptedEntries()
 
             let entryIdsToRemove = localEntries.map(\.id)
-            let keyIdsToReset = localEntries.map(\.keyId)
 
             try await repository.localRemoves(entryIdsToRemove)
-            try await repository.reset(keyIds: keyIdsToReset)
 
-            await repository.resetRemoteKeys()
-
+            var remoteError: (any Error)?
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
-                _ = try? await repository.remoteDeletes(remoteEntryIds: remoteEntries.compactMap(\.remoteId))
+                do {
+                    let ids = remoteEntries.compactMap(\.remoteId)
+                    _ = try await repository.remoteDeletes(remoteEntryIds: ids)
+                } catch {
+                    remoteError = error
+                }
             }
+
             try await loadEntries()
+
+            if let remoteError {
+                throw remoteError
+            }
         } catch {
             log(.error, "Failed to delete all entries: \(error.localizedDescription)")
             throw error
