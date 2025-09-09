@@ -3360,16 +3360,6 @@
         }
       }
     },
-    "Earliest update first" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Earliest update first"
-          }
-        }
-      }
-    },
     "Edit" : {
       "localizations" : {
         "de" : {
@@ -5677,12 +5667,42 @@
         }
       }
     },
-    "Latest update first" : {
+    "Last created (newest)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Latest update first"
+            "value" : "Last created (newest)"
+          }
+        }
+      }
+    },
+    "Last created (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last created (oldest)"
+          }
+        }
+      }
+    },
+    "Last update (newest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (newest)"
+          }
+        }
+      }
+    },
+    "Last update (oldest)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last update (oldest)"
           }
         }
       }
@@ -6114,16 +6134,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yeni kayıt"
-          }
-        }
-      }
-    },
-    "Newest to oldest" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Newest to oldest"
           }
         }
       }
@@ -6684,16 +6694,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
-          }
-        }
-      }
-    },
-    "Oldest to newest" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oldest to newest"
           }
         }
       }

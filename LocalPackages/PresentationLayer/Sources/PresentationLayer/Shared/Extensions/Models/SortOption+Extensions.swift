@@ -31,13 +31,13 @@ extension SortOption {
         case .issuerDesc:
             "Issuer (Z-A)"
         case .creationDateAsc:
-            "Oldest to newest"
+            "Last created (newest)"
         case .creationDateDesc:
-            "Newest to oldest"
+            "Last created (oldest)"
         case .modificationDateAsc:
-            "Earliest update first"
+            "Last update (newest)"
         case .modificationDateDesc:
-            "Latest update first"
+            "Last update (oldest)"
         }
     }
 }
