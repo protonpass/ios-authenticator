@@ -492,6 +492,16 @@
         }
       }
     },
+    "All your data is deleted" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All your data is deleted"
+          }
+        }
+      }
+    },
     "An error occurred" : {
       "localizations" : {
         "de" : {
@@ -2672,6 +2682,36 @@
         }
       }
     },
+    "Data in iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data in iCloud"
+          }
+        }
+      }
+    },
+    "Data on Proton servers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on Proton servers"
+          }
+        }
+      }
+    },
+    "Data on this device" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on this device"
+          }
+        }
+      }
+    },
     "Data on this device won't be updated and changes will not be reflected on other devices.\n\nYou will be logged out of your Proton account." : {
       "localizations" : {
         "de" : {
@@ -2870,6 +2910,16 @@
         }
       }
     },
+    "Delete all data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all data"
+          }
+        }
+      }
+    },
     "Delete entry" : {
       "localizations" : {
         "de" : {
@@ -2936,6 +2986,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydı sil"
+          }
+        }
+      }
+    },
+    "Deleting all your data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deleting all your data"
           }
         }
       }
@@ -4243,6 +4303,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Klasör konumu"
+          }
+        }
+      }
+    },
+    "Following data will be deleted:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Following data will be deleted:"
           }
         }
       }
@@ -7816,6 +7886,17 @@
         }
       }
     },
+    "Please type \"DELETE\" to proceed." : {
+      "comment" : "⚠️ Please do not translate \"DELETE\"",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please type \"DELETE\" to proceed."
+          }
+        }
+      }
+    },
     "Point your camera at the QR code" : {
       "localizations" : {
         "de" : {
@@ -7882,6 +7963,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kameranıza kare kodu gösterin"
+          }
+        }
+      }
+    },
+    "Proceed with caution. This action is irreversible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed with caution. This action is irreversible."
           }
         }
       }

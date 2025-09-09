@@ -58,6 +58,7 @@ public struct SettingsView: View {
     @State private var showImportOptions = false
     @State private var showExportAlert = false
     @State private var showPasswordExportAlert = false
+    @State private var showDeleteAllDataSheet = false
 
     public init() {}
 
@@ -79,8 +80,9 @@ public struct SettingsView: View {
                 if !viewModel.products.isEmpty {
                     discoverySection
                 }
+                deleteAllDataButton
+                    .padding(.vertical, 32)
                 versionLabel
-                    .padding(.top, 32)
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
@@ -150,23 +152,27 @@ public struct SettingsView: View {
                }, message: {
                    Text("Set a password to protect the export file.", bundle: .module)
                })
+        .sheet(isPresented: $showDeleteAllDataSheet) {
+            DeleteAllDataView(mode: viewModel.getSyncMode())
+                .interactiveDismissDisabled()
+        }
         #if os(macOS)
-               .frame(minWidth: 800, minHeight: 600)
+        .frame(minWidth: 800, minHeight: 600)
         #endif
-               .onDisappear {
-                   viewModel.emptyTempDirectory()
-               }
-               .fileExporter(isPresented: $viewModel.fileToExport.mappedToBool(),
-                             document: viewModel.fileToExport,
-                             contentTypes: [.plainText],
-                             defaultFilename: viewModel.exportFileName()) { result in
-                   switch result {
-                   case let .success(url):
-                       print("Saved to \(url)")
-                   case let .failure(error):
-                       print(error.localizedDescription)
-                   }
-               }
+        .onDisappear {
+            viewModel.emptyTempDirectory()
+        }
+        .fileExporter(isPresented: $viewModel.fileToExport.mappedToBool(),
+                      document: viewModel.fileToExport,
+                      contentTypes: [.plainText],
+                      defaultFilename: viewModel.exportFileName()) { result in
+            switch result {
+            case let .success(url):
+                print("Saved to \(url)")
+            case let .failure(error):
+                print(error.localizedDescription)
+            }
+        }
     }
 
     private var toolbarItemPlacement: ToolbarItemPlacement {
@@ -369,6 +375,26 @@ private extension SettingsView {
         }
     }
 
+    var deleteAllDataButton: some View {
+        Button(action: {
+                   Task {
+                       await viewModel.authenticateAndPerform {
+                           showDeleteAllDataSheet.toggle()
+                       }
+                   }
+               },
+               label: {
+                   Text("Delete all data", bundle: .module)
+                       .fontWeight(.semibold)
+                       .foregroundStyle(.error)
+                       .frame(maxWidth: .infinity, alignment: .center)
+               })
+               .padding(DesignConstant.padding)
+               .background(.clear)
+               .buttonStyle(.plain)
+               .plainListRow()
+    }
+
     @ViewBuilder
     var versionLabel: some View {
         if let version = viewModel.versionString {
@@ -399,13 +425,15 @@ private extension SettingsView {
 // MARK: - Utils
 
 private extension SettingsView {
-    func section(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
+    func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
         VStack(spacing: DesignConstant.padding) {
-            Text(title, bundle: .module)
-                .dynamicFont(size: 13, textStyle: .footnote)
-                .foregroundStyle(.textWeak)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, DesignConstant.padding)
+            if let title {
+                Text(title, bundle: .module)
+                    .dynamicFont(size: 13, textStyle: .footnote)
+                    .foregroundStyle(.textWeak)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, DesignConstant.padding)
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 content()
