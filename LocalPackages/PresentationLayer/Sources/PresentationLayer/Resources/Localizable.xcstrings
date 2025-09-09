@@ -1145,7 +1145,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"Backup\" de %@"
+            "value" : "Backup de %@"
           }
         },
         "ru" : {
@@ -5020,10 +5020,58 @@
     },
     "Import from Google Authenticator" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Google Authenticator importieren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Import from Google Authenticator"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar desde Google Authenticator"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer depuis Google Authenticator"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa da Google Authenticator"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren van Google Authenticator"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar do Google Authenticator"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Authenticator üzerinden içe aktar"
           }
         }
       }
@@ -5145,7 +5193,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
+            "value" : "Na extensão do Proton Pass, no aplicativo web ou para desktop, acesse **☰ > Configurações > Exportar**\n\nCertifique-se de escolher o **formato zip sem anexos de arquivo**.\n\nIsso criará um arquivo zip que você pode usar aqui."
           }
         },
         "ru" : {
@@ -7332,7 +7380,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Acesse **⋮ >Configurações > Importar e exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
+            "value" : "Acesse **⋮ >Configurações > Importar e Exportar > Exportar**\n\nIsso criará um arquivo Json que você pode usar aqui."
           }
         },
         "ru" : {
@@ -9104,7 +9152,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Defina uma senha para proteger os arquivos de \"backup\"."
+            "value" : "Defina uma senha para proteger os arquivos de backup."
           }
         },
         "tr" : {
