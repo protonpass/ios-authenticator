@@ -80,7 +80,7 @@ public struct SettingsView: View {
                 if !viewModel.products.isEmpty {
                     discoverySection
                 }
-                deleteAllDataSection
+                deleteAllDataButton
                 versionLabel
                     .padding(.top, 32)
                     .padding(.bottom)
@@ -375,16 +375,23 @@ private extension SettingsView {
         }
     }
 
-    var deleteAllDataSection: some View {
-        section(nil) {
-            Button(action: { showDeleteAllDataSheet.toggle() },
-                   label: {
-                       Text("Delete all data", bundle: .module)
-                           .foregroundStyle(.red)
-                           .frame(maxWidth: .infinity, alignment: .center)
-                   })
-                   .padding(DesignConstant.padding)
-        }
+    var deleteAllDataButton: some View {
+        Button(action: {
+                   Task {
+                       await viewModel.authenticateAndPerform {
+                           showDeleteAllDataSheet.toggle()
+                       }
+                   }
+               },
+               label: {
+                   Text("Delete all data", bundle: .module)
+                       .fontWeight(.semibold)
+                       .foregroundStyle(.error)
+                       .frame(maxWidth: .infinity, alignment: .center)
+               })
+               .padding(DesignConstant.padding)
+               .background(.clear)
+               .buttonStyle(.plain)
     }
 
     @ViewBuilder

@@ -201,6 +201,18 @@ extension SettingsViewModel {
         await requestForReview()
     }
 
+    func authenticateAndPerform(_ block: () throws -> Void) async {
+        let reason = #localized("Please authenticate", bundle: .module)
+        do {
+            if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                   reason: reason) {
+                try block()
+            }
+        } catch {
+            handle(error)
+        }
+    }
+
     func togglePassBanner() {
         settingsService.togglePassBanner(!settingsService.showPassBanner)
     }
@@ -210,17 +222,11 @@ extension SettingsViewModel {
         toggleICloudSyncTask = Task { [weak self] in
             guard let self else { return }
             defer { toggleICloudSyncTask = nil }
-            do {
-                let reason = #localized("Please authenticate", bundle: .module)
-                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
-                                                       reason: reason) {
-                    settingsService.toggleICloudSync(!iCloudSync)
-                    iCloudSync.toggle()
-                }
-                await localDataManager.refreshLocalStorage()
-            } catch {
-                handle(error)
+            await authenticateAndPerform {
+                settingsService.toggleICloudSync(!iCloudSync)
+                iCloudSync.toggle()
             }
+            await localDataManager.refreshLocalStorage()
         }
     }
 
@@ -275,16 +281,10 @@ extension SettingsViewModel {
             defer {
                 toggleBioLockTask = nil
             }
-            do {
-                let reason = #localized("Please authenticate", bundle: .module)
-                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
-                                                       reason: reason) {
-                    biometricLock.toggle()
-                    try authenticationService
-                        .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
-                }
-            } catch {
-                handle(error)
+            await authenticateAndPerform {
+                biometricLock.toggle()
+                try authenticationService
+                    .setAuthenticationState(biometricLock ? .active(authenticated: true) : .inactive)
             }
         }
     }
