@@ -554,7 +554,7 @@ private extension EntriesView {
                         }
                     }
                 }, label: {
-                    Image(.settingsGear)
+                    Image(.sortButton)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 44, height: 44)
