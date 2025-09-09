@@ -67,6 +67,7 @@ public enum AppConstants: Sendable {
         public static let fullBackUp = "FullBackUp"
         public static let unsupportedScanning = "UnsupportedScanning"
         public static let backupPassword = "BackupPassword"
+        public static let sortOption = "SortOption"
     }
 
     public enum NetworkSettings {
