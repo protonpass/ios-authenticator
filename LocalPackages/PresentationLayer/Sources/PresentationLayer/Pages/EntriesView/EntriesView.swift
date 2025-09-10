@@ -539,9 +539,7 @@ private extension EntriesView {
                         Button(action: {
                             viewModel.settingsService.setSortOption(option)
                         }, label: {
-                            if option == viewModel.sortOption {
-                                Label(option.description, systemImage: "checkmark")
-                            } else {
+                            Toggle(isOn: .constant(option == viewModel.sortOption)) {
                                 Text(option.description, bundle: .module)
                             }
                         })
