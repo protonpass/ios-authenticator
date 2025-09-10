@@ -114,6 +114,8 @@ public struct EntriesView: View {
                         }
                         if viewModel.isAuthenticated {
                             viewModel.fullSync()
+                        } else {
+                            viewModel.loadEntries()
                         }
                     }
                 }
