@@ -4,6 +4,7 @@ Sort options: you can now sort entries in 7 different modes
 Improvements:
 - Authentication required when enabling or disabling iCloud sync
 - Added option to delete all data
+- Fixed codes not updating when app returns to foreground
 - Upgraded Rust library from 0.25.10 to 0.25.11
 
 # Version 1.2.0
