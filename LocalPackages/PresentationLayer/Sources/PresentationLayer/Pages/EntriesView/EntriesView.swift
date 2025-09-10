@@ -530,6 +530,7 @@ private extension EntriesView {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
+                .minimumScaleFactor(0.75)
         }
         #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {

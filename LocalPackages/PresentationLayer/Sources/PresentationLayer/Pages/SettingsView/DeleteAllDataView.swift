@@ -126,10 +126,8 @@ private extension DeleteAllDataView {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .scaledToFit()
                             .frame(width: 24)
-                            .foregroundStyle(.textNorm.opacity(0.7))
+                            .foregroundStyle(.textWeak)
                     }
                 }
             }
