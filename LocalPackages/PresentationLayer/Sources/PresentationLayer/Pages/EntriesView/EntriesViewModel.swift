@@ -365,9 +365,13 @@ private extension [EntryUiModel] {
         case .manual:
             self
         case .issuerAsc:
-            sorted(by: { $0.orderedEntry.entry.issuer < $1.orderedEntry.entry.issuer })
+            sorted(by: {
+                $0.orderedEntry.entry.issuer.lowercased() < $1.orderedEntry.entry.issuer.lowercased()
+            })
         case .issuerDesc:
-            sorted(by: { $0.orderedEntry.entry.issuer > $1.orderedEntry.entry.issuer })
+            sorted(by: {
+                $0.orderedEntry.entry.issuer.lowercased() > $1.orderedEntry.entry.issuer.lowercased()
+            })
         case .creationDateAsc:
             sorted(by: { $0.orderedEntry.creationDate < $1.orderedEntry.creationDate })
         case .creationDateDesc:
