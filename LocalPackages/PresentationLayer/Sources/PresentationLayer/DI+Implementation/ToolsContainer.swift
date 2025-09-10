@@ -26,16 +26,16 @@ import LocalAuthentication
 import SimplyPersist
 import SwiftData
 
-final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
-    static let shared = ToolsContainer()
-    let manager = ContainerManager()
+public final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
+    public static let shared = ToolsContainer()
+    public let manager = ContainerManager()
 
-    func autoRegister() {
+    public func autoRegister() {
         manager.defaultScope = .singleton
     }
 }
 
-extension ToolsContainer {
+public extension ToolsContainer {
     var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
         self {
             do {
@@ -98,5 +98,9 @@ extension ToolsContainer {
 
     var importingContexts: Factory<CurrentValueSubject<[ImportingContext], Never>> {
         self { .init([]) }
+    }
+
+    var updatingSettings: Factory<CurrentValueSubject<Bool, Never>> {
+        self { .init(false) }
     }
 }
