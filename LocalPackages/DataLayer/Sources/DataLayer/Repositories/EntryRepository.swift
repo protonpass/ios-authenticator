@@ -286,11 +286,13 @@ public extension EntryRepository {
                 }
             }
 
-            // Step 4: Decrypt and sort by 'order'
+            // Step 3: Decrypt and sort by 'order'
             let decryptedEntries = try encryptionService.decrypt(entries: entriesToDecrypt)
 
             let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
             let decryptableCount = decryptedEntries.count(where: { !$0.isNonDecryptable })
+
+            // Step 4: Delete duplicates
 
             if !entriesToDelete.isEmpty {
                 await cleanUpDuplication(entriesToDelete)
