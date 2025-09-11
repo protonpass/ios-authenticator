@@ -29,6 +29,7 @@ struct CopyMessageBadge: View {
             Text("Copied", bundle: .module)
                 .dynamicFont(size: 13, textStyle: .footnote, weight: .medium)
         }
+        .accessibilityLabel(Text("Copied", bundle: .module))
         .foregroundStyle(.copyMessage)
         .padding()
         .overlay(GeometryReader { proxy in
