@@ -112,11 +112,7 @@ public struct EntriesView: View {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch
                             }
                         }
-                        if viewModel.isAuthenticated {
-                            viewModel.fullSync()
-                        } else {
-                            viewModel.loadEntries()
-                        }
+                        viewModel.reloadData()
                     }
                 }
                 .onChange(of: searchFieldFocus) { _, focused in
