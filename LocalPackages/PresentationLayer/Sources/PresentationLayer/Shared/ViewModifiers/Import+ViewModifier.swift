@@ -599,7 +599,7 @@ private final class ImportViewModel: ObservableObject {
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
                 case let .failure(error):
-                    if let scanningError = error as? DataScannerViewController.ScanningUnavailable {
+                    if error is DataScannerViewController.ScanningUnavailable {
                         appSettings.setUnsupportedScanning(true)
                     } else {
                         showError(error.localizedDescription)

@@ -258,6 +258,7 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
+        var entriesToDelete = [EncryptedEntryEntity]()
 
         do {
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
@@ -268,7 +269,6 @@ public extension EntryRepository {
 
             // Step 2: Deduplicate based on most recent modifiedTime
             var latestEntriesById = [String: EncryptedEntryEntity]()
-            var entriesToDelete = [EncryptedEntryEntity]()
 
             for entry in encryptedEntries {
                 if latestEntriesById[entry.id] == nil {
@@ -276,13 +276,6 @@ public extension EntryRepository {
                 } else {
                     entriesToDelete.append(entry) // Older duplicate
                 }
-            }
-
-            // Step 3: Delete duplicates
-            if !entriesToDelete.isEmpty {
-                log(.info, "Found \(entriesToDelete.count) duplicate entries to remove")
-                try await localDataManager.persistentStorage.delete(datas: entriesToDelete)
-                log(.info, "Successfully deleted duplicate entries from local storage")
             }
 
             let entriesToDecrypt = Array(latestEntriesById.values).sorted {
@@ -298,12 +291,30 @@ public extension EntryRepository {
 
             let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
             let decryptableCount = decryptedEntries.count(where: { !$0.isNonDecryptable })
+
+            if !entriesToDelete.isEmpty {
+                await cleanUpDuplication(entriesToDelete)
+            }
+
             log(.info,
                 "Successfully fetched \(decryptableCount) decryptable, \(nonDecryptableCount) non decryptable")
             return decryptedEntries
         } catch {
+            if !entriesToDelete.isEmpty {
+                await cleanUpDuplication(entriesToDelete)
+            }
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
             throw error
+        }
+    }
+
+    private func cleanUpDuplication(_ entriesToDelete: [EncryptedEntryEntity]) async {
+        do {
+            log(.info, "Found \(entriesToDelete.count) duplicate entries to remove")
+            try await localDataManager.persistentStorage.delete(datas: entriesToDelete)
+            log(.info, "Successfully deleted duplicate entries from local storage")
+        } catch {
+            log(.error, "Failed to delete duplicate entries: \(error)")
         }
     }
 
