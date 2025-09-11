@@ -106,6 +106,10 @@ final class SettingsViewModel {
     private(set) var emptyTempDirectory
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.updatingSettings)
+    private(set) var updatingSettings
+
+    @ObservationIgnored
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
@@ -203,6 +207,8 @@ extension SettingsViewModel {
     }
 
     func authenticateAndPerform(_ block: () throws -> Void) async {
+        defer { updatingSettings.send(false) }
+        updatingSettings.send(true)
         let reason = #localized("Please authenticate", bundle: .module)
         do {
             if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,

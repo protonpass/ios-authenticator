@@ -35,7 +35,7 @@ import UniformTypeIdentifiers
 import VisionKit
 
 // swiftlint:disable file_length
-enum ImportingContext: Sendable {
+public enum ImportingContext: Sendable {
     case onboarding, homepage, settings
 
     var isMainDisplay: Bool {

@@ -46,7 +46,7 @@ struct UserMobileLoginController: UIViewControllerRepresentable {
 }
 
 @MainActor
-protocol MobileCoordinatorProtocol {
+public protocol MobileCoordinatorProtocol {
     var rootViewController: UIViewController { get }
 }
 

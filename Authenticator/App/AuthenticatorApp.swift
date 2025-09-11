@@ -191,6 +191,10 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     private var reviewService
 
     @ObservationIgnored
+    @LazyInjected(\ToolsContainer.updatingSettings)
+    private(set) var updatingSettings
+
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -225,7 +229,7 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     }
 
     func resetBiometricCheck() {
-        guard authenticationService.biometricEnabled else { return }
+        guard authenticationService.biometricEnabled, !updatingSettings.value else { return }
         do {
             try authenticationService.setAuthenticationState(.active(authenticated: false))
         } catch {
