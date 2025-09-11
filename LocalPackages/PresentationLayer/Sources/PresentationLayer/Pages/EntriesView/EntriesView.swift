@@ -276,6 +276,7 @@ private extension EntriesView {
         }
     }
 
+    // swiftlint:disable line_length
     func cell(for entry: EntryUiModel, reducedShadow: Bool = true) -> some View {
         EntryCell(entry: entry,
                   configuration: viewModel.settingsService.entryCellConfiguration,
@@ -289,9 +290,7 @@ private extension EntriesView {
             .listRowSeparator(.hidden)
             .accessibility(addTraits: .isButton)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(#localized("issuer %@", bundle: .module, entry.orderedEntry.entry.issuer)
-                + ", "
-                + #localized("item name: %@", bundle: .module, entry.orderedEntry.entry.name))
+            .accessibilityLabel(Text(verbatim: "\(entry.orderedEntry.entry.issuer), \(entry.orderedEntry.entry.name) \(#localized("code: %@", bundle: .module, entry.code.current))"))
             .accessibilityHint(Text("Tap to copy token to clipboard. Swipe left to delete and right to edit.",
                                     bundle: .module))
             .contextMenu {
@@ -307,6 +306,8 @@ private extension EntriesView {
                 }
             }
     }
+
+    // swiftlint:enable line_length
 
     func handle(_ action: EntryAction) {
         // Reset `reorderingEntries` to exit dragging mode
