@@ -148,6 +148,7 @@ public struct EntriesView: View {
                     }
                 }
                 .fullScreenMainBackground()
+                .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
@@ -525,13 +526,27 @@ private extension EntriesView {
 private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: toolbarItemLeadingPlacement) {
+        ToolbarItem(placement: .principal) {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
                 .minimumScaleFactor(0.75)
         }
+
         #if os(iOS)
+        trailingToolbarContent()
+        #endif
+    }
+
+    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .automatic
+        #endif
+    }
+
+    var trailingToolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             HStack {
                 Menu(content: {
@@ -573,16 +588,19 @@ private extension EntriesView {
                 .accessibilityLabel("Settings")
             }
         }
-        #endif
     }
 
-    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarLeading
-        #else
-        return .automatic
-        #endif
+    #if os(iOS)
+    @ToolbarContentBuilder
+    func trailingToolbarContent() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            trailingToolbarButtons
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            trailingToolbarButtons
+        }
     }
+    #endif
 }
 
 private extension EntriesView {

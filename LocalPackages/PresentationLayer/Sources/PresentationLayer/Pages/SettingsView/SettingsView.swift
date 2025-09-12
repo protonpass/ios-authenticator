@@ -95,8 +95,8 @@ public struct SettingsView: View {
                         } label: {
                             Text("Close", bundle: .module)
                                 .foregroundStyle(.purpleInteraction)
+                                .adaptiveButtonStyle()
                         }
-                        .adaptiveButtonStyle()
                     }
                 }
                 .listSectionSpacing(DesignConstant.padding * 2)

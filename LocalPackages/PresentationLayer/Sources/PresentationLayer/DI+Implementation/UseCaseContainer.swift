@@ -22,7 +22,7 @@ import DataLayer
 import DomainLayer
 import FactoryKit
 
-public final class UseCaseContainer: SharedContainer, AutoRegistering {
+public final class UseCaseContainer: @preconcurrency SharedContainer, AutoRegistering {
     public static let shared = UseCaseContainer()
     public let manager = ContainerManager()
 
@@ -59,15 +59,15 @@ extension UseCaseContainer {
     }
 
     var checkAskForReview: Factory<any CheckAskForReviewUseCase> {
-        self { CheckAskForReview(settingsService: self.settingsService,
-                                 entryDataService: ServiceContainer.shared.entryDataService(),
-                                 logger: ToolsContainer.shared.logManager(),
-                                 bundle: .main) }
+        self { @MainActor in CheckAskForReview(settingsService: self.settingsService,
+                                               entryDataService: ServiceContainer.shared.entryDataService(),
+                                               logger: ToolsContainer.shared.logManager(),
+                                               bundle: .main) }
     }
 
     var requestForReview: Factory<any RequestForReviewUseCase> {
-        self { RequestForReview(reviewService: ServiceContainer.shared.reviewService(),
-                                checkAskForReview: self.checkAskForReview()) }
+        self { @MainActor in RequestForReview(reviewService: ServiceContainer.shared.reviewService(),
+                                              checkAskForReview: self.checkAskForReview()) }
     }
 }
 
@@ -92,6 +92,6 @@ public extension UseCaseContainer {
     }
 
     var emptyTempDirectory: Factory<any EmptyTempDirectoryUseCase> {
-        self { EmptyTempDirectory(logger: self.logger) }
+        self { @MainActor in EmptyTempDirectory(logger: self.logger) }
     }
 }

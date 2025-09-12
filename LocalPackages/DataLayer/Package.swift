@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -60,7 +60,12 @@ let package = Package(
                 .product(name: "ProtonCoreKeymaker", package: "protoncore_ios"),
                 .product(name: "ProtonCoreCrypto", package: "protoncore_ios"),
             ],
-            resources: [.process("Resources")]),
+            resources: [.process("Resources")],
+            swiftSettings: [
+              .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+              .enableUpcomingFeature("InferIsolatedConformances")
+            ]
+        ),
         .testTarget(
             name: "DataLayerTests",
             dependencies: ["DataLayer"]

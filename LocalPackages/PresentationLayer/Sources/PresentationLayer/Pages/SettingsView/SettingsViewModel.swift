@@ -385,7 +385,7 @@ private extension SettingsViewModel {
     }
 }
 
-struct TextFile: FileDocument {
+nonisolated struct TextFile: FileDocument {
     static let readableContentTypes = [UTType.plainText]
 
     let text: String

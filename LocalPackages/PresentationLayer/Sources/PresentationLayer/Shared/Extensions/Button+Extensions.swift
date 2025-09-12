@@ -21,10 +21,27 @@
 import SwiftUI
 
 extension Button {
-    @MainActor @ViewBuilder
+    @ViewBuilder
     func adaptiveButtonStyle() -> some View {
         if #available(macOS 14.0, *) {
             self.buttonStyle(.borderless)
         }
+    }
+}
+
+/// Modifier that applies the correct button style depending on OS version
+struct AdaptiveButtonStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 14.0, *) {
+            content.buttonStyle(.borderless)
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func adaptiveButtonStyle() -> some View {
+        modifier(AdaptiveButtonStyle())
     }
 }

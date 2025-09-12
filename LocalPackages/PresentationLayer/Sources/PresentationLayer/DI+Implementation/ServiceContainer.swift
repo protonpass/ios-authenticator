@@ -23,7 +23,7 @@ import DataLayer
 import FactoryKit
 import SwiftUI
 
-public final class ServiceContainer: SharedContainer, AutoRegistering {
+public final class ServiceContainer: @preconcurrency SharedContainer, AutoRegistering {
     public static let shared = ServiceContainer()
     public let manager = ContainerManager()
 
@@ -60,19 +60,19 @@ public extension ServiceContainer {
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { EncryptionService(keysProvider: self.keysManager(),
-                                 logger: self.logger) }
+        self { @MainActor in EncryptionService(keysProvider: self.keysManager(),
+                                               logger: self.logger) }
     }
 
     var keychainService: Factory<any KeychainServicing> {
-        self { KeychainService(service: AppConstants.service,
-                               accessGroup: AppConstants.keychainGroup,
-                               logger: self.logger) }
+        self { @MainActor in KeychainService(service: AppConstants.service,
+                                             accessGroup: AppConstants.keychainGroup,
+                                             logger: self.logger) }
     }
 
     var deepLinkService: Factory<any DeepLinkServicing> {
-        self { DeepLinkService(service: self.entryDataService(),
-                               alertService: self.alertService()) }
+        self { @MainActor in DeepLinkService(service: self.entryDataService(),
+                                             alertService: self.alertService()) }
     }
 
     var alertService: Factory<any AlertServiceProtocol> {
@@ -80,7 +80,7 @@ public extension ServiceContainer {
     }
 
     var importService: Factory<any ImportingServicing> {
-        self { ImportingService(logger: self.logger) }
+        self { @MainActor in ImportingService(logger: self.logger) }
     }
 
     var authenticationService: Factory<any AuthenticationServicing> {
@@ -94,6 +94,7 @@ public extension ServiceContainer {
 
     var userSessionManager: Factory<any UserSessionTooling> {
         self {
+            @MainActor in
             UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
                                    .appVersion(),
                 doh: AuthDoH(userDefaults: .standard)),
@@ -106,7 +107,7 @@ public extension ServiceContainer {
 
     var keysManager: Factory<any KeysProvider> {
         self {
-            KeysManager(keychain: self.keychainService())
+            @MainActor in KeysManager(keychain: self.keychainService())
         }
     }
 
@@ -127,11 +128,11 @@ public extension ServiceContainer {
     }
 
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
-        self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
-                                              logger: self.logger) }
+        self { @MainActor in IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
+                                                            logger: self.logger) }
     }
 
     var cameraManager: Factory<any CameraManagerProtocol> {
-        self { CameraManager() }
+        self { @MainActor in CameraManager() }
     }
 }

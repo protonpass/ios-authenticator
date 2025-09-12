@@ -28,7 +28,6 @@ import Models
 import SimpleToast
 
 @Observable
-@MainActor
 final class EntriesDisplayViewModel: ObservableObject {
     var entries: [UIModel] {
         guard let data = entryDataService.dataState.data else { return [] }
