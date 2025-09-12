@@ -2050,10 +2050,46 @@
     },
     "code: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "code: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "código: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code : %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "code: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "código: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kod: %@"
           }
         }
       }
@@ -5875,6 +5911,12 @@
             "value" : "Émetteur (A - Z)"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servizio (A - Z)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5925,6 +5967,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Émetteur (Z - A)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servizio (Z - A)"
           }
         },
         "nl" : {
@@ -6113,6 +6161,12 @@
             "value" : "Dernier créé (le plus récent)"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi creati (i più recenti)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6163,6 +6217,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dernier créé (le plus ancien)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi creati (i più vecchi)"
           }
         },
         "nl" : {
@@ -6217,6 +6277,12 @@
             "value" : "Dernière mise à jour (la plus récente)"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi creati (i più recenti)"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6267,6 +6333,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dernière mise à jour (la plus ancienne)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimo aggiornamento (il più vecchio)"
           }
         },
         "nl" : {
@@ -6530,6 +6602,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Manuel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manuale"
           }
         },
         "nl" : {
@@ -8473,6 +8551,12 @@
             "value" : "Veuillez saisir « DELETE » pour continuer."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digita 'ELIMINA' per continuare."
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8593,6 +8677,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Procédez avec prudence. Cette action est irréversible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Procedi con cautela. Questa azione è irreversibile."
           }
         },
         "nl" : {
@@ -10353,6 +10443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Options de tri"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opzioni di ordinamento"
           }
         },
         "nl" : {
