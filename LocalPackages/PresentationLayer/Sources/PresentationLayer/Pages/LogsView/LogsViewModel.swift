@@ -45,6 +45,10 @@ final class LogsViewModel {
     @LazyInjected(\ServiceContainer.encryptionService)
     private var encryptionService
 
+    @ObservationIgnored
+    @LazyInjected(\RepositoryContainer.entryRepository)
+    private(set) var entryRepository
+
     private var exportFileName: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
@@ -77,7 +81,16 @@ private extension LogsViewModel {
 
     func exportLogs() async -> URL? {
         do {
+            var extraInfos = [String: String]()
+            if let content = try? await entryRepository.getAllLocalEntries() {
+                let nonDecryptableEntries = content.filter(\.isNonDecryptable).count
+                let decryptableEntries = content.count(where: { !$0.isNonDecryptable })
+                extraInfos["Number of non decryptable entries"] = "\(nonDecryptableEntries)"
+                extraInfos["Number of decryptable entries"] = "\(decryptableEntries)"
+            }
+
             return try await logManager.exportLogs(fileName: exportFileName,
+                                                   extraInfos: extraInfos.nilIfEmpty,
                                                    localEncryptionKeyId: encryptionService.localEncryptionKeyId)
         } catch {
             logManager.log(.error, category: .ui, error.localizedDescription)

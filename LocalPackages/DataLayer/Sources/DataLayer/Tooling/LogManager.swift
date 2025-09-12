@@ -124,6 +124,7 @@ public extension LoggerProtocol {
 
     func exportLogs(fileName: String,
                     category: LogCategory? = nil,
+                    extraInfos: [String: String]? = nil,
                     localEncryptionKeyId: String) async throws -> URL? {
         var logContent = try await logsContent(category: category)
 
@@ -137,7 +138,13 @@ public extension LoggerProtocol {
         }
         metaData.append("OS version: \(ProcessInfo.processInfo.operatingSystemVersionString)")
 
-        logContent = metaData.joined(separator: "\n") + "\n" + logContent
+        if let extraInfos {
+            for (key, value) in extraInfos {
+                metaData.append("\(key): \(value)")
+            }
+        }
+
+        logContent = metaData.joined(separator: "\n") + "\n\n**************************\n\n" + logContent
 
         let filename = if let category {
             "\(fileName)_\(category.rawValue).logs"
