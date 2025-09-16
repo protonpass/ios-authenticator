@@ -27,7 +27,7 @@ import Models
 
 public enum EntryState: Sendable {
     case decrypted(OrderedEntry)
-    case nonDecryptable
+    case nonDecryptable(String)
 
     public var entry: OrderedEntry? {
         switch self {
@@ -35,6 +35,15 @@ public enum EntryState: Sendable {
             entry
         default:
             nil
+        }
+    }
+
+    public var encryptionKeyId: String {
+        switch self {
+        case let .decrypted(entry):
+            entry.keyId ?? ""
+        case let .nonDecryptable(keyId):
+            keyId
         }
     }
 
@@ -120,7 +129,7 @@ public extension EncryptionService {
         } catch {
             log(.warning,
                 "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
-            return .nonDecryptable
+            return .nonDecryptable(entry.keyId)
         }
 
         if AppConstants.isQaBuild {
@@ -150,7 +159,7 @@ public extension EncryptionService {
                 log(.error,
                     "Failed to decrypt entry \(entry.id) with key \(entry.keyId) \(error.localizedDescription)")
             }
-            return .nonDecryptable
+            return .nonDecryptable(entry.keyId)
         }
     }
 
