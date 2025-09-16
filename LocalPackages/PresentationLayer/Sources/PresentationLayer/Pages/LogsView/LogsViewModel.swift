@@ -91,6 +91,7 @@ private extension LogsViewModel {
                 extraInfos["Number of non decryptable entries"] = "\(nonDecryptableEntriesCount)"
                 extraInfos["Number of decryptable entries"] = "\(decryptableEntries)"
                 for (key, value) in nonDecryptableByKey where !key.isEmpty {
+                    // swiftlint:disable:next line_length
                     extraInfos["Number of non decryptable entries linked to encryption key id: \(key)"] = "\(value.count)"
                 }
             }

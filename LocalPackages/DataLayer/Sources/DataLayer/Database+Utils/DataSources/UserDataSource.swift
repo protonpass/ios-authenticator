@@ -174,7 +174,7 @@ private extension UserDataSource {
 
 // swiftlint:disable:next todo
 // TODO: to be removed once proton core wis updated with the codable conformance
-extension UserData: Codable {
+extension UserData: @retroactive Codable {
     private enum CodingKeys: String, CodingKey {
         case credential
         case user
