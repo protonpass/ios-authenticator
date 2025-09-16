@@ -27,7 +27,7 @@ struct Credentials: Hashable, Sendable, Codable {
     let authCredential: AuthCredential
 }
 
-extension Credential: Codable, @retroactive Hashable {
+extension Credential: @retroactive Codable, @retroactive Hashable {
     private enum CodingKeys: String, CodingKey {
         case UID
         case accessToken
