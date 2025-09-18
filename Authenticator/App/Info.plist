@@ -55,7 +55,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>UIDesignRequiresCompatibility</key>
-	<false/>
+	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
