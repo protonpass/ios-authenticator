@@ -34,7 +34,7 @@ import UIKit
 import UniformTypeIdentifiers
 #endif
 
-@Observable @MainActor
+@Observable
 final class SettingsViewModel {
     private(set) var fullBackupEnabled = false
     private(set) var iCloudSync = true

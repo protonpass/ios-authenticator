@@ -31,7 +31,7 @@ struct PasswordProtectedBackup: Identifiable {
     let content: String
 }
 
-@Observable @MainActor
+@Observable
 final class BackUpViewModel {
     private(set) var backups: [BackUpFileInfo] = []
     private(set) var loading = false

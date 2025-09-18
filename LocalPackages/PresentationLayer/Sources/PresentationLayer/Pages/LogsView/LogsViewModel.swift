@@ -26,7 +26,7 @@ import Foundation
 import Macro
 import Models
 
-@Observable @MainActor
+@Observable
 final class LogsViewModel {
     private(set) var logs: [LogEntry] = []
     var exportedDocument: TextDocument?

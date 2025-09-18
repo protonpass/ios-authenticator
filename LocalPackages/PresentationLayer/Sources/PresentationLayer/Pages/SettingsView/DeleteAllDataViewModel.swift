@@ -23,7 +23,6 @@ import FactoryKit
 import Observation
 
 @Observable
-@MainActor
 final class DeleteAllDataViewModel {
     private(set) var state: State = .idle
 

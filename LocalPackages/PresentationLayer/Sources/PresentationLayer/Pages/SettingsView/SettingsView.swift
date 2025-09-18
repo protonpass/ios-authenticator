@@ -33,7 +33,7 @@ enum SettingsSheet {
     case login(MobileCoordinatorProtocol)
     #endif
 
-    @MainActor @ViewBuilder
+    @ViewBuilder
     var destination: some View {
         switch self {
         case .logs:
