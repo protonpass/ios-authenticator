@@ -22,7 +22,7 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 
-final class RepositoryContainer: @preconcurrency SharedContainer, AutoRegistering {
+final class RepositoryContainer: SharedContainer, AutoRegistering {
     static let shared = RepositoryContainer()
     let manager = ContainerManager()
 
@@ -31,19 +31,19 @@ final class RepositoryContainer: @preconcurrency SharedContainer, AutoRegisterin
     }
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { @MainActor in EntryRepository(localDataManager: ServiceContainer.shared.localDataManager(),
-                                             encryptionService: ServiceContainer.shared.encryptionService(),
-                                             apiClient: ToolsContainer.shared.apiClient(),
-                                             userSessionManager: ServiceContainer.shared.userSessionManager(),
-                                             store: kSharedUserDefaults,
-                                             logger: ToolsContainer.shared.logManager()) }
+        self { EntryRepository(localDataManager: ServiceContainer.shared.localDataManager(),
+                               encryptionService: ServiceContainer.shared.encryptionService(),
+                               apiClient: ToolsContainer.shared.apiClient(),
+                               userSessionManager: ServiceContainer.shared.userSessionManager(),
+                               store: kSharedUserDefaults,
+                               logger: ToolsContainer.shared.logManager()) }
     }
 
     // MARK: - Data sources
 
     var userDataSource: Factory<any UserDataProvider> {
-        self { @MainActor in UserDataSource(logger: ToolsContainer.shared.logManager(),
-                                            localDataManager: ServiceContainer.shared.localDataManager(),
-                                            encryptionService: ServiceContainer.shared.encryptionService()) }
+        self { UserDataSource(logger: ToolsContainer.shared.logManager(),
+                              localDataManager: ServiceContainer.shared.localDataManager(),
+                              encryptionService: ServiceContainer.shared.encryptionService()) }
     }
 }

@@ -23,7 +23,7 @@ import DataLayer
 import FactoryKit
 import SwiftUI
 
-public final class ServiceContainer: @preconcurrency SharedContainer, AutoRegistering {
+public final class ServiceContainer: SharedContainer, AutoRegistering {
     public static let shared = ServiceContainer()
     public let manager = ContainerManager()
 
@@ -60,19 +60,19 @@ public extension ServiceContainer {
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { @MainActor in EncryptionService(keysProvider: self.keysManager(),
-                                               logger: self.logger) }
+        self { EncryptionService(keysProvider: self.keysManager(),
+                                 logger: self.logger) }
     }
 
     var keychainService: Factory<any KeychainServicing> {
-        self { @MainActor in KeychainService(service: AppConstants.service,
-                                             accessGroup: AppConstants.keychainGroup,
-                                             logger: self.logger) }
+        self { KeychainService(service: AppConstants.service,
+                               accessGroup: AppConstants.keychainGroup,
+                               logger: self.logger) }
     }
 
     var deepLinkService: Factory<any DeepLinkServicing> {
-        self { @MainActor in DeepLinkService(service: self.entryDataService(),
-                                             alertService: self.alertService()) }
+        self { DeepLinkService(service: self.entryDataService(),
+                               alertService: self.alertService()) }
     }
 
     var alertService: Factory<any AlertServiceProtocol> {
@@ -80,7 +80,7 @@ public extension ServiceContainer {
     }
 
     var importService: Factory<any ImportingServicing> {
-        self { @MainActor in ImportingService(logger: self.logger) }
+        self { ImportingService(logger: self.logger) }
     }
 
     var authenticationService: Factory<any AuthenticationServicing> {
@@ -94,7 +94,6 @@ public extension ServiceContainer {
 
     var userSessionManager: Factory<any UserSessionTooling> {
         self {
-            @MainActor in
             UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
                                    .appVersion(),
                 doh: AuthDoH(userDefaults: .standard)),
@@ -107,7 +106,7 @@ public extension ServiceContainer {
 
     var keysManager: Factory<any KeysProvider> {
         self {
-            @MainActor in KeysManager(keychain: self.keychainService())
+            KeysManager(keychain: self.keychainService())
         }
     }
 

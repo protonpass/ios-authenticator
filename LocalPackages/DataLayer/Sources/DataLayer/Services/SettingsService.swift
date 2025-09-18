@@ -61,6 +61,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setFullBackup(_ value: Bool)
 }
 
+@MainActor
 @Observable
 public final class SettingsService: SettingsServicing {
     @ObservationIgnored

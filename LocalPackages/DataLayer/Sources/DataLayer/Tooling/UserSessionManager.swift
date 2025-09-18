@@ -103,7 +103,7 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     public nonisolated let sessionWasInvalidated = PassthroughSubject<Bool, Never>()
     public nonisolated let userLoggedOut = PassthroughSubject<Void, Never>()
 
-    private var cancellables = Set<AnyCancellable>()
+    private nonisolated(unsafe) var cancellables = Set<AnyCancellable>()
 
     public private(set) var apiService: APIService
 

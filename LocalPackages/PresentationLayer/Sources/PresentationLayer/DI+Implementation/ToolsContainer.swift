@@ -26,7 +26,7 @@ import LocalAuthentication
 import SimplyPersist
 import SwiftData
 
-public final class ToolsContainer: @preconcurrency SharedContainer, AutoRegistering, Sendable {
+public final class ToolsContainer: SharedContainer, AutoRegistering, Sendable {
     public static let shared = ToolsContainer()
     public let manager = ContainerManager()
 
@@ -49,15 +49,11 @@ public extension ToolsContainer {
     }
 
     var totpGenerator: Factory<any TotpGeneratorProtocol> {
-        self {
-            @MainActor in TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
-        }
+        self { TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator()) }
     }
 
     var logManager: Factory<any LoggerProtocol> {
-        self {
-            @MainActor in LogManager(localDataManager: ServiceContainer.shared.localDataManager())
-        }
+        self { LogManager(localDataManager: ServiceContainer.shared.localDataManager()) }
     }
 
     var laContext: Factory<LAContext> {

@@ -17,10 +17,10 @@
 			</array>
 		</dict>
 	</array>
-	<key>IS_QA_BUILD =
-	<string>$(IS_QA_BUILD =
 	<key>GIT_COMMIT_HASH</key>
 	<string></string>
+	<key>IS_QA_BUILD =
+	<string>$(IS_QA_BUILD =
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>protonpass</string>
@@ -54,10 +54,8 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
-	<key>ITSEncryptionExportComplianceCode</key>
-	<string>0f155edb-2296-4418-b746-00ee2cb43be5</string>
+	<key>UIDesignRequiresCompatibility</key>
+	<false/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
