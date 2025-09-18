@@ -538,14 +538,6 @@ private extension EntriesView {
         #endif
     }
 
-    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarLeading
-        #else
-        return .automatic
-        #endif
-    }
-
     var trailingToolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             HStack {

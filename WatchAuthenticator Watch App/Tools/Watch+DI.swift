@@ -23,7 +23,7 @@
 import FactoryKit
 import Foundation
 
-final class WatchDIContainer: @preconcurrency SharedContainer {
+final class WatchDIContainer: SharedContainer {
     static let shared = WatchDIContainer()
     let manager = ContainerManager()
 
