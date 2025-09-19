@@ -515,7 +515,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos sus datos han sido eliminados."
+            "value" : "Todos sus datos se eliminarán"
           }
         },
         "fr" : {
@@ -536,10 +536,16 @@
             "value" : "Al uw gegevens zijn gewist"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie twoje dane zostały usunięte"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos os seus dados serão deletados"
+            "value" : "Todos os seus dados serão excluídos"
           }
         },
         "tr" : {
@@ -942,6 +948,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Automatische back-up"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatyczna kopia zapasowa"
           }
         },
         "pt-BR" : {
@@ -2068,10 +2080,22 @@
             "value" : "código: %@"
           }
         },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "código: %@"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Code : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "codice:%@"
           }
         },
         "nl" : {
@@ -2206,6 +2230,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wachtwoord bevestigen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potwierdź hasło"
           }
         },
         "pt-BR" : {
@@ -2826,6 +2856,12 @@
             "value" : "Gegevens in iCloud"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane w iCloud"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2884,6 +2920,12 @@
             "value" : "Gegevens op Proton servers"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane na serwerach Proton"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2940,6 +2982,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gegevens op dit apparaat"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane na tym urządzeniu"
           }
         },
         "pt-BR" : {
@@ -3070,6 +3118,12 @@
             "value" : "Back-up ontsleutelen"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odszyfruj kopię zapasową"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3198,6 +3252,12 @@
             "value" : "Verwijder alle gegevens"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń wszystkie dane"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3324,6 +3384,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alle gegevens worden gewist"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuwanie wszystkich danych"
           }
         },
         "pt-BR" : {
@@ -4434,6 +4500,12 @@
             "value" : "Gegevens exporteren"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eksportuj dane"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4631,6 +4703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maplocatie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja folderu"
           }
         },
         "pt-BR" : {
@@ -5520,6 +5598,12 @@
             "value" : "Importeren van Google Authenticator"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaimportuj z Google Authenticator"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5923,6 +6007,12 @@
             "value" : "Uitgever (A - Z)"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tytuł (A-Z)"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5979,6 +6069,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uitgever (Z - A)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tytuł (Z-A)"
           }
         },
         "pt-BR" : {
@@ -6173,6 +6269,12 @@
             "value" : "Laats aangemaakt (nieuwste)"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data utworzenia (od najnowszych)"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6229,6 +6331,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Laatst aangemaakt (oudste)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data utworzenia (od najstarszych)"
           }
         },
         "pt-BR" : {
@@ -6289,6 +6397,12 @@
             "value" : "Laatst bijgewerkt (nieuwste)"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostania modyfikacja (od najnowszej)"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6345,6 +6459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Laatst bijgewerkt (oudste)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostania modyfikacja (od najstarszej)"
           }
         },
         "pt-BR" : {
@@ -6614,6 +6734,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Handmatig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ręcznie"
           }
         },
         "pt-BR" : {
@@ -7442,6 +7568,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alleen de laatste 5 back-ups worden bewaard."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tylko 5 ostatnich kopii zapasowych jest zachowywanych."
           }
         },
         "pt-BR" : {
@@ -9169,6 +9301,12 @@
             "value" : "Meld een probleem"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zgłoś problem"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9371,6 +9509,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wachtwoord opslaan"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz hasło"
           }
         },
         "pt-BR" : {
@@ -9991,6 +10135,12 @@
             "value" : "Stel een wachtwoord in om uw back-upbestanden te beschermen."
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz hasło, aby zabezpieczyć kopię zapasową."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -10047,6 +10197,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stel een wachtwoord in om het exportbestand te beschermen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz hasło, aby zabezpieczyć wyeksportowany plik."
           }
         },
         "pt-BR" : {
@@ -10436,7 +10592,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Opciones de orden"
+            "value" : "Opciones de ordenación"
           }
         },
         "fr" : {
@@ -10455,6 +10611,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sorteeropties"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcje sortowania"
           }
         },
         "pt-BR" : {
