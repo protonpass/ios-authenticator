@@ -45,6 +45,12 @@
             "value" : "Gekopieerd naar het telefoonklembord"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skopiowano do schowka"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -179,6 +185,12 @@
             "value" : "Er werden geen codes gesynchroniseerd met uw telefoon"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zsynchronizowanych kodów z twoim telefonem"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -311,6 +323,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchroniseer nu"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronizuj teraz"
           }
         },
         "pt-BR" : {
