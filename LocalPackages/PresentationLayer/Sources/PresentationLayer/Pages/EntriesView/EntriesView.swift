@@ -148,11 +148,15 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
                 .sheet(item: $viewModel.inAppService.currentMessage,
-                       onDismiss: {}) { message in
-                    Text("\(message.body) [Learn more](https://www.proton.me)")
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 16)
-                        .presentationDetents([.medium])
+                       onDismiss: {
+                           $viewModel.inAppService.dismiss(permanently: true)
+                       }) { message in
+                    Group {
+                        Text(verbatim: "\(message.body)") + Text("[Learn more](https://www.proton.me)")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .presentationDetents([.medium])
                 }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)

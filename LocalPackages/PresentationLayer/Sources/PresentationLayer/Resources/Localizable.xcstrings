@@ -1,6 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "[Learn more](https://www.proton.me)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[Learn more](https://www.proton.me)"
+          }
+        }
+      }
+    },
     "%lld seconds" : {
       "localizations" : {
         "de" : {
@@ -5270,6 +5280,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodları gizle"
+          }
+        }
+      }
+    },
+    "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on."
           }
         }
       }
