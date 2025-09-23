@@ -46,7 +46,6 @@ public struct EntriesView: View {
     @State private var destinationIndex: Int?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
-
     @FocusState private var searchFieldFocus: Bool
 
     private let alertService = resolve(\ServiceContainer.alertService)
@@ -148,6 +147,13 @@ public struct EntriesView: View {
                     }
                 }
                 .fullScreenMainBackground()
+                .sheet(item: $viewModel.inAppService.currentMessage,
+                       onDismiss: {}) { message in
+                    Text("\(message.body) [Learn more](https://www.proton.me)")
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 16)
+                        .presentationDetents([.medium])
+                }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)

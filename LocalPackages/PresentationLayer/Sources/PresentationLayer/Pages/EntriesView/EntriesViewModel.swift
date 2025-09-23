@@ -122,6 +122,10 @@ final class EntriesViewModel: ObservableObject {
     private var requestForReview
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.inAppMessagingService)
+    var inAppService
+
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     @ObservationIgnored
@@ -229,6 +233,7 @@ final class EntriesViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try await entryDataService.loadEntries()
+                inAppMessage()
             } catch {
                 handle(error)
             }
@@ -251,6 +256,7 @@ final class EntriesViewModel: ObservableObject {
                 }
 
                 try await entryDataService.fullRefresh()
+                inAppMessage()
                 fullSyncTask = nil
             } catch {
                 handle(error)
@@ -355,6 +361,14 @@ private extension EntriesViewModel {
         data.filter {
             $0.orderedEntry.entry.name.lowercased().contains(query) ||
                 $0.orderedEntry.entry.issuer.lowercased().contains(query)
+        }
+    }
+
+    func inAppMessage() {
+        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
+            inAppService.show(InAppMessage(id: "iCloudSyncWarning",
+                                           title: "Info",
+                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.")))
         }
     }
 }

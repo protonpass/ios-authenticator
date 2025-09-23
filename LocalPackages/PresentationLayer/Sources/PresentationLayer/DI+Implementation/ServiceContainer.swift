@@ -134,4 +134,8 @@ public extension ServiceContainer {
     var cameraManager: Factory<any CameraManagerProtocol> {
         self { CameraManager() }
     }
+
+    var inAppMessagingService: Factory<any InAppMessagingServicing> {
+        self { @MainActor in InAppMessagingService(store: ToolsContainer.shared.userDefaultsPersistence()) }
+    }
 }

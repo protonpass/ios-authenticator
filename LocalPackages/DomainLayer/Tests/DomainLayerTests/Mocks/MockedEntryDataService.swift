@@ -23,6 +23,8 @@ import DataLayer
 import Models
 
 final class MockedEntryDataService: EntryDataServiceProtocol {
+    var hasNonDecryptableEntries: Bool = false
+    
     init() {}
 
     var dataState: DataState<[EntryUiModel]> = .loading
