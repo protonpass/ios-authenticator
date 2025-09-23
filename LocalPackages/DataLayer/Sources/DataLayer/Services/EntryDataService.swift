@@ -30,6 +30,7 @@ import ProtonCoreServices
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
+    var hasNonDecryptableEntries: Bool { get }
 
     func getEntry(from uri: String) async throws -> Entry
     func insertAndRefreshEntry(from uri: String) async throws
@@ -82,6 +83,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
     // MARK: - Properties
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
+    public private(set) var hasNonDecryptableEntries = false
 
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
@@ -230,9 +232,11 @@ public extension EntryDataService {
         log(.debug, "Loading entries")
         do {
             if Task.isCancelled { return }
+            // TODO: transmit the fact there is non decryptable elements.
             let entriesStates = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
             let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
         } catch {
@@ -664,6 +668,10 @@ private extension EntryDataService {
 extension [EntryState] {
     var decodedEntries: [OrderedEntry] {
         compactMap(\.entry)
+    }
+
+    var containsNonDecryptedEntries: Bool {
+        contains(where: \.isNonDecryptable)
     }
 
     func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {

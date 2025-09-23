@@ -1,0 +1,268 @@
+//
+// InAppMessagingService.swift
+// Proton Authenticator - Created on 23/09/2025.
+// Copyright (c) 2025 Proton Technologies AG
+//
+// This file is part of Proton Authenticator.
+//
+// Proton Authenticator is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Proton Authenticator is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
+
+import Combine
+import CommonUtilities
+import Foundation
+import Models
+
+public protocol InAppMessageProtocol: Identifiable, Codable {
+    var id: String { get }
+    var wasRead: Bool { get }
+}
+
+struct InAppMessage: InAppMessageProtocol, Equatable, Identifiable {
+    let id: String
+    var wasRead: Bool
+    var message: String
+
+    init(id: String = UUID().uuidString, wasRead: Bool = false, message: String = "") {
+        self.id = id
+        self.wasRead = wasRead
+        self.message = message
+    }
+}
+
+// TODO: add info config
+@MainActor
+public protocol InAppMessagingServicing: Sendable, Observable {
+//    var isFirstRun: Bool { get }
+//    var installationTimestamp: TimeInterval { get }
+//    var theme: Theme { get }
+//    var searchBarDisplayMode: SearchBarDisplayMode { get }
+//    var entryCellConfiguration: EntryCellConfiguration { get }
+//    var onboarded: Bool { get }
+//    var showPassBanner: Bool { get }
+//    var hapticFeedbackEnabled: Bool { get }
+//    var focusSearchOnLaunch: Bool { get }
+//    var iCloudSync: Bool { get }
+//    var iCloudBackUp: Bool { get }
+//    var fullBackUp: Bool { get }
+//    var unsupportedScanning: Bool { get }
+//    var sortOption: SortOption { get }
+//
+//    func setFirstRun(_ value: Bool)
+//    func setTheme(_ value: Theme)
+//    func setSearchBarMode(_ value: SearchBarDisplayMode)
+//    func setHideEntryCode(_ value: Bool)
+//    func setDigitStyle(_ value: DigitStyle)
+//    func setCodeAnimation(_ value: Bool)
+//    func setOnboarded(_ value: Bool)
+//    func togglePassBanner(_ value: Bool)
+//    // periphery:ignore
+//    func toggleHapticFeedback(_ value: Bool)
+//    func toggleFocusSearchOnLaunch(_ value: Bool)
+//    func toggleICloudSync(_ value: Bool)
+//    func toggleICloudBackUp(_ value: Bool)
+//    func setUnsupportedScanning(_ value: Bool)
+//    func setSortOption(_ value: SortOption)
+//
+//    /// For QA purpose
+//    func setInstallationTimestamp(_ value: TimeInterval)
+//    func setFullBackup(_ value: Bool)
+
+    func addMessage(_ message: InAppMessageProtocol) {}
+
+    func removeMessage(_ message: InAppMessageProtocol) {}
+
+    func updateMessage(_ message: InAppMessageProtocol) {}
+}
+
+@MainActor
+@Observable
+public final class InAppMessagingService: InAppMessagingServicing {
+    @ObservationIgnored
+    private let store: UserDefaults
+
+//    public private(set) var isFirstRun: Bool
+//    public private(set) var installationTimestamp: TimeInterval
+//    public private(set) var searchBarDisplayMode: SearchBarDisplayMode
+//    public private(set) var theme: Theme
+//    public private(set) var entryCellConfiguration: EntryCellConfiguration
+//    public private(set) var onboarded: Bool
+//    public private(set) var showPassBanner: Bool
+//    public private(set) var hapticFeedbackEnabled: Bool
+//    public private(set) var focusSearchOnLaunch: Bool
+//    public private(set) var iCloudSync: Bool
+//    public private(set) var iCloudBackUp: Bool
+//    public private(set) var fullBackUp: Bool
+//    public private(set) var unsupportedScanning: Bool
+//    public private(set) var sortOption: SortOption
+
+    public init(store: UserDefaults) {
+        self.store = store
+//        store.register(defaults: [
+//            AppConstants.Settings.isFirstRun: true,
+//            AppConstants.Settings.installationTimestamp: Date.now.timeIntervalSince1970,
+//            AppConstants.Settings.hapticFeedbackEnabled: true,
+//            AppConstants.Settings.iCloudSync: false,
+//            AppConstants.Settings.iCloudBackUp: false,
+//            AppConstants.Settings.fullBackUp: false,
+//            AppConstants.Settings.unsupportedScanning: false
+//        ])
+//
+//        isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
+//        installationTimestamp = store.double(forKey: AppConstants.Settings.installationTimestamp)
+//        fullBackUp = store.bool(forKey: AppConstants.Settings.fullBackUp)
+//
+//        theme = store.value(for: AppConstants.Settings.theme)
+//        searchBarDisplayMode = store.value(for: AppConstants.Settings.searchBarMode)
+//        let digitStyle: DigitStyle = store.value(for: AppConstants.Settings.digitStyle)
+//        let hideEntryCode = store.bool(forKey: AppConstants.Settings.displayCode)
+//        let animateCodeChange = store.bool(forKey: AppConstants.Settings.animateCode)
+//        entryCellConfiguration = .init(hideEntryCode: hideEntryCode,
+//                                       digitStyle: digitStyle,
+//                                       animateCodeChange: animateCodeChange)
+//        onboarded = store.bool(forKey: AppConstants.Settings.onboarded)
+//        showPassBanner = store.bool(forKey: AppConstants.Settings.showPassBanner)
+//        hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
+//        focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
+//        iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
+//        iCloudBackUp = store.bool(forKey: AppConstants.Settings.iCloudBackUp)
+//        unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
+//        sortOption = store.value(for: AppConstants.Settings.sortOption)
+    }
+}
+
+// MARK: - Setter
+
+// public extension SettingsService {
+//    func setFirstRun(_ value: Bool) {
+//        update(currentValue: &isFirstRun, newValue: value, key: AppConstants.Settings.isFirstRun)
+//    }
+//
+//    func setTheme(_ value: Theme) {
+//        update(currentValue: &theme, newValue: value, key: AppConstants.Settings.theme)
+//    }
+//
+//    func setSearchBarMode(_ value: SearchBarDisplayMode) {
+//        update(currentValue: &searchBarDisplayMode, newValue: value, key: AppConstants.Settings.searchBarMode)
+//    }
+//
+//    func setHideEntryCode(_ value: Bool) {
+//        guard entryCellConfiguration.hideEntryCode != value else {
+//            return
+//        }
+//        store.set(value, forKey: AppConstants.Settings.displayCode)
+//        entryCellConfiguration = .init(hideEntryCode: value,
+//                                       digitStyle: entryCellConfiguration.digitStyle,
+//                                       animateCodeChange: entryCellConfiguration.animateCodeChange)
+//    }
+//
+//    func setDigitStyle(_ value: DigitStyle) {
+//        guard entryCellConfiguration.digitStyle != value else {
+//            return
+//        }
+//        store.set(value.rawValue, forKey: AppConstants.Settings.digitStyle)
+//        entryCellConfiguration = .init(hideEntryCode: entryCellConfiguration.hideEntryCode,
+//                                       digitStyle: value,
+//                                       animateCodeChange: entryCellConfiguration.animateCodeChange)
+//    }
+//
+//    func setCodeAnimation(_ value: Bool) {
+//        guard entryCellConfiguration.animateCodeChange != value else {
+//            return
+//        }
+//        store.set(value, forKey: AppConstants.Settings.animateCode)
+//        entryCellConfiguration = .init(hideEntryCode: entryCellConfiguration.hideEntryCode,
+//                                       digitStyle: entryCellConfiguration.digitStyle,
+//                                       animateCodeChange: value)
+//    }
+//
+//    func setOnboarded(_ value: Bool) {
+//        update(currentValue: &onboarded, newValue: value, key: AppConstants.Settings.onboarded)
+//    }
+//
+//    func togglePassBanner(_ value: Bool) {
+//        update(currentValue: &showPassBanner, newValue: value, key: AppConstants.Settings.showPassBanner)
+//    }
+//
+//    func toggleHapticFeedback(_ value: Bool) {
+//        update(currentValue: &hapticFeedbackEnabled,
+//               newValue: value,
+//               key: AppConstants.Settings.hapticFeedbackEnabled)
+//    }
+//
+//    func toggleFocusSearchOnLaunch(_ value: Bool) {
+//        update(currentValue: &focusSearchOnLaunch,
+//               newValue: value,
+//               key: AppConstants.Settings.focusSearchOnLaunchEnabled)
+//    }
+//
+//    func toggleICloudSync(_ value: Bool) {
+//        update(currentValue: &iCloudSync,
+//               newValue: value,
+//               key: AppConstants.Settings.iCloudSync)
+//    }
+//
+//    func toggleICloudBackUp(_ value: Bool) {
+//        update(currentValue: &iCloudBackUp,
+//               newValue: value,
+//               key: AppConstants.Settings.iCloudBackUp)
+//    }
+//
+//    func setInstallationTimestamp(_ value: TimeInterval) {
+//        installationTimestamp = value
+//        store.set(value, forKey: AppConstants.Settings.installationTimestamp)
+//    }
+//
+//    func setFullBackup(_ value: Bool) {
+//        update(currentValue: &fullBackUp,
+//               newValue: value,
+//               key: AppConstants.Settings.fullBackUp)
+//    }
+//
+//    func setUnsupportedScanning(_ value: Bool) {
+//        update(currentValue: &unsupportedScanning,
+//               newValue: value,
+//               key: AppConstants.Settings.unsupportedScanning)
+//    }
+//
+//    func setSortOption(_ value: SortOption) {
+//        update(currentValue: &sortOption,
+//               newValue: value,
+//               key: AppConstants.Settings.sortOption)
+//    }
+// }
+//
+// private extension SettingsService {
+//    func update(currentValue: inout Bool, newValue: Bool, key: String) {
+//        guard newValue != currentValue else { return }
+//        store.set(newValue, forKey: key)
+//        currentValue = newValue
+//    }
+//
+//    func update<T: IntegerDefaulting>(currentValue: inout T,
+//                                      newValue: T,
+//                                      key: String) {
+//        guard newValue.rawValue != currentValue.rawValue else { return }
+//        store.set(newValue.rawValue, forKey: key)
+//        currentValue = newValue
+//    }
+// }
+//
+// private extension UserDefaults {
+//    func value<T: IntegerDefaulting>(for key: String) -> T {
+//        guard let number = object(forKey: key) as? Int else {
+//            return .default
+//        }
+//        return T(rawValue: number) ?? .default
+//    }
+// }
