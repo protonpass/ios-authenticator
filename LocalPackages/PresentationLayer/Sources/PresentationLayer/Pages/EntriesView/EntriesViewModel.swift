@@ -31,7 +31,6 @@ import SimpleToast
 // swiftlint:disable:next todo
 // TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
-@MainActor
 final class EntriesViewModel: ObservableObject {
     var animatingEntry: Entry?
 

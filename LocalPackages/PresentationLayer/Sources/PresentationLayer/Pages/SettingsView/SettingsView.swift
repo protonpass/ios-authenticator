@@ -33,7 +33,7 @@ enum SettingsSheet {
     case login(MobileCoordinatorProtocol)
     #endif
 
-    @MainActor @ViewBuilder
+    @ViewBuilder
     var destination: some View {
         switch self {
         case .logs:
@@ -95,8 +95,8 @@ public struct SettingsView: View {
                         } label: {
                             Text("Close", bundle: .module)
                                 .foregroundStyle(.purpleInteraction)
+                                .adaptiveButtonStyle()
                         }
-                        .adaptiveButtonStyle()
                     }
                 }
                 .listSectionSpacing(DesignConstant.padding * 2)

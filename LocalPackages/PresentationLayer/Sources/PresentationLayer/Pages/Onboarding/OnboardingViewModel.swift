@@ -30,7 +30,6 @@ enum OnboardStep: Sendable {
     case intro, `import`, biometric(BiometricType), iCloudSync
 }
 
-@MainActor
 @Observable
 final class OnboardingViewModel {
     private(set) var currentStep: OnboardStep = .intro

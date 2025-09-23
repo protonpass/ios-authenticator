@@ -23,8 +23,7 @@ import Foundation
 import Models
 import OneTimePassword
 
-@MainActor
-protocol DataServiceProtocol: Sendable, Observable {
+protocol DataServiceProtocol: Observable {
     var dataState: DataState<[UIModel]> { get }
     var waitingForUpdate: Bool { get }
 
@@ -34,7 +33,7 @@ protocol DataServiceProtocol: Sendable, Observable {
     func sendCode(_ code: String)
 }
 
-struct UIModel: Hashable, Identifiable, Equatable {
+nonisolated struct UIModel: Hashable, Identifiable, Equatable {
     let orderedEntry: OrderedEntry
     let token: Token
 
@@ -43,7 +42,6 @@ struct UIModel: Hashable, Identifiable, Equatable {
     }
 }
 
-@MainActor
 @Observable
 final class DataService: DataServiceProtocol {
     // MARK: - Properties

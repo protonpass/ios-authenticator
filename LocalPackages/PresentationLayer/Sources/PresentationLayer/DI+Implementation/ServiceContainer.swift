@@ -127,11 +127,11 @@ public extension ServiceContainer {
     }
 
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
-        self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
-                                              logger: self.logger) }
+        self { @MainActor in IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
+                                                            logger: self.logger) }
     }
 
     var cameraManager: Factory<any CameraManagerProtocol> {
-        self { CameraManager() }
+        self { @MainActor in CameraManager() }
     }
 }

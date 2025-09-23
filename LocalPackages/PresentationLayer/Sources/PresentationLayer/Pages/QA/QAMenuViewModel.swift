@@ -41,7 +41,6 @@ struct EntryContent: Identifiable {
 }
 
 // swiftlint:disable line_length
-@MainActor
 @Observable
 final class QAMenuViewModel {
     var installationDate: Date

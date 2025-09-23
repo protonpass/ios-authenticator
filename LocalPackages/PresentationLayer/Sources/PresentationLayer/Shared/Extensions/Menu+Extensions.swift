@@ -21,7 +21,7 @@
 import SwiftUI
 
 extension Menu {
-    @MainActor @ViewBuilder
+    @ViewBuilder
     func adaptiveMenuStyle() -> some View {
         self
         #if os(macOS)

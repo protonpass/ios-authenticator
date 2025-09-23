@@ -22,14 +22,13 @@ import Combine
 import Foundation
 import SwiftUI
 
-@MainActor
 public protocol TOTPCountdownProtocol: Sendable, Observable {
     func startTimer()
     func stopTimer()
     func calculateCountdownInfo(period: Int) -> TOTPCountdownManager.CountdownInfo
 }
 
-@MainActor @Observable
+@Observable
 public final class TOTPCountdownManager: TOTPCountdownProtocol {
     static let shared = TOTPCountdownManager()
 
