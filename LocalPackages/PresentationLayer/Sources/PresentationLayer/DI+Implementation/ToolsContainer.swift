@@ -49,15 +49,11 @@ public extension ToolsContainer {
     }
 
     var totpGenerator: Factory<any TotpGeneratorProtocol> {
-        self {
-            TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator())
-        }
+        self { TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator()) }
     }
 
     var logManager: Factory<any LoggerProtocol> {
-        self {
-            LogManager(localDataManager: ServiceContainer.shared.localDataManager())
-        }
+        self { LogManager(localDataManager: ServiceContainer.shared.localDataManager()) }
     }
 
     var laContext: Factory<LAContext> {
@@ -93,7 +89,8 @@ public extension ToolsContainer {
     #endif
 
     var apiClient: Factory<any APIClientProtocol> {
-        self { APIClient(manager: ServiceContainer.shared.userSessionManager(), logger: self.logManager()) }
+        self { @MainActor in APIClient(manager: ServiceContainer.shared.userSessionManager(),
+                                       logger: self.logManager()) }
     }
 
     var importingContexts: Factory<CurrentValueSubject<[ImportingContext], Never>> {

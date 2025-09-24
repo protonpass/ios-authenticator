@@ -34,7 +34,7 @@ import UIKit
 import UniformTypeIdentifiers
 #endif
 
-@Observable @MainActor
+@Observable
 final class SettingsViewModel {
     private(set) var fullBackupEnabled = false
     private(set) var iCloudSync = true
@@ -385,7 +385,7 @@ private extension SettingsViewModel {
     }
 }
 
-struct TextFile: FileDocument {
+nonisolated struct TextFile: FileDocument {
     static let readableContentTypes = [UTType.plainText]
 
     let text: String

@@ -147,10 +147,10 @@ public struct EntriesView: View {
                     }
                 }
                 .fullScreenMainBackground()
-                .sheet(item: $viewModel.inAppService.currentMessage,
-                       onDismiss: {
-                           viewModel.inAppService.dismiss(permanently: true)
-                       }) { message in
+                .navigationBarTitleDisplayMode(.inline)
+                .sheet(item: $viewModel.inAppService.currentMessage) {
+                    viewModel.inAppService.dismiss(permanently: true)
+                } content: { message in
                     infosView(message)
                 }
         }
@@ -530,13 +530,19 @@ private extension EntriesView {
 private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: toolbarItemLeadingPlacement) {
+        ToolbarItem(placement: .principal) {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
                 .minimumScaleFactor(0.75)
         }
+
         #if os(iOS)
+        trailingToolbarContent()
+        #endif
+    }
+
+    var trailingToolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             HStack {
                 Menu(content: {
@@ -578,16 +584,19 @@ private extension EntriesView {
                 .accessibilityLabel("Settings")
             }
         }
-        #endif
     }
 
-    var toolbarItemLeadingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarLeading
-        #else
-        return .automatic
-        #endif
+    #if os(iOS)
+    @ToolbarContentBuilder
+    func trailingToolbarContent() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            trailingToolbarButtons
+                .sharedBackgroundVisibility(.hidden)
+        } else {
+            trailingToolbarButtons
+        }
     }
+    #endif
 
     func infosView(_ message: InAppMessage) -> some View {
         VStack(spacing: 18) {

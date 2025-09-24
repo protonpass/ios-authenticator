@@ -45,12 +45,10 @@ struct UserMobileLoginController: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
 
-@MainActor
 public protocol MobileCoordinatorProtocol {
     var rootViewController: UIViewController { get }
 }
 
-@MainActor
 final class MobileLoginCoordinator: MobileCoordinatorProtocol {
     @LazyInjected(\ServiceContainer.userSessionManager) private var userSessionManager
 

@@ -31,7 +31,6 @@ import SimpleToast
 // swiftlint:disable:next todo
 // TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
-@MainActor
 final class EntriesViewModel: ObservableObject {
     var animatingEntry: Entry?
 
@@ -364,6 +363,7 @@ private extension EntriesViewModel {
         }
     }
 
+    // swiftlint:disable line_length
     func inAppMessage() {
         if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
             inAppService.show(InAppMessage(id: "iCloudSyncWarning",
@@ -371,6 +371,7 @@ private extension EntriesViewModel {
                                            body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.")))
         }
     }
+    // swiftlint:enable line_length
 }
 
 private extension [EntryUiModel] {

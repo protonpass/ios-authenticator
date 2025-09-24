@@ -43,8 +43,8 @@ struct LogsView: View {
                     } label: {
                         Text("Close", bundle: .module)
                             .foregroundStyle(.accent)
+                            .adaptiveButtonStyle()
                     }
-                    .adaptiveButtonStyle()
                 }
 
                 ToolbarItem(placement: toolbarTrailingItemPlacement) {

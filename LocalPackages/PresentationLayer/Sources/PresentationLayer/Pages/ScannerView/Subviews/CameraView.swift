@@ -24,7 +24,7 @@
 import SwiftUI
 
 public protocol CameraManagerProtocol {
-    var session: AVCaptureSession { get }
+    nonisolated var session: AVCaptureSession { get }
     var isTakingPhoto: CurrentValueSubject<Bool, Never> { get }
     var takenPhoto: PassthroughSubject<AVCapturePhoto?, Never> { get }
 
@@ -59,7 +59,7 @@ struct CameraView: UIViewRepresentable {
 }
 
 public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerProtocol {
-    public let session = AVCaptureSession()
+    public nonisolated let session = AVCaptureSession()
     private var setUp = false
     private let photoOutput = AVCapturePhotoOutput()
 

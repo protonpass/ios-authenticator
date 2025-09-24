@@ -365,8 +365,8 @@ private extension CreateEditEntryView {
                 Text("Close", bundle: .module)
                     .foregroundStyle(.accent)
                     .padding(10)
+                    .adaptiveButtonStyle()
             }
-            .adaptiveButtonStyle()
         }
 
         ToolbarItem(placement: toolbarItemTrailingPlacement) {

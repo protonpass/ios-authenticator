@@ -25,7 +25,7 @@ import ProtonCoreLogin
 @preconcurrency import ProtonCoreNetworking
 import SimplyPersist
 
-public protocol UserDataProvider {
+public protocol UserDataProvider: Sendable {
     func getUserData() async throws -> UserData?
     func save(_ userData: UserData) async throws
     // periphery:ignore

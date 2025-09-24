@@ -42,7 +42,6 @@ public enum FullScreenDestination: Hashable, Identifiable {
     #endif
 }
 
-@MainActor
 @Observable
 final class Router {
     var path = NavigationPath()

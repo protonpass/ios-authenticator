@@ -26,7 +26,7 @@ import Foundation
 import Macro
 import Models
 
-@Observable @MainActor
+@Observable
 final class CreateEditEntryViewModel {
     var name = ""
     var secret = ""
