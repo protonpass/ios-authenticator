@@ -29,20 +29,13 @@ public struct InAppMessage: Identifiable, Codable, Equatable {
     public let id: String
     public let title: String
     public let body: String
-    public let type: MessageType
-
-    public enum MessageType: String, Codable {
-        case info, success, warning, error
-    }
 
     public init(id: String = UUID().uuidString,
                 title: String,
-                body: String,
-                type: MessageType = .info) {
+                body: String) {
         self.id = id
         self.title = title
         self.body = body
-        self.type = type
     }
 }
 
@@ -104,70 +97,5 @@ public final class InAppMessagingService: InAppMessagingServicing {
             store.saveDismissedIDs(dismissedIDs)
         }
         currentMessage = nil
-    }
-}
-
-import SwiftUI
-
-// MARK: - SwiftUI View
-
-struct InAppMessageBanner: View {
-    let message: InAppMessage
-    let onDismiss: (Bool) -> Void
-
-    var body: some View {
-        VStack {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(message.title).bold()
-                    Text(message.body).font(.subheadline)
-                }
-                Spacer()
-                Button("Hide") { onDismiss(true) }
-            }
-            .padding()
-            .background(color(for: message.type))
-            .cornerRadius(12)
-            .shadow(radius: 4)
-        }
-        .padding()
-        .transition(.move(edge: .top).combined(with: .opacity))
-    }
-
-    private func color(for type: InAppMessage.MessageType) -> Color {
-        switch type {
-        case .info: .blue.opacity(0.8)
-        case .success: .green.opacity(0.8)
-        case .warning: .orange.opacity(0.8)
-        case .error: .red.opacity(0.8)
-        }
-    }
-}
-
-// MARK: - SwiftUI Modifier
-
-struct InAppMessagingModifier: ViewModifier {
-    @Environment(InAppMessagingService.self) private var service
-
-    func body(content: Content) -> some View {
-        ZStack {
-            content
-            if let message = service.currentMessage {
-                VStack {
-                    InAppMessageBanner(message: message,
-                                       onDismiss: { permanently in
-                                           service.dismiss(permanently: permanently)
-                                       })
-                    Spacer()
-                }
-            }
-        }
-        .animation(.spring(), value: service.currentMessage)
-    }
-}
-
-public extension View {
-    func inAppMessaging() -> some View {
-        modifier(InAppMessagingModifier())
     }
 }

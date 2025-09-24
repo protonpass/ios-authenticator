@@ -1,16 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "[Learn more](https://www.proton.me)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "[Learn more](https://www.proton.me)"
-          }
-        }
-      }
-    },
     "%lld seconds" : {
       "localizations" : {
         "de" : {
@@ -5772,6 +5762,16 @@
         }
       }
     },
+    "Information" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Information"
+          }
+        }
+      }
+    },
     "Invalid file format for \"%@\". Please make sure your file is in a supported format and try again." : {
       "comment" : "Placeholder is the file name",
       "localizations" : {
@@ -6497,6 +6497,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Son güncellenme (eskiden yeniye)"
+          }
+        }
+      }
+    },
+    "Learn more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn more"
           }
         }
       }

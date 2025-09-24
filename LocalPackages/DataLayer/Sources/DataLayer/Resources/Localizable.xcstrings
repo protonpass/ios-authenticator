@@ -211,16 +211,6 @@
         }
       }
     },
-    "Hide" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide"
-          }
-        }
-      }
-    },
     "No" : {
       "localizations" : {
         "de" : {

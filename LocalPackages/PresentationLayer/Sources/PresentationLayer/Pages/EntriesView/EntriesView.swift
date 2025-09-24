@@ -149,14 +149,9 @@ public struct EntriesView: View {
                 .fullScreenMainBackground()
                 .sheet(item: $viewModel.inAppService.currentMessage,
                        onDismiss: {
-                           $viewModel.inAppService.dismiss(permanently: true)
+                           viewModel.inAppService.dismiss(permanently: true)
                        }) { message in
-                    Group {
-                        Text(verbatim: "\(message.body)") + Text("[Learn more](https://www.proton.me)")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
-                    .presentationDetents([.medium])
+                    infosView(message)
                 }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
@@ -592,6 +587,51 @@ private extension EntriesView {
         #else
         return .automatic
         #endif
+    }
+
+    func infosView(_ message: InAppMessage) -> some View {
+        VStack(spacing: 18) {
+            Text(message.title)
+                .fontWeight(.semibold)
+            Text(verbatim: "\(message.body)")
+                .frame(maxWidth: .infinity)
+            Button {} label: {
+                Text("Learn more")
+                    .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, DesignConstant.padding / 1.5)
+                    .padding(.horizontal, DesignConstant.padding * 1.5)
+                    .frame(maxWidth: AppConstants.isPhone ? .infinity : 450, alignment: .center)
+                    .background(Capsule()
+                        .fill(.shadow(.inner(color: .white.opacity(0.25), radius: 2, x: 0, y: 1)))
+                        .foregroundStyle(LinearGradient(stops:
+                            [
+                                Gradient.Stop(color: Color(red: 0.45, green: 0.31, blue: 1),
+                                              location: 0.00),
+                                Gradient.Stop(color: Color(red: 0.27, green: 0.19, blue: 0.6),
+                                              location: 1.00)
+                            ],
+                            startPoint: UnitPoint(x: 0.5, y: 0),
+                            endPoint: UnitPoint(x: 0.5, y: 1))))
+                    .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
+                            radius: 12,
+                            x: 0,
+                            y: 1)
+                    .overlay(Capsule()
+                        .inset(by: 0.25)
+                        .stroke(colorScheme == .dark ? .white.opacity(0.12) : .black.opacity(0.20),
+                                lineWidth: 0.5))
+                    .clipShape(.capsule)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(16)
+        .presentationDragIndicator(.visible)
+        .measureHeight { newHeight in
+            ContentHeightDetent.height = newHeight
+        }
+        .presentationDetents([.custom(ContentHeightDetent.self)])
     }
 }
 

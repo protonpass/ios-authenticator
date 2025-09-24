@@ -232,7 +232,6 @@ public extension EntryDataService {
         log(.debug, "Loading entries")
         do {
             if Task.isCancelled { return }
-            // TODO: transmit the fact there is non decryptable elements.
             let entriesStates = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
             let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
@@ -260,6 +259,7 @@ public extension EntryDataService {
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
+            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
 
             _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
@@ -267,7 +267,6 @@ public extension EntryDataService {
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
             backUpEntries()
-
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
