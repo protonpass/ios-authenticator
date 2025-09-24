@@ -600,12 +600,12 @@ private extension EntriesView {
 
     func infosView(_ message: InAppMessage) -> some View {
         VStack(spacing: 18) {
-            Text(message.title)
+            Text(verbatim: message.title)
                 .fontWeight(.semibold)
             Text(verbatim: "\(message.body)")
                 .frame(maxWidth: .infinity)
             Button {} label: {
-                Text("Learn more")
+                Text("Learn more", bundle: .module)
                     .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)

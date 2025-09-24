@@ -367,8 +367,9 @@ private extension EntriesViewModel {
     func inAppMessage() {
         if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
             inAppService.show(InAppMessage(id: "iCloudSyncWarning",
-                                           title: #localized("Information"),
-                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.")))
+                                           title: #localized("Information", bundle: .module),
+                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
+                                                            bundle: .module)))
         }
     }
     // swiftlint:enable line_length
