@@ -5717,7 +5717,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **☰ > Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nUn fichier ZIP sera ainsi créé que vous pourrez utiliser ici."
+            "value" : "Dans l’extension Proton Pass, sur l’application web ou de bureau, accédez à **☰ > Paramètres > Exporter**\n\nAssurez-vous de choisir le **format ZIP sans pièces jointes**.\n\nVous créerez ainsi un fichier ZIP que vous pourrez utiliser ici."
           }
         },
         "it" : {
