@@ -101,7 +101,7 @@ public extension ToolsContainer {
         self { .init(false) }
     }
 
-    var userDefaultsPersistence: Factory<any MessagePersistence> {
-        self { UserDefaultsPersistence() }
+    var userDefaultsPersistence: Factory<any InAppMessagePersistence> {
+        self { UserDefaultsInAppMessagePersistence() }
     }
 }

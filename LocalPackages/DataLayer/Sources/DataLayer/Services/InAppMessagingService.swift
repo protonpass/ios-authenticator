@@ -29,7 +29,7 @@ public struct InAppMessage: Identifiable, Codable, Equatable {
     public let title: String
     public let body: String
 
-    public init(id: String = UUID().uuidString,
+    public init(id: String,
                 title: String,
                 body: String) {
         self.id = id
@@ -40,13 +40,13 @@ public struct InAppMessage: Identifiable, Codable, Equatable {
 
 // MARK: - Persistence Protocol
 
-public protocol MessagePersistence {
+public protocol InAppMessagePersistence {
     func loadDismissedIDs() -> Set<String>
     func saveDismissedIDs(_ ids: Set<String>)
 }
 
 // Default implementation with UserDefaults
-public final class UserDefaultsPersistence: MessagePersistence {
+public final class UserDefaultsInAppMessagePersistence: InAppMessagePersistence {
     private let key = "dismissed_in_app_messages"
     private let store: UserDefaults
 
@@ -76,10 +76,11 @@ public protocol InAppMessagingServicing: Observable {
 public final class InAppMessagingService: InAppMessagingServicing {
     public var currentMessage: InAppMessage?
 
-    private let store: any MessagePersistence
+    private let store: any InAppMessagePersistence
+    @ObservationIgnored
     private var dismissedIDs: Set<String>
 
-    public init(store: any MessagePersistence) {
+    public init(store: any InAppMessagePersistence) {
         self.store = store
         dismissedIDs = store.loadDismissedIDs()
     }

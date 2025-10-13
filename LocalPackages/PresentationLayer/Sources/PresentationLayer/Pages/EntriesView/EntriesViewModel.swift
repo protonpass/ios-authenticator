@@ -232,7 +232,7 @@ final class EntriesViewModel: ObservableObject {
             guard let self else { return }
             do {
                 try await entryDataService.loadEntries()
-                inAppMessage()
+                refreshInAppMessage()
             } catch {
                 handle(error)
             }
@@ -255,7 +255,7 @@ final class EntriesViewModel: ObservableObject {
                 }
 
                 try await entryDataService.fullRefresh()
-                inAppMessage()
+                refreshInAppMessage()
                 fullSyncTask = nil
             } catch {
                 handle(error)
@@ -364,7 +364,7 @@ private extension EntriesViewModel {
     }
 
     // swiftlint:disable line_length
-    func inAppMessage() {
+    func refreshInAppMessage() {
         if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
             inAppService.show(InAppMessage(id: "iCloudSyncWarning",
                                            title: #localized("Information", bundle: .module),
