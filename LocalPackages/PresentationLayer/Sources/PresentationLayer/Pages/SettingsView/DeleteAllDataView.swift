@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import Macro
 import Models
 import SwiftUI
 
@@ -30,8 +31,10 @@ struct DeleteAllDataView: View {
     @State private var showCompleteAlert = false
     let mode: SyncMode
 
+    private let deleteText = "DELETE"
+
     private var deletionAllowed: Bool {
-        confirmationText == "DELETE"
+        confirmationText == deleteText
     }
 
     var body: some View {
@@ -103,7 +106,8 @@ private extension DeleteAllDataView {
                     deletionLabel("Data on Proton servers")
                 }
 
-                TextField("Please type \"DELETE\" to proceed.", text: $confirmationText)
+                TextField(#localized("Please type \"%@\" to proceed", bundle: .module, deleteText),
+                          text: $confirmationText)
                     .foregroundStyle(.textNorm)
                     .textFieldStyle(.plain)
                     .textInputAutocapitalization(.characters)
