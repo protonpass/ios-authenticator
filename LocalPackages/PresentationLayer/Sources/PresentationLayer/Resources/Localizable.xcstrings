@@ -8650,61 +8650,12 @@
         }
       }
     },
-    "Please type \"DELETE\" to proceed." : {
-      "comment" : "⚠️ Please do not translate \"DELETE\"",
+    "Please type \"%@\" to proceed" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte gib „DELETE“ ein, um fortzufahren."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please type \"DELETE\" to proceed."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Escribe \"DELETE\" para continuar."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por favor, escriba \"DELETE\" para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Veuillez saisir « DELETE » pour continuer."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Digita 'ELIMINA' per continuare."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typ \"DELETE\" om door te gaan."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Digite \"DELETE\" para prosseguir"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İlerlemek için lütfen \"DELETE\" yazın."
+            "value" : "Please type \"%@\" to proceed"
           }
         }
       }
