@@ -151,7 +151,8 @@ public struct EntriesView: View {
                 .sheet(item: $viewModel.inAppService.currentMessage) {
                     viewModel.inAppService.dismiss(permanently: true)
                 } content: { message in
-                    EntriesInfoView(message: message)
+                    EntriesInfoView(message: message,
+                                    url: AppConstants.CommonUrls.iCloudSinkInfos)
                 }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
