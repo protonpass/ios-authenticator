@@ -121,6 +121,10 @@ final class EntriesViewModel: ObservableObject {
     private var requestForReview
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.inAppMessagingService)
+    var inAppService
+
+    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
     @ObservationIgnored
@@ -227,7 +231,14 @@ final class EntriesViewModel: ObservableObject {
         loadLocalTask = Task { @MainActor [weak self] in
             guard let self else { return }
             do {
+                if Task.isCancelled {
+                    return
+                }
                 try await entryDataService.loadEntries()
+                if Task.isCancelled {
+                    return
+                }
+                refreshInAppMessage()
             } catch {
                 handle(error)
             }
@@ -244,16 +255,23 @@ final class EntriesViewModel: ObservableObject {
         }
         fullSyncTask = Task { @MainActor [weak self] in
             guard let self else { return }
+            defer {
+                fullSyncTask = nil
+            }
             do {
                 if let loadTask = loadLocalTask {
                     await loadTask.value
                 }
-
+                if Task.isCancelled {
+                    return
+                }
                 try await entryDataService.fullRefresh()
-                fullSyncTask = nil
+                if Task.isCancelled {
+                    return
+                }
+                refreshInAppMessage()
             } catch {
                 handle(error)
-                fullSyncTask = nil
             }
         }
     }
@@ -356,6 +374,17 @@ private extension EntriesViewModel {
                 $0.orderedEntry.entry.issuer.lowercased().contains(query)
         }
     }
+
+    // swiftlint:disable line_length
+    func refreshInAppMessage() {
+        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
+            inAppService.show(InAppMessage(id: "iCloudSyncWarning",
+                                           title: #localized("Information", bundle: .module),
+                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
+                                                            bundle: .module)))
+        }
+    }
+    // swiftlint:enable line_length
 }
 
 private extension [EntryUiModel] {

@@ -100,4 +100,8 @@ public extension ToolsContainer {
     var updatingSettings: Factory<CurrentValueSubject<Bool, Never>> {
         self { .init(false) }
     }
+
+    var userDefaultsPersistence: Factory<any InAppMessagePersistence> {
+        self { UserDefaultsInAppMessagePersistence() }
+    }
 }

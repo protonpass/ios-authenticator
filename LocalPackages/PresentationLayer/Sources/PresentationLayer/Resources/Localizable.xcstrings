@@ -5274,6 +5274,16 @@
         }
       }
     },
+    "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on."
+          }
+        }
+      }
+    },
     "Import" : {
       "localizations" : {
         "de" : {
@@ -5748,6 +5758,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proton Pass eklentisinde, internet veya bilgisayar uygulamasında, **☰ > Ayarlar > Dışa aktar** bölümüne gidin"
+          }
+        }
+      }
+    },
+    "Information" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Information"
           }
         }
       }
@@ -6477,6 +6497,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Son güncellenme (eskiden yeniye)"
+          }
+        }
+      }
+    },
+    "Learn more" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn more"
           }
         }
       }

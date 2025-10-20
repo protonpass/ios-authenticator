@@ -46,7 +46,6 @@ public struct EntriesView: View {
     @State private var destinationIndex: Int?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
-
     @FocusState private var searchFieldFocus: Bool
 
     private let alertService = resolve(\ServiceContainer.alertService)
@@ -149,6 +148,12 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
                 .navigationBarTitleDisplayMode(.inline)
+                .sheet(item: $viewModel.inAppService.currentMessage) {
+                    viewModel.inAppService.dismiss(permanently: true)
+                } content: { message in
+                    EntriesInfoView(message: message,
+                                    url: AppConstants.CommonUrls.iCloudSyncInfos)
+                }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)

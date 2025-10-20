@@ -30,6 +30,7 @@ import ProtonCoreServices
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
+    var hasNonDecryptableEntries: Bool { get }
 
     func getEntry(from uri: String) async throws -> Entry
     func insertAndRefreshEntry(from uri: String) async throws
@@ -82,6 +83,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
     // MARK: - Properties
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
+    public private(set) var hasNonDecryptableEntries = false
 
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
@@ -233,6 +235,7 @@ public extension EntryDataService {
             let entriesStates = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
             let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
         } catch {
@@ -256,6 +259,7 @@ public extension EntryDataService {
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
             if Task.isCancelled { return }
             let entriesStates = try await repository.getAllLocalEntries()
+            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
 
             _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
@@ -263,7 +267,6 @@ public extension EntryDataService {
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
             backUpEntries()
-
             updateData(entries)
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
@@ -664,6 +667,10 @@ private extension EntryDataService {
 extension [EntryState] {
     var decodedEntries: [OrderedEntry] {
         compactMap(\.entry)
+    }
+
+    var containsNonDecryptedEntries: Bool {
+        contains(where: \.isNonDecryptable)
     }
 
     func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
