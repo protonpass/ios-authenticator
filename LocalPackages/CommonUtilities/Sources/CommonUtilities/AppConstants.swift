@@ -122,7 +122,7 @@ public enum AppConstants: Sendable {
 
     public enum CommonUrls {
         public static let feedbackUrl = "https://proton.me/support/contact"
-        public static let iCloudSinkInfos = "https://proton.me/support/keychain-issues-authenticator/"
+        public static let iCloudSyncInfos = "https://proton.me/support/keychain-issues-authenticator/"
     }
 
     public enum ContentFormatVersion {

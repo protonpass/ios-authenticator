@@ -152,7 +152,7 @@ public struct EntriesView: View {
                     viewModel.inAppService.dismiss(permanently: true)
                 } content: { message in
                     EntriesInfoView(message: message,
-                                    url: AppConstants.CommonUrls.iCloudSinkInfos)
+                                    url: AppConstants.CommonUrls.iCloudSyncInfos)
                 }
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
