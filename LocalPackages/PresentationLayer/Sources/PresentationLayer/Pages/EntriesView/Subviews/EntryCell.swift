@@ -108,7 +108,7 @@ struct EntryCell: View, @preconcurrency Equatable {
                     if currentCodeCopy {
                         Spacer()
                     }
-                    CopyMessageBadge(size: $copyBadgeSize)
+                    CopyMessageBadge(isCurrentCode: currentCodeCopy, size: $copyBadgeSize)
                     if !currentCodeCopy {
                         Spacer()
                     }
