@@ -32,7 +32,7 @@ import SimpleToast
 // TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
 final class EntriesViewModel: ObservableObject {
-    var animatingEntry: Entry?
+    var animatingEntry: EntryAction?
 
     var reorderingEntries: [EntryUiModel]?
 
@@ -290,10 +290,14 @@ extension EntriesViewModel {
         }
     }
 
-    func copyTokenToClipboard(_ entry: EntryUiModel, current: Bool) {
-        animatingEntry = entry.orderedEntry.entry
+    func copyTokenToClipboard(entryAction: EntryAction /* _ entry: EntryUiModel, current: Bool */ ) {
+        guard entryAction != animatingEntry else {
+            return
+        }
+        animatingEntry = entryAction
         copyBadgeRemainingSeconds = 2
-        let code = current ? entry.code.current : entry.code.next
+        let code = entryAction.isCurrentCodeCopyAction ? entryAction.entryUiModel.code.current : entryAction
+            .entryUiModel.code.next
         assert(!code.isEmpty, "Code should not be empty")
         copyTextToClipboard(code)
         #if os(iOS)

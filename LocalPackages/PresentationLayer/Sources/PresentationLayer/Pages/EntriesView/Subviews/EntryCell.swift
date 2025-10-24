@@ -74,6 +74,7 @@ struct EntryCell: View, @preconcurrency Equatable {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
+    @State private var currentCodeCopy = true
 
     let entry: EntryUiModel
     let configuration: EntryCellConfiguration
@@ -81,7 +82,7 @@ struct EntryCell: View, @preconcurrency Equatable {
     let isHovered: Bool
     let reducedShadow: Bool
     let onAction: (EntryAction) -> Void
-    @Binding var animatingEntry: Entry?
+    @Binding var animatingEntryAction: EntryAction?
 
     init(entry: EntryUiModel,
          configuration: EntryCellConfiguration,
@@ -89,37 +90,49 @@ struct EntryCell: View, @preconcurrency Equatable {
          isHovered: Bool,
          reducedShadow: Bool,
          onAction: @escaping (EntryAction) -> Void,
-         animatingEntry: Binding<Entry?>) {
+         animatingEntryAction: Binding<EntryAction?>) {
         self.entry = entry
         self.configuration = configuration
         self.searchTerm = searchTerm
         self.isHovered = isHovered
         self.reducedShadow = reducedShadow
         self.onAction = onAction
-        _animatingEntry = animatingEntry
+        _animatingEntryAction = animatingEntryAction
     }
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
+        ZStack(alignment: .bottom) {
             mainContent
-            CopyMessageBadge(size: $copyBadgeSize)
-                .opacity(showCopyBadge ? 1 : 0)
-                .offset(.init(width: showCopyBadge ? 0 : copyBadgeSize.width,
-                              height: -5))
+            if showCopyBadge {
+                HStack {
+                    if currentCodeCopy {
+                        Spacer()
+                    }
+                    CopyMessageBadge(size: $copyBadgeSize)
+                    if !currentCodeCopy {
+                        Spacer()
+                    }
+                }
+                .id(animatingEntryAction)
+                .transition(copyAnimation)
+                .zIndex(1)
+            }
         }
-        .onChange(of: animatingEntry) { _, newValue in
-            // Another entry is selected, we dismiss the badge of this entry
-            withAnimation(Animation.interpolatingSpring(mass: 0.03,
-                                                        stiffness: 5.5,
-                                                        damping: 0.9,
-                                                        initialVelocity: 4.8)) {
-                showCopyBadge = newValue == entry.orderedEntry.entry
+        .onChange(of: entry) { _, _ in
+            animatingEntryAction = nil
+        }
+        .onChange(of: animatingEntryAction) { _, newValue in
+            if let newValue {
+                currentCodeCopy = newValue.isCurrentCodeCopyAction
+            }
+            withAnimation {
+                showCopyBadge = newValue?.entryUiModel == entry
             }
         }
         .onDisappear {
             // Dismiss the badge is it's still visible when the etry goes off screen
-            if animatingEntry == entry.orderedEntry.entry {
-                animatingEntry = nil
+            if animatingEntryAction?.entry == entry.orderedEntry.entry {
+                animatingEntryAction = nil
             }
         }
     }
@@ -129,7 +142,11 @@ struct EntryCell: View, @preconcurrency Equatable {
             lhs.searchTerm == rhs.searchTerm &&
             lhs.configuration == rhs.configuration &&
             lhs.isHovered == rhs.isHovered &&
-            lhs.animatingEntry == rhs.animatingEntry
+            lhs.animatingEntryAction == rhs.animatingEntryAction
+    }
+
+    private var copyAnimation: AnyTransition {
+        currentCodeCopy ? .move(edge: .trailing) : .move(edge: .leading)
     }
 }
 
@@ -172,6 +189,9 @@ private extension EntryCell {
                     })
                 }
             }
+            .simultaneousGesture(TapGesture().onEnded {
+                onAction(.copyCurrentCode(entry))
+            })
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
 
@@ -179,8 +199,14 @@ private extension EntryCell {
                 .resizable(resizingMode: .tile)
                 .frame(height: 2)
                 .frame(maxWidth: .infinity)
+                .simultaneousGesture(TapGesture().onEnded {
+                    onAction(.copyCurrentCode(entry))
+                })
 
-            CodeView(configuration: configuration, code: entry.code, showCopyBadge: showCopyBadge)
+            CodeView(configuration: configuration,
+                     entry: entry,
+                     showCopyBadge: animatingEntryAction,
+                     onAction: onAction)
                 .equatable()
                 .padding(.top, 8)
                 .padding(.bottom, 12)
@@ -198,7 +224,6 @@ private extension EntryCell {
         .animation(.linear(duration: 0.1), value: isHovered)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
         .overlay(entryOverlay)
         .if(!reducedShadow) { view in
             view.shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
@@ -210,10 +235,11 @@ private extension EntryCell {
 
     @ViewBuilder
     var entryOverlay: some View {
-        if showCopyBadge {
+        if showCopyBadge, let isCurrentCodeCopyAction = animatingEntryAction?.isCurrentCodeCopyAction {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3),
-                              lineWidth: 2)
+                .strokeBorder(isCurrentCodeCopyAction ? Color.copyMessage
+                    .opacity(isLightMode ? 0.7 : 0.3) : Color.purpleInteraction.opacity(isLightMode ? 0.7 : 0.3),
+                    lineWidth: 2)
         } else {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(LinearGradient(stops:
@@ -265,36 +291,60 @@ struct EntryOptions: View {
 
 private struct CodeView: View, @preconcurrency Equatable {
     let configuration: EntryCellConfiguration
-    let code: Code
-    let showCopyBadge: Bool
+    let entry: EntryUiModel
+    let showCopyBadge: EntryAction?
+    let onAction: (EntryAction) -> Void
 
     var body: some View {
-        HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom) {
-            CurrentTokenView(code: code.displayedCode(for: .current, config: configuration),
-                             configuration: configuration,
-                             showCopyBadge: showCopyBadge)
-                .equatable()
-
-            Spacer()
+        HStack(alignment: configuration.digitStyle == .boxed ? .center : .bottom, spacing: 5) {
+            HStack {
+                CurrentTokenView(code: entry.code.displayedCode(for: .current, config: configuration),
+                                 configuration: configuration,
+                                 showCopyBadge: shouldShowCopyBadge)
+                    .equatable()
+                Spacer()
+            }
+            .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
+            .opacity(codeOpacity(isCurrentCode: true) /*! showCopyBadge?.isCurrentCodeCopyAction ? 0 : 1 */ )
 
             VStack(alignment: .trailing, spacing: 0) {
                 Text("Next", bundle: .module)
                     .dynamicFont(size: 14, textStyle: .footnote)
                     .foregroundStyle(.textWeak)
                     .textShadow()
-                Text(verbatim: code.displayedCode(for: .next, config: configuration))
+                Text(verbatim: entry.code.displayedCode(for: .next, config: configuration))
                     .dynamicFont(size: 15, textStyle: .subheadline, weight: .semibold)
                     .monospaced()
-                    .foregroundStyle(.textNorm)
+                    .foregroundStyle(nextColor)
                     .textShadow()
             }
-            .animation(.default, value: showCopyBadge)
-            .opacity(showCopyBadge ? 0 : 1)
+            .opacity(codeOpacity(isCurrentCode: false) /* showCopyBadge?.isCurrentCodeCopyAction ? 0 : 1 */ )
+            .simultaneousGesture(TapGesture().onEnded { onAction(.copyNextCode(entry)) })
         }
+        .animation(.default, value: showCopyBadge)
     }
 
     static func == (lhs: CodeView, rhs: CodeView) -> Bool {
-        lhs.code == rhs.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration
+        lhs.entry.code == rhs.entry.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs
+            .configuration
+    }
+
+    private func codeOpacity(isCurrentCode: Bool) -> Double {
+        guard let showCopyBadge, showCopyBadge.entryUiModel == entry else {
+            return 1
+        }
+        return isCurrentCode == showCopyBadge.isCurrentCodeCopyAction ? 1 : 0
+    }
+
+    private var shouldShowCopyBadge: Bool {
+        guard let showCopyBadge, showCopyBadge.entryUiModel == entry else { return false }
+        return true
+    }
+
+    private var nextColor: Color {
+        guard let showCopyBadge, showCopyBadge.entryUiModel == entry,
+              !showCopyBadge.isCurrentCodeCopyAction else { return .textNorm }
+        return .copyMessage
     }
 }
 
