@@ -48,16 +48,6 @@ enum EntryAction: Sendable, Equatable, Hashable {
         entryUiModel.orderedEntry.entry
     }
 
-    var isCopyAction: Bool {
-        switch self {
-        case .copyCurrentCode,
-             .copyNextCode:
-            true
-        default:
-            false
-        }
-    }
-
     var isCurrentCodeCopyAction: Bool {
         guard case .copyCurrentCode = self else {
             return false
@@ -351,9 +341,9 @@ private extension EntriesView {
         // otherwise the list is not updated after deleting an entry
         viewModel.reorderingEntries = nil
         switch action {
-        case let .copyCurrentCode(entry):
+        case .copyCurrentCode:
             viewModel.copyTokenToClipboard(entryAction: action)
-        case let .copyNextCode(entry):
+        case .copyNextCode:
             viewModel.copyTokenToClipboard(entryAction: action)
         case let .edit(entry):
             router.presentedSheet = .createEditEntry(entry)

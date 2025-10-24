@@ -290,16 +290,16 @@ extension EntriesViewModel {
         }
     }
 
-    func copyTokenToClipboard(entryAction: EntryAction /* _ entry: EntryUiModel, current: Bool */ ) {
+    func copyTokenToClipboard(entryAction: EntryAction) {
         guard entryAction != animatingEntry else {
             return
         }
         animatingEntry = entryAction
         copyBadgeRemainingSeconds = 2
-        let code = entryAction.isCurrentCodeCopyAction ? entryAction.entryUiModel.code.current : entryAction
-            .entryUiModel.code.next
-        assert(!code.isEmpty, "Code should not be empty")
-        copyTextToClipboard(code)
+        let code = entryAction.entryUiModel.code
+        let codeValue = entryAction.isCurrentCodeCopyAction ? code.current : code.next
+        assert(!codeValue.isEmpty, "Code should not be empty")
+        copyTextToClipboard(codeValue)
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif

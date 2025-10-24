@@ -189,6 +189,7 @@ private extension EntryCell {
                     })
                 }
             }
+            .contentShape(.rect)
             .simultaneousGesture(TapGesture().onEnded {
                 onAction(.copyCurrentCode(entry))
             })
@@ -235,10 +236,12 @@ private extension EntryCell {
 
     @ViewBuilder
     var entryOverlay: some View {
-        if showCopyBadge, let isCurrentCodeCopyAction = animatingEntryAction?.isCurrentCodeCopyAction {
+        if showCopyBadge,
+           let isCurrentCodeCopyAction = animatingEntryAction?.isCurrentCodeCopyAction {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(isCurrentCodeCopyAction ? Color.copyMessage
-                    .opacity(isLightMode ? 0.7 : 0.3) : Color.purpleInteraction.opacity(isLightMode ? 0.7 : 0.3),
+                .strokeBorder(isCurrentCodeCopyAction ?
+                    Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3) :
+                    Color.purpleInteraction.opacity(isLightMode ? 0.7 : 0.3),
                     lineWidth: 2)
         } else {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
