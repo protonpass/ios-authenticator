@@ -305,7 +305,7 @@ private struct CodeView: View, @preconcurrency Equatable {
                 Spacer()
             }
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
-            .opacity(codeOpacity(isCurrentCode: true) /*! showCopyBadge?.isCurrentCodeCopyAction ? 0 : 1 */ )
+            .opacity(codeOpacity(isCurrentCode: true))
 
             VStack(alignment: .trailing, spacing: 0) {
                 Text("Next", bundle: .module)
@@ -318,7 +318,7 @@ private struct CodeView: View, @preconcurrency Equatable {
                     .foregroundStyle(nextColor)
                     .textShadow()
             }
-            .opacity(codeOpacity(isCurrentCode: false) /* showCopyBadge?.isCurrentCodeCopyAction ? 0 : 1 */ )
+            .opacity(codeOpacity(isCurrentCode: false))
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyNextCode(entry)) })
         }
         .animation(.default, value: showCopyBadge)
@@ -344,7 +344,7 @@ private struct CodeView: View, @preconcurrency Equatable {
     private var nextColor: Color {
         guard let showCopyBadge, showCopyBadge.entryUiModel == entry,
               !showCopyBadge.isCurrentCodeCopyAction else { return .textNorm }
-        return .copyMessage
+        return .purpleInteraction
     }
 }
 
