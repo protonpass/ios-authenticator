@@ -267,7 +267,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uso da câmera exigido para digitalizar códigos de 2FA"
+            "value" : "Uso da câmera exigido para digitalizar códigos de A2F"
           }
         },
         "ru" : {
