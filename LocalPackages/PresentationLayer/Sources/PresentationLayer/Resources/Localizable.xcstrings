@@ -5276,10 +5276,52 @@
     },
     "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn es Probleme mit der iCloud- Synchronisation gibt, versuche, die iCloud Passwörter und Schlüsselbund aus- und wieder einzuschalten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si tienes problemas con la sincronización de iCloud, prueba a desactivar y volver a activar las Contraseñas y Llavero de iCloud."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si tiene problemas con la sincronización de iCloud, intente desactivar Contraseñas de Apple y Keychain y luego habilítelos nuevamente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si vous rencontrez des problèmes de synchronisation avec iCloud, essayez de désactiver puis de réactiver iCloud Passwords & Keychain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se hai problemi nel sincronizzare con iCloud, prova a disattivare e riattivare iCloud Password e Portachiavi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caso encontre problemas de sincronização do iCloud, tente desligar o iCloud Passwords & Keychain e ligá-lo novamente."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud ile eşitleme sorunları yaşıyorsanız, iCloud Parolalar ve Anahtar Zinciri özelliğini kapatıp yeniden açmayı deneyin."
           }
         }
       }
@@ -5764,10 +5806,52 @@
     },
     "Information" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informationen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Information"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Information"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informação"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilgiler"
           }
         }
       }
@@ -6286,7 +6370,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laats aangemaakt (nieuwste)"
+            "value" : "Laatst aangemaakt (nieuwste)"
           }
         },
         "pl" : {
@@ -6503,10 +6587,52 @@
     },
     "Learn more" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr erfahren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Learn more"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más información"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más información"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En savoir plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maggiori informazioni"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saiba mais"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayrıntılı bilgi alın"
           }
         }
       }
@@ -8682,10 +8808,52 @@
     },
     "Please type \"%@\" to proceed" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte „%@“ eingeben, um fortzufahren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please type \"%@\" to proceed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe \"%@\" para continuar"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escriba «%@» para continuar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez saisir « %@ » pour continuer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digita \"%@\" per continuare"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digite \"%@\" para prosseguir"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İlerlemek için lütfen \"%@\" yazın"
           }
         }
       }
@@ -10055,7 +10223,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecione seu provedor 2FA atual"
+            "value" : "Selecione seu provedor A2F atual"
           }
         },
         "ru" : {
