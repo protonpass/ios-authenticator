@@ -28,11 +28,32 @@ import Models
 import SimpleToast
 import SwiftUI
 
-enum EntryAction: Sendable {
+enum EntryAction: Sendable, Equatable, Hashable {
     case copyCurrentCode(EntryUiModel)
     case copyNextCode(EntryUiModel)
     case edit(EntryUiModel)
     case delete(EntryUiModel)
+
+    var entryUiModel: EntryUiModel {
+        switch self {
+        case let .copyCurrentCode(entry),
+             let .copyNextCode(entry),
+             let .delete(entry),
+             let .edit(entry):
+            entry
+        }
+    }
+
+    var entry: Entry {
+        entryUiModel.orderedEntry.entry
+    }
+
+    var isCurrentCodeCopyAction: Bool {
+        guard case .copyCurrentCode = self else {
+            return false
+        }
+        return true
+    }
 }
 
 public struct EntriesView: View {
@@ -290,7 +311,7 @@ private extension EntriesView {
                   isHovered: hoveringEntry == entry,
                   reducedShadow: reducedShadow,
                   onAction: handle(_:),
-                  animatingEntry: $viewModel.animatingEntry)
+                  animatingEntryAction: $viewModel.animatingEntry)
             .equatable()
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
@@ -320,10 +341,10 @@ private extension EntriesView {
         // otherwise the list is not updated after deleting an entry
         viewModel.reorderingEntries = nil
         switch action {
-        case let .copyCurrentCode(entry):
-            viewModel.copyTokenToClipboard(entry, current: true)
-        case let .copyNextCode(entry):
-            viewModel.copyTokenToClipboard(entry, current: false)
+        case .copyCurrentCode:
+            viewModel.copyTokenToClipboard(entryAction: action)
+        case .copyNextCode:
+            viewModel.copyTokenToClipboard(entryAction: action)
         case let .edit(entry):
             router.presentedSheet = .createEditEntry(entry)
         case let .delete(entry):

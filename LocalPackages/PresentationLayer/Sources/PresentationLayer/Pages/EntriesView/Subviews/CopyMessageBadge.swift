@@ -21,6 +21,7 @@
 import SwiftUI
 
 struct CopyMessageBadge: View {
+    let isCurrentCode: Bool
     @Binding var size: CGSize
 
     var body: some View {
@@ -30,7 +31,7 @@ struct CopyMessageBadge: View {
                 .dynamicFont(size: 13, textStyle: .footnote, weight: .medium)
         }
         .accessibilityLabel(Text("Copied", bundle: .module))
-        .foregroundStyle(.copyMessage)
+        .foregroundStyle(isCurrentCode ? .copyMessage : .purpleInteraction)
         .padding()
         .overlay(GeometryReader { proxy in
             Color.clear

@@ -32,7 +32,7 @@ import SimpleToast
 // TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
 final class EntriesViewModel: ObservableObject {
-    var animatingEntry: Entry?
+    var animatingEntry: EntryAction?
 
     var reorderingEntries: [EntryUiModel]?
 
@@ -290,12 +290,16 @@ extension EntriesViewModel {
         }
     }
 
-    func copyTokenToClipboard(_ entry: EntryUiModel, current: Bool) {
-        animatingEntry = entry.orderedEntry.entry
+    func copyTokenToClipboard(entryAction: EntryAction) {
+        guard entryAction != animatingEntry else {
+            return
+        }
+        animatingEntry = entryAction
         copyBadgeRemainingSeconds = 2
-        let code = current ? entry.code.current : entry.code.next
-        assert(!code.isEmpty, "Code should not be empty")
-        copyTextToClipboard(code)
+        let code = entryAction.entryUiModel.code
+        let codeValue = entryAction.isCurrentCodeCopyAction ? code.current : code.next
+        assert(!codeValue.isEmpty, "Code should not be empty")
+        copyTextToClipboard(codeValue)
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif
