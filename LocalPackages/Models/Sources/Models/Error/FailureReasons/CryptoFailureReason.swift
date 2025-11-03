@@ -35,6 +35,7 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
     case failedToDecode
     case failedToEncode(String)
     case failedToAESEncrypt
+    case failedToVerifyContent(String)
     case inactiveUserKey(userKeyId: String) // Caused by "forgot password"
     case addressNotFound(addressID: String)
     case missingUserKey(userID: String)
@@ -90,6 +91,8 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
             "Unmatch key rotation \(lhsKey) - \(rhsKey)"
         case .missingRemoteEncryptionKey:
             "Missing remote encryption key"
+        case let .failedToVerifyContent(error):
+            "Failed to verify content: \(error)"
         }
     }
 }
