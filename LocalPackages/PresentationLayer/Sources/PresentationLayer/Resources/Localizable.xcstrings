@@ -6072,7 +6072,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Herausgeber (A - Z)"
+            "value" : "Aussteller (A - Z)"
           }
         },
         "en" : {
@@ -6136,7 +6136,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Herausgeber (Z - A)"
+            "value" : "Aussteller (Z - A)"
           }
         },
         "en" : {
@@ -6462,7 +6462,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zuletzt bearbeitet (neueste)"
+            "value" : "Zuletzt aktualisiert (neueste)"
           }
         },
         "en" : {
@@ -6526,7 +6526,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zuletzt bearbeitet (älteste)"
+            "value" : "Zuletzt aktualisiert (älteste)"
           }
         },
         "en" : {
@@ -8095,7 +8095,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reintext"
+            "value" : "Klartext"
           }
         },
         "en" : {
@@ -8293,7 +8293,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte das Passwort eingeben, das zur Verschlüsselung dieser Datensicherung verwendet wurde."
+            "value" : "Bitte gib das Passwort ein, das zur Verschlüsselung dieser Datensicherung verwendet wurde."
           }
         },
         "en" : {
@@ -8811,7 +8811,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte „%@“ eingeben, um fortzufahren"
+            "value" : "Bitte gib „%@“ ein, um fortzufahren"
           }
         },
         "en" : {
