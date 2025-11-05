@@ -542,7 +542,9 @@ public extension UserSessionManager {
                                                                          value: .init(value: armoredEncryptedData),
                                                                          verificationKeys: verificationKeys)
 
-        return decryptedData.content
+        let verifiedContent = try decryptedData.verifiedContent
+
+        return verifiedContent
     }
 
     func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
@@ -617,4 +619,17 @@ final class ForceUpgradeControllerImpl: ForceUpgradeController {
     func performForceUpgrade(message: String,
                              config: ForceUpgradeConfig,
                              responseDelegate: ForceUpgradeResponseDelegate?) {}
+}
+
+private extension VerifiedData {
+    var verifiedContent: ClearContent {
+        get throws {
+            switch self {
+            case let .verified(content):
+                return content
+            case let .unverified(_, error):
+                throw AuthError.crypto(.failedToVerifyContent(error.localizedDescription))
+            }
+        }
+    }
 }

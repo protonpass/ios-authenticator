@@ -24,7 +24,7 @@ let package = Package(
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(name: "DataLayer", path: "../DataLayer"),
         .package(name: "AuthenticatorRustCore", path: "../AuthenticatorRustCore"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "8.54.0")
+        .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "8.57.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
