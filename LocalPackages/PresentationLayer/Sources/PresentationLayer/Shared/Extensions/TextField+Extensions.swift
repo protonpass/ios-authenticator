@@ -24,7 +24,7 @@ extension TextField {
     @ViewBuilder
     func adaptiveTextFieldStyle() -> some View {
         if #available(macOS 14.0, *) {
-            self.textFieldStyle(.plain)
+            textFieldStyle(.plain)
         }
     }
 }

@@ -29,6 +29,7 @@
 --maxwidth 115
 --wrapcollections before-first
 --ranges no-space
+--modifier-order nonisolated, nonisolated(unsafe), override, private, fileprivate, internal, package, public, open, private(set), fileprivate(set), internal(set), package(set), public(set), open(set), final, dynamic, optional, required, convenience, indirect, isolated, lazy, weak, unowned, unowned(safe), unowned(unsafe), static, class, borrowing, consuming, mutating, nonmutating, prefix, infix, postfix
 
 # rules
 

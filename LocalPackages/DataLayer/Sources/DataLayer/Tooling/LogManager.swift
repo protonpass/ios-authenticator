@@ -171,7 +171,7 @@ public final actor LogManager: LoggerProtocol {
         "and params:"
     ]
 
-    private nonisolated(unsafe) var saveTimerSubscription: Cancellable?
+    nonisolated(unsafe) private var saveTimerSubscription: Cancellable?
 
     private var saveLogsTask: Task<Void, Never>?
 
@@ -192,7 +192,7 @@ public final actor LogManager: LoggerProtocol {
         saveTimerSubscription?.cancel()
     }
 
-    public nonisolated func log(_ level: LogLevel,
+    nonisolated public func log(_ level: LogLevel,
                                 category: LogCategory,
                                 _ message: String,
                                 file: String = #file,

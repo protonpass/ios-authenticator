@@ -24,7 +24,7 @@ extension Button {
     @ViewBuilder
     func adaptiveButtonStyle() -> some View {
         if #available(macOS 14.0, *) {
-            self.buttonStyle(.borderless)
+            buttonStyle(.borderless)
         }
     }
 }

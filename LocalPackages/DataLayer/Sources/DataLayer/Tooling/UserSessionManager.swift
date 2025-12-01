@@ -97,13 +97,13 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
     private let cachedUserData: any MutexProtected<UserData?> = SafeMutex.create(nil)
     private let humanHelper: any MutexProtected<HumanCheckHelper?> = SafeMutex.create(nil)
 
-    private nonisolated let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
-    public nonisolated let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
-    private nonisolated let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
-    public nonisolated let sessionWasInvalidated = PassthroughSubject<Bool, Never>()
-    public nonisolated let userLoggedOut = PassthroughSubject<Void, Never>()
+    nonisolated private let isAuthenticated = CurrentValueSubject<Bool, Never>(false)
+    nonisolated public let isAuthenticatedWithUserData = CurrentValueSubject<Bool, Never>(false)
+    nonisolated private let userDataLoaded = CurrentValueSubject<Bool, Never>(false)
+    nonisolated public let sessionWasInvalidated = PassthroughSubject<Bool, Never>()
+    nonisolated public let userLoggedOut = PassthroughSubject<Void, Never>()
 
-    private nonisolated(unsafe) var cancellables = Set<AnyCancellable>()
+    nonisolated(unsafe) private var cancellables = Set<AnyCancellable>()
 
     public private(set) var apiService: APIService
 

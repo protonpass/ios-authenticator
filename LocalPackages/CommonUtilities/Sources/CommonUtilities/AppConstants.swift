@@ -25,7 +25,7 @@ import LocalAuthentication
 import UIKit
 #endif
 
-public nonisolated(unsafe) let kSharedUserDefaults: UserDefaults = {
+nonisolated(unsafe) public let kSharedUserDefaults: UserDefaults = {
     if let userDefaults = UserDefaults(suiteName: AppConstants.accessGroup) {
         return userDefaults
     } else {
