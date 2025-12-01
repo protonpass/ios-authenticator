@@ -5842,6 +5842,12 @@
             "value" : "Informazioni"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informatie"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6621,6 +6627,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maggiori informazioni"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer informatie"
           }
         },
         "pt-BR" : {
