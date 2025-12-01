@@ -59,7 +59,7 @@ struct CameraView: UIViewRepresentable {
 }
 
 public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerProtocol {
-    public nonisolated let session = AVCaptureSession()
+    nonisolated public let session = AVCaptureSession()
     private var setUp = false
     private let photoOutput = AVCapturePhotoOutput()
 

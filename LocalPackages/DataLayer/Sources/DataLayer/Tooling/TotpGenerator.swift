@@ -33,7 +33,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
     private let rustTotpGenerator: any MobileTotpGeneratorProtocol
     private var cancellableGenerator: (any MobileTotpGenerationHandle)?
 
-    public nonisolated let currentCodes: CurrentValueSubject<[Code]?, Never> = .init(nil)
+    nonisolated public let currentCodes: CurrentValueSubject<[Code]?, Never> = .init(nil)
 
     public init(rustTotpGenerator: any MobileTotpGeneratorProtocol) {
         self.rustTotpGenerator = rustTotpGenerator
@@ -56,7 +56,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
 }
 
 extension TotpGenerator: MobileTotpGeneratorCallback {
-    public nonisolated func onCodes(codes: [AuthenticatorCodeResponse]) {
+    nonisolated public func onCodes(codes: [AuthenticatorCodeResponse]) {
         currentCodes.send(codes.map(\.toCode))
     }
 }

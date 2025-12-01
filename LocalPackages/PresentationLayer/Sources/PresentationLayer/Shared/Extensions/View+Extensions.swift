@@ -162,7 +162,7 @@ extension View {
     @ViewBuilder
     func searchFocusable(_ isFocused: FocusState<Bool>.Binding) -> some View {
         if #available(iOS 18, macOS 15.0, visionOS 2.0, *) {
-            self.searchFocused(isFocused)
+            searchFocused(isFocused)
         } else {
             self
         }
