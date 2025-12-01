@@ -1,3 +1,10 @@
+# Version 1.3.1
+Copy next code: you can now tap to copy the next code
+
+Improvements:
+- Show a warning when iCloud sync issues are detected.
+- Log decryption states
+
 # Version 1.3.0
 Sort options: you can now sort entries in 7 different modes
 
