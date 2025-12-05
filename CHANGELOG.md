@@ -1,3 +1,6 @@
+# Version 1.3.2
+Fixed crashes on Apple Watch
+
 # Version 1.3.1
 Copy next code: you can now tap to copy the next code
 
