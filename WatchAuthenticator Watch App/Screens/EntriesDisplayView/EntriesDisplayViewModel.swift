@@ -27,6 +27,7 @@ import Macro
 import Models
 import SimpleToast
 
+@MainActor
 @Observable
 final class EntriesDisplayViewModel: ObservableObject {
     var entries: [UIModel] {

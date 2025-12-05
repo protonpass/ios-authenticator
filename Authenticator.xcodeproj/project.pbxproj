@@ -1580,6 +1580,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1618,6 +1619,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Proton Authenticator Watch Distribution";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1657,6 +1659,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "Proton Authenticator Watch Distribution";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 4;
