@@ -32,19 +32,19 @@ final class WatchDIContainer: SharedContainer {
     }
 
     var keychainService: Factory<any KeychainServicing> {
-        self { @MainActor in KeychainService() }
+        self { KeychainService() }
     }
 
     var localDataManager: Factory<any LocalDataManagerProtocol> {
-        self { @MainActor in LocalDataManager() }
+        self { LocalDataManager() }
     }
 
     var watchToIOSCommunicationManager: Factory<any WatchCommunicationServiceProtocol> {
-        self { @MainActor in WatchToIOSCommunicationManager() }
+        self { WatchToIOSCommunicationManager() }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
-        self { @MainActor in WatchEncryptionService(keychain: self.keychainService()) }
+        self { WatchEncryptionService(keychain: self.keychainService()) }
     }
 
     var entryRepository: Factory<any EntryRepositoryProtocol> {
