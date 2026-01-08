@@ -5312,6 +5312,12 @@
             "value" : "Se hai problemi nel sincronizzare con iCloud, prova a disattivare e riattivare iCloud Password e Portachiavi."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als u problemen ondervindt met de iCloud-synchronisatie, schakel dan iCloud-wachtwoorden en -sleutelhanger uit en weer in."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8854,6 +8860,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Digita \"%@\" per continuare"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ \"%@\" om door te gaan"
           }
         },
         "pt-BR" : {
