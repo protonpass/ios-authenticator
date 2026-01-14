@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1630"
+   LastUpgradeVersion = "2620"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
-      <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Macro"
-               BuildableName = "Macro"
-               BlueprintName = "Macro"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </BuildActionEntry>
-      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -34,10 +18,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "MacroTests"
-               BuildableName = "MacroTests"
-               BlueprintName = "MacroTests"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "CommonUtilitiesTests"
+               BuildableName = "CommonUtilitiesTests"
+               BlueprintName = "CommonUtilitiesTests"
+               ReferencedContainer = "container:LocalPackages/CommonUtilities">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -59,15 +43,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "Macro"
-            BuildableName = "Macro"
-            BlueprintName = "Macro"
-            ReferencedContainer = "container:">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
