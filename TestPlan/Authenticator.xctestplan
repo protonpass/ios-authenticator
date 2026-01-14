@@ -17,6 +17,13 @@
   },
   "testTargets" : [
     {
+      "target" : {
+        "containerPath" : "container:LocalPackages\/DomainLayer",
+        "identifier" : "DomainLayerTests",
+        "name" : "DomainLayerTests"
+      }
+    },
+    {
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Authenticator.xcodeproj",
@@ -25,12 +32,17 @@
       }
     },
     {
-      "enabled" : false,
-      "parallelizable" : true,
       "target" : {
-        "containerPath" : "container:Authenticator.xcodeproj",
-        "identifier" : "5B8765342D52539E00B4CC30",
-        "name" : "AuthenticatorUITests"
+        "containerPath" : "container:LocalPackages\/CommonUtilities",
+        "identifier" : "CommonUtilitiesTests",
+        "name" : "CommonUtilitiesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:LocalPackages\/DataLayer",
+        "identifier" : "DataLayerTests",
+        "name" : "DataLayerTests"
       }
     }
   ],
