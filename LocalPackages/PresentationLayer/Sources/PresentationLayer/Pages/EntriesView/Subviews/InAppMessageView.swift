@@ -1,5 +1,5 @@
 //
-// EntriesInfoView.swift
+// InAppMessageView.swift
 // Proton Authenticator - Created on 13/10/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
@@ -22,18 +22,20 @@ import CommonUtilities
 import DataLayer
 import SwiftUI
 
-struct EntriesInfoView: View {
+struct InAppMessageView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     let message: InAppMessage
-    let url: String
 
     var body: some View {
         VStack(spacing: 18) {
             Text(verbatim: message.title)
                 .fontWeight(.semibold)
+                .fixedSize(horizontal: false, vertical: true)
             Text(verbatim: message.body)
                 .frame(maxWidth: .infinity)
-            if let url = URL(string: url) {
+                .fixedSize(horizontal: false, vertical: true)
+            if let urlString = message.urlString, let url = URL(string: urlString) {
                 Link(destination: url) {
                     Text("Learn more", bundle: .module)
                         .dynamicFont(size: 17, textStyle: .body, weight: .semibold)
@@ -63,14 +65,15 @@ struct EntriesInfoView: View {
                                     lineWidth: 0.5))
                         .clipShape(.capsule)
                 }
+                .environment(\.openURL, OpenURLAction { _ in
+                    dismiss()
+                    return .systemAction
+                })
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(16)
         .presentationDragIndicator(.visible)
-        .measureHeight { newHeight in
-            ContentHeightDetent.height = newHeight
-        }
-        .presentationDetents([.custom(ContentHeightDetent.self)])
+        .fittedPresentationDetent()
     }
 }

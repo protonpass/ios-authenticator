@@ -169,12 +169,13 @@ public struct EntriesView: View {
                 }
                 .fullScreenMainBackground()
                 .navigationBarTitleDisplayMode(.inline)
-                .sheet(item: $viewModel.inAppService.currentMessage) {
-                    viewModel.inAppService.dismiss(permanently: true)
-                } content: { message in
-                    EntriesInfoView(message: message,
-                                    url: AppConstants.CommonUrls.iCloudSyncInfos)
-                }
+                .sheet(item: $viewModel.inAppService.currentMessage,
+                       content: { message in
+                           InAppMessageView(message: message)
+                               .onDisappear {
+                                   viewModel.inAppService.dismissPermanently(message)
+                               }
+                       })
         }
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
