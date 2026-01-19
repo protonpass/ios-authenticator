@@ -64,8 +64,8 @@ public protocol EncryptionServicing: Sendable {
     func decrypt(entry: EncryptedEntryEntity) throws -> EntryState
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState]
 
-    func symmetricEncrypt(object: some Codable) throws -> Data
-    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T
+    func symmetricEncrypt(object: some Encodable) throws -> Data
+    func symmetricDecrypt<T: Decodable>(encryptedData: Data) throws -> T
 
     // MARK: - Proton BE
 
@@ -182,15 +182,15 @@ public extension EncryptionService {
                                                     key: encryptionKey)
     }
 
-    func symmetricEncrypt(object: some Codable) throws -> Data {
-        log(.info, "Encrypting entry with symmetric encryption key")
+    func symmetricEncrypt(object: some Encodable) throws -> Data {
+        log(.info, "Encrypting \(type(of: object)) with symmetric key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try JSONEncoder().encode(object)
         return try symmetricKey.encrypt(data)
     }
 
-    func symmetricDecrypt<T: Codable>(encryptedData: Data) throws -> T {
-        log(.info, "Decrypting entry with symmetric encryption key")
+    func symmetricDecrypt<T: Decodable>(encryptedData: Data) throws -> T {
+        log(.info, "Decrypting \(T.self) with symmetric key")
         let symmetricKey = try keysProvider.getSymmetricKey()
         let data = try symmetricKey.decrypt(encryptedData)
         return try JSONDecoder().decode(T.self, from: data)
