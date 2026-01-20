@@ -1,3 +1,8 @@
+# Version 1.3.3
+- Fixed an issue where the iCloud sync error popup was shown repeatedly
+- Improved logging during encryption and decryption operations
+- Upgraded Rust library from 0.27.0 to 0.28.8
+
 # Version 1.3.2
 Fixed crashes on Apple Watch
 
