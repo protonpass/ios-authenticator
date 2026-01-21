@@ -307,6 +307,7 @@ private struct CodeView: View, @preconcurrency Equatable {
                     .equatable()
                 Spacer()
             }
+            .contentShape(.rect)
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
             .opacity(codeOpacity(isCurrentCode: true))
 
