@@ -20,6 +20,7 @@
 //
 
 import Combine
+import CommonUtilities
 import CoreData
 import DataLayer
 import FactoryKit
@@ -385,7 +386,8 @@ private extension EntriesViewModel {
             inAppService.show(InAppMessage(id: "iCloudSyncWarning",
                                            title: #localized("Information", bundle: .module),
                                            body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
-                                                            bundle: .module)))
+                                                            bundle: .module),
+                                           urlString: AppConstants.CommonUrls.iCloudSyncInfos))
         }
     }
     // swiftlint:enable line_length

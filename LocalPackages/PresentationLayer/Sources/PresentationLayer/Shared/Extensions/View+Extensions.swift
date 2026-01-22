@@ -167,28 +167,4 @@ extension View {
             self
         }
     }
-
-    func measureHeight(_ onChange: @escaping (CGFloat) -> Void) -> some View {
-        background(GeometryReader { proxy in
-            Color.clear
-                .preference(key: HeightPreferenceKey.self, value: proxy.size.height)
-        })
-        .onPreferenceChange(HeightPreferenceKey.self, perform: onChange)
-    }
-}
-
-struct HeightPreferenceKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
-struct ContentHeightDetent: CustomPresentationDetent {
-    nonisolated(unsafe) static var height: CGFloat = 200 // default, will update dynamically
-
-    static func height(in context: Context) -> CGFloat? {
-        min(height, context.maxDetentValue) + 40 // don’t exceed max allowed
-    }
 }

@@ -28,13 +28,16 @@ public struct InAppMessage: Identifiable, Codable, Equatable {
     public let id: String
     public let title: String
     public let body: String
+    public let urlString: String?
 
     public init(id: String,
                 title: String,
-                body: String) {
+                body: String,
+                urlString: String?) {
         self.id = id
         self.title = title
         self.body = body
+        self.urlString = urlString
     }
 }
 
@@ -68,7 +71,7 @@ public protocol InAppMessagingServicing: Observable {
     var currentMessage: InAppMessage? { get set }
 
     func show(_ message: InAppMessage)
-    func dismiss(permanently: Bool)
+    func dismissPermanently(_ message: InAppMessage)
 }
 
 @MainActor
@@ -90,12 +93,8 @@ public final class InAppMessagingService: InAppMessagingServicing {
         currentMessage = message
     }
 
-    public func dismiss(permanently: Bool) {
-        guard let message = currentMessage else { return }
-        if permanently {
-            dismissedIDs.insert(message.id)
-            store.saveDismissedIDs(dismissedIDs)
-        }
-        currentMessage = nil
+    public func dismissPermanently(_ message: InAppMessage) {
+        dismissedIDs.insert(message.id)
+        store.saveDismissedIDs(dismissedIDs)
     }
 }
