@@ -93,9 +93,13 @@ public struct SettingsView: View {
                         Button {
                             dismiss()
                         } label: {
-                            Text("Close", bundle: .module)
-                                .foregroundStyle(.purpleInteraction)
-                                .adaptiveButtonStyle()
+                            if #available(iOS 26, macOS 26, *) {
+                                Image(systemName: "xmark")
+                            } else {
+                                Text("Close", bundle: .module)
+                                    .foregroundStyle(.purpleInteraction)
+                                    .adaptiveButtonStyle()
+                            }
                         }
                     }
                 }

@@ -552,7 +552,7 @@ private extension EntriesView {
 private extension EntriesView {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: ProcessInfo.processInfo.isiOSAppOnMac ? .topBarLeading : .principal) {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
@@ -560,65 +560,59 @@ private extension EntriesView {
         }
 
         #if os(iOS)
-        trailingToolbarContent()
-        #endif
-    }
-
-    var trailingToolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            HStack {
-                Menu(content: {
-                    ForEach(SortOption.allCases, id: \.self) { option in
-                        Button(action: {
-                            viewModel.settingsService.setSortOption(option)
-                        }, label: {
-                            Toggle(isOn: .constant(option == viewModel.sortOption)) {
-                                Text(option.description, bundle: .module)
-                            }
-                        })
-
-                        switch option {
-                        case .creationDateDesc, .issuerDesc, .manual:
-                            Divider()
-                        default:
-                            EmptyView()
+            Menu(content: {
+                ForEach(SortOption.allCases, id: \.self) { option in
+                    Button(action: {
+                        viewModel.settingsService.setSortOption(option)
+                    }, label: {
+                        Toggle(isOn: .constant(option == viewModel.sortOption)) {
+                            Text(option.description, bundle: .module)
                         }
-                    }
-                }, label: {
-                    Image(.sortButton)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 44, height: 44)
-                        .impactHaptic()
-                        .accessibilityLabel("Sort options")
-                })
+                    })
 
-                Button {
-                    router.presentedSheet = .settings
-                } label: {
+                    switch option {
+                    case .creationDateDesc, .issuerDesc, .manual:
+                        Divider()
+                    default:
+                        EmptyView()
+                    }
+                }
+            }, label: {
+                Group {
+                    if #available(iOS 26, macOS 26, *) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    } else {
+                        Image(.sortButton)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 44, height: 44)
+                    }
+                }
+                .impactHaptic()
+                .accessibilityLabel("Sort options")
+            })
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                router.presentedSheet = .settings
+            } label: {
+                if #available(iOS 26, macOS 26, *) {
+                    Image(systemName: "gearshape.fill")
+                } else {
                     Image(.settingsGear)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 44, height: 44)
                 }
-                .adaptiveButtonStyle()
-                .impactHaptic()
-                .accessibilityLabel("Settings")
             }
+            .adaptiveButtonStyle()
+            .impactHaptic()
+            .accessibilityLabel("Settings")
         }
+        #endif
     }
-
-    #if os(iOS)
-    @ToolbarContentBuilder
-    func trailingToolbarContent() -> some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            trailingToolbarButtons
-                .sharedBackgroundVisibility(.hidden)
-        } else {
-            trailingToolbarButtons
-        }
-    }
-    #endif
 }
 
 private extension EntriesView {
