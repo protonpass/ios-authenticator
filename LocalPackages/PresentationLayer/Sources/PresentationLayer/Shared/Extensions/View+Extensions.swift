@@ -39,6 +39,15 @@ public extension View {
     }
 
     @ViewBuilder
+    func ifNoLiquidGlass(transform: (Self) -> some View) -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            self
+        } else {
+            transform(self)
+        }
+    }
+
+    @ViewBuilder
     func resizableSheet() -> some View {
         #if os(macOS)
         if #available(macOS 15.0, *) {
@@ -77,6 +86,15 @@ public extension View {
             fullScreenCover(isPresented: isPresented, content: content)
         } else {
             sheet(isPresented: isPresented, content: content)
+        }
+    }
+
+    @ViewBuilder
+    func glassButtonStyleIfLiquidGlass() -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            buttonStyle(.glass)
+        } else {
+            self
         }
     }
 }
