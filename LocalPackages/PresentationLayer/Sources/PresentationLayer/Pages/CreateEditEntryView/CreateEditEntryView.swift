@@ -428,17 +428,15 @@ private extension CreateEditEntryView {
         }
         #else
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
-            if #available(iOS 26, macOS 26, *) {
-                Button(action: dismiss.callAsFunction) {
+            Button(action: dismiss.callAsFunction) {
+                if #available(iOS 26, macOS 26, *) {
                     Image(systemName: "xmark")
-                }
-            } else {
-                Button(action: dismiss.callAsFunction) {
+                } else {
                     Text("Close", bundle: .module)
                         .foregroundStyle(.accent)
                         .padding(10)
+                        .adaptiveButtonStyle()
                 }
-                .adaptiveButtonStyle()
             }
         }
 
