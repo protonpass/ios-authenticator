@@ -182,7 +182,7 @@ public struct EntriesView: View {
                                }
                        })
         }
-        // Force re-redendering the whole view to take into account search bar position mode
+        // Force re-rendering the whole view to take into account search bar position mode
         // because `searchable` modifier seems to be cached by SwiftUI so it doesn't reflect changes
         .id(viewModel.settingsService.searchBarDisplayMode)
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
