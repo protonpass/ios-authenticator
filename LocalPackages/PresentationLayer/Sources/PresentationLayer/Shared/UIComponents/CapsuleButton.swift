@@ -37,18 +37,20 @@ struct CapsuleButton: View {
 
     var body: some View {
         Button(action: action) {
-            switch style {
-            case .borderedFilled:
-                borderedFilledText
-            case .bordered:
-                borderedText
-            case .filled:
-                filledText
+            if #available(iOS 26, macOS 26, *) {
+                text
+            } else {
+                switch style {
+                case .borderedFilled:
+                    borderedFilledText
+                case .bordered:
+                    borderedText
+                case .filled:
+                    filledText
+                }
             }
         }
-        #if os(macOS)
-        .buttonStyle(.borderless)
-        #endif
+        .applyCapsuleStyle(style)
     }
 }
 
@@ -97,5 +99,25 @@ private extension CapsuleButton {
         text
             .background(Color(red: 0.43, green: 0.29, blue: 1))
             .clipShape(.capsule)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applyCapsuleStyle(_ style: CapsuleButton.Style) -> some View {
+        #if os(macOS)
+        buttonStyle(.borderless)
+        #else
+        if #available(iOS 26, *) {
+            switch style {
+            case .borderedFilled, .filled:
+                buttonStyle(.glassProminent)
+            case .bordered:
+                buttonStyle(.glass)
+            }
+        } else {
+            buttonStyle(.automatic)
+        }
+        #endif
     }
 }
