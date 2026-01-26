@@ -89,12 +89,16 @@ public struct EntriesView: View {
                     viewModel?.reloadData()
                 }
                 .safeAreaInset(edge: .top) {
-                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
-                        Color.clear.frame(height: 10)
+                    if #unavailable(iOS 26, macOS 26) {
+                        if searchBarAlignment == .bottom, !viewModel.noEntries {
+                            Color.clear.frame(height: 10)
+                        }
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
+                    if searchBarAlignment == .bottom,
+                       !viewModel.noEntries,
+                       #unavailable(iOS 26, macOS 26) {
                         actionBar
                     } else if searchBarAlignment == .top, !viewModel.entries.isEmpty {
                         HStack {
@@ -108,11 +112,12 @@ public struct EntriesView: View {
                         }
                     }
                 }
-                .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
+                .if(nativeSearchable && !viewModel.noEntries) { view in
                     view
                         .searchable(text: $viewModel.query,
                                     isPresented: $searchEnabled,
-                                    placement: .navigationBarDrawer(displayMode: .always))
+                                    placement: searchBarAlignment == .top ?
+                                        .navigationBarDrawer(displayMode: .always) : .toolbar)
                         .searchFocusable($searchFieldFocus)
                         .asciiCapableKeyboard()
                         .autocorrectionDisabled(true)
@@ -177,20 +182,37 @@ public struct EntriesView: View {
                                }
                        })
         }
+        // Force re-redendering the whole view to take into account search bar position mode
+        // because `searchable` modifier seems to be cached by SwiftUI so it doesn't reflect changes
+        .id(viewModel.settingsService.searchBarDisplayMode)
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
+    }
+
+    /// Whether the native `searchable` modifier could be applied
+    var nativeSearchable: Bool {
+        switch searchBarAlignment {
+        case .top:
+            true
+        case .bottom:
+            if #available(iOS 26, macOS 26, *) {
+                true
+            } else {
+                false
+            }
+        default:
+            false
+        }
     }
 }
 
 private extension EntriesView {
     var mainContainer: some View {
-        Group {
-            if horizontalSizeClass == .compact {
-                list
-            } else {
-                GeometryReader { proxy in
-                    grid(width: proxy.size.width)
-                }
+        if horizontalSizeClass == .compact {
+            list
+        } else {
+            GeometryReader { proxy in
+                grid(width: proxy.size.width)
             }
         }
     }
@@ -612,6 +634,18 @@ private extension EntriesView {
             .accessibilityLabel("Settings")
         }
         #endif
+
+        if #available(iOS 26, macOS 26, *), !viewModel.noEntries, searchBarAlignment == .bottom {
+            DefaultToolbarItem(kind: .search, placement: .bottomBar)
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: handleAddNewCode) {
+                    Image(systemName: "plus")
+                }
+                .impactHaptic()
+                .accessibilityLabel("Create new code")
+                .buttonStyle(.glassProminent)
+            }
+        }
     }
 }
 
