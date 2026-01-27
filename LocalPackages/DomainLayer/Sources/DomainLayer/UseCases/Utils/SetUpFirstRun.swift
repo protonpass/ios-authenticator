@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+import CommonUtilities
 import DataLayer
 
 public protocol SetUpFirstRunUseCase: Sendable {
@@ -49,6 +50,11 @@ public final class SetUpFirstRun: SetUpFirstRunUseCase {
 
     public func execute() async {
         log(.debug, "Setting up first run if applicable")
+
+        if await !AppConstants.adjustableSearchBarPosition {
+            await settingsService.setSearchBarMode(.top)
+        }
+
         guard await settingsService.isFirstRun else {
             log(.debug, "Not the first run. Skipped set up.")
             return

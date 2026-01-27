@@ -276,26 +276,30 @@ private extension SettingsView {
 
             SettingDivider()
 
-            Menu(content: {
-                ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
-                    Button(action: {
-                        viewModel.updateSearchBarDisplay(theme)
-                    }, label: {
-                        if theme == viewModel.searchBarDisplay {
-                            Label(theme.title, systemImage: "checkmark")
-                        } else {
-                            Text(theme.title, bundle: .module)
-                        }
-                    })
-                }
-            }, label: {
-                SettingRow(title: .localized("Search bar position", .module),
-                           trailingMode: AppConstants.isIOS ?
-                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) : nil)
-            })
-            .adaptiveMenuStyle()
+            if AppConstants.adjustableSearchBarPosition {
+                Menu(content: {
+                    ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
+                        Button(action: {
+                            viewModel.updateSearchBarDisplay(theme)
+                        }, label: {
+                            if theme == viewModel.searchBarDisplay {
+                                Label(theme.title, systemImage: "checkmark")
+                            } else {
+                                Text(theme.title, bundle: .module)
+                            }
+                        })
+                    }
+                }, label: {
+                    SettingRow(title: .localized("Search bar position", .module),
+                               trailingMode: AppConstants.isIOS ?
+                                   .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) :
+                                   nil)
+                })
+                .adaptiveMenuStyle()
 
-            SettingDivider()
+                SettingDivider()
+            }
+
             Menu(content: {
                 ForEach(DigitStyle.allCases, id: \.self) { style in
                     Button(action: {

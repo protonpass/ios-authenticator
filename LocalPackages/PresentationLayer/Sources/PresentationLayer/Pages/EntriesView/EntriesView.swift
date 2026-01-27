@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+// swiftlint:disable file_length
 import AVFoundation
 import CommonUtilities
 import DataLayer
@@ -116,8 +117,7 @@ public struct EntriesView: View {
                     view
                         .searchable(text: $viewModel.query,
                                     isPresented: $searchEnabled,
-                                    placement: searchBarAlignment == .top ?
-                                        .navigationBarDrawer(displayMode: .always) : .toolbar)
+                                    placement: searchFieldPlacement)
                         .searchFocusable($searchFieldFocus)
                         .asciiCapableKeyboard()
                         .autocorrectionDisabled(true)
@@ -188,6 +188,19 @@ public struct EntriesView: View {
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
     }
+}
+
+private extension EntriesView {
+    @ViewBuilder
+    var mainContainer: some View {
+        if horizontalSizeClass == .compact {
+            list
+        } else {
+            GeometryReader { proxy in
+                grid(width: proxy.size.width)
+            }
+        }
+    }
 
     /// Whether the native `searchable` modifier could be applied
     var nativeSearchable: Bool {
@@ -204,16 +217,12 @@ public struct EntriesView: View {
             false
         }
     }
-}
 
-private extension EntriesView {
-    var mainContainer: some View {
-        if horizontalSizeClass == .compact {
-            list
+    var searchFieldPlacement: SearchFieldPlacement {
+        if AppConstants.adjustableSearchBarPosition {
+            searchBarAlignment == .top ? .navigationBarDrawer(displayMode: .always) : .toolbar
         } else {
-            GeometryReader { proxy in
-                grid(width: proxy.size.width)
-            }
+            .toolbar
         }
     }
 }
@@ -573,8 +582,8 @@ private extension EntriesView {
 
 private extension EntriesView {
     @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: ProcessInfo.processInfo.isiOSAppOnMac ? .topBarLeading : .principal) {
+    var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: titlePlacement) {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
@@ -635,7 +644,10 @@ private extension EntriesView {
         }
         #endif
 
-        if #available(iOS 26, macOS 26, *), !viewModel.noEntries, searchBarAlignment == .bottom {
+        if #available(iOS 26, macOS 26, *),
+           !viewModel.noEntries,
+           searchBarAlignment == .bottom,
+           AppConstants.adjustableSearchBarPosition {
             DefaultToolbarItem(kind: .search, placement: .bottomBar)
             ToolbarItem(placement: .bottomBar) {
                 Button(action: handleAddNewCode) {
@@ -645,6 +657,14 @@ private extension EntriesView {
                 .accessibilityLabel("Create new code")
                 .buttonStyle(.glassProminent)
             }
+        }
+    }
+
+    var titlePlacement: ToolbarItemPlacement {
+        if #available(iOS 26, macOS 26, *) {
+            .principal
+        } else {
+            ProcessInfo.processInfo.isiOSAppOnMac ? .topBarLeading : .principal
         }
     }
 }
@@ -686,3 +706,5 @@ private extension View {
         #endif
     }
 }
+
+// swiftlint:enable file_length

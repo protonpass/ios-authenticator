@@ -111,6 +111,17 @@ public enum AppConstants: Sendable {
         #endif
     }
 
+    /// We don't allow changing search bar position on macOS 26
+    /// because custom bottom search bar doesn't look great with liquid glass design
+    @MainActor
+    public static var adjustableSearchBarPosition: Bool {
+        if #available(iOS 26, macOS 26, *) {
+            !ProcessInfo.processInfo.isiOSAppOnMac
+        } else {
+            true
+        }
+    }
+
     public static var isQaBuild: Bool {
         Bundle.main.isQaBuild
     }
