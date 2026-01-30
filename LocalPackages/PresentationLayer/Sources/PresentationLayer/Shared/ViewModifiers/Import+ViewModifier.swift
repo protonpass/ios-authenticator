@@ -914,17 +914,19 @@ private struct ExplanationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
+            if #unavailable(iOS 26, macOS 26) {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                    .padding(16)
                 }
-                .adaptiveButtonStyle()
-                .padding(16)
             }
 
             if option.canExport {
@@ -998,6 +1000,16 @@ private struct ExplanationView: View {
             }
         }
         .fullScreenMainBackground()
+        .toolbar {
+            if #available(iOS 26, macOS 26, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark")
+                    }
+                }
+            }
+        }
+        .navigationStackEmbeded()
     }
 }
 
@@ -1007,17 +1019,19 @@ private struct ImportView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
+            if #unavailable(iOS 26, macOS 26) {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                    .padding(16)
                 }
-                .adaptiveButtonStyle()
-                .padding(16)
             }
 
             List {
@@ -1067,6 +1081,16 @@ private struct ImportView: View {
             .padding(.horizontal, 32)
         }
         .fullScreenMainBackground()
+        .toolbar {
+            if #available(iOS 26, macOS 26, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark")
+                    }
+                }
+            }
+        }
+        .navigationStackEmbeded()
     }
 }
 

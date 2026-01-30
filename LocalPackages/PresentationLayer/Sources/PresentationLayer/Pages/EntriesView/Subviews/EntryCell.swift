@@ -255,7 +255,7 @@ private extension EntryCell {
                     Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3) :
                     Color.purpleInteraction.opacity(isLightMode ? 0.7 : 0.3),
                     lineWidth: 2)
-        } else {
+        } else if #unavailable(iOS 26, macOS 26) {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(LinearGradient(stops:
                     [

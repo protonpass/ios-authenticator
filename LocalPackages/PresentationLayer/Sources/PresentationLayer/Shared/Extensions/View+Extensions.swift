@@ -132,6 +132,12 @@ public extension View {
         }
     }
 
+    func navigationStackEmbeded() -> some View {
+        NavigationStack {
+            self
+        }
+    }
+
     func textShadow() -> some View {
         shadow(color: .textShadow, radius: 1, x: 0, y: 2)
     }
