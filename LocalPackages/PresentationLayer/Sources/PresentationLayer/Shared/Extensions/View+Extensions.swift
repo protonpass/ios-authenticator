@@ -117,11 +117,17 @@ public extension View {
         modifier(MainBackgroundColor())
     }
 
+    @ViewBuilder
     func fullScreenMainBackground() -> some View {
         ZStack {
-            Color.clear
-                .mainBackground()
-                .ignoresSafeArea()
+            if #available(iOS 26, macOS 26, *) {
+                Color.background
+                    .ignoresSafeArea()
+            } else {
+                Color.clear
+                    .mainBackground()
+                    .ignoresSafeArea()
+            }
             self
         }
     }
