@@ -462,15 +462,28 @@ private extension EntriesView {
                                       blue: 0.06).opacity(0.8)))
     }
 
+    @ViewBuilder
     func addButton(size: CGFloat) -> some View {
-        Button(action: handleAddNewCode) {
-            plusIcon
-                .frame(width: size, height: size, alignment: .center)
-                .coloredBackgroundButton(.circle)
+        if #available(iOS 26, macOS 26, *) {
+            Button(action: handleAddNewCode) {
+                Image(systemName: "plus")
+                    .frame(width: size, height: size, alignment: .center)
+            }
+            .impactHaptic()
+            .buttonBorderShape(.circle)
+            .buttonStyle(.glassProminent)
+            .tint(.accent)
+            .accessibilityLabel("Create new code")
+        } else {
+            Button(action: handleAddNewCode) {
+                plusIcon
+                    .frame(width: size, height: size, alignment: .center)
+                    .coloredBackgroundButton(.circle)
+            }
+            .adaptiveButtonStyle()
+            .impactHaptic()
+            .accessibilityLabel("Create new code")
         }
-        .adaptiveButtonStyle()
-        .impactHaptic()
-        .accessibilityLabel("Create new code")
     }
 
     func handleAddNewCode() {
