@@ -282,33 +282,18 @@ struct ImportingServiceModifier: ViewModifier {
 }
 
 private extension View {
-    @ViewBuilder
     func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
                                        onSelect: @escaping (GoogleImportType) -> Void) -> some View {
-        if AppConstants.isIpad {
-            alert(Text("Import from Google Authenticator", bundle: .module),
-                  isPresented: isPresented) {
-                ForEach(GoogleImportType.allCases, id: \.self) { option in
-                    if displayGoogleImportOption(option) {
-                        Button { onSelect(option) } label: {
-                            Text(option.title, bundle: .module)
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel, action: {})
-            }
-        } else {
-            confirmationDialog(Text("Import from Google Authenticator", bundle: .module),
-                               isPresented: isPresented,
-                               titleVisibility: .hidden) {
-                ForEach(GoogleImportType.allCases, id: \.self) { option in
-                    if displayGoogleImportOption(option) {
-                        Button { onSelect(option) } label: {
-                            Text(option.title, bundle: .module)
-                        }
+        alert(Text("Import from Google Authenticator", bundle: .module),
+              isPresented: isPresented) {
+            ForEach(GoogleImportType.allCases, id: \.self) { option in
+                if displayGoogleImportOption(option) {
+                    Button { onSelect(option) } label: {
+                        Text(option.title, bundle: .module)
                     }
                 }
             }
+            Button("Cancel", role: .cancel, action: {})
         }
     }
 

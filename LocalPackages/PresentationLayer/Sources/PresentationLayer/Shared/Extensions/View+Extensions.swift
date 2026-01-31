@@ -117,7 +117,6 @@ public extension View {
         modifier(MainBackgroundColor())
     }
 
-    @ViewBuilder
     func fullScreenMainBackground() -> some View {
         ZStack {
             if #available(iOS 26, macOS 26, *) {

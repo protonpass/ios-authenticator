@@ -69,7 +69,9 @@ public struct SettingsView: View {
                     PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {
                         open(urlString: ProtonProduct.pass.finalUrl)
                     })
-                    .padding(.horizontal, 16)
+                    .ifNoLiquidGlass { view in
+                        view.padding(.horizontal, 16)
+                    }
                     .buttonStyle(.plain)
                     .plainListRow()
                 }
@@ -81,7 +83,9 @@ public struct SettingsView: View {
                     discoverySection
                 }
                 deleteAllDataButton
-                    .padding(.vertical, 32)
+                    .ifNoLiquidGlass { view in
+                        view.padding(.vertical, 32)
+                    }
                 versionLabel
                     .padding(.bottom)
             }
