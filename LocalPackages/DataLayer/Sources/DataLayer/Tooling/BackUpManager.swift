@@ -70,8 +70,7 @@ public final class BackUpManager: BackUpServicing {
     }
 
     private var documentURL: URL? {
-        let documentsFolderURL = containerURL?.appendingPathComponent("Documents")
-        return documentsFolderURL
+        containerURL?.appendingPathComponent("Documents")
     }
 
     public func write(data: Data) throws {

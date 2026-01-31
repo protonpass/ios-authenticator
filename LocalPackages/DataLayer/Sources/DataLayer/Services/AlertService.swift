@@ -155,7 +155,9 @@ public enum AlertDisplay: Identifiable {
         }
     }
 
-    public var id: String { configuration.id }
+    public var id: String {
+        configuration.id
+    }
 }
 
 @MainActor

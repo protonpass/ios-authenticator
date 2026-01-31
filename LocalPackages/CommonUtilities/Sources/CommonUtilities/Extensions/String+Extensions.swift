@@ -60,7 +60,9 @@ public extension String {
         }
     }
 
-    func base64Decode() throws -> Data? { Data(base64Encoded: self) }
+    func base64Decode() throws -> Data? {
+        Data(base64Encoded: self)
+    }
 }
 
 // MARK: - Variables

@@ -32,7 +32,9 @@ struct EmptyResponse: Decodable, Sendable {}
 /// Holds responses that only have `code` field
 struct CodeOnlyResponse: Decodable, Sendable {
     let code: Int
-    var isSuccessful: Bool { code == 1_000 }
+    var isSuccessful: Bool {
+        code == 1_000
+    }
 }
 
 /// The content of Endpoint should not be changed to anything other than [String:  Any]
@@ -49,11 +51,26 @@ protocol Endpoint: Request, Sendable {
 }
 
 extension Endpoint {
-    public var isAuth: Bool { true }
-    var method: HTTPMethod { .get }
-    var body: Body? { nil }
-    public var nonDefaultTimeout: TimeInterval? { 2 }
-    var queries: [String: Any]? { nil }
+    public var isAuth: Bool {
+        true
+    }
+
+    var method: HTTPMethod {
+        .get
+    }
+
+    var body: Body? {
+        nil
+    }
+
+    public var nonDefaultTimeout: TimeInterval? {
+        2
+    }
+
+    var queries: [String: Any]? {
+        nil
+    }
+
     public var parameters: [String: Any]? {
         var finalParams: [String: Any] = [:]
 

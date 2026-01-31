@@ -58,17 +58,16 @@ final class WatchEncryptionService: EncryptionServicing {
 extension WatchEncryptionService {
     func decrypt(entry: EncryptedEntryEntity) throws -> OrderedEntry {
         let decryptedEntry: Entry = try symmetricDecrypt(encryptedData: entry.encryptedData)
-        let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                        keyId: entry.keyId,
-                                        remoteId: entry.remoteId.nilIfEmpty,
-                                        order: entry.order,
-                                        syncState: entry.syncState,
-                                        creationDate: entry.creationDate,
-                                        modifiedTime: entry.modifiedTime,
-                                        flags: entry.flags,
-                                        revision: entry.revision,
-                                        contentFormatVersion: entry.contentFormatVersion)
-        return orderedEntry
+        return OrderedEntry(entry: decryptedEntry,
+                            keyId: entry.keyId,
+                            remoteId: entry.remoteId.nilIfEmpty,
+                            order: entry.order,
+                            syncState: entry.syncState,
+                            creationDate: entry.creationDate,
+                            modifiedTime: entry.modifiedTime,
+                            flags: entry.flags,
+                            revision: entry.revision,
+                            contentFormatVersion: entry.contentFormatVersion)
     }
 
     func decrypt(entries: [EncryptedEntryEntity]) throws -> [OrderedEntry] {

@@ -54,7 +54,9 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
         self.contentFormatVersion = contentFormatVersion
     }
 
-    public var id: String { entry.id }
+    public var id: String {
+        entry.id
+    }
 
     public func updateEntry(_ newEntry: Entry) -> OrderedEntry {
         var updatedSelf = self

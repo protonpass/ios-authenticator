@@ -22,7 +22,7 @@ import CommonUtilities
 import Testing
 
 struct StringExtensionsTests {
-    // Example usage
+    /// Example usage
     let jsonString = """
     {
         "name": "John",
@@ -31,7 +31,7 @@ struct StringExtensionsTests {
     """
 
     @Test("Separated by group")
-    func separatedByGroup() async throws {
+    func separatedByGroup() {
         #expect("123456".separatedByGroup(3, delimiter: " ") == "123 456")
         #expect("1234567".separatedByGroup(3, delimiter: " ") == "1 234 567")
         #expect("12345678".separatedByGroup(3, delimiter: " ") == "12 345 678")
@@ -39,12 +39,12 @@ struct StringExtensionsTests {
     }
 
     @Test("Check valid json string")
-    func validJson() async throws {
+    func validJson() {
         #expect(jsonString.isValidJSON == true)
     }
 
     @Test("Check invalid json string")
-    func invalidJson() async throws {
+    func invalidJson() {
         #expect("plop".isValidJSON == false)
     }
 }

@@ -44,7 +44,7 @@ public enum LogLevel: String, Sendable, Codable {
     case debug = "DEBUG"
     // error: Error-level messages for reporting critical errors and failures.
     case error = "ERROR"
-    // warning: Warning-level messages for reporting unexpected non-fatal failures.
+    /// warning: Warning-level messages for reporting unexpected non-fatal failures.
     case warning = "WARNING"
     // critical: messages for capturing system-level or multi-process errors only.
     case critical = "CRITICAL"
@@ -225,7 +225,7 @@ public final actor LogManager: LoggerProtocol {
 
     public func logsContent(category: LogCategory? = nil) async throws -> String {
         let logs = try await fetchLogs(category: category)
-        let logString = logs.compactMap { log in
+        return logs.compactMap { log in
             // swiftlint:disable:next todo
             // TODO: remove logs filtering
             // Introduced in August 2025, could be removed several months later
@@ -238,7 +238,6 @@ public final actor LogManager: LoggerProtocol {
             }
         }
         .joined(separator: "\n")
-        return logString
     }
 
     public func deleteAllLogs() async throws {

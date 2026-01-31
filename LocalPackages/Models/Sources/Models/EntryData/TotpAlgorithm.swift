@@ -25,5 +25,7 @@ public enum TotpAlgorithm: String, Sendable, Equatable, Hashable, Identifiable, 
     case sha256
     case sha512
 
-    public var id: Self { self }
+    public var id: Self {
+        self
+    }
 }

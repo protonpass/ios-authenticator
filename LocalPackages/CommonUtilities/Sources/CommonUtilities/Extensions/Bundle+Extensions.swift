@@ -21,11 +21,25 @@
 import Foundation
 
 public extension Bundle {
-    var versionNumber: String { string(forKey: "CFBundleShortVersionString") ?? "0.0.0" }
-    var buildNumber: String { string(forKey: "CFBundleVersion") ?? "0" }
-    var versionIdentifier: String? { string(forKey: "APP_VERSION_IDENTIFIER =
-    var gitCommitHash: String? { string(forKey: "GIT_COMMIT_HASH") }
-    var isQaBuild: Bool { bool(forKey: "IS_QA_BUILD =
+    var versionNumber: String {
+        string(forKey: "CFBundleShortVersionString") ?? "0.0.0"
+    }
+
+    var buildNumber: String {
+        string(forKey: "CFBundleVersion") ?? "0"
+    }
+
+    var versionIdentifier: String? {
+        string(forKey: "APP_VERSION_IDENTIFIER =
+    }
+
+    var gitCommitHash: String? {
+        string(forKey: "GIT_COMMIT_HASH")
+    }
+
+    var isQaBuild: Bool {
+        bool(forKey: "IS_QA_BUILD =
+    }
 
     /// Get the full name of the current version e.g "1.0.0-dev" or "1.2.0"
     var fullAppVersionName: String {

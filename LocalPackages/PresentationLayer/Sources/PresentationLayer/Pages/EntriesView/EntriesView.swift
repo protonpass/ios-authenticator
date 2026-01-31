@@ -183,7 +183,6 @@ public struct EntriesView: View {
 }
 
 private extension EntriesView {
-    @ViewBuilder
     var mainContainer: some View {
         Group {
             if horizontalSizeClass == .compact {

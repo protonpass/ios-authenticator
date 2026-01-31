@@ -48,7 +48,7 @@ public protocol InAppMessagePersistence {
     func saveDismissedIDs(_ ids: Set<String>)
 }
 
-// Default implementation with UserDefaults
+/// Default implementation with UserDefaults
 public final class UserDefaultsInAppMessagePersistence: InAppMessagePersistence {
     private let key = "dismissed_in_app_messages"
     private let store: UserDefaults
