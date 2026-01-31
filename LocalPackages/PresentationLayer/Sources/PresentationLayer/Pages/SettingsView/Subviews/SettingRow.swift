@@ -84,11 +84,22 @@ struct SettingRow: View {
                 }
             }
         }
-        .padding(DesignConstant.padding)
+        .paddingIfNotLiquidGlass()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(.rect)
         .if(onTap) { view, onTap in
             view.onTapGesture(perform: onTap)
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func paddingIfNotLiquidGlass() -> some View {
+        if #unavailable(iOS 26, macOS 26) {
+            padding(DesignConstant.padding)
+        } else {
+            self
         }
     }
 }

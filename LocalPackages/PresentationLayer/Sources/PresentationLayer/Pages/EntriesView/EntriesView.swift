@@ -652,7 +652,9 @@ private extension EntriesView {
             ToolbarItem(placement: .bottomBar) {
                 Button(action: handleAddNewCode) {
                     Image(systemName: "plus")
+                        .contentShape(.rect)
                 }
+                .contentShape(.rect)
                 .impactHaptic()
                 .accessibilityLabel("Create new code")
                 .buttonStyle(.glassProminent)

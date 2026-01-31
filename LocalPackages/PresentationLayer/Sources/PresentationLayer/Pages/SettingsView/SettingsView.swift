@@ -86,7 +86,7 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            .listStyle(.plain)
+            .settingsListStyle()
             #if os(iOS)
                 .toolbar {
                     ToolbarItem(placement: toolbarItemPlacement) {
@@ -433,29 +433,40 @@ private extension SettingsView {
 // MARK: - Utils
 
 private extension SettingsView {
+    @ViewBuilder
     func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding) {
-            if let title {
-                Text(title, bundle: .module)
-                    .dynamicFont(size: 13, textStyle: .footnote)
-                    .foregroundStyle(.textWeak)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, DesignConstant.padding)
-            }
-
-            VStack(alignment: .leading, spacing: 0) {
+        if #available(iOS 26, macOS 26, *) {
+            Section(content: {
                 content()
+            }, header: {
+                if let title {
+                    Text(title, bundle: .module)
+                }
+            })
+        } else {
+            VStack(spacing: DesignConstant.padding) {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DesignConstant.padding)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    content()
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(isDarkMode ? .white.opacity(0.08) : .white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .inset(by: 0.5)
+                    .stroke(settingsBorder, lineWidth: 1))
             }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .inset(by: 0.5)
-                .stroke(settingsBorder, lineWidth: 1))
+            .plainListRow()
+            .padding(.horizontal, DesignConstant.padding)
+            .padding(.top, DesignConstant.padding * 2)
         }
-        .plainListRow()
-        .padding(.horizontal, DesignConstant.padding)
-        .padding(.top, DesignConstant.padding * 2)
     }
 
     func open(urlString: String) {
@@ -469,10 +480,13 @@ struct SettingDivider: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        Rectangle()
-            .foregroundStyle(.clear)
-            .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
-            .background(settingsBorder)
+        // We use default grouped list for iOS 26+ which renders dividers automatically
+        if #unavailable(iOS 26, macOS 26) {
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
+                .background(settingsBorder)
+        }
     }
 
     var settingsBorder: Color {
@@ -537,5 +551,14 @@ private extension View {
         accessibilityHint("You can toggle this option by clicking on the toggle button to the right of the row.")
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(label + state)
+    }
+
+    @ViewBuilder
+    func settingsListStyle() -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            listStyle(.insetGrouped)
+        } else {
+            listStyle(.plain)
+        }
     }
 }
