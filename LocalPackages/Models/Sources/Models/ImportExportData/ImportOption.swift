@@ -28,5 +28,7 @@ public enum ImportOption: Sendable, CaseIterable, Identifiable {
     case authy
     case microsoft
 
-    public var id: Self { self }
+    public var id: Self {
+        self
+    }
 }

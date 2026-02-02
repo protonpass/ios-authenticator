@@ -24,7 +24,9 @@ import SwiftUI
 public enum Theme: Int, Sendable, CaseIterable, IntegerDefaulting {
     case dark, light, system
 
-    public static var `default`: Theme { .system }
+    public static var `default`: Theme {
+        .system
+    }
 
     public var preferredColorScheme: ColorScheme? {
         switch self {

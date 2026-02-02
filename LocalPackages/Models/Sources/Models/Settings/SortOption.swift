@@ -27,7 +27,9 @@ public enum SortOption: Int, Sendable, IntegerDefaulting, CaseIterable {
     case modificationDateAsc
     case modificationDateDesc
 
-    public static var `default`: Self { .manual }
+    public static var `default`: Self {
+        .manual
+    }
 
     public var isManual: Bool {
         if case .manual = self {

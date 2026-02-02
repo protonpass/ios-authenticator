@@ -417,10 +417,21 @@ extension UserSessionManager: AuthDelegate {
 // MARK: - APIServiceDelegate
 
 extension UserSessionManager: APIServiceDelegate {
-    public var appVersion: String { configuration.appVersion }
-    public var userAgent: String? { UserAgent.default.ua }
-    public var locale: String { Locale.autoupdatingCurrent.identifier }
-    public var additionalHeaders: [String: String]? { nil }
+    public var appVersion: String {
+        configuration.appVersion
+    }
+
+    public var userAgent: String? {
+        UserAgent.default.ua
+    }
+
+    public var locale: String {
+        Locale.autoupdatingCurrent.identifier
+    }
+
+    public var additionalHeaders: [String: String]? {
+        nil
+    }
 
     public func onDohTroubleshot() {}
 
@@ -542,9 +553,7 @@ public extension UserSessionManager {
                                                                          value: .init(value: armoredEncryptedData),
                                                                          verificationKeys: verificationKeys)
 
-        let verifiedContent = try decryptedData.verifiedContent
-
-        return verifiedContent
+        return try decryptedData.verifiedContent
     }
 
     func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws

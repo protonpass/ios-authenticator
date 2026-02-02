@@ -21,5 +21,7 @@
 public enum SearchBarDisplayMode: Int, Sendable, CaseIterable, IntegerDefaulting {
     case top, bottom
 
-    public static var `default`: Self { .bottom }
+    public static var `default`: Self {
+        .bottom
+    }
 }

@@ -763,9 +763,9 @@ public extension EntryRepository {
 // MARK: - Remote util functions for encryption key
 
 extension EntryRepository {
-    // This function fetches check if a remtoe encryption key exists for the user.
-    // If a key exists it saves it's id in the store and return.
-    // Otherwise it tries and push the local encryption key to the BE
+    /// This function fetches check if a remtoe encryption key exists for the user.
+    /// If a key exists it saves it's id in the store and return.
+    /// Otherwise it tries and push the local encryption key to the BE
     public func fetchRemoteEncryptionKeyOrPushLocalKey() async throws {
         log(.info, "Initiating fetch or push of encryption keys")
         let currentEncryptionKey: RemoteEncryptedKey?
@@ -804,10 +804,10 @@ extension EntryRepository {
         }
     }
 
-    // This function fetches current user remotly stored keys
-    // It then decrypts and saved all missing keys in the `encryptionService` keychain
-    // It then returns the current remote encryption key linked to the active user key (Should always be a maximum
-    // of one key)
+    /// This function fetches current user remotly stored keys
+    /// It then decrypts and saved all missing keys in the `encryptionService` keychain
+    /// It then returns the current remote encryption key linked to the active user key (Should always be a maximum
+    /// of one key)
     private func fetchAndSaveRemoteKeys() async throws -> RemoteEncryptedKey? {
         log(.debug, "Fetching remote encryption keys")
         do {

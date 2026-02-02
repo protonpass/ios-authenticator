@@ -23,5 +23,7 @@ import Foundation
 public enum DigitStyle: Int, Sendable, CaseIterable, Equatable, IntegerDefaulting, Hashable {
     case plain, boxed
 
-    public static var `default`: Self { .plain }
+    public static var `default`: Self {
+        .plain
+    }
 }

@@ -52,8 +52,7 @@ extension EntryRepository {
                    sortingDescriptor: [
                        SortDescriptor(\.order)
                    ])
-        let entries = try encryptionService.decrypt(entries: encryptedEntries)
-        return entries
+        return try encryptionService.decrypt(entries: encryptedEntries)
     }
 
     func upsert(_ entries: [OrderedEntry]) async throws {

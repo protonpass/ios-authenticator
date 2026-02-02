@@ -24,5 +24,7 @@ public enum TotpType: String, Sendable, Codable, Equatable, Hashable, Identifiab
     case totp
     case steam
 
-    public var id: Self { self }
+    public var id: Self {
+        self
+    }
 }

@@ -59,7 +59,7 @@ struct SafeMutexTests {
 
     // MARK: - Modern Concurrency Tests with async/await
 
-    @Test func concurrentReadsAsync() async throws {
+    @Test func concurrentReadsAsync() async {
         let mutex = SafeMutex.create(42)
 
         await withTaskGroup(of: Void.self) { group in
@@ -74,7 +74,7 @@ struct SafeMutexTests {
         #expect(mutex.value == 42)
     }
 
-    @Test func concurrentWritesAsync() async throws {
+    @Test func concurrentWritesAsync() async {
         let mutex = SafeMutex.create(0)
         let iterations = 100
 
@@ -91,7 +91,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations)
     }
 
-    @Test func concurrentModifyAsync() async throws {
+    @Test func concurrentModifyAsync() async {
         let mutex = SafeMutex.create(0)
         let iterations = 100
 
@@ -108,7 +108,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations, "Atomic modifications should result in exact count")
     }
 
-    @Test func atomicIncrementPreventRaceConditionAsync() async throws {
+    @Test func atomicIncrementPreventRaceConditionAsync() async {
         // This test demonstrates how modify prevents race conditions
         let mutex = SafeMutex.create(0)
         let iterations = 100
@@ -127,7 +127,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations, "Atomic modifications should result in exact count")
     }
 
-    @Test func randomAccessPatternAsync() async throws {
+    @Test func randomAccessPatternAsync() async {
         let mutex = SafeMutex.create([Int: Int]())
         let iterations = 100
 
@@ -147,7 +147,7 @@ struct SafeMutexTests {
         #expect(mutex.value.count <= 100)
     }
 
-    @Test func interleavedReadWriteAsync() async throws {
+    @Test func interleavedReadWriteAsync() async {
         let mutex = SafeMutex.create(0)
 
         await withTaskGroup(of: Void.self) { group in
@@ -181,7 +181,7 @@ struct SafeMutexTests {
         // If this completes without crashing, the test passes
     }
 
-    @Test func concurrentComplexOperationsAsync() async throws {
+    @Test func concurrentComplexOperationsAsync() async {
         struct User: Sendable, Equatable {
             var id: Int
             var name: String
@@ -225,7 +225,7 @@ struct SafeMutexTests {
 
     // MARK: - Performance Tests
 
-    @Test func performanceModifyAsync() async throws {
+    @Test func performanceModifyAsync() async {
         let mutex = SafeMutex.create(0)
 
         let startTime = Date()

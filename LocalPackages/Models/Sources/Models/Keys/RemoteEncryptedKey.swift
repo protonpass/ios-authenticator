@@ -19,12 +19,12 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 public struct RemoteEncryptedKey: Decodable, Equatable, Sendable {
-    // An encrypted ID
+    /// An encrypted ID
     public let keyID: String
 
     public let userKeyID: String
 
-    // Base64 representation of the authenticator key encrypted with the user key
+    /// Base64 representation of the authenticator key encrypted with the user key
     public let key: String
 
     public init(keyID: String, userKeyID: String, key: String) {

@@ -51,8 +51,7 @@ public final class KeychainService: KeychainServicing {
             throw KeychainError.itemNotFound
         }
 
-        let decoded = try JSONDecoder().decode(T.self, from: data)
-        return decoded
+        return try JSONDecoder().decode(T.self, from: data)
     }
 
     public func set(_ item: some Encodable & Sendable, for keyId: String, shouldSync: Bool) throws {

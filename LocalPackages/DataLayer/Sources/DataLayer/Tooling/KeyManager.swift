@@ -105,8 +105,7 @@ public final class KeysManager: KeysProvider {
     }
 
     public func get(keyId: String) throws -> Data {
-        let keyData: Data = try keychain.get(keyId: keyId, isSynced: true)
-        return keyData
+        try keychain.get(keyId: keyId, isSynced: true)
     }
 
     public func set(_ keyData: Data, for keyId: String) throws {

@@ -47,7 +47,6 @@ public struct OnboardingView: View {
 }
 
 private extension OnboardingView {
-    @ViewBuilder
     func illustration(height: CGFloat) -> some View {
         VStack(alignment: .center, spacing: 0) {
             VStack {

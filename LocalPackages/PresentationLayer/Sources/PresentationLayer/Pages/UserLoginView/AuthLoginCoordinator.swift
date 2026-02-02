@@ -54,7 +54,10 @@ final class MobileLoginCoordinator: MobileCoordinatorProtocol {
 
     private lazy var welcomeViewController = createLoginFlow()
 
-    var rootViewController: UIViewController { welcomeViewController }
+    var rootViewController: UIViewController {
+        welcomeViewController
+    }
+
     private let logger: any LoggerProtocol
 
     private lazy var logInAndSignUp = makeLoginAndSignUp()
