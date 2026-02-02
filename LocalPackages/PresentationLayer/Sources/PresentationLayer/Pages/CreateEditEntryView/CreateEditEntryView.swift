@@ -106,7 +106,7 @@ struct CreateEditEntryView: View {
                 .animation(.default, value: viewModel.canSave)
                 .animation(.default, value: viewModel.type)
                 .animation(.default, value: showAdvanceOptions)
-                .mainBackground()
+                .fullScreenMainBackground()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         focusFirstField()

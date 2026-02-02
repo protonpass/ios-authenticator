@@ -467,7 +467,10 @@ private extension EntriesView {
         if #available(iOS 26, macOS 26, *) {
             Button(action: handleAddNewCode) {
                 Image(systemName: "plus")
-                    .frame(width: size, height: size, alignment: .center)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size / 2, height: size / 2, alignment: .center)
+                    .padding(size / 4)
             }
             .impactHaptic()
             .buttonBorderShape(.circle)

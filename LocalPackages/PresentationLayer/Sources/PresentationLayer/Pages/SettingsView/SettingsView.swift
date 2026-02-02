@@ -445,6 +445,7 @@ private extension SettingsView {
             }, header: {
                 if let title {
                     Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
                 }
             })
         } else {
