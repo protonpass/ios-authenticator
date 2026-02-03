@@ -105,7 +105,8 @@ public struct EntriesView: View {
                         HStack {
                             Spacer()
                             addButton(size: 64)
-                                .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                                .padding(.trailing, DesignConstant.padding * 2)
+                                .padding(.bottom, DesignConstant.padding)
                                 .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
                                         radius: 20,
                                         x: 0,
