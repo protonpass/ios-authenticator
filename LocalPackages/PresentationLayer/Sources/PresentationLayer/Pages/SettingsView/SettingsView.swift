@@ -43,6 +43,7 @@ enum SettingsSheet {
         #if os(iOS)
         case let .login(coordinator):
             UserMobileLoginController(coordinator: coordinator)
+                .ignoresSafeArea()
         #endif
         }
     }

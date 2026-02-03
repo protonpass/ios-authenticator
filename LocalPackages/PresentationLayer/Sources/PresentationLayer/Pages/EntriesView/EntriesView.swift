@@ -469,8 +469,8 @@ private extension EntriesView {
                 Image(systemName: "plus")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: size / 2, height: size / 2, alignment: .center)
-                    .padding(size / 4)
+                    .frame(width: size / 2.5, height: size / 2.5, alignment: .center)
+                    .padding(size / 5)
             }
             .impactHaptic()
             .buttonBorderShape(.circle)
