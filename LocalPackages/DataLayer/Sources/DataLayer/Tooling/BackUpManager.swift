@@ -30,8 +30,11 @@ public protocol BackUpServicing: Sendable {
     func getAllDocumentsData() throws -> [BackUpFileInfo]
     // periphery:ignore
     func delete(fileName: String) throws
-    func deleteAllFilesInICloudDocuments() throws
-    func openICloudFolder()
+    func deleteAllBackupFiles() throws
+    func openBackupFolder()
+    func setDestinationFolder(_ url: URL)
+    func resolveDestinationFolder(from bookmarkData: Data) throws -> URL
+    func clearDestinationFolder()
 }
 
 public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
@@ -57,6 +60,7 @@ public final class BackUpManager: BackUpServicing {
     private let coordinator: NSFileCoordinator
     private let maxBackupCount: Int
     private let dateFormatter: DateFormatter
+    private var documentURL: URL?
 
     public init(maxBackupCount: Int = 5) {
         coordinator = NSFileCoordinator()
@@ -65,12 +69,25 @@ public final class BackUpManager: BackUpServicing {
         dateFormatter.dateFormat = "yyyy-MM-dd"
     }
 
-    private var containerURL: URL? {
-        FileManager.default.url(forUbiquityContainerIdentifier: nil)
+    public func setDestinationFolder(_ url: URL) {
+        documentURL = url
     }
 
-    private var documentURL: URL? {
-        containerURL?.appendingPathComponent("Documents")
+    public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
+        var isStale = false
+        let url = try URL(resolvingBookmarkData: bookmarkData,
+                          options: [],
+                          relativeTo: nil,
+                          bookmarkDataIsStale: &isStale)
+        if isStale {
+            throw AuthError.backup(.staleBookmark)
+        }
+        documentURL = url
+        return url
+    }
+
+    public func clearDestinationFolder() {
+        documentURL = nil
     }
 
     public func write(data: Data) throws {
@@ -78,17 +95,19 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let todayFileName = getTodaysBackupFileName()
-        let targetURL = documentURL.appendingPathComponent(todayFileName)
+        try withSecurityScopedAccess(to: documentURL) {
+            let todayFileName = getTodaysBackupFileName()
+            let targetURL = documentURL.appendingPathComponent(todayFileName)
 
-        if FileManager.default.fileExists(atPath: targetURL.path) {
-            try coordinatedWrite(at: targetURL) { url in
-                try data.write(to: url, options: .atomic)
-            }
-        } else {
-            try enforceFileRotationPolicy()
-            try coordinatedWrite(at: targetURL) { url in
-                try data.write(to: url, options: .atomic)
+            if FileManager.default.fileExists(atPath: targetURL.path) {
+                try coordinatedWrite(at: targetURL) { url in
+                    try data.write(to: url, options: .atomic)
+                }
+            } else {
+                try enforceFileRotationPolicy()
+                try coordinatedWrite(at: targetURL) { url in
+                    try data.write(to: url, options: .atomic)
+                }
             }
         }
     }
@@ -97,75 +116,73 @@ public final class BackUpManager: BackUpServicing {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
         }
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        var coordinationError: NSError?
-        var data: Data?
-        var readError: Error?
 
-        coordinator.coordinate(readingItemAt: targetURL, options: [], error: &coordinationError) { url in
-            do {
-                data = try Data(contentsOf: url)
-            } catch {
-                readError = error
+        return try withSecurityScopedAccess(to: documentURL) {
+            let targetURL = documentURL.appendingPathComponent(fileName)
+            var coordinationError: NSError?
+            var data: Data?
+            var readError: Error?
+
+            coordinator.coordinate(readingItemAt: targetURL, options: [], error: &coordinationError) { url in
+                do {
+                    data = try Data(contentsOf: url)
+                } catch {
+                    readError = error
+                }
             }
-        }
 
-        if let error = readError {
-            throw error
-        }
+            if let error = readError {
+                throw error
+            }
 
-        if let coordinationError {
-            throw coordinationError
-        }
+            if let coordinationError {
+                throw coordinationError
+            }
 
-        // Make sure the data read is not empty
-        guard let data else {
-            throw AuthError.backup(.noData)
-        }
+            guard let data else {
+                throw AuthError.backup(.noData)
+            }
 
-        return data
+            return data
+        }
     }
 
-    public func deleteAllFilesInICloudDocuments() throws {
+    public func deleteAllBackupFiles() throws {
         guard let documentURL else {
             return
         }
 
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: nil,
-                                                                   options: [])
+        try withSecurityScopedAccess(to: documentURL) {
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+                                                                       includingPropertiesForKeys: nil,
+                                                                       options: [])
 
-        for fileURL in fileURLs {
-            try FileManager.default.removeItem(at: fileURL)
+            for fileURL in fileURLs {
+                try FileManager.default.removeItem(at: fileURL)
+            }
         }
     }
 
-    public func openICloudFolder() {
+    public func openBackupFolder() {
         guard let documentURL else {
             return
-        }
-
-        if !FileManager.default.fileExists(atPath: documentURL.path, isDirectory: nil) {
-            do {
-                try FileManager.default.createDirectory(at: documentURL, withIntermediateDirectories: true)
-            } catch {
-                return
-            }
         }
 
         if let filesAppURL = URL(string: "shareddocuments://\(documentURL.path)") {
             if UIApplication.shared.canOpenURL(filesAppURL) {
                 UIApplication.shared.open(filesAppURL)
-            } else {
-                print("Could not open Files app. Please make sure it's installed.")
             }
-        } else {
-            print("Could not create proper URL to open iCloud folder.")
         }
     }
 
     public func getAllDocumentsData() throws -> [BackUpFileInfo] {
-        try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+        guard let documentURL else {
+            throw AuthError.backup(.noDestinationFolder)
+        }
+
+        return try withSecurityScopedAccess(to: documentURL) {
+            try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+        }
     }
 
     // periphery:ignore
@@ -174,12 +191,24 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        try coordinatedDelete(at: targetURL)
+        try withSecurityScopedAccess(to: documentURL) {
+            let targetURL = documentURL.appendingPathComponent(fileName)
+            try coordinatedDelete(at: targetURL)
+        }
     }
 }
 
 private extension BackUpManager {
+    func withSecurityScopedAccess<T>(to url: URL, body: () throws -> T) rethrows -> T {
+        let didStart = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStart {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        return try body()
+    }
+
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
         return "Proton_Authenticator_backup_\(todayString).json"

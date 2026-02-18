@@ -35,13 +35,15 @@ struct PasswordProtectedBackup: Identifiable {
 final class BackUpViewModel {
     private(set) var backups: [BackUpFileInfo] = []
     private(set) var loading = false
-    private(set) var backupActivated = true
+    private(set) var backupActivated = false
 
     var errorMessage: String?
 
     var password = ""
     var confirmedPassword = ""
     var showPasswordAlert = false
+    var showFolderPicker = false
+    var folderDisplayName: String?
     var passwordProtectionFile: PasswordProtectedBackup?
 
     var passwordSavable: Bool {
@@ -76,6 +78,9 @@ final class BackUpViewModel {
     }
 
     func loadData() {
+        guard backupActivated else {
+            return
+        }
         do {
             backups = try backUpManager.getAllDocumentsData()
         } catch {
@@ -123,10 +128,13 @@ final class BackUpViewModel {
         }
     }
 
-    func toggleBackICloudUp() {
+    func toggleBackup() {
         if backupActivated {
-            settingsService.toggleICloudBackUp(false)
+            settingsService.toggleDocumentBackup(false)
+            backUpManager.clearDestinationFolder()
             backupActivated = false
+            backups = []
+            folderDisplayName = nil
         } else {
             showPasswordAlert = true
         }
@@ -150,21 +158,65 @@ final class BackUpViewModel {
             try keychainService.set(password,
                                     for: AppConstants.Settings.backupPassword,
                                     shouldSync: false)
-            settingsService.toggleICloudBackUp(true)
-            backupActivated = true
+            showFolderPicker = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }
     }
 
-    func openICloudFolder() {
-        backUpManager.openICloudFolder()
+    func changeFolder() {
+        showFolderPicker = true
+    }
+
+    func handleFolderSelection(_ result: Result<URL, Error>) {
+        switch result {
+        case let .success(url):
+            guard url.startAccessingSecurityScopedResource() else {
+                errorMessage = "Unable to access the selected folder."
+                return
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            do {
+                let bookmarkData = try url.bookmarkData(options: .minimalBookmark,
+                                                        includingResourceValuesForKeys: nil,
+                                                        relativeTo: nil)
+                settingsService.setBackupFolderBookmark(bookmarkData)
+                backUpManager.setDestinationFolder(url)
+                settingsService.toggleDocumentBackup(true)
+                backupActivated = true
+                folderDisplayName = url.lastPathComponent
+
+                loadData()
+
+                if backups.isEmpty {
+                    entryDataService.backUpEntries()
+                    loadData()
+                }
+            } catch {
+                log(.error, "Failed to create bookmark: \(error.localizedDescription)")
+                errorMessage = error.localizedDescription
+            }
+
+        case let .failure(error):
+            log(.error, "Folder picker failed: \(error.localizedDescription)")
+        }
     }
 }
 
 private extension BackUpViewModel {
     func setUp() {
-        backupActivated = settingsService.iCloudBackUp
+        backupActivated = settingsService.documentBackup
+        if backupActivated, let bookmarkData = settingsService.backupFolderBookmark {
+            do {
+                let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+                folderDisplayName = url.lastPathComponent
+            } catch {
+                log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
+                settingsService.toggleDocumentBackup(false)
+                backupActivated = false
+            }
+        }
     }
 
     func showCompletion(_ numberOfEntries: Int) {

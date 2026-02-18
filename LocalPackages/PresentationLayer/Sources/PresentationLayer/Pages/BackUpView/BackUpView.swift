@@ -24,56 +24,71 @@ import CommonUtilities
 import Macro
 import Models
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(spacing: 32) {
-            section {
-                SettingRow(title: .localized("Automatic Backup", .module),
-                           trailingMode: .toggle(isOn: viewModel.backupActivated,
-                                                 onToggle: viewModel.toggleBackICloudUp))
-                SettingDivider()
-                if showBackup() {
-                    Button { viewModel.openICloudFolder() } label: {
-                        row(title: .localized("Folder location", .module), imageName: "chevron.right")
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .frame(maxHeight: showBackup() ? 120 : 75)
-
-            if showBackup() {
-                section("BACKUPS") {
-                    ForEach(viewModel.backups) { backup in
-                        Button { viewModel.load(backup: backup) } label: {
-                            row(title: .localized("Backup from \(backup.displayedDate)", .module))
+        List {
+            VStack(spacing: 32) {
+                section {
+                    SettingRow(title: .localized("Automatic Backup", .module),
+                               trailingMode: .toggle(isOn: viewModel.backupActivated,
+                                                     onToggle: viewModel.toggleBackup))
+                    if viewModel.backupActivated {
+                        SettingDivider()
+                        Button { viewModel.changeFolder() } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                row(title: .localized("Folder location", .module), imageName: "chevron.right")
+                                if let folderName = viewModel.folderDisplayName {
+                                    Text(folderName)
+                                        .dynamicFont(size: 13, textStyle: .body)
+                                        .foregroundStyle(.textWeak)
+                                        .padding(.horizontal, DesignConstant.padding)
+                                        .padding(.bottom, 8)
+                                }
+                            }
                         }
                         .buttonStyle(.plain)
+                    }
+                }
 
-                        if backup != viewModel.backups.last {
-                            Divider()
+                if showBackup() {
+                    section("BACKUPS") {
+                        ForEach(viewModel.backups) { backup in
+                            Button { viewModel.load(backup: backup) } label: {
+                                row(title: .localized("Backup from \(backup.displayedDate)", .module))
+                            }
+                            .buttonStyle(.plain)
+
+                            if backup != viewModel.backups.last {
+                                Divider()
+                            }
                         }
                     }
-                }
-                VStack {
-                    Text("Only the last 5 backups are kept.", bundle: .module)
-                    if let displayedDate = viewModel.backups.first?.displayedDate {
-                        Text("Last backup: \(displayedDate)", bundle: .module)
+                    VStack {
+                        Text("Only the last 5 backups are kept.", bundle: .module)
+                        if let displayedDate = viewModel.backups.first?.displayedDate {
+                            Text("Last backup: \(displayedDate)", bundle: .module)
+                        }
                     }
+                    .dynamicFont(size: 13, textStyle: .body)
+                    .foregroundStyle(.textWeak)
                 }
-                .dynamicFont(size: 13, textStyle: .body)
-                .foregroundStyle(.textWeak)
+                Spacer()
             }
-            Spacer()
         }
+        .listStyle(.insetGrouped)
         .frame(maxHeight: .infinity)
         .animation(.default, value: viewModel.backupActivated)
         .task {
             viewModel.loadData()
         }
+        .fileImporter(isPresented: $viewModel.showFolderPicker,
+                      allowedContentTypes: [.folder],
+                      onCompletion: viewModel.handleFolderSelection)
         .showSpinner(viewModel.loading)
         .padding(.bottom, 10)
         .scrollContentBackground(.hidden)
@@ -152,6 +167,15 @@ struct BackUpView: View {
     func showBackup() -> Bool {
         viewModel.backupActivated && !viewModel.backups.isEmpty
     }
+
+//    @ViewBuilder
+//    func settingsListStyle2() -> some View {
+//        if #available(iOS 26, macOS 26, *) {
+//            listStyle(.insetGrouped)
+//        } else {
+//            listStyle(.plain)
+//        }
+//    }
 }
 
 // MARK: - Utils

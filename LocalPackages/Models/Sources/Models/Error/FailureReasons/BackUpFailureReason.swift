@@ -23,6 +23,7 @@ import Foundation
 public enum BackUpFailureReason: Sendable, CustomDebugStringConvertible {
     case noData
     case noDestinationFolder
+    case staleBookmark
 
     public var debugDescription: String {
         switch self {
@@ -30,6 +31,8 @@ public enum BackUpFailureReason: Sendable, CustomDebugStringConvertible {
             "No data was read from the file."
         case .noDestinationFolder:
             "The destination folder does not seem to exist."
+        case .staleBookmark:
+            "The bookmark for the backup folder is stale and needs to be re-created."
         }
     }
 }

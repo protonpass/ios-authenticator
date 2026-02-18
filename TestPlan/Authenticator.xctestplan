@@ -24,7 +24,7 @@
       }
     },
     {
-      "parallelizable" : true,
+      "enabled" : false,
       "target" : {
         "containerPath" : "container:Authenticator.xcodeproj",
         "identifier" : "5B87652A2D52539E00B4CC30",

@@ -329,9 +329,12 @@ public extension EntryDataService {
     }
 
     func backUpEntries() {
-        guard settings.iCloudBackUp else { return }
+        guard settings.documentBackup else { return }
 
         do {
+            if let bookmarkData = settings.backupFolderBookmark {
+                _ = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+            }
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
                                                            isSynced: false)
             if let exportData = try exportEntries(password: password).data(using: .utf8) {

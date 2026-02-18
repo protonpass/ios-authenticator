@@ -157,7 +157,7 @@ final class QAMenuViewModel {
     }
 
     func deleteAll() {
-        try? backUpManager.deleteAllFilesInICloudDocuments()
+        try? backUpManager.deleteAllBackupFiles()
     }
 
     func loadKeychainContent() {

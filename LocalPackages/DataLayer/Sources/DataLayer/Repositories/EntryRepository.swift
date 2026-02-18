@@ -241,6 +241,7 @@ public extension EntryRepository {
     }
 
     func completeReorder(entries: [OrderedEntry]) async throws {
+        print("Woot entering completeReorder with \(entries.map(\.entry.issuer)) entries")
         try await localReorder(entries)
         if isAuthenticated {
             do {
@@ -292,11 +293,11 @@ public extension EntryRepository {
             let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
             let decryptableCount = decryptedEntries.count(where: { !$0.isNonDecryptable })
 
-            // Step 4: Delete duplicates
-
-            if !entriesToDelete.isEmpty {
-                await cleanUpDuplication(entriesToDelete)
-            }
+//            // Step 4: Delete duplicates
+//
+//            if !entriesToDelete.isEmpty {
+//                await cleanUpDuplication(entriesToDelete)
+//            }
 
             log(.info,
                 "Successfully fetched \(decryptableCount) decryptable, \(nonDecryptableCount) non decryptable")
@@ -668,6 +669,8 @@ public extension EntryRepository {
     func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws {
         log(.debug, "Updating order for entry \(entryId) on remote")
 
+        print("Woot entering single item reorder")
+
         var previousRemoteID: String?
         if let index = entries.firstIndex(where: { $0.id == entryId }), index > 0 {
             previousRemoteID = entries[index - 1].remoteId
@@ -686,6 +689,7 @@ public extension EntryRepository {
 
     func batchRemoteReordering(entries: [OrderedEntry]) async throws {
         log(.debug, "Updating order for multiple entries on remote")
+        print("Woot batchRemoteReordering with entries: \(entries.map(\.entry.issuer))")
 
         do {
             let batches: [[String]] = entries
@@ -710,6 +714,7 @@ public extension EntryRepository {
         do {
             var sinceLastToken: String?
 
+            print("Woot entering all remote entries")
             var entries: [OrderedEntry] = []
             var index = 0
             while true {
@@ -736,6 +741,8 @@ public extension EntryRepository {
                         .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
                         syncState = .synced
                     }
+                    print("Woot remote entry issuer: \(decryptedEntry.issuer), order: \(index)")
+
                     let orderedEntry = OrderedEntry(entry: decryptedEntry,
                                                     keyId: encryptedEntry.authenticatorKeyID,
                                                     remoteId: encryptedEntry.entryID,

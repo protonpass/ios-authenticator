@@ -61,12 +61,13 @@ public enum AppConstants: Sendable {
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
-        public static let iCloudBackUp = "ICloudDocumentBackUp"
+        public static let documentBackup = "ICloudDocumentBackUp"
         public static let iCloudSync = "ICloudBackUp"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"
         public static let unsupportedScanning = "UnsupportedScanning"
         public static let backupPassword = "BackupPassword"
+        public static let backupFolderBookmark = "BackupFolderBookmark"
         public static let sortOption = "SortOption"
     }
 
