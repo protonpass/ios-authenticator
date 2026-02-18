@@ -633,7 +633,7 @@ private extension EntryDataService {
         }
 
         if !itemsToUpdate.isEmpty {
-            try await repository.completeReorder(entries: itemsToUpdate)
+            try await repository.localReorder(itemsToUpdate)
         }
 
         return reindexed
