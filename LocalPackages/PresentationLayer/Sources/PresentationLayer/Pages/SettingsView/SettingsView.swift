@@ -43,6 +43,7 @@ enum SettingsSheet {
         #if os(iOS)
         case let .login(coordinator):
             UserMobileLoginController(coordinator: coordinator)
+                .ignoresSafeArea()
         #endif
         }
     }
@@ -69,7 +70,9 @@ public struct SettingsView: View {
                     PassBanner(onClose: viewModel.togglePassBanner, onGetPass: {
                         open(urlString: ProtonProduct.pass.finalUrl)
                     })
-                    .padding(.horizontal, 16)
+                    .ifNoLiquidGlass { view in
+                        view.padding(.horizontal, 16)
+                    }
                     .buttonStyle(.plain)
                     .plainListRow()
                 }
@@ -81,21 +84,27 @@ public struct SettingsView: View {
                     discoverySection
                 }
                 deleteAllDataButton
-                    .padding(.vertical, 32)
+                    .ifNoLiquidGlass { view in
+                        view.padding(.vertical, 32)
+                    }
                 versionLabel
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            .listStyle(.plain)
+            .settingsListStyle()
             #if os(iOS)
                 .toolbar {
                     ToolbarItem(placement: toolbarItemPlacement) {
                         Button {
                             dismiss()
                         } label: {
-                            Text("Close", bundle: .module)
-                                .foregroundStyle(.purpleInteraction)
-                                .adaptiveButtonStyle()
+                            if #available(iOS 26, macOS 26, *) {
+                                Image(systemName: "xmark")
+                            } else {
+                                Text("Close", bundle: .module)
+                                    .foregroundStyle(.purpleInteraction)
+                                    .adaptiveButtonStyle()
+                            }
                         }
                     }
                 }
@@ -272,26 +281,30 @@ private extension SettingsView {
 
             SettingDivider()
 
-            Menu(content: {
-                ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
-                    Button(action: {
-                        viewModel.updateSearchBarDisplay(theme)
-                    }, label: {
-                        if theme == viewModel.searchBarDisplay {
-                            Label(theme.title, systemImage: "checkmark")
-                        } else {
-                            Text(theme.title, bundle: .module)
-                        }
-                    })
-                }
-            }, label: {
-                SettingRow(title: .localized("Search bar position", .module),
-                           trailingMode: AppConstants.isIOS ?
-                               .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) : nil)
-            })
-            .adaptiveMenuStyle()
+            if AppConstants.adjustableSearchBarPosition {
+                Menu(content: {
+                    ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
+                        Button(action: {
+                            viewModel.updateSearchBarDisplay(theme)
+                        }, label: {
+                            if theme == viewModel.searchBarDisplay {
+                                Label(theme.title, systemImage: "checkmark")
+                            } else {
+                                Text(theme.title, bundle: .module)
+                            }
+                        })
+                    }
+                }, label: {
+                    SettingRow(title: .localized("Search bar position", .module),
+                               trailingMode: AppConstants.isIOS ?
+                                   .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) :
+                                   nil)
+                })
+                .adaptiveMenuStyle()
 
-            SettingDivider()
+                SettingDivider()
+            }
+
             Menu(content: {
                 ForEach(DigitStyle.allCases, id: \.self) { style in
                     Button(action: {
@@ -425,29 +438,41 @@ private extension SettingsView {
 // MARK: - Utils
 
 private extension SettingsView {
+    @ViewBuilder
     func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding) {
-            if let title {
-                Text(title, bundle: .module)
-                    .dynamicFont(size: 13, textStyle: .footnote)
-                    .foregroundStyle(.textWeak)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, DesignConstant.padding)
-            }
-
-            VStack(alignment: .leading, spacing: 0) {
+        if #available(iOS 26, macOS 26, *) {
+            Section(content: {
                 content()
+            }, header: {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                }
+            })
+        } else {
+            VStack(spacing: DesignConstant.padding) {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DesignConstant.padding)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    content()
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(isDarkMode ? .white.opacity(0.08) : .white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .inset(by: 0.5)
+                    .stroke(settingsBorder, lineWidth: 1))
             }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .inset(by: 0.5)
-                .stroke(settingsBorder, lineWidth: 1))
+            .plainListRow()
+            .padding(.horizontal, DesignConstant.padding)
+            .padding(.top, DesignConstant.padding * 2)
         }
-        .plainListRow()
-        .padding(.horizontal, DesignConstant.padding)
-        .padding(.top, DesignConstant.padding * 2)
     }
 
     func open(urlString: String) {
@@ -461,10 +486,13 @@ struct SettingDivider: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        Rectangle()
-            .foregroundStyle(.clear)
-            .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
-            .background(settingsBorder)
+        // We use default grouped list for iOS 26+ which renders dividers automatically
+        if #unavailable(iOS 26, macOS 26) {
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
+                .background(settingsBorder)
+        }
     }
 
     var settingsBorder: Color {
@@ -529,5 +557,14 @@ private extension View {
         accessibilityHint("You can toggle this option by clicking on the toggle button to the right of the row.")
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(label + state)
+    }
+
+    @ViewBuilder
+    func settingsListStyle() -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            listStyle(.insetGrouped)
+        } else {
+            listStyle(.plain)
+        }
     }
 }

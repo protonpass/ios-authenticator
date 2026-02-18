@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
+// swiftlint:disable file_length
 import AVFoundation
 import CommonUtilities
 import DataLayer
@@ -89,18 +90,23 @@ public struct EntriesView: View {
                     viewModel?.reloadData()
                 }
                 .safeAreaInset(edge: .top) {
-                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
-                        Color.clear.frame(height: 10)
+                    if #unavailable(iOS 26, macOS 26) {
+                        if searchBarAlignment == .bottom, !viewModel.noEntries {
+                            Color.clear.frame(height: 10)
+                        }
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if searchBarAlignment == .bottom, viewModel.dataState.data?.isEmpty == false {
+                    if searchBarAlignment == .bottom,
+                       !viewModel.noEntries,
+                       #unavailable(iOS 26, macOS 26) {
                         actionBar
                     } else if searchBarAlignment == .top, !viewModel.entries.isEmpty {
                         HStack {
                             Spacer()
                             addButton(size: 64)
-                                .padding([.trailing, .bottom], DesignConstant.padding * 2)
+                                .padding(.trailing, DesignConstant.padding * 2)
+                                .padding(.bottom, DesignConstant.padding)
                                 .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
                                         radius: 20,
                                         x: 0,
@@ -108,11 +114,11 @@ public struct EntriesView: View {
                         }
                     }
                 }
-                .if(searchBarAlignment == .top && viewModel.dataState.data?.isEmpty == false) { view in
+                .if(nativeSearchable && !viewModel.noEntries) { view in
                     view
                         .searchable(text: $viewModel.query,
                                     isPresented: $searchEnabled,
-                                    placement: .navigationBarDrawer(displayMode: .always))
+                                    placement: searchFieldPlacement)
                         .searchFocusable($searchFieldFocus)
                         .asciiCapableKeyboard()
                         .autocorrectionDisabled(true)
@@ -177,21 +183,47 @@ public struct EntriesView: View {
                                }
                        })
         }
+        // Force re-rendering the whole view to take into account search bar position mode
+        // because `searchable` modifier seems to be cached by SwiftUI so it doesn't reflect changes
+        .id(viewModel.settingsService.searchBarDisplayMode)
         .preferredColorScheme(viewModel.settingsService.theme.preferredColorScheme)
         .scrollContentBackground(.hidden)
     }
 }
 
 private extension EntriesView {
+    @ViewBuilder
     var mainContainer: some View {
-        Group {
-            if horizontalSizeClass == .compact {
-                list
-            } else {
-                GeometryReader { proxy in
-                    grid(width: proxy.size.width)
-                }
+        if horizontalSizeClass == .compact {
+            list
+        } else {
+            GeometryReader { proxy in
+                grid(width: proxy.size.width)
             }
+        }
+    }
+
+    /// Whether the native `searchable` modifier could be applied
+    var nativeSearchable: Bool {
+        switch searchBarAlignment {
+        case .top:
+            true
+        case .bottom:
+            if #available(iOS 26, macOS 26, *) {
+                true
+            } else {
+                false
+            }
+        default:
+            false
+        }
+    }
+
+    var searchFieldPlacement: SearchFieldPlacement {
+        if AppConstants.adjustableSearchBarPosition {
+            searchBarAlignment == .top ? .navigationBarDrawer(displayMode: .always) : .toolbar
+        } else {
+            .toolbar
         }
     }
 }
@@ -431,15 +463,31 @@ private extension EntriesView {
                                       blue: 0.06).opacity(0.8)))
     }
 
+    @ViewBuilder
     func addButton(size: CGFloat) -> some View {
-        Button(action: handleAddNewCode) {
-            plusIcon
-                .frame(width: size, height: size, alignment: .center)
-                .coloredBackgroundButton(.circle)
+        if #available(iOS 26, macOS 26, *) {
+            Button(action: handleAddNewCode) {
+                Image(systemName: "plus")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size / 2.5, height: size / 2.5, alignment: .center)
+                    .padding(size / 5)
+            }
+            .impactHaptic()
+            .buttonBorderShape(.circle)
+            .buttonStyle(.glassProminent)
+            .tint(.accent)
+            .accessibilityLabel("Create new code")
+        } else {
+            Button(action: handleAddNewCode) {
+                plusIcon
+                    .frame(width: size, height: size, alignment: .center)
+                    .coloredBackgroundButton(.circle)
+            }
+            .adaptiveButtonStyle()
+            .impactHaptic()
+            .accessibilityLabel("Create new code")
         }
-        .adaptiveButtonStyle()
-        .impactHaptic()
-        .accessibilityLabel("Create new code")
     }
 
     func handleAddNewCode() {
@@ -551,8 +599,8 @@ private extension EntriesView {
 
 private extension EntriesView {
     @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+    var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: titlePlacement) {
             Text(verbatim: "Proton Authenticator")
                 .foregroundStyle(.textNorm)
                 .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
@@ -560,65 +608,84 @@ private extension EntriesView {
         }
 
         #if os(iOS)
-        trailingToolbarContent()
-        #endif
-    }
-
-    var trailingToolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            HStack {
-                Menu(content: {
-                    ForEach(SortOption.allCases, id: \.self) { option in
-                        Button(action: {
-                            viewModel.settingsService.setSortOption(option)
-                        }, label: {
-                            Toggle(isOn: .constant(option == viewModel.sortOption)) {
-                                Text(option.description, bundle: .module)
-                            }
-                        })
-
-                        switch option {
-                        case .creationDateDesc, .issuerDesc, .manual:
-                            Divider()
-                        default:
-                            EmptyView()
+            Menu(content: {
+                ForEach(SortOption.allCases, id: \.self) { option in
+                    Button(action: {
+                        viewModel.settingsService.setSortOption(option)
+                    }, label: {
+                        Toggle(isOn: .constant(option == viewModel.sortOption)) {
+                            Text(option.description, bundle: .module)
                         }
-                    }
-                }, label: {
-                    Image(.sortButton)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 44, height: 44)
-                        .impactHaptic()
-                        .accessibilityLabel("Sort options")
-                })
+                    })
 
-                Button {
-                    router.presentedSheet = .settings
-                } label: {
+                    switch option {
+                    case .creationDateDesc, .issuerDesc, .manual:
+                        Divider()
+                    default:
+                        EmptyView()
+                    }
+                }
+            }, label: {
+                Group {
+                    if #available(iOS 26, macOS 26, *) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    } else {
+                        Image(.sortButton)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 44, height: 44)
+                    }
+                }
+                .impactHaptic()
+                .accessibilityLabel("Sort options")
+            })
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                router.presentedSheet = .settings
+            } label: {
+                if #available(iOS 26, macOS 26, *) {
+                    Image(systemName: "gearshape.fill")
+                } else {
                     Image(.settingsGear)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 44, height: 44)
                 }
-                .adaptiveButtonStyle()
+            }
+            .adaptiveButtonStyle()
+            .impactHaptic()
+            .accessibilityLabel("Settings")
+        }
+        #endif
+
+        if #available(iOS 26, macOS 26, *),
+           !viewModel.noEntries,
+           searchBarAlignment == .bottom,
+           AppConstants.adjustableSearchBarPosition {
+            DefaultToolbarItem(kind: .search, placement: .bottomBar)
+            ToolbarItem(placement: .bottomBar) {
+                Button(action: handleAddNewCode) {
+                    Image(systemName: "plus")
+                        .contentShape(.rect)
+                }
+                .contentShape(.rect)
                 .impactHaptic()
-                .accessibilityLabel("Settings")
+                .accessibilityLabel("Create new code")
+                .buttonStyle(.glassProminent)
             }
         }
     }
 
-    #if os(iOS)
-    @ToolbarContentBuilder
-    func trailingToolbarContent() -> some ToolbarContent {
-        if #available(iOS 26.0, *) {
-            trailingToolbarButtons
-                .sharedBackgroundVisibility(.hidden)
+    var titlePlacement: ToolbarItemPlacement {
+        if #available(iOS 26, macOS 26, *) {
+            .principal
         } else {
-            trailingToolbarButtons
+            ProcessInfo.processInfo.isiOSAppOnMac ? .topBarLeading : .principal
         }
     }
-    #endif
 }
 
 private extension EntriesView {
@@ -658,3 +725,5 @@ private extension View {
         #endif
     }
 }
+
+// swiftlint:enable file_length

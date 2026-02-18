@@ -106,7 +106,7 @@ struct CreateEditEntryView: View {
                 .animation(.default, value: viewModel.canSave)
                 .animation(.default, value: viewModel.type)
                 .animation(.default, value: showAdvanceOptions)
-                .mainBackground()
+                .fullScreenMainBackground()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         focusFirstField()
@@ -179,33 +179,57 @@ struct CreateEditEntryView: View {
 // MARK: - Advance options
 
 private extension CreateEditEntryView {
+    @ViewBuilder
     var advancedOptionsButton: some View {
-        Button {
-            showAdvanceOptions.toggle()
-            focusedField = nil
-        } label: {
-            HStack(alignment: .center, spacing: 8) {
-                Text("Advanced options", bundle: .module)
-                    .dynamicFont(size: 18, textStyle: .body)
-                    .foregroundStyle(.textNorm)
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                Spacer()
-                Image(systemName: "plus")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(.textNorm)
+        if #available(iOS 26, macOS 26, *) {
+            Button(action: {
+                       showAdvanceOptions.toggle()
+                       focusedField = nil
+                   },
+                   label: {
+                       HStack(alignment: .center, spacing: 8) {
+                           Text("Advanced options", bundle: .module)
+                               .dynamicFont(size: 18, textStyle: .body)
+                           Spacer()
+                           Image(systemName: "plus")
+                               .resizable()
+                               .scaledToFit()
+                               .frame(width: 18, height: 18)
+                       }
+                       .foregroundStyle(.textNorm)
+                       .padding()
+                   })
+                   .buttonStyle(.glass)
+                   .glassEffect()
+                   .padding(.horizontal)
+        } else {
+            Button {
+                showAdvanceOptions.toggle()
+                focusedField = nil
+            } label: {
+                HStack(alignment: .center, spacing: 8) {
+                    Text("Advanced options", bundle: .module)
+                        .dynamicFont(size: 18, textStyle: .body)
+                        .foregroundStyle(.textNorm)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                    Spacer()
+                    Image(systemName: "plus")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(.textNorm)
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .background(.dropdownBackground)
+                .cornerRadius(16)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .background(.dropdownBackground)
-            .cornerRadius(16)
-            .padding(.horizontal, 16)
+            .adaptiveButtonStyle()
+            .impactHaptic()
+            .optionShadow()
         }
-        .adaptiveButtonStyle()
-        .impactHaptic()
-        .optionShadow()
     }
 
     var pickerSection: some View {
@@ -222,33 +246,60 @@ private extension CreateEditEntryView {
         .padding(16)
     }
 
+    @ViewBuilder
     func pickerFields(title: LocalizedStringKey,
                       description: @escaping (Int) -> TextContent,
                       data: [Int],
                       binding: Binding<Int>) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            Text(title, bundle: .module)
-                .dynamicFont(size: 18, textStyle: .body)
-                .foregroundStyle(.textNorm)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-            Spacer()
-            Picker(selection: binding,
-                   content: {
-                       ForEach(data, id: \.self) { element in
-                           Text(description(element)) // ignore:missing_bundle
-                               .tag(element)
-                       }
-                   },
-                   label: { Text(verbatim: "") })
-                .accentColor(.textNorm)
-                .pickerStyle(pickerStyle)
+        if #available(iOS 26, macOS 26, *) {
+            LabeledContent(content: {
+                Picker(selection: binding,
+                       content: {
+                           ForEach(data, id: \.self) { element in
+                               Text(description(element)) // ignore:missing_bundle
+                                   .tag(element)
+                           }
+                       },
+                       label: {
+                           EmptyView()
+                       })
+                       .accentColor(.textNorm)
+                       .pickerStyle(.menu)
+                       .labelsHidden()
+            }, label: {
+                Text(title, bundle: .module)
+                    .dynamicFont(size: 18, textStyle: .body)
+                    .foregroundStyle(.textNorm)
+            })
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.capsule)
+        } else {
+            HStack(alignment: .center, spacing: 8) {
+                Text(title, bundle: .module)
+                    .dynamicFont(size: 18, textStyle: .body)
+                    .foregroundStyle(.textNorm)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                Spacer()
+                Picker(selection: binding,
+                       content: {
+                           ForEach(data, id: \.self) { element in
+                               Text(description(element)) // ignore:missing_bundle
+                                   .tag(element)
+                           }
+                       },
+                       label: { Text(verbatim: "") })
+                    .accentColor(.textNorm)
+                    .pickerStyle(pickerStyle)
+                    .labelsHidden()
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(.dropdownBackground)
+            .cornerRadius(16)
+            .optionShadow()
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 16)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .background(.dropdownBackground)
-        .cornerRadius(16)
-        .optionShadow()
     }
 
     @ViewBuilder
@@ -257,6 +308,7 @@ private extension CreateEditEntryView {
             segmentedControlField(title: "ALGORITHM", data: TotpAlgorithm.allCases, binding: $viewModel.algo)
                 .impactHaptic()
         }
+
         segmentedControlField(title: "TYPE", data: TotpType.allCases, binding: $viewModel.type)
             .impactHaptic()
     }
@@ -265,7 +317,24 @@ private extension CreateEditEntryView {
                                                               data: [T],
                                                               binding: Binding<T>) -> some View {
         Section {
-            CustomSegmentedControl(data: data, selection: binding)
+            if #available(iOS 26, macOS 26, *) {
+                Picker(selection: binding,
+                       content: {
+                           ForEach(data, id: \.self) { type in
+                               Text(verbatim: "\(type.rawValue)".uppercased())
+                                   .font(.title)
+                                   .fontWeight(.semibold)
+                                   .foregroundStyle(.textNorm)
+                           }
+                       }, label: {
+                           EmptyView()
+                       })
+                       .pickerStyle(.segmented)
+                       .labelsHidden()
+                       .controlSize(.extraLarge)
+            } else {
+                CustomSegmentedControl(data: data, selection: binding)
+            }
         } header: {
             HStack {
                 Text(title, bundle: .module)
@@ -359,26 +428,42 @@ private extension CreateEditEntryView {
         }
         #else
         ToolbarItem(placement: toolbarItemLeadingPlacement) {
-            Button {
-                dismiss()
-            } label: {
-                Text("Close", bundle: .module)
-                    .foregroundStyle(.accent)
-                    .padding(10)
-                    .adaptiveButtonStyle()
+            Button(action: dismiss.callAsFunction) {
+                if #available(iOS 26, macOS 26, *) {
+                    Image(systemName: "xmark")
+                } else {
+                    Text("Close", bundle: .module)
+                        .foregroundStyle(.accent)
+                        .padding(10)
+                        .adaptiveButtonStyle()
+                }
             }
         }
 
         ToolbarItem(placement: toolbarItemTrailingPlacement) {
-            Button {
-                viewModel.save()
-            } label: {
-                Text("Save", bundle: .module)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.accent)
-                    .padding(10)
+            Group {
+                if #available(iOS 26, macOS 26, *) {
+                    Button {
+                        viewModel.save()
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                    .buttonStyle(.glassProminent)
+                    .tint(.accent)
+                    .disabled(!viewModel.canSave)
+                    .opacity(viewModel.canSave ? 1 : 0.4)
+                } else {
+                    Button {
+                        viewModel.save()
+                    } label: {
+                        Text("Save", bundle: .module)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.accent)
+                            .padding(10)
+                    }
+                    .adaptiveButtonStyle()
+                }
             }
-            .adaptiveButtonStyle()
             .disabled(!viewModel.canSave)
             .opacity(viewModel.canSave ? 1 : 0.4)
         }

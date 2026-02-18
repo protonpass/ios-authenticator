@@ -34,7 +34,7 @@ struct PassBanner: View {
                     .scaledToFit()
                     .frame(width: 24)
                     .padding(DesignConstant.padding)
-                    .foregroundStyle(.textNorm.opacity(0.7))
+                    .foregroundStyle(.white)
             }
         }
         .frame(height: 220)

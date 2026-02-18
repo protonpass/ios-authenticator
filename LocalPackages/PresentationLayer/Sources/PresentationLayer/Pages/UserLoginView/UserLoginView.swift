@@ -90,17 +90,25 @@ struct UserLoginView: View {
             }
             .padding(.horizontal, 40)
             .toolbar {
-                ToolbarItem(placement: toolbarTrailingItemPlacement) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24)
-                            .foregroundStyle(.textNorm.opacity(0.7))
+                if #available(iOS 26, macOS 26, *) {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(action: dismiss.callAsFunction) {
+                            Image(systemName: "xmark")
+                        }
                     }
-                    .adaptiveButtonStyle()
+                } else {
+                    ToolbarItem(placement: toolbarTrailingItemPlacement) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24)
+                                .foregroundStyle(.textNorm.opacity(0.7))
+                        }
+                        .adaptiveButtonStyle()
+                    }
                 }
             }
             .toastDisplay()

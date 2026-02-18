@@ -282,33 +282,18 @@ struct ImportingServiceModifier: ViewModifier {
 }
 
 private extension View {
-    @ViewBuilder
     func importFromGoogleOptionsDialog(isPresented: Binding<Bool>,
                                        onSelect: @escaping (GoogleImportType) -> Void) -> some View {
-        if AppConstants.isIpad {
-            alert(Text("Import from Google Authenticator", bundle: .module),
-                  isPresented: isPresented) {
-                ForEach(GoogleImportType.allCases, id: \.self) { option in
-                    if displayGoogleImportOption(option) {
-                        Button { onSelect(option) } label: {
-                            Text(option.title, bundle: .module)
-                        }
-                    }
-                }
-                Button("Cancel", role: .cancel, action: {})
-            }
-        } else {
-            confirmationDialog(Text("Import from Google Authenticator", bundle: .module),
-                               isPresented: isPresented,
-                               titleVisibility: .hidden) {
-                ForEach(GoogleImportType.allCases, id: \.self) { option in
-                    if displayGoogleImportOption(option) {
-                        Button { onSelect(option) } label: {
-                            Text(option.title, bundle: .module)
-                        }
+        alert(Text("Import from Google Authenticator", bundle: .module),
+              isPresented: isPresented) {
+            ForEach(GoogleImportType.allCases, id: \.self) { option in
+                if displayGoogleImportOption(option) {
+                    Button { onSelect(option) } label: {
+                        Text(option.title, bundle: .module)
                     }
                 }
             }
+            Button("Cancel", role: .cancel, action: {})
         }
     }
 
@@ -914,17 +899,19 @@ private struct ExplanationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
+            if #unavailable(iOS 26, macOS 26) {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                    .padding(16)
                 }
-                .adaptiveButtonStyle()
-                .padding(16)
             }
 
             if option.canExport {
@@ -998,6 +985,16 @@ private struct ExplanationView: View {
             }
         }
         .fullScreenMainBackground()
+        .toolbar {
+            if #available(iOS 26, macOS 26, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark")
+                    }
+                }
+            }
+        }
+        .navigationStackEmbeded()
     }
 }
 
@@ -1007,17 +1004,19 @@ private struct ImportView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24)
-                        .foregroundStyle(.textNorm.opacity(0.7))
+            if #unavailable(iOS 26, macOS 26) {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24)
+                            .foregroundStyle(.textNorm.opacity(0.7))
+                    }
+                    .adaptiveButtonStyle()
+                    .padding(16)
                 }
-                .adaptiveButtonStyle()
-                .padding(16)
             }
 
             List {
@@ -1067,6 +1066,16 @@ private struct ImportView: View {
             .padding(.horizontal, 32)
         }
         .fullScreenMainBackground()
+        .toolbar {
+            if #available(iOS 26, macOS 26, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark")
+                    }
+                }
+            }
+        }
+        .navigationStackEmbeded()
     }
 }
 

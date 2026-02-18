@@ -51,6 +51,10 @@ final class EntriesViewModel: ObservableObject {
         entryDataService.dataState
     }
 
+    var noEntries: Bool {
+        dataState.data?.isEmpty == true
+    }
+
     var focusSearchOnLaunch: Bool {
         settingsService.focusSearchOnLaunch
     }

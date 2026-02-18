@@ -102,7 +102,30 @@ struct EntryCell: View, @preconcurrency Equatable {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            mainContent
+            if #available(iOS 26, macOS 26, *) {
+                mainContent
+                    .glassEffect(in: RoundedRectangle(cornerRadius: 18))
+            } else {
+                mainContent
+                    .background(LinearGradient(stops:
+                        [
+                            .init(color: isLightMode ? .white : .white.opacity(0.11), location: 0),
+                            .init(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.1),
+                            .init(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
+                        ],
+                        startPoint: UnitPoint(x: 0.5, y: 0),
+                        endPoint: UnitPoint(x: 0.5, y: 1)))
+                    .mainBackground()
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .if(!reducedShadow) { view in
+                        view.shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
+                                    radius: 4,
+                                    x: 0,
+                                    y: isLightMode ? 3 : 2)
+                    }
+            }
+
             if showCopyBadge {
                 HStack {
                     if currentCodeCopy {
@@ -196,13 +219,19 @@ private extension EntryCell {
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
 
-            Image(.entrySeparator)
-                .resizable(resizingMode: .tile)
-                .frame(height: 2)
-                .frame(maxWidth: .infinity)
-                .simultaneousGesture(TapGesture().onEnded {
-                    onAction(.copyCurrentCode(entry))
-                })
+            Group {
+                if #available(iOS 26, macOS 26, *) {
+                    Divider()
+                } else {
+                    Image(.entrySeparator)
+                        .resizable(resizingMode: .tile)
+                        .frame(height: 2)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                onAction(.copyCurrentCode(entry))
+            })
 
             CodeView(configuration: configuration,
                      entry: entry,
@@ -213,25 +242,8 @@ private extension EntryCell {
                 .padding(.bottom, 12)
                 .padding(.horizontal, 16)
         }
-        .background(LinearGradient(stops:
-            [
-                .init(color: isLightMode ? .white : .white.opacity(0.11), location: 0),
-                .init(color: isLightMode ? .white.opacity(0.9) : .white.opacity(0.1), location: 0.1),
-                .init(color: isLightMode ? .white.opacity(0.5) : .white.opacity(0.1), location: 1)
-            ],
-            startPoint: UnitPoint(x: 0.5, y: 0),
-            endPoint: UnitPoint(x: 0.5, y: 1)))
-        .mainBackground()
         .animation(.linear(duration: 0.1), value: isHovered)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(entryOverlay)
-        .if(!reducedShadow) { view in
-            view.shadow(color: .black.opacity(isLightMode ? 0.12 : 0.16),
-                        radius: 4,
-                        x: 0,
-                        y: isLightMode ? 3 : 2)
-        }
     }
 
     @ViewBuilder
@@ -243,7 +255,7 @@ private extension EntryCell {
                     Color.copyMessage.opacity(isLightMode ? 0.7 : 0.3) :
                     Color.purpleInteraction.opacity(isLightMode ? 0.7 : 0.3),
                     lineWidth: 2)
-        } else {
+        } else if #unavailable(iOS 26, macOS 26) {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(LinearGradient(stops:
                     [

@@ -41,17 +41,25 @@ struct LogsView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("Close", bundle: .module)
-                            .foregroundStyle(.accent)
-                            .adaptiveButtonStyle()
+                        if #available(iOS 26, macOS 26, *) {
+                            Image(systemName: "xmark")
+                        } else {
+                            Text("Close", bundle: .module)
+                                .foregroundStyle(.accent)
+                                .adaptiveButtonStyle()
+                        }
                     }
                 }
 
                 ToolbarItem(placement: toolbarTrailingItemPlacement) {
                     if let logsUrl = viewModel.logsUrl {
                         ShareLink(item: logsUrl) {
-                            Text("Share", bundle: .module)
-                                .foregroundStyle(.purpleInteraction)
+                            if #available(iOS 26, macOS 26, *) {
+                                Image(systemName: "square.and.arrow.up")
+                            } else {
+                                Text("Share", bundle: .module)
+                                    .foregroundStyle(.purpleInteraction)
+                            }
                         }
                     }
                 }
