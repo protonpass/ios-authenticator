@@ -21,7 +21,6 @@
 
 import Combine
 import CommonUtilities
-import CoreData
 import DataLayer
 import FactoryKit
 import Foundation
@@ -142,22 +141,23 @@ final class EntriesViewModel: ObservableObject {
     private(set) var deleteTask: Task<Void, Never>?
 
     init() {
-        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-                guard let self,
-                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import
-                else { return }
-                logger.log(.debug,
-                           category: .ui,
-                           "Received notification of updates from iCloud Database",
-                           function: #function,
-                           line: #line)
-                loadEntries()
-            }
-            .store(in: &cancellables)
+        // iCloud sync notification — disabled during migration to local folder backup
+//        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] notification in
+//                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+//                guard let self,
+//                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
+//                      event.endDate != nil, event.type == .import
+//                else { return }
+//                logger.log(.debug,
+//                           category: .ui,
+//                           "Received notification of updates from iCloud Database",
+//                           function: #function,
+//                           line: #line)
+//                loadEntries()
+//            }
+//            .store(in: &cancellables)
 
         searchTextStream
             .dropFirst()

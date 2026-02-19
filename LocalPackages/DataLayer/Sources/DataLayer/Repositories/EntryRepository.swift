@@ -260,7 +260,7 @@ public extension EntryRepository {
 public extension EntryRepository {
     func getAllLocalEntries() async throws -> [EntryState] {
         log(.debug, "Fetching all local entries")
-        var entriesToDelete = [EncryptedEntryEntity]()
+        var entriesDuplicated = [EncryptedEntryEntity]()
 
         do {
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
@@ -276,7 +276,7 @@ public extension EntryRepository {
                 if latestEntriesById[entry.id] == nil {
                     latestEntriesById[entry.id] = entry // First (i.e., latest) occurrence
                 } else {
-                    entriesToDelete.append(entry) // Older duplicate
+                    entriesDuplicated.append(entry) // Older duplicate
                 }
             }
 
@@ -302,11 +302,16 @@ public extension EntryRepository {
 
             log(.info,
                 "Successfully fetched \(decryptableCount) decryptable, \(nonDecryptableCount) non decryptable")
+            if !entriesDuplicated.isEmpty {
+                log(.info,
+                    "Found duplicated entries with ids: \(entriesDuplicated.map(\.id))")
+            }
+
             return decryptedEntries
         } catch {
-            if !entriesToDelete.isEmpty {
-                await cleanUpDuplication(entriesToDelete)
-            }
+//            if !entriesToDelete.isEmpty {
+//                await cleanUpDuplication(entriesToDelete)
+//            }
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
             throw error
         }

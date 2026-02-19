@@ -184,9 +184,9 @@ public extension EntryDataService {
         data[index] = oldEntry.copy(newEntry: entry)
 
         try await repository.completeUpdate(entry: data[index].orderedEntry, oldEntry: oldEntry.orderedEntry)
-        backUpEntries()
 
         updateData(data)
+        backUpEntries()
     }
 
     func delete(_ entry: EntryUiModel) async throws {
@@ -206,9 +206,8 @@ public extension EntryDataService {
         } else {
             log(.debug, "No order changes required")
         }
-        backUpEntries()
-
         updateData(updatedOrderedEntries)
+        backUpEntries()
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
 
@@ -223,9 +222,9 @@ public extension EntryDataService {
         // Only reorder items whose order changes
         let (updatedOrderedEntries, changedEntries) = updateOrderAndExtractChanges(uiEntries: entries)
         try await repository.completeReorder(entries: changedEntries)
-        backUpEntries()
 
         updateData(updatedOrderedEntries)
+        backUpEntries()
     }
 
     func loadEntries() async throws {
@@ -266,8 +265,8 @@ public extension EntryDataService {
 
             let newOrderedItems = try await reorderItems()
             let entries = try await generateUIEntries(from: newOrderedItems)
-            backUpEntries()
             updateData(entries)
+            backUpEntries()
         } catch {
             log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
             if let coreError = error as? ResponseError,
@@ -397,11 +396,10 @@ public extension EntryDataService {
 
         data.append(contentsOf: uiEntries)
 
-        await backUpEntries()
-
         await MainActor.run {
             updateData(data)
         }
+        await backUpEntries()
         return uiEntries.count
     }
 
@@ -468,9 +466,8 @@ private extension EntryDataService {
 
         data.append(entryUI)
 
-        backUpEntries()
-
         updateData(data)
+        backUpEntries()
         log(.debug, "Saved entry \(entryUI.id)")
     }
 
