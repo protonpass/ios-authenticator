@@ -198,6 +198,7 @@ private extension BackUpView {
             }
             .dynamicFont(size: 13, textStyle: .body)
             .foregroundStyle(.textWeak)
+            .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
         }
     }

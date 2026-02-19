@@ -249,6 +249,7 @@ public extension EntryRepository {
                 try await batchRemoteReordering(entries: newOrderedEntries)
             } catch {
                 log(.error, "Failed to remote reorder: \(error.localizedDescription)")
+                throw error
             }
         }
     }
