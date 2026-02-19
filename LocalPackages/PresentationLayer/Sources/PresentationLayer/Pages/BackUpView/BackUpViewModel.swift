@@ -24,6 +24,7 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
+import Macro
 import Models
 
 struct PasswordProtectedBackup: Identifiable {
@@ -78,6 +79,11 @@ final class BackUpViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logger
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+    @ObservationIgnored
+    private var toggleBackupTask: Task<Void, Never>?
 
     init() {
         setUp()
@@ -135,15 +141,22 @@ final class BackUpViewModel {
     }
 
     func toggleBackup() {
-        if backupActivated {
-            settingsService.toggleDocumentBackup(false)
-            backUpManager.clearDestinationFolder()
-            backupActivated = false
-            backups = []
-            folderDisplayName = nil
-            folderPath = nil
-        } else {
-            showPasswordAlert = true
+        guard toggleBackupTask == nil else { return }
+        toggleBackupTask = Task { [weak self] in
+            guard let self else { return }
+            defer { toggleBackupTask = nil }
+            await authenticateAndPerform {
+                if backupActivated {
+                    settingsService.toggleDocumentBackup(false)
+                    backUpManager.clearDestinationFolder()
+                    backupActivated = false
+                    backups = []
+                    folderDisplayName = nil
+                    folderPath = nil
+                } else {
+                    showPasswordAlert = true
+                }
+            }
         }
     }
 
@@ -284,5 +297,17 @@ private extension BackUpViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = .sheet(config)
         alertService.showAlert(alert)
+    }
+
+    func authenticateAndPerform(_ block: () throws -> Void) async {
+        let reason = #localized("Please authenticate", bundle: .module)
+        do {
+            if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                   reason: reason) {
+                try block()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

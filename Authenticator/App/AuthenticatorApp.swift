@@ -90,6 +90,7 @@ private extension MainContentView {
         }
         .task {
             await viewModel.setUpFirstRun()
+            viewModel.migrateFromICloudIfNeeded()
         }
         .adaptiveSheet(isPresented: .constant(!viewModel.onboarded),
                        isFullScreen: AppConstants.isPhone) {
@@ -187,6 +188,10 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     private var sentry
 
     @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager)
+    private var localDataManager
+
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.reviewService)
     private var reviewService
 
@@ -226,6 +231,22 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
                 alertService.showError(error)
             }
         }
+    }
+
+    func migrateFromICloudIfNeeded() {
+        guard appSettings.iCloudSync else { return }
+        appSettings.toggleICloudSync(false)
+        Task {
+            await localDataManager.refreshLocalStorage()
+        }
+        // swiftlint:disable line_length
+        let config = AlertConfiguration(title: "Backups have changed",
+                                        titleBundle: .main,
+                                        message: .localized("iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up.",
+                                                            .main),
+                                        actions: [.ok])
+        // swiftlint:enable line_length
+        alertService.showAlert(.main(config))
     }
 
     func resetBiometricCheck() {

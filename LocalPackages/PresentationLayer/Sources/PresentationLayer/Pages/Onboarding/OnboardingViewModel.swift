@@ -27,14 +27,14 @@ import Models
 import SwiftUI
 
 enum OnboardStep: Sendable {
-    case intro, `import`, biometric(BiometricType), iCloudSync
+    case intro, `import`, biometric(BiometricType), backup
 }
 
 @Observable
 final class OnboardingViewModel {
     private(set) var currentStep: OnboardStep = .intro
     private(set) var biometricEnabled = false
-    private(set) var iCloudSyncEnabled = false
+    var showBackUpView = false
 
     @ObservationIgnored
     private var supportedBiometric: BiometricType?
@@ -72,9 +72,6 @@ final class OnboardingViewModel {
     private var openAppSettings
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.localDataManager) private var localDataManager
-
-    @ObservationIgnored
     private var enablingBiometric = false
 
     init() {}
@@ -102,12 +99,8 @@ final class OnboardingViewModel {
                 return false
             }
         case .biometric:
-            if #available(iOS 18, *) {
-                currentStep = .iCloudSync
-            } else {
-                return false
-            }
-        case .iCloudSync:
+            currentStep = .backup
+        case .backup:
             return false
         }
         return true
@@ -151,12 +144,8 @@ final class OnboardingViewModel {
         }
     }
 
-    func enableICloudSync() {
-        appSettings.toggleICloudSync(true)
-        iCloudSyncEnabled = true
-        Task {
-            await localDataManager.refreshLocalStorage()
-        }
+    func enableBackup() {
+        showBackUpView = true
     }
 
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {

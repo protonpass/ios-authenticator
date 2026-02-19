@@ -384,17 +384,16 @@ private extension EntriesViewModel {
         }
     }
 
-    // swiftlint:disable line_length
     func refreshInAppMessage() {
-        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
-            inAppService.show(InAppMessage(id: "iCloudSyncWarning",
-                                           title: #localized("Information", bundle: .module),
-                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
-                                                            bundle: .module),
-                                           urlString: AppConstants.CommonUrls.iCloudSyncInfos))
-        }
+        // iCloud sync warning removed — backup is now folder-based
+//        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
+//               inAppService.show(InAppMessage(id: "iCloudSyncWarning",
+//                                              title: #localized("Information", bundle: .module),
+//                                              body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
+//                                                               bundle: .module),
+//                                              urlString: AppConstants.CommonUrls.iCloudSyncInfos))
+//           }
     }
-    // swiftlint:enable line_length
 }
 
 private extension [EntryUiModel] {
