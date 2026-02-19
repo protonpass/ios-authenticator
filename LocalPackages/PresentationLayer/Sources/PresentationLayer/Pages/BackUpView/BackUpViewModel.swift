@@ -42,12 +42,18 @@ final class BackUpViewModel {
     var password = ""
     var confirmedPassword = ""
     var showPasswordAlert = false
+    var showDestinationAlert = false
     var showFolderPicker = false
     var folderDisplayName: String?
+    var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
+    }
+
+    var showBackup: Bool {
+        backupActivated && !backups.isEmpty
     }
 
     @ObservationIgnored
@@ -135,6 +141,7 @@ final class BackUpViewModel {
             backupActivated = false
             backups = []
             folderDisplayName = nil
+            folderPath = nil
         } else {
             showPasswordAlert = true
         }
@@ -158,13 +165,52 @@ final class BackUpViewModel {
             try keychainService.set(password,
                                     for: AppConstants.Settings.backupPassword,
                                     shouldSync: false)
-            showFolderPicker = true
+            showDestinationAlert = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }
     }
 
     func changeFolder() {
+        showFolderPicker = true
+    }
+
+    func useDefaultDestination() {
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory,
+                                                          in: .userDomainMask).first else {
+            errorMessage = "Unable to access Documents directory."
+            return
+        }
+
+        let folderURL = documentsURL.appendingPathComponent(Self.defaultFolderName)
+
+        do {
+            if !FileManager.default.fileExists(atPath: folderURL.path) {
+                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            }
+
+            let bookmarkData = try folderURL.bookmarkData(options: [],
+                                                          includingResourceValuesForKeys: nil,
+                                                          relativeTo: nil)
+            settingsService.setBackupFolderBookmark(bookmarkData)
+            backUpManager.setDestinationFolder(folderURL)
+            settingsService.toggleDocumentBackup(true)
+            backupActivated = true
+            updateFolderDisplay(from: folderURL)
+
+            loadData()
+
+            if backups.isEmpty {
+                entryDataService.backUpEntries()
+                loadData()
+            }
+        } catch {
+            log(.error, "Failed to set default destination: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func chooseCustomDestination() {
         showFolderPicker = true
     }
 
@@ -185,7 +231,7 @@ final class BackUpViewModel {
                 backUpManager.setDestinationFolder(url)
                 settingsService.toggleDocumentBackup(true)
                 backupActivated = true
-                folderDisplayName = url.lastPathComponent
+                updateFolderDisplay(from: url)
 
                 loadData()
 
@@ -205,18 +251,25 @@ final class BackUpViewModel {
 }
 
 private extension BackUpViewModel {
+    static let defaultFolderName = "Proton Authenticator Backups"
+
     func setUp() {
         backupActivated = settingsService.documentBackup
         if backupActivated, let bookmarkData = settingsService.backupFolderBookmark {
             do {
                 let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
-                folderDisplayName = url.lastPathComponent
+                updateFolderDisplay(from: url)
             } catch {
                 log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
                 settingsService.toggleDocumentBackup(false)
                 backupActivated = false
             }
         }
+    }
+
+    func updateFolderDisplay(from url: URL) {
+        folderDisplayName = url.lastPathComponent
+        folderPath = url.path
     }
 
     func showCompletion(_ numberOfEntries: Int) {

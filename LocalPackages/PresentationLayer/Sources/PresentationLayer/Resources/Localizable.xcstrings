@@ -1430,6 +1430,9 @@
         }
       }
     },
+    "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app." : {
+
+    },
     "Biometric lock" : {
       "localizations" : {
         "de" : {
@@ -1919,6 +1922,12 @@
           }
         }
       }
+    },
+    "Choose backup destination" : {
+
+    },
+    "Choose folder" : {
+
     },
     "Choose one or more Photos" : {
       "localizations" : {
@@ -10462,6 +10471,9 @@
         }
       }
     },
+    "SETUP" : {
+
+    },
     "Several images could not be processed. See logs for more details." : {
       "localizations" : {
         "de" : {
@@ -12431,6 +12443,9 @@
           }
         }
       }
+    },
+    "Use default folder" : {
+
     },
     "Use two-factor authentication to safeguard your accounts." : {
       "localizations" : {

@@ -31,110 +31,72 @@ struct BackUpView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        List {
-            VStack(spacing: 32) {
-                section {
-                    SettingRow(title: .localized("Automatic Backup", .module),
-                               trailingMode: .toggle(isOn: viewModel.backupActivated,
-                                                     onToggle: viewModel.toggleBackup))
-                    if viewModel.backupActivated {
-                        SettingDivider()
-                        Button { viewModel.changeFolder() } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                row(title: .localized("Folder location", .module), imageName: "chevron.right")
-                                if let folderName = viewModel.folderDisplayName {
-                                    Text(folderName)
-                                        .dynamicFont(size: 13, textStyle: .body)
-                                        .foregroundStyle(.textWeak)
-                                        .padding(.horizontal, DesignConstant.padding)
-                                        .padding(.bottom, 8)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
+        mainContent
+            .task {
+                viewModel.loadData()
+            }
+            .fileImporter(isPresented: $viewModel.showFolderPicker,
+                          allowedContentTypes: [.folder],
+                          onCompletion: viewModel.handleFolderSelection)
+            .showSpinner(viewModel.loading)
+            .padding(.bottom, 10)
+            .scrollContentBackground(.hidden)
+            .errorMessageAlert($viewModel.errorMessage)
+            .sheetAlertService()
+            .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
+                SecureField("Password", text: $viewModel.password)
+                    .autocorrectionDisabled()
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                SecureField("Confirm password", text: $viewModel.confirmedPassword)
+                    .autocorrectionDisabled()
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                Button { viewModel.savePassword() } label: {
+                    Text("Save password", bundle: .module)
                 }
-
-                if showBackup() {
-                    section("BACKUPS") {
-                        ForEach(viewModel.backups) { backup in
-                            Button { viewModel.load(backup: backup) } label: {
-                                row(title: .localized("Backup from \(backup.displayedDate)", .module))
-                            }
-                            .buttonStyle(.plain)
-
-                            if backup != viewModel.backups.last {
-                                Divider()
-                            }
-                        }
-                    }
-                    VStack {
-                        Text("Only the last 5 backups are kept.", bundle: .module)
-                        if let displayedDate = viewModel.backups.first?.displayedDate {
-                            Text("Last backup: \(displayedDate)", bundle: .module)
-                        }
-                    }
-                    .dynamicFont(size: 13, textStyle: .body)
-                    .foregroundStyle(.textWeak)
+                .disabled(!viewModel.passwordSavable)
+                Button("Cancel", role: .cancel) {
+                    viewModel.password = ""
+                    viewModel.confirmedPassword = ""
                 }
-                Spacer()
+            } message: {
+                Text("Set a password to protect backup files.", bundle: .module)
             }
-        }
-        .listStyle(.insetGrouped)
-        .frame(maxHeight: .infinity)
-        .animation(.default, value: viewModel.backupActivated)
-        .task {
-            viewModel.loadData()
-        }
-        .fileImporter(isPresented: $viewModel.showFolderPicker,
-                      allowedContentTypes: [.folder],
-                      onCompletion: viewModel.handleFolderSelection)
-        .showSpinner(viewModel.loading)
-        .padding(.bottom, 10)
-        .scrollContentBackground(.hidden)
-        .errorMessageAlert($viewModel.errorMessage)
-        .sheetAlertService()
-        .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
-            SecureField("Password", text: $viewModel.password)
-                .autocorrectionDisabled()
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
-            SecureField("Confirm password", text: $viewModel.confirmedPassword)
-                .autocorrectionDisabled()
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
-            Button { viewModel.savePassword() } label: {
-                Text("Save password", bundle: .module)
+            .alert("Choose backup destination", isPresented: $viewModel.showDestinationAlert) {
+                Button { viewModel.useDefaultDestination() } label: {
+                    Text("Use default folder", bundle: .module)
+                }
+                Button { viewModel.chooseCustomDestination() } label: {
+                    Text("Choose folder", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                // swiftlint:disable:next line_length
+                Text("Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app.",
+                     bundle: .module)
             }
-            .disabled(!viewModel.passwordSavable)
-            Button("Cancel", role: .cancel) {
-                viewModel.password = ""
-                viewModel.confirmedPassword = ""
+            .alert("Please enter the password used to encrypt this backup.",
+                   isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
+                   presenting: viewModel.passwordProtectionFile) { backup in
+                SecureField("Password", text: $viewModel.password)
+                    .autocorrectionDisabled()
+                    .textContentType(.oneTimeCode)
+                    .textInputAutocapitalization(.never)
+                Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
+                    Text("Decrypt the backup", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {
+                    viewModel.password = ""
+                }
             }
-        } message: {
-            Text("Set a password to protect backup files.", bundle: .module)
-        }
-        .alert("Please enter the password used to encrypt this backup.",
-               isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
-               presenting: viewModel.passwordProtectionFile) { backup in
-            SecureField("Password", text: $viewModel.password)
-                .autocorrectionDisabled()
-                .textContentType(.oneTimeCode)
-                .textInputAutocapitalization(.never)
-            Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
-                Text("Decrypt the backup", bundle: .module)
-            }
-            Button("Cancel", role: .cancel) {
-                viewModel.password = ""
-            }
-        }
 
         #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
         #endif
-        .toolbar { toolbarContent }
-        .navigationTitle(Text("Backups", bundle: .module))
-        .fullScreenMainBackground()
+            .toolbar { toolbarContent }
+            .navigationTitle(Text("Backups", bundle: .module))
+            .fullScreenMainBackground()
     }
 
     private var isDarkMode: Bool {
@@ -163,47 +125,122 @@ struct BackUpView: View {
         }
         #endif
     }
+}
 
-    func showBackup() -> Bool {
-        viewModel.backupActivated && !viewModel.backups.isEmpty
+// MARK: - Views elements
+
+private extension BackUpView {
+    var mainContent: some View {
+        List {
+            setupSection
+            backupSection
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .listStyle(.insetGrouped)
+        .frame(maxHeight: .infinity)
+        .animation(.default, value: viewModel.backupActivated)
     }
 
-//    @ViewBuilder
-//    func settingsListStyle2() -> some View {
-//        if #available(iOS 26, macOS 26, *) {
-//            listStyle(.insetGrouped)
-//        } else {
-//            listStyle(.plain)
-//        }
-//    }
+    var setupSection: some View {
+        section("SETUP") {
+            SettingRow(title: .localized("Automatic Backup", .module),
+                       trailingMode: .toggle(isOn: viewModel.backupActivated,
+                                             onToggle: viewModel.toggleBackup))
+            if viewModel.backupActivated {
+                SettingDivider()
+                Button { viewModel.changeFolder() } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        row(title: .localized("Folder location", .module), imageName: "chevron.right")
+                        if let folderName = viewModel.folderDisplayName {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(folderName)
+                                    .dynamicFont(size: 13, textStyle: .body)
+                                    .foregroundStyle(.textWeak)
+                                if let path = viewModel.folderPath {
+                                    Text(path)
+                                        .dynamicFont(size: 11, textStyle: .caption1)
+                                        .foregroundStyle(.textWeak.opacity(0.7))
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                }
+                            }
+                            .padding(.bottom, 8)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var backupSection: some View {
+        if viewModel.showBackup {
+            section("BACKUPS") {
+                ForEach(viewModel.backups) { backup in
+                    Button { viewModel.load(backup: backup) } label: {
+                        row(title: .localized("Backup from \(backup.displayedDate)", .module))
+                    }
+                    .buttonStyle(.plain)
+//
+//                        if backup != viewModel.backups.last {
+//                            Divider()
+//                        }
+                }
+            }
+            VStack {
+                Text("Only the last 5 backups are kept.", bundle: .module)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                if let displayedDate = viewModel.backups.first?.displayedDate {
+                    Text("Last backup: \(displayedDate)", bundle: .module)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
+            .dynamicFont(size: 13, textStyle: .body)
+            .foregroundStyle(.textWeak)
+            .listRowBackground(Color.clear)
+        }
+    }
 }
 
 // MARK: - Utils
 
 private extension BackUpView {
-    func section(_ title: LocalizedStringKey? = nil, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding) {
-            if let title {
-                Text(title, bundle: .module)
-                    .dynamicFont(size: 13, textStyle: .footnote)
-                    .foregroundStyle(.textWeak)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, DesignConstant.padding)
-            }
-
-            LazyVStack(alignment: .leading, spacing: 0) {
+    @ViewBuilder
+    func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            Section(content: {
                 content()
+            }, header: {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                }
+            })
+        } else {
+            VStack(spacing: DesignConstant.padding) {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DesignConstant.padding)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    content()
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(isDarkMode ? .white.opacity(0.08) : .white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .inset(by: 0.5)
+                    .stroke(settingsBorder, lineWidth: 1))
             }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .inset(by: 0.5)
-                .stroke(settingsBorder, lineWidth: 1))
+            .plainListRow()
+            .padding(.horizontal, DesignConstant.padding)
+            .padding(.top, DesignConstant.padding * 2)
         }
-        .plainListRow()
-        .padding(.horizontal, DesignConstant.padding)
-        .padding(.top, DesignConstant.padding * 2)
     }
 
     func row(title: TextContent,
@@ -216,7 +253,6 @@ private extension BackUpView {
             Image(systemName: imageName)
                 .foregroundStyle(.textNorm)
         }
-        .padding(DesignConstant.padding)
         .contentShape(.rect)
     }
 }
@@ -224,3 +260,127 @@ private extension BackUpView {
 #Preview {
     BackUpView()
 }
+
+//
+// .listSectionSpacing(DesignConstant.padding * 2)
+// .navigationBarTitleDisplayMode(.inline)
+// #endif
+// .scrollContentBackground(.hidden)
+// .routingProvided
+// .navigationTitle(Text("Settings", bundle: .module))
+// .task {
+//    await viewModel.setUp()
+// }
+// .toastDisplay()
+// .fullScreenMainBackground()
+// .sheetAlertService()
+// .importingService($showImportOptions, context: .settings)
+// .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+//    viewModel.settingSheet?.destination
+// }
+
+// import SwiftUI
+//
+// struct ContentView: View {
+//    @State private var dialog: Dialog?
+//
+//    var body: some View {
+//        List {
+//            Button("Delete account…") { dialog = .deleteAccount }
+//            Button("Sign out…") { dialog = .signOut }
+//            Button("Discard changes…") { dialog = .discardDraft(id: UUID()) }
+//        }
+//        .con
+//        .confirmationDialog(
+//            dialog?.title ?? "",
+//            isPresented: $dialog.mappedToBool(),
+//            titleVisibility: .visible) { dialog in
+//            dialog.buttons(
+//                onConfirm: { action in
+//                    handle(action)
+//                },
+//                onCancel: {
+//                    // optional: analytics
+//                }
+//            )
+//        } message: { dialog in
+//            Text(dialog.message)
+//        }
+//    }
+//
+//    private func handle(_ action: DialogAction) {
+//        switch action {
+//        case .deleteAccount:
+//            // perform delete
+//            break
+//        case .signOut:
+//            // perform sign out
+//            break
+//        case .discardDraft(let id):
+//            // discard draft for id
+//            break
+//        }
+//    }
+// }
+//
+//// MARK: - Dialog model
+//
+// enum Dialog: Identifiable, Equatable {
+//    case deleteAccount
+//    case signOut
+//    case discardDraft(id: UUID)
+//
+//    // Stable identity per dialog kind (not per UUID) unless you truly need per-entity uniqueness.
+//    var id: String {
+//        switch self {
+//        case .deleteAccount: return "deleteAccount"
+//        case .signOut: return "signOut"
+//        case .discardDraft: return "discardDraft"
+//        }
+//    }
+//
+//    var title: String {
+//        switch self {
+//        case .deleteAccount: return "Delete account"
+//        case .signOut: return "Sign out"
+//        case .discardDraft: return "Discard changes"
+//        }
+//    }
+//
+//    var message: String {
+//        switch self {
+//        case .deleteAccount:
+//            return "This cannot be undone."
+//        case .signOut:
+//            return "You will need to sign in again."
+//        case .discardDraft:
+//            return "Your edits will be lost."
+//        }
+//    }
+//
+//    @ViewBuilder
+//    func buttons(
+//        onConfirm: @escaping (DialogAction) -> Void,
+//        onCancel: @escaping () -> Void
+//    ) -> some View {
+//        switch self {
+//        case .deleteAccount:
+//            Button("Delete", role: .destructive) { onConfirm(.deleteAccount) }
+//            Button("Cancel", role: .cancel) { onCancel() }
+//
+//        case .signOut:
+//            Button("Sign out", role: .destructive) { onConfirm(.signOut) }
+//            Button("Cancel", role: .cancel) { onCancel() }
+//
+//        case .discardDraft(let id):
+//            Button("Discard", role: .destructive) { onConfirm(.discardDraft(id: id)) }
+//            Button("Keep editing", role: .cancel) { onCancel() }
+//        }
+//    }
+// }
+//
+// enum DialogAction: Equatable {
+//    case deleteAccount
+//    case signOut
+//    case discardDraft(id: UUID)
+// }
