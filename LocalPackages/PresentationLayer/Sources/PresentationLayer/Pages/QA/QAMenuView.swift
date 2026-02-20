@@ -31,7 +31,7 @@ struct QAMenuView: View {
         NavigationStack {
             List {
                 onboardingSection
-                fullBackup
+//                fullBackup
                 passBannerSection
                 scannerSection
                 actionsSection
@@ -69,18 +69,18 @@ private extension QAMenuView {
         })
     }
 
-    var fullBackup: some View {
-        Section(content: {
-            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "Document backup section") })
-            if viewModel.fullBackupActivated {
-                Button { viewModel.deleteAll() } label: {
-                    Text(verbatim: "Delete all backups")
-                }
-            }
-        }, header: {
-            Text(verbatim: "Backup options")
-        })
-    }
+//    var fullBackup: some View {
+//        Section(content: {
+//            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "Document backup section") })
+//            if viewModel.fullBackupActivated {
+//                Button { viewModel.deleteAll() } label: {
+//                    Text(verbatim: "Delete all backups")
+//                }
+//            }
+//        }, header: {
+//            Text(verbatim: "Backup options")
+//        })
+//    }
 
     var passBannerSection: some View {
         Section(content: {

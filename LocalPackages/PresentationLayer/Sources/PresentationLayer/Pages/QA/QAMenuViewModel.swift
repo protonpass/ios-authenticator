@@ -60,11 +60,11 @@ final class QAMenuViewModel {
         }
     }
 
-    var fullBackupActivated: Bool {
-        didSet {
-            appSettings.setFullBackup(fullBackupActivated)
-        }
-    }
+//    var fullBackupActivated: Bool {
+//        didSet {
+//            appSettings.setFullBackup(fullBackupActivated)
+//        }
+//    }
 
     var unsupportedScanning: Bool {
         didSet {
@@ -98,7 +98,7 @@ final class QAMenuViewModel {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
-        fullBackupActivated = appSettings.fullBackUp
+//        fullBackupActivated = appSettings.fullBackUp
         unsupportedScanning = appSettings.unsupportedScanning
         loadKeychainContent()
         loadEntryContent()

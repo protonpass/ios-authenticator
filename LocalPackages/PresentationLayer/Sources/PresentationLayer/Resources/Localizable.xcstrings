@@ -977,6 +977,7 @@
       }
     },
     "Back up your data securely with encrypted iCloud sync." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1047,6 +1048,7 @@
       }
     },
     "Backup" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2822,6 +2824,7 @@
       }
     },
     "Data in iCloud" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4046,6 +4049,7 @@
       }
     },
     "Enable iCloud sync" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5284,6 +5288,7 @@
       }
     },
     "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5820,6 +5825,7 @@
       }
     },
     "Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9370,6 +9376,7 @@
       }
     },
     "Proton Authenticator will periodically save all the data to iCloud." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -10400,6 +10407,12 @@
           }
         }
       }
+    },
+    "Set up automatic encrypted backups to a folder of your choice." : {
+
+    },
+    "Set up backups" : {
+
     },
     "Settings" : {
       "localizations" : {

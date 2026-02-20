@@ -98,9 +98,9 @@ private extension DeleteAllDataView {
 
                 deletionLabel("Data on this device")
 
-                if mode.contains(.iCloud) {
-                    deletionLabel("Data in iCloud")
-                }
+//                if mode.contains(.iCloud) {
+//                    deletionLabel("Data in iCloud")
+//                }
 
                 if mode.contains(.proton) {
                     deletionLabel("Data on Proton servers")
