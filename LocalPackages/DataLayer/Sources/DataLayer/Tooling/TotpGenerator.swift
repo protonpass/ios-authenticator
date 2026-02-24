@@ -56,7 +56,7 @@ public actor TotpGenerator: TotpGeneratorProtocol {
 }
 
 extension TotpGenerator: MobileTotpGeneratorCallback {
-    nonisolated public func onCodes(codes: [AuthenticatorCodeResponse]) {
+    nonisolated public func onCodes(codes: [AuthenticatorCodeResponseModel]) {
         currentCodes.send(codes.map(\.toCode))
     }
 }

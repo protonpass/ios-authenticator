@@ -110,7 +110,7 @@ private extension ImportingService {
             log(.warning, "Proton Pass content is empty")
             throw AuthError.importing(.contentIsEmpty)
         }
-        return try importer.importFromPassZip(contents: content)
+        return try importer.importFromPassZip(bytes: content)
     }
 
     func parseLastpass(_ content: TwofaImportFileType) throws -> AuthenticatorImportResult {

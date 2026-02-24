@@ -155,7 +155,7 @@ public extension EntryRepository {
     }
 
     nonisolated func deserialize(serializedData: [Data]) throws -> [Entry] {
-        try rustClient.deserializeEntries(serialized: serializedData).toEntries
+        try rustClient.deserializeEntries(entries: serializedData).toEntries
     }
 
     nonisolated func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code] {
@@ -179,7 +179,7 @@ public extension EntryRepository {
 
         return TotpParams(name: entry.name,
                           secret: params.secret,
-                          issuer: params.issuer,
+                          issuer: params.issuer ?? "",
                           period: Int(params.period),
                           digits: Int(params.digits),
                           algorithm: params.algorithm.toTotpAlgorithm,

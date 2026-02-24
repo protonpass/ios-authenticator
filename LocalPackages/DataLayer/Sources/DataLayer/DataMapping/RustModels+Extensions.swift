@@ -83,13 +83,13 @@ extension TotpType {
     }
 }
 
-extension [AuthenticatorCodeResponse] {
+extension [AuthenticatorCodeResponseModel] {
     var toCodes: [Code] {
         map(\.toCode)
     }
 }
 
-extension AuthenticatorCodeResponse {
+extension AuthenticatorCodeResponseModel {
     var toCode: Code {
         Code(current: currentCode, next: nextCode, entry: entry.toEntry)
     }
@@ -124,7 +124,7 @@ extension TotpParams {
 }
 
 extension TotpAlgorithm {
-    var toAuthenticatorTotpAlgorithm: AuthenticatorTotpAlgorithm {
+    var toAuthenticatorTotpAlgorithm: Algorithm {
         switch self {
         case .sha1:
             .sha1
@@ -136,7 +136,7 @@ extension TotpAlgorithm {
     }
 }
 
-extension AuthenticatorTotpAlgorithm {
+extension Algorithm {
     var toTotpAlgorithm: TotpAlgorithm {
         switch self {
         case .sha1:
