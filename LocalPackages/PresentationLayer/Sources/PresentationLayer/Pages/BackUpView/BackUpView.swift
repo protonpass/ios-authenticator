@@ -153,11 +153,11 @@ private extension BackUpView {
                         row(title: .localized("Folder location", .module), imageName: "chevron.right")
                         if let folderName = viewModel.folderDisplayName {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(folderName)
+                                Text(verbatim: folderName) // ignore:missing_bundle
                                     .dynamicFont(size: 13, textStyle: .body)
                                     .foregroundStyle(.textWeak)
                                 if let path = viewModel.folderPath {
-                                    Text(path)
+                                    Text(verbatim: path) // ignore:missing_bundle
                                         .dynamicFont(size: 11, textStyle: .caption1)
                                         .foregroundStyle(.textWeak.opacity(0.7))
                                         .lineLimit(1)
