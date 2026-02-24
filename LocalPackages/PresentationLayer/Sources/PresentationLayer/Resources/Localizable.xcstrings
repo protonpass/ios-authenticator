@@ -976,148 +976,6 @@
         }
       }
     },
-    "Back up your data securely with encrypted iCloud sync." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sichere deine Daten zuverlässig mit verschlüsselter iCloud-Synchronisierung."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back up your data securely with encrypted iCloud sync."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haz una copia de seguridad de tus datos de forma segura con la sincronización cifrada de iCloud."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Realice una copia de seguridad de sus datos con la sincronización cifrada de iCloud."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegardez vos données en toute sécurité grâce à la synchronisation iCloud chiffrée."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui il backup dei tuoi dati in modo sicuro con la sincronizzazione iCloud crittografata."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maak veilig een back-up van uw gegevens met versleutelde iCloud-synchronisatie."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bezpiecznie utwórz kopię zapasową swoich danych dzięki zaszyfrowanej synchronizacji iCloud."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faça backup dos seus dados com segurança usando a sincronização criptografada do iCloud."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Надежно резервируйте свои данные с помощью зашифрованной синхронизации iCloud."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verilerinizi şifrelenmiş iCloud eşitlemesi ile güvenli olarak yedekleyin."
-          }
-        }
-      }
-    },
-    "Backup" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sicherung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copia de seguridad"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copia de seguridad"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegarde"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back-up"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kopia zapasowa"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Резервное копирование"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yedekleme"
-          }
-        }
-      }
-    },
     "Backup data protection" : {
       "localizations" : {
         "de" : {
@@ -1433,7 +1291,14 @@
       }
     },
     "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app."
+          }
+        }
+      }
     },
     "Biometric lock" : {
       "localizations" : {
@@ -1926,10 +1791,24 @@
       }
     },
     "Choose backup destination" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose backup destination"
+          }
+        }
+      }
     },
     "Choose folder" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose folder"
+          }
+        }
+      }
     },
     "Choose one or more Photos" : {
       "localizations" : {
@@ -2819,71 +2698,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Koyu"
-          }
-        }
-      }
-    },
-    "Data in iCloud" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daten bei iCloud"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data in iCloud"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datos en iCloud"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datos en iCloud"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Données dans iCloud"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dati su iCloud"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gegevens in iCloud"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dane w iCloud"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dados no iCloud"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud üzerindeki veriler"
           }
         }
       }
@@ -4044,77 +3858,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Face ID özelliğini aç"
-          }
-        }
-      }
-    },
-    "Enable iCloud sync" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud-Synchronisierung aktivieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enable iCloud sync"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar la sincronización con iCloud"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar sincronización de iCloud"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer la synchronisation iCloud"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abilita sincronizzazione iCloud"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud-synchronisatie inschakelen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Włącz synchronizację iCloud"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ativar sincronização do iCloud"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Включить синхронизацию iCloud"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud eşitlemesini aç"
           }
         }
       }
@@ -5287,65 +5030,6 @@
         }
       }
     },
-    "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn es Probleme mit der iCloud- Synchronisation gibt, versuche, die iCloud Passwörter und Schlüsselbund aus- und wieder einzuschalten."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si tienes problemas con la sincronización de iCloud, prueba a desactivar y volver a activar las Contraseñas y Llavero de iCloud."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si tiene problemas con la sincronización de iCloud, intente desactivar Contraseñas de Apple y Keychain y luego habilítelos nuevamente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si vous rencontrez des problèmes de synchronisation avec iCloud, essayez de désactiver puis de réactiver iCloud Passwords & Keychain."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se hai problemi nel sincronizzare con iCloud, prova a disattivare e riattivare iCloud Password e Portachiavi."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Als u problemen ondervindt met de iCloud-synchronisatie, schakel dan iCloud-wachtwoorden en -sleutelhanger uit en weer in."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Caso encontre problemas de sincronização do iCloud, tente desligar o iCloud Passwords & Keychain e ligá-lo novamente."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud ile eşitleme sorunları yaşıyorsanız, iCloud Parolalar ve Anahtar Zinciri özelliğini kapatıp yeniden açmayı deneyin."
-          }
-        }
-      }
-    },
     "Import" : {
       "localizations" : {
         "de" : {
@@ -5820,65 +5504,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proton Pass eklentisinde, internet veya bilgisayar uygulamasında, **☰ > Ayarlar > Dışa aktar** bölümüne gidin"
-          }
-        }
-      }
-    },
-    "Information" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informationen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Information"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Información"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Información"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Information"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informazioni"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informatie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informação"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilgiler"
           }
         }
       }
@@ -9375,77 +9000,6 @@
         }
       }
     },
-    "Proton Authenticator will periodically save all the data to iCloud." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator speichert alle Daten regelmäßig in iCloud."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator will periodically save all the data to iCloud."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator guardará periódicamente todos los datos en iCloud."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator guardará periódicamente todos los datos en iCloud."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator enregistrera périodiquement toutes les données sur iCloud."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator salverà periodicamente tutti i dati su iCloud."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator slaat periodiek alle gegevens op in iCloud."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator będzie okresowo zapisywać wszystkie dane w iCloud."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O Proton Authenticator salvará todos os dados no iCloud periodicamente."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator будет периодически сохранять все данные в iCloud."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proton Authenticator, tüm verileri düzenli olarak iCloud üzerine kaydedecek."
-          }
-        }
-      }
-    },
     "Report an issue" : {
       "localizations" : {
         "de" : {
@@ -10409,10 +9963,24 @@
       }
     },
     "Set up automatic encrypted backups to a folder of your choice." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up automatic encrypted backups to a folder of your choice."
+          }
+        }
+      }
     },
     "Set up backups" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up backups"
+          }
+        }
+      }
     },
     "Settings" : {
       "localizations" : {
@@ -10485,7 +10053,14 @@
       }
     },
     "SETUP" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SETUP"
+          }
+        }
+      }
     },
     "Several images could not be processed. See logs for more details." : {
       "localizations" : {
@@ -12458,7 +12033,14 @@
       }
     },
     "Use default folder" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use default folder"
+          }
+        }
+      }
     },
     "Use two-factor authentication to safeguard your accounts." : {
       "localizations" : {
