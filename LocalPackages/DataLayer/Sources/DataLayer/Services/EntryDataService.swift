@@ -27,10 +27,13 @@ import Models
 import ProtonCoreNetworking
 import ProtonCoreServices
 
+// swiftlint:disable file_length
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
     var hasNonDecryptableEntries: Bool { get }
+    var hasDuplicateEntries: Bool { get }
+    var duplicateGroups: [DuplicateEntryGroup] { get }
 
     func getEntry(from uri: String) async throws -> Entry
     func insertAndRefreshEntry(from uri: String) async throws
@@ -55,6 +58,9 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func startTotpGenerator()
 
     func unsyncAllEntries() async throws
+
+    func loadDuplicateGroups() async
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws
 }
 
 public extension EntryDataServiceProtocol {
@@ -84,6 +90,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
     public private(set) var hasNonDecryptableEntries = false
+    public private(set) var hasDuplicateEntries = false
+    public private(set) var duplicateGroups: [DuplicateEntryGroup] = []
 
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
@@ -229,12 +237,14 @@ public extension EntryDataService {
 
     func loadEntries() async throws {
         log(.debug, "Loading entries")
+        hasDuplicateEntries = false
         do {
             if Task.isCancelled { return }
-            let entriesStates = try await repository.getAllLocalEntries()
+            let result = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
-            let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
-            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
+            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
+            hasNonDecryptableEntries = result.entries.containsNonDecryptedEntries
+            hasDuplicateEntries = result.duplicateCount > 0
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
         } catch {
@@ -252,13 +262,16 @@ public extension EntryDataService {
 
     func fullRefresh() async throws {
         log(.debug, "Full BE refresh")
+        hasDuplicateEntries = false
         do {
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
 
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
             if Task.isCancelled { return }
-            let entriesStates = try await repository.getAllLocalEntries()
+            let localResult = try await repository.getAllLocalEntries()
+            let entriesStates = localResult.entries
             hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
+            hasDuplicateEntries = localResult.duplicateCount > 0
 
             _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
@@ -287,14 +300,27 @@ public extension EntryDataService {
         log(.debug, "Unsyncing all entries")
         do {
             try await repository.unsyncAllEntries()
-            let entriesStates = try await repository.getAllLocalEntries()
-
-            let entries = try await generateUIEntries(from: entriesStates.decodedEntries)
+            let result = try await repository.getAllLocalEntries()
+            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
             updateData(entries)
         } catch {
             log(.error, "Failed to unsync all entries: \(error.localizedDescription)")
             throw error
         }
+    }
+
+    func loadDuplicateGroups() async {
+        do {
+            duplicateGroups = try await repository.getDuplicateEntryGroups()
+            hasDuplicateEntries = !duplicateGroups.isEmpty
+        } catch {
+            log(.error, "Failed to load duplicate groups: \(error.localizedDescription)")
+        }
+    }
+
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {
+        try await repository.deleteLocalDuplicate(entryId: entryId, modifiedTime: modifiedTime)
+        await loadDuplicateGroups()
     }
 
     func deleteAllEntries() async throws {
@@ -331,9 +357,6 @@ public extension EntryDataService {
         guard settings.documentBackup else { return }
 
         do {
-            if let bookmarkData = settings.backupFolderBookmark {
-                _ = try backUpManager.resolveDestinationFolder(from: bookmarkData)
-            }
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
                                                            isSynced: false)
             if let exportData = try exportEntries(password: password).data(using: .utf8) {
@@ -592,7 +615,8 @@ private extension EntryDataService {
         async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
         async let localEntriesFetch = repository.getAllLocalEntries()
 
-        let (remoteEntries, localEntries) = try await (remoteOrderedEntries, localEntriesFetch)
+        let (remoteEntries, localResult) = try await (remoteOrderedEntries, localEntriesFetch)
+        let localEntries = localResult.entries
 
         guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
             return localEntries.decodedEntries
@@ -689,3 +713,5 @@ extension [OrderedEntry] {
         self.first { $0.entry.id == entryId }
     }
 }
+
+// swiftlint:enable file_length

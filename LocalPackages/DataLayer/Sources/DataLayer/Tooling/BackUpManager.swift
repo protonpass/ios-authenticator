@@ -168,10 +168,11 @@ public final class BackUpManager: BackUpServicing {
             return
         }
 
-        if let filesAppURL = URL(string: "shareddocuments://\(documentURL.path)") {
-            if UIApplication.shared.canOpenURL(filesAppURL) {
-                UIApplication.shared.open(filesAppURL)
-            }
+        var components = URLComponents()
+        components.scheme = "shareddocuments"
+        components.path = documentURL.path
+        if let filesAppURL = components.url, UIApplication.shared.canOpenURL(filesAppURL) {
+            UIApplication.shared.open(filesAppURL)
         }
     }
 
@@ -322,25 +323,33 @@ private extension BackUpManager {
 
 private extension Date {
     var formattedBackupDate: String {
-        let formatter = DateFormatter()
         let calendar = Calendar.current
-        let isToday = calendar.isDateInToday(self)
-        let isYesterday = calendar.isDateInYesterday(self)
-
-        if isToday || isYesterday {
-            formatter.doesRelativeDateFormatting = true
-            formatter.dateStyle = .short
-            formatter.timeStyle = .short
-
-            return formatter.string(from: self)
+        let formatter = DateFormatter()
+        if calendar.isDateInToday(self) || calendar.isDateInYesterday(self) {
+            return formatter.relativeFormatter.string(from: self)
+        } else if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
+            return formatter.sameYearFormatter.string(from: self)
         } else {
-            formatter.doesRelativeDateFormatting = false
-            if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
-                formatter.setLocalizedDateFormatFromTemplate("MMM d, HH:mm")
-            } else {
-                formatter.setLocalizedDateFormatFromTemplate("MMM d yyyy, HH:mm")
-            }
-            return formatter.string(from: self)
+            return formatter.otherYearFormatter.string(from: self)
         }
+    }
+}
+
+private extension DateFormatter {
+    var relativeFormatter: DateFormatter {
+        doesRelativeDateFormatting = true
+        dateStyle = .short
+        timeStyle = .short
+        return self
+    }
+
+    var sameYearFormatter: DateFormatter {
+        setLocalizedDateFormatFromTemplate("MMM d, HH:mm")
+        return self
+    }
+
+    var otherYearFormatter: DateFormatter {
+        setLocalizedDateFormatFromTemplate("MMM d yyyy, HH:mm")
+        return self
     }
 }

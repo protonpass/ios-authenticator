@@ -41,6 +41,7 @@ final class MockSettingsService: SettingsServicing {
     var fullBackUp = false
     var unsupportedScanning = false
     var sortOption = SortOption.default
+    var duplicateAlertShown = false
 
     func setFirstRun(_ value: Bool) { isFirstRun = value }
     func setTheme(_ value: Theme) { theme = value }
@@ -65,4 +66,7 @@ final class MockSettingsService: SettingsServicing {
     func setFullBackup(_ value: Bool) { fullBackUp = value }
     func setUnsupportedScanning(_ value: Bool) { unsupportedScanning = value }
     func setSortOption(_ value: SortOption) { sortOption = value }
+    func setDuplicateAlertShown(_ value: Bool) {
+        duplicateAlertShown = value
+    }
 }

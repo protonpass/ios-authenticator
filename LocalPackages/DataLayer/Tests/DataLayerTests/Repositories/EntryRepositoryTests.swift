@@ -191,7 +191,7 @@ struct EntryRepositoryTests {
        
         try await sut.localUpsert(entry)
         
-        var entries = try await sut.getAllLocalEntries().decodedEntries
+        var entries = try await sut.getAllLocalEntries().entries.decodedEntries
 
         // Assert
         #expect(entries.count == 1)
@@ -210,7 +210,7 @@ struct EntryRepositoryTests {
                                   keyId: localKeyId)
        
         try await sut.localUpsert(entry2)
-        entries = try await sut.getAllLocalEntries().decodedEntries
+        entries = try await sut.getAllLocalEntries().entries.decodedEntries
 
         // Assert
         #expect(entries.count == 2)
@@ -257,7 +257,7 @@ struct EntryRepositoryTests {
         
         try await sut.localUpsert(entries)
         
-        let fetchedEntries = try await sut.getAllLocalEntries()
+        let fetchedEntries = try await sut.getAllLocalEntries().entries
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -304,7 +304,7 @@ struct EntryRepositoryTests {
         try await sut.localUpsert(entries)
         try await sut.localRemoveAll()
         
-        let fetchedEntries = try await sut.getAllLocalEntries()
+        let fetchedEntries = try await sut.getAllLocalEntries().entries
 
         // Assert
         #expect(fetchedEntries.count == 0)
@@ -351,14 +351,14 @@ struct EntryRepositoryTests {
         try await sut.localUpsert(entries)
         try await sut.localRemoves([entries.first!.entry.id])
         
-        var fetchedEntries = try await sut.getAllLocalEntries()
+        var fetchedEntries = try await sut.getAllLocalEntries().entries
 
         // Assert
         #expect(fetchedEntries.count == 2)
-        
+
         try await sut.localRemoves(["id2"])
-        
-         fetchedEntries = try await sut.getAllLocalEntries()
+
+         fetchedEntries = try await sut.getAllLocalEntries().entries
 
         // Assert
         #expect(fetchedEntries.count == 1)
@@ -417,7 +417,7 @@ struct EntryRepositoryTests {
 
        _ = try await sut.localUpdate(newEntry1)
         
-        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -519,7 +519,7 @@ struct EntryRepositoryTests {
         
         try await sut.localUpsert(entries)
         
-        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
 
         // Assert
         #expect(fetchedEntries.first?.entry.id == "id0")
@@ -528,7 +528,7 @@ struct EntryRepositoryTests {
         
         try await sut.localReorder(reorderEntries)
         
-        let reorderedfetchedEntries = try await sut.getAllLocalEntries().decodedEntries
+        let reorderedfetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
         
         #expect(reorderedfetchedEntries.first?.entry.id == "id3")
 

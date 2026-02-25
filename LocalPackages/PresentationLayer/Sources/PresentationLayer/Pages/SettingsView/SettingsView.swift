@@ -91,6 +91,7 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
+            .animation(.default, value: viewModel.hasDuplicateEntries)
             .settingsListStyle()
             #if os(iOS)
                 .toolbar {
@@ -339,6 +340,14 @@ private extension SettingsView {
 
             Button { showExportAlert.toggle() } label: {
                 SettingRow(title: .localized("Export", .module))
+            }
+
+            if viewModel.hasDuplicateEntries {
+                SettingDivider()
+                SettingRow(title: .localized("Manage duplicate entries", .module),
+                           trailingMode: .detailChevronRight) {
+                    router.navigate(to: .duplicates)
+                }
             }
         }
     }

@@ -83,11 +83,11 @@ private extension LogsViewModel {
         do {
             var extraInfos = [String: String]()
             if let content = try? await entryRepository.getAllLocalEntries() {
-                let nonDecryptableEntries = content.filter(\.isNonDecryptable)
+                let nonDecryptableEntries = content.entries.filter(\.isNonDecryptable)
                 let nonDecryptableEntriesCount = nonDecryptableEntries.count
                 let nonDecryptableByKey = Dictionary(grouping: nonDecryptableEntries, by: { $0.encryptionKeyId })
 
-                let decryptableEntries = content.count(where: { !$0.isNonDecryptable })
+                let decryptableEntries = content.entries.count(where: { !$0.isNonDecryptable })
                 extraInfos["Number of non decryptable entries"] = "\(nonDecryptableEntriesCount)"
                 extraInfos["Number of decryptable entries"] = "\(decryptableEntries)"
                 for (key, value) in nonDecryptableByKey where !key.isEmpty {

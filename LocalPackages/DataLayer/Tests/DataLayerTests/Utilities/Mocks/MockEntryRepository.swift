@@ -103,9 +103,15 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
     }
 
     @MainActor
-    func getAllLocalEntries() async throws -> [EntryState] {
-        allLocalEntries
+    func getAllLocalEntries() async throws -> (entries: [EntryState], duplicateCount: Int) {
+        (allLocalEntries, 0)
     }
+
+    @MainActor
+    func getDuplicateEntryGroups() async throws -> [DuplicateEntryGroup] { [] }
+
+    @MainActor
+    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {}
 
     @MainActor
     func localUpsert(_ entries: [OrderedEntry]) async throws {}

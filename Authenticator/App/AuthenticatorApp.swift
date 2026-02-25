@@ -236,17 +236,18 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     func migrateFromICloudIfNeeded() {
         guard appSettings.iCloudSync else { return }
         appSettings.toggleICloudSync(false)
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             await localDataManager.refreshLocalStorage()
+            // swiftlint:disable line_length
+            let config = AlertConfiguration(title: "Backups have changed",
+                                            titleBundle: .main,
+                                            message: .localized("iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up.",
+                                                                .main),
+                                            actions: [.ok])
+            // swiftlint:enable line_length
+            alertService.showAlert(.main(config))
         }
-        // swiftlint:disable line_length
-        let config = AlertConfiguration(title: "Backups have changed",
-                                        titleBundle: .main,
-                                        message: .localized("iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up.",
-                                                            .main),
-                                        actions: [.ok])
-        // swiftlint:enable line_length
-        alertService.showAlert(.main(config))
     }
 
     func resetBiometricCheck() {

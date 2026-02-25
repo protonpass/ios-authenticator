@@ -21,8 +21,13 @@
 
 import DataLayer
 import Models
+import Foundation
 
 final class MockedEntryDataService: EntryDataServiceProtocol {
+    var hasDuplicateEntries: Bool = false
+    
+    var duplicateGroups: [DuplicateEntryGroup] = []
+    
     var hasNonDecryptableEntries: Bool = false
     
     init() {}
@@ -87,4 +92,9 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
     }
 
     func backUpEntries() {}
+    
+    func loadDuplicateGroups() async {
+    }
+    
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {}
 }

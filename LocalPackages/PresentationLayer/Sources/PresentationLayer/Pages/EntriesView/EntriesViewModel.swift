@@ -141,24 +141,6 @@ final class EntriesViewModel: ObservableObject {
     private(set) var deleteTask: Task<Void, Never>?
 
     init() {
-        // iCloud sync notification — disabled during migration to local folder backup
-//        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] notification in
-//                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-//                guard let self,
-//                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-//                      event.endDate != nil, event.type == .import
-//                else { return }
-//                logger.log(.debug,
-//                           category: .ui,
-//                           "Received notification of updates from iCloud Database",
-//                           function: #function,
-//                           line: #line)
-//                loadEntries()
-//            }
-//            .store(in: &cancellables)
-
         searchTextStream
             .dropFirst()
             .removeDuplicates()
@@ -243,7 +225,11 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                refreshInAppMessage()
+                if entryDataService.hasDuplicateEntries {
+                    showDuplicateEntriesAlert()
+                } else {
+                    settingsService.setDuplicateAlertShown(false)
+                }
             } catch {
                 handle(error)
             }
@@ -274,7 +260,11 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                refreshInAppMessage()
+                if entryDataService.hasDuplicateEntries {
+                    showDuplicateEntriesAlert()
+                } else {
+                    settingsService.setDuplicateAlertShown(false)
+                }
             } catch {
                 handle(error)
             }
@@ -384,15 +374,18 @@ private extension EntriesViewModel {
         }
     }
 
-    func refreshInAppMessage() {
-        // iCloud sync warning removed — backup is now folder-based
-//        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
-//               inAppService.show(InAppMessage(id: "iCloudSyncWarning",
-//                                              title: #localized("Information", bundle: .module),
-//                                              body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
-//                                                               bundle: .module),
-//                                              urlString: AppConstants.CommonUrls.iCloudSyncInfos))
-//           }
+    func refreshInAppMessage() {}
+
+    func showDuplicateEntriesAlert() {
+        guard !settingsService.duplicateAlertShown else { return }
+        settingsService.setDuplicateAlertShown(true)
+        // swiftlint:disable line_length
+        alertService.showAlert(.main(.init(title: "Duplicate entries detected",
+                                           titleBundle: .module,
+                                           message: .localized("Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\".",
+                                                               .module),
+                                           actions: [.ok])))
+        // swiftlint:enable line_length
     }
 }
 

@@ -25,6 +25,7 @@ import Foundation
 import Models
 
 final class MockedSettingsService: SettingsServicing {
+
     
     init() {}
 
@@ -43,6 +44,7 @@ final class MockedSettingsService: SettingsServicing {
     var fullBackUp = false
     var unsupportedScanning = false
     var sortOption = SortOption.default
+    var duplicateAlertShown = false
 
 
     func setFirstRun(_ value: Bool) {
@@ -117,5 +119,9 @@ final class MockedSettingsService: SettingsServicing {
 
     func setSortOption(_ value: SortOption) {
         sortOption = value
+    }
+    
+    func setDuplicateAlertShown(_ value: Bool) {
+        duplicateAlertShown = value
     }
 }

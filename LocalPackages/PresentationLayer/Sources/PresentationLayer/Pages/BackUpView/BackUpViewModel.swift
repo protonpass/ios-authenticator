@@ -102,7 +102,8 @@ final class BackUpViewModel {
     }
 
     func load(backup: BackUpFileInfo) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             var content = ""
             defer { loading = false }
             do {
@@ -122,7 +123,8 @@ final class BackUpViewModel {
     }
 
     func loadPasswordProtectedBackup(backup: PasswordProtectedBackup) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             defer {
                 loading = false
                 password = ""
@@ -148,6 +150,8 @@ final class BackUpViewModel {
             await authenticateAndPerform {
                 if backupActivated {
                     settingsService.toggleDocumentBackup(false)
+                    try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
+                                                isSynced: false)
                     backUpManager.clearDestinationFolder()
                     backupActivated = false
                     backups = []
@@ -205,7 +209,9 @@ final class BackUpViewModel {
             let bookmarkData = try folderURL.bookmarkData(options: [],
                                                           includingResourceValuesForKeys: nil,
                                                           relativeTo: nil)
-            settingsService.setBackupFolderBookmark(bookmarkData)
+            try keychainService.set(bookmarkData,
+                                    for: AppConstants.Settings.backupFolderBookmark,
+                                    shouldSync: false)
             backUpManager.setDestinationFolder(folderURL)
             settingsService.toggleDocumentBackup(true)
             backupActivated = true
@@ -240,7 +246,9 @@ final class BackUpViewModel {
                 let bookmarkData = try url.bookmarkData(options: .minimalBookmark,
                                                         includingResourceValuesForKeys: nil,
                                                         relativeTo: nil)
-                settingsService.setBackupFolderBookmark(bookmarkData)
+                try keychainService.set(bookmarkData,
+                                        for: AppConstants.Settings.backupFolderBookmark,
+                                        shouldSync: false)
                 backUpManager.setDestinationFolder(url)
                 settingsService.toggleDocumentBackup(true)
                 backupActivated = true
@@ -268,15 +276,25 @@ private extension BackUpViewModel {
 
     func setUp() {
         backupActivated = settingsService.documentBackup
-        if backupActivated, let bookmarkData = settingsService.backupFolderBookmark {
-            do {
-                let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
-                updateFolderDisplay(from: url)
-            } catch {
-                log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
-                settingsService.toggleDocumentBackup(false)
-                backupActivated = false
-            }
+        guard backupActivated else { return }
+
+        // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade
+        if let legacyData = settingsService.backupFolderBookmark {
+            try? keychainService.set(legacyData,
+                                     for: AppConstants.Settings.backupFolderBookmark,
+                                     shouldSync: false)
+            settingsService.setBackupFolderBookmark(nil)
+        }
+
+        do {
+            let bookmarkData: Data = try keychainService.get(keyId: AppConstants.Settings.backupFolderBookmark,
+                                                             isSynced: false)
+            let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+            updateFolderDisplay(from: url)
+        } catch {
+            log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
+            settingsService.toggleDocumentBackup(false)
+            backupActivated = false
         }
     }
 

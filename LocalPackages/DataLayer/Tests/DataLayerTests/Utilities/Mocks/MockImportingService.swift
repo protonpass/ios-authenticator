@@ -21,7 +21,8 @@
 import DataLayer
 import Models
 
-final class MockImportingService: @unchecked Sendable, ImportingServicing {
+@MainActor
+final class MockImportingService: @preconcurrency ImportingServicing {
     var result: ImportResult = .empty
 
     func importEntries(from sources: [TwofaImportSource]) throws -> ImportResult {

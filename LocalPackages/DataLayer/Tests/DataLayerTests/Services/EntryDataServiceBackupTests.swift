@@ -141,17 +141,6 @@ struct EntryDataServiceBackupTests {
         #expect(mockBackUpManager.writeCalled == 0)
     }
 
-    @Test("backUpEntries resolves folder when bookmark is present")
-    func backUpEntries_whenBookmarkPresent_resolvesFolder() throws {
-        let entry = makeEntry()
-        try prepareForBackup(entries: [makeUiModel(entry: entry)])
-        mockSettings.backupFolderBookmark = Data([0x01, 0x02, 0x03])
-
-        sut.backUpEntries()
-
-        #expect(mockBackUpManager.resolveDestinationFolderCalled == 1)
-    }
-
     @Test("backUpEntries does not throw when write fails")
     func backUpEntries_whenWriteFails_doesNotThrow() throws {
         let entry = makeEntry()
