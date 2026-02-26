@@ -555,12 +555,12 @@ private extension EntryDataService {
 
     func updateCodes(newCodes: [Code]) {
         guard let entries = dataState.data else { return }
-        let entryUiModels = newCodes.compactMap { newCode -> EntryUiModel? in
-            guard let entry = entries.first(where: { $0.id == newCode.entry.id }) else { return nil }
+        let codesByEntryId = Dictionary(uniqueKeysWithValues: newCodes.map { ($0.entry.id, $0) })
+        let updated = entries.map { entry -> EntryUiModel in
+            guard let newCode = codesByEntryId[entry.id] else { return entry }
             return entry.updateCode(newCode)
         }
-
-        dataState = .loaded(entryUiModels)
+        dataState = .loaded(updated)
     }
 
     func syncOperation(remoteOrderedEntries: [OrderedEntry], entriesStates: [EntryState]) async throws -> Bool {

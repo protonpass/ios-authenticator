@@ -328,10 +328,11 @@ public extension EntryRepository {
                 }
             }
 
-            let infos: [DuplicateEntryInfo] = entities.enumerated().map { index, entity in
+            let infos: [DuplicateEntryInfo] = zip(entities, decryptedStates).enumerated().map { index, pair in
+                let (entity, state) = pair
                 var name = groupDisplayName
                 var issuer = groupIssuer
-                if case let .decrypted(orderedEntry) = decryptedStates[index] {
+                if case let .decrypted(orderedEntry) = state {
                     name = orderedEntry.entry.name
                     issuer = orderedEntry.entry.issuer
                 }
@@ -485,8 +486,8 @@ public extension EntryRepository {
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
                 idsToFetch.contains(entity.id)
             }
-            let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
-                .fetch(predicate: predicate)) ?? []
+            let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+                .fetch(predicate: predicate)
 
             log(.debug, "Found \(encryptedEntries.count) local entries for order update")
 
@@ -746,6 +747,10 @@ public extension EntryRepository {
         log(.debug, "Fetching entries from remote")
 
         do {
+            let allLocalEntities: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
+                .fetch(predicate: nil)) ?? []
+            let localIdSet = Set(allLocalEntities.map(\.id))
+
             var sinceLastToken: String?
 
             var entries: [OrderedEntry] = []
@@ -768,12 +773,7 @@ public extension EntryRepository {
                         continue
                     }
 
-                    var syncState = EntrySyncState.unsynced
-                    let entityId = decryptedEntry.id
-                    if try await localDataManager.persistentStorage
-                        .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
-                        syncState = .synced
-                    }
+                    let syncState: EntrySyncState = localIdSet.contains(decryptedEntry.id) ? .synced : .unsynced
 
                     let orderedEntry = OrderedEntry(entry: decryptedEntry,
                                                     keyId: encryptedEntry.authenticatorKeyID,

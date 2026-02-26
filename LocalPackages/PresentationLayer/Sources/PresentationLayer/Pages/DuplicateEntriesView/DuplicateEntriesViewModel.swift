@@ -36,12 +36,13 @@ final class DuplicateEntriesViewModel {
     @LazyInjected(\ToolsContainer.logManager)
     private var logger
 
-    var dateFormatter: DateFormatter {
-        let formater = DateFormatter()
-        formater.dateStyle = .medium
-        formater.timeStyle = .short
-        return formater
-    }
+    @ObservationIgnored
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 
     func loadGroups() async {
         loading = true

@@ -142,7 +142,7 @@ public struct EntriesView: View {
                     }
                 }
                 .onChange(of: searchFieldFocus) { _, focused in
-                    if !focused, ProcessInfo().isiOSAppOnMac {
+                    if !focused, ProcessInfo.processInfo.isiOSAppOnMac {
                         searchEnabled = false
                     }
                 }
@@ -169,7 +169,8 @@ public struct EntriesView: View {
                     guard newValue, viewModel.focusSearchOnLaunch else {
                         return
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(200))
                         searchFieldFocus = true
                     }
                 }
@@ -356,7 +357,7 @@ private extension EntriesView {
                 EntryOptions(entry: entry, onAction: handle(_:))
             }
             .onHover { over in
-                if ProcessInfo().isiOSAppOnMac {
+                if ProcessInfo.processInfo.isiOSAppOnMac {
                     if over {
                         hoveringEntry = entry
                     } else if hoveringEntry == entry {
