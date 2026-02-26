@@ -30,7 +30,7 @@ enum MockKeychainError: Error {
     case typeMismatch
 }
 
-@Suite(.tags(.repository))
+@Suite(.serialized, .tags(.repository))
 struct EntryRepositoryTests {
     let sut: EntryRepositoryProtocol
     let encryptionService: any EncryptionServicing
