@@ -93,7 +93,6 @@ struct CreateEditEntryView: View {
                 }
                 .onSubmit(focusNextField)
             }
-            .showSpinner(viewModel.saving)
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
             .errorMessageAlert($viewModel.errorMessage)
@@ -107,10 +106,9 @@ struct CreateEditEntryView: View {
                 .animation(.default, value: viewModel.type)
                 .animation(.default, value: showAdvanceOptions)
                 .fullScreenMainBackground()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        focusFirstField()
-                    }
+                .task {
+                    try? await Task.sleep(for: .milliseconds(200))
+                    focusFirstField()
                 }
                 .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
@@ -124,6 +122,7 @@ struct CreateEditEntryView: View {
                 .onChange(of: focusedField) { _, _ in
                     viewModel.trimInputs()
                 }
+                .showSpinner(viewModel.saving)
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)

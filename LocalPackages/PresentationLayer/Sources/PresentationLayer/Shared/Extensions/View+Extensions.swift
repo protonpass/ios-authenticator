@@ -197,3 +197,18 @@ extension View {
         }
     }
 }
+
+extension View {
+    @ViewBuilder
+    func asciiCapableKeyboard() -> some View {
+        #if os(iOS)
+        if AppConstants.isMobile {
+            keyboardType(.asciiCapable)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+}

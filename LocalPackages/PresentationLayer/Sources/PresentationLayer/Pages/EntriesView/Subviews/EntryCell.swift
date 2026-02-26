@@ -213,11 +213,11 @@ private extension EntryCell {
                 }
             }
             .contentShape(.rect)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
             .simultaneousGesture(TapGesture().onEnded {
                 onAction(.copyCurrentCode(entry))
             })
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
 
             Group {
                 if #available(iOS 26, macOS 26, *) {

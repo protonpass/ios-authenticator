@@ -19,7 +19,6 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 //
 
-// swiftlint:disable file_length
 import AVFoundation
 import CommonUtilities
 import DataLayer
@@ -59,7 +58,6 @@ enum EntryAction: Sendable, Equatable, Hashable {
 
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel = EntriesViewModel()
     @State private var router = Router()
@@ -100,11 +98,14 @@ public struct EntriesView: View {
                     if searchBarAlignment == .bottom,
                        !viewModel.noEntries,
                        #unavailable(iOS 26, macOS 26) {
-                        actionBar
+                        EntriesActionBar(query: $viewModel.query,
+                                         cleanSearch: viewModel.cleanSearch,
+                                         searchFieldFocus: $searchFieldFocus,
+                                         onAddNewCode: handleAddNewCode)
                     } else if searchBarAlignment == .top, !viewModel.entries.isEmpty {
                         HStack {
                             Spacer()
-                            addButton(size: 64)
+                            AddEntryButton(size: 44, action: handleAddNewCode)
                                 .padding(.trailing, DesignConstant.padding * 2)
                                 .padding(.bottom, DesignConstant.padding)
                                 .shadow(color: Color(red: 0.6, green: 0.37, blue: 1).opacity(0.25),
@@ -154,9 +155,21 @@ public struct EntriesView: View {
                 .fullScreenDestination($router.presentedFullscreenSheet)
             #endif
                 .environment(router)
-                .toolbar { toolbarContent }
+                .toolbar {
+                    EntriesToolbarContent(sortOption: viewModel.sortOption,
+                                          setSortOption: viewModel.settingsService.setSortOption,
+                                          presentedSheet: $router.presentedSheet,
+                                          searchBarAlignment: searchBarAlignment,
+                                          noEntries: viewModel.noEntries,
+                                          handleAddNewCode: handleAddNewCode)
+                }
                 .overlay {
-                    overlay
+                    EntriesEmptyStateView(dataState: viewModel.dataState,
+                                          query: viewModel.query,
+                                          entriesEmpty: viewModel.entries.isEmpty,
+                                          handleAddNewCode: handleAddNewCode,
+                                          showImportOptions: $showImportOptions,
+                                          reloadData: viewModel.reloadData)
                 }
                 .showSpinner(viewModel.deleteTask != nil)
                 .onChange(of: router.presentedFullscreenSheet) { _, newValue in
@@ -192,6 +205,8 @@ public struct EntriesView: View {
     }
 }
 
+// MARK: - Helpers
+
 private extension EntriesView {
     @ViewBuilder
     var mainContainer: some View {
@@ -204,7 +219,6 @@ private extension EntriesView {
         }
     }
 
-    /// Whether the native `searchable` modifier could be applied
     var nativeSearchable: Bool {
         switch searchBarAlignment {
         case .top:
@@ -368,10 +382,12 @@ private extension EntriesView {
     }
 
     // swiftlint:enable line_length
+}
 
+// MARK: - Actions
+
+private extension EntriesView {
     func handle(_ action: EntryAction) {
-        // Reset `reorderingEntries` to exit dragging mode
-        // otherwise the list is not updated after deleting an entry
         viewModel.reorderingEntries = nil
         switch action {
         case .copyCurrentCode:
@@ -382,112 +398,6 @@ private extension EntriesView {
             router.presentedSheet = .createEditEntry(entry)
         case let .delete(entry):
             viewModel.delete(entry)
-        }
-    }
-}
-
-// MARK: - Action bar
-
-private extension EntriesView {
-    var actionBar: some View {
-        HStack(alignment: .center, spacing: 10) {
-            searchBar
-            addButton(size: 42)
-        }
-        .padding(.horizontal, 22)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
-        .background(.bar)
-        .background(LinearGradient(stops:
-            [
-                Gradient.Stop(color: .black.opacity(0.5), location: 0.00),
-                Gradient.Stop(color: .black.opacity(0), location: 1.00)
-            ],
-            startPoint: UnitPoint(x: 0.5, y: 1),
-            endPoint: UnitPoint(x: 0.5, y: 0)))
-        .overlay(alignment: .top) {
-            // Top border line
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundStyle(.actionBarBorder)
-        }
-    }
-
-    var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .fontWeight(.medium)
-                .foregroundStyle(.textWeak)
-
-            // The actual text field.
-            TextField(text: $viewModel.query,
-                      label: {
-                          Text("Search", bundle: .module)
-                              .foregroundStyle(.textWeak)
-                      })
-                      .adaptiveTextFieldStyle()
-                      .foregroundStyle(.textNorm)
-                      .submitLabel(.done)
-                      .focused($searchFieldFocus)
-                      .asciiCapableKeyboard()
-                      .autocorrectionDisabled(true)
-                      .onSubmit {
-                          searchFieldFocus = false
-                      }
-                      .impactHaptic()
-
-            if AppConstants.isMobile {
-                Button(action: {
-                    viewModel.cleanSearch()
-                }, label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .fontWeight(.medium)
-                        .foregroundStyle(.textWeak)
-                        .animation(.default, value: viewModel.query.isEmpty)
-                        .opacity(viewModel.query.isEmpty ? 0 : 1)
-                })
-                .adaptiveButtonStyle()
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Capsule()
-            .fill(.shadow(.inner(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)))
-            .shadow(color: .white.opacity(0.2),
-                    radius: 1,
-                    x: 0,
-                    y: 0.5)
-            .foregroundStyle(colorScheme == .light ? Color(red: 0.9, green: 0.9, blue: 0.89)
-                .opacity(0.7) : Color(red: 0.06,
-                                      green: 0.06,
-                                      blue: 0.06).opacity(0.8)))
-    }
-
-    @ViewBuilder
-    func addButton(size: CGFloat) -> some View {
-        if #available(iOS 26, macOS 26, *) {
-            Button(action: handleAddNewCode) {
-                Image(systemName: "plus")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size / 2.5, height: size / 2.5, alignment: .center)
-                    .padding(size / 5)
-            }
-            .impactHaptic()
-            .buttonBorderShape(.circle)
-            .buttonStyle(.glassProminent)
-            .tint(.accent)
-            .accessibilityLabel("Create new code")
-        } else {
-            Button(action: handleAddNewCode) {
-                plusIcon
-                    .frame(width: size, height: size, alignment: .center)
-                    .coloredBackgroundButton(.circle)
-            }
-            .adaptiveButtonStyle()
-            .impactHaptic()
-            .accessibilityLabel("Create new code")
         }
     }
 
@@ -503,193 +413,6 @@ private extension EntriesView {
         #endif
     }
 
-    var plusIcon: some View {
-        Image(systemName: "plus")
-            .resizable()
-            .frame(width: 20, height: 20)
-            .foregroundStyle(.white)
-    }
-}
-
-// MARK: - Overlay screen
-
-private extension EntriesView {
-    @ViewBuilder
-    var overlay: some View {
-        switch viewModel.dataState {
-        case .loading:
-            ProgressView()
-        case let .loaded(entries):
-            if entries.isEmpty {
-                ContentUnavailableView {
-                    Image(.noCodes)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 210, height: 120)
-                        .padding(.bottom, 16)
-                } description: {
-                    VStack(spacing: 8) {
-                        Text("No codes yet", bundle: .module)
-                            .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.textNorm)
-                            .frame(maxWidth: .infinity, alignment: .top)
-                            .opacity(0.9)
-                        Text("Protect your accounts with an extra layer of security.", bundle: .module)
-                            .dynamicFont(size: 18, textStyle: .title3)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.textWeak)
-                            .frame(maxWidth: .infinity, alignment: .top)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 32)
-
-                        VStack(spacing: 16) {
-                            let maxWidth: CGFloat = AppConstants.isPhone ? .infinity : 450
-                            CapsuleButton(title: "Create new code",
-                                          textColor: .white,
-                                          style: .borderedFilled,
-                                          maxWidth: maxWidth,
-                                          action: handleAddNewCode)
-                                .impactHaptic()
-                            CapsuleButton(title: "Import codes",
-                                          textColor: .textNorm,
-                                          style: .bordered,
-                                          maxWidth: maxWidth,
-                                          action: { showImportOptions.toggle() })
-                                .impactHaptic()
-                        }
-                        .frame(minWidth: 262, maxWidth: .infinity)
-                    }
-                    .padding(.horizontal, 16)
-                } actions: {}
-                    .refreshable { [weak viewModel] in
-                        viewModel?.reloadData()
-                    }
-                    .importingService($showImportOptions, context: .homepage)
-            } else if viewModel.entries.isEmpty, !viewModel.query.isEmpty {
-                VStack {
-                    Spacer()
-                    Text("Couldn't find any entries corresponding to your search criteria \"\(viewModel.query)\"",
-                         bundle: .module)
-                        .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
-                        .fontWeight(.semibold)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.textNorm)
-                        .frame(maxWidth: .infinity, alignment: .center)
-
-                    Text("Try searching using different spelling or keywords", bundle: .module)
-                        .dynamicFont(size: 18, textStyle: .title3)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .multilineTextAlignment(.center)
-
-                    Spacer()
-                }
-                .frame(maxHeight: .infinity)
-                .padding(.horizontal)
-            }
-        case let .failed(error):
-            RetryableErrorView(tintColor: .danger, error: error) {
-                viewModel.reloadData()
-            }
-        }
-    }
-}
-
-// MARK: - Toolbar
-
-private extension EntriesView {
-    @ToolbarContentBuilder
-    var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: titlePlacement) {
-            Text(verbatim: "Proton Authenticator")
-                .foregroundStyle(.textNorm)
-                .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
-                .minimumScaleFactor(0.75)
-        }
-
-        #if os(iOS)
-        ToolbarItem(placement: .topBarTrailing) {
-            Menu(content: {
-                ForEach(SortOption.allCases, id: \.self) { option in
-                    Button(action: {
-                        viewModel.settingsService.setSortOption(option)
-                    }, label: {
-                        Toggle(isOn: .constant(option == viewModel.sortOption)) {
-                            Text(option.description, bundle: .module)
-                        }
-                    })
-
-                    switch option {
-                    case .creationDateDesc, .issuerDesc, .manual:
-                        Divider()
-                    default:
-                        EmptyView()
-                    }
-                }
-            }, label: {
-                Group {
-                    if #available(iOS 26, macOS 26, *) {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    } else {
-                        Image(.sortButton)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 44, height: 44)
-                    }
-                }
-                .impactHaptic()
-                .accessibilityLabel("Sort options")
-            })
-        }
-
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                router.presentedSheet = .settings
-            } label: {
-                if #available(iOS 26, macOS 26, *) {
-                    Image(systemName: "gearshape.fill")
-                } else {
-                    Image(.settingsGear)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 44, height: 44)
-                }
-            }
-            .adaptiveButtonStyle()
-            .impactHaptic()
-            .accessibilityLabel("Settings")
-        }
-        #endif
-
-        if #available(iOS 26, macOS 26, *),
-           !viewModel.noEntries,
-           searchBarAlignment == .bottom,
-           AppConstants.adjustableSearchBarPosition {
-            DefaultToolbarItem(kind: .search, placement: .bottomBar)
-            ToolbarItem(placement: .bottomBar) {
-                Button(action: handleAddNewCode) {
-                    Image(systemName: "plus")
-                        .contentShape(.rect)
-                }
-                .contentShape(.rect)
-                .impactHaptic()
-                .accessibilityLabel("Create new code")
-                .buttonStyle(.glassProminent)
-            }
-        }
-    }
-
-    var titlePlacement: ToolbarItemPlacement {
-        if #available(iOS 26, macOS 26, *) {
-            .principal
-        } else {
-            ProcessInfo.processInfo.isiOSAppOnMac ? .topBarLeading : .principal
-        }
-    }
-}
-
-private extension EntriesView {
     #if os(iOS)
     func showScannerIfCameraAvailable() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
@@ -711,20 +434,3 @@ private extension EntriesView {
 #Preview {
     EntriesView()
 }
-
-private extension View {
-    @ViewBuilder
-    func asciiCapableKeyboard() -> some View {
-        #if os(iOS)
-        if AppConstants.isMobile {
-            keyboardType(.asciiCapable)
-        } else {
-            self
-        }
-        #else
-        self
-        #endif
-    }
-}
-
-// swiftlint:enable file_length
