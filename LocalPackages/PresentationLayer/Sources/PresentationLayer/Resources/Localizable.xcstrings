@@ -971,7 +971,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Otomatik yedekleme"
+            "value" : "Otomatik yedeklensin"
           }
         }
       }
@@ -1221,7 +1221,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yedekler"
+            "value" : "Yedekleme"
           }
         }
       }
@@ -1285,7 +1285,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "YEDEKLER"
+            "value" : "YEDEKLEME"
           }
         }
       }
@@ -1435,7 +1435,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alt"
+            "value" : "Altta"
           }
         }
       }
@@ -5818,7 +5818,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veren (A-Z)"
+            "value" : "Verene göre (A-Z)"
           }
         }
       }
@@ -5882,7 +5882,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veren (Z-A)"
+            "value" : "Verene göre (Z-A)"
           }
         }
       }
@@ -6895,7 +6895,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İlerle"
+            "value" : "Sonraki"
           }
         }
       }
@@ -7465,7 +7465,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yalnızca son 5 yedekleme tutulur."
+            "value" : "Yalnızca son 5 yedek tutulur."
           }
         }
       }
@@ -10967,7 +10967,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aygıtlar arasında eşitleme"
+            "value" : "Aygıtlar arasında eşitlensin"
           }
         }
       }
@@ -11737,7 +11737,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Üst"
+            "value" : "Üstte"
           }
         }
       }
