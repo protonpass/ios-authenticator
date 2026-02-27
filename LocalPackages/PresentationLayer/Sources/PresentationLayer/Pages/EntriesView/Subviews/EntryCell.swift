@@ -32,7 +32,7 @@ import AppKit
 
 import SDWebImageSwiftUI
 
-private struct HighlightedText: View, @preconcurrency Equatable {
+private struct HighlightedText: View, Equatable {
     let text: String
     let highlighted: String
     let placeholder: TextContent

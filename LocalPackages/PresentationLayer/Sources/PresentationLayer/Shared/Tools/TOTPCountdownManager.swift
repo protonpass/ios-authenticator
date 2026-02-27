@@ -50,6 +50,7 @@ public final class TOTPCountdownManager: TOTPCountdownProtocol {
     public func startTimer() {
         guard timerCancellable == nil else { return }
 
+        // 0.5s interval ensures sub-second arc animation stays in sync even if a tick is slightly delayed
         timerCancellable = Timer.publish(every: 0.5, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in

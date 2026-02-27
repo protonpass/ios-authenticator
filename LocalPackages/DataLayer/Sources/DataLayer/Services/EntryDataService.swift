@@ -391,9 +391,9 @@ public extension EntryDataService {
         }
     }
 
-    nonisolated func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
+    func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
         let results = try importService.importEntries(from: sources)
-        var data: [EntryUiModel] = await dataState.data ?? []
+        var data: [EntryUiModel] = dataState.data ?? []
         let filteredResults = results.entries
             .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
         let codes = try repository.generateCodes(entries: filteredResults)
@@ -418,11 +418,8 @@ public extension EntryDataService {
         _ = try await repository.completeSave(entries: uiEntries.map(\.orderedEntry))
 
         data.append(contentsOf: uiEntries)
-
-        await MainActor.run {
-            updateData(data)
-        }
-        await backUpEntries()
+        updateData(data)
+        backUpEntries()
         return uiEntries.count
     }
 

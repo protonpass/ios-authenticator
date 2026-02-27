@@ -79,8 +79,7 @@ struct DuplicateEntriesView: View {
     private func entryRow(_ entry: DuplicateEntryInfo) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(verbatim: viewModel.dateFormatter
-                    .string(from: Date(timeIntervalSince1970: entry.modifiedTime)))
+                Text(verbatim: viewModel.formattedDate(for: entry.modifiedTime))
                     .dynamicFont(size: 15, textStyle: .body)
                     .foregroundStyle(.textNorm)
                 if entry.isCurrentlyActive {

@@ -97,7 +97,6 @@ struct EntriesEmptyStateView: View {
             Text("Couldn't find any entries corresponding to your search criteria \"\(query)\"",
                  bundle: .module)
                 .dynamicFont(size: 24, textStyle: .title2, weight: .semibold)
-                .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.textNorm)
                 .frame(maxWidth: .infinity, alignment: .center)

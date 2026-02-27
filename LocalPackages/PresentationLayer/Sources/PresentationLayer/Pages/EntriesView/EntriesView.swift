@@ -59,7 +59,7 @@ enum EntryAction: Sendable, Equatable, Hashable {
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var viewModel = EntriesViewModel()
+    @State private var viewModel = EntriesViewModel()
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var hoveringEntry: EntryUiModel?
@@ -147,8 +147,11 @@ public struct EntriesView: View {
                         searchEnabled = false
                     }
                 }
-                .onChange(of: viewModel.dataState) { _, _ in
+                .onChange(of: viewModel.dataState) {
                     viewModel.refreshSearchResults()
+                }
+                .onChange(of: viewModel.sortOption) {
+                    viewModel.refreshEntries()
                 }
                 .sheetDestinations($router.presentedSheet)
             #if os(iOS)
@@ -172,19 +175,13 @@ public struct EntriesView: View {
                                           reloadData: viewModel.reloadData)
                 }
                 .showSpinner(viewModel.deleteTask != nil)
-                .onChange(of: router.presentedFullscreenSheet) { _, newValue in
-                    viewModel.toggleCodeRefresh(newValue != nil)
-                }
-                .onChange(of: router.presentedSheet) { _, newValue in
-                    viewModel.toggleCodeRefresh(newValue != nil)
-                }
-                .onChange(of: router.noSheetDisplayed) { _, newValue in
-                    guard newValue, viewModel.focusSearchOnLaunch else {
-                        return
-                    }
-                    Task { @MainActor in
-                        try? await Task.sleep(for: .milliseconds(200))
-                        searchFieldFocus = true
+                .onChange(of: router.noSheetDisplayed) { _, isNoSheet in
+                    viewModel.toggleCodeRefresh(!isNoSheet)
+                    if isNoSheet, viewModel.focusSearchOnLaunch {
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(200))
+                            searchFieldFocus = true
+                        }
                     }
                 }
                 .fullScreenMainBackground()

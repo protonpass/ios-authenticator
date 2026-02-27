@@ -29,8 +29,8 @@ enum RouterDestination: Hashable {
 }
 
 public enum SheetDestination: Hashable, Identifiable {
-    public var id: Int {
-        hashValue
+    public var id: Self {
+        self
     }
 
     case createEditEntry(EntryUiModel?)
@@ -38,8 +38,8 @@ public enum SheetDestination: Hashable, Identifiable {
 }
 
 public enum FullScreenDestination: Hashable, Identifiable {
-    public var id: Int {
-        hashValue
+    public var id: Self {
+        self
     }
 
     #if os(iOS)

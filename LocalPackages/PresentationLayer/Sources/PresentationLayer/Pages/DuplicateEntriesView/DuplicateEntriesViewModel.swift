@@ -37,12 +37,16 @@ final class DuplicateEntriesViewModel {
     private var logger
 
     @ObservationIgnored
-    let dateFormatter: DateFormatter = {
+    private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter
     }()
+
+    func formattedDate(for modifiedTime: TimeInterval) -> String {
+        dateFormatter.string(from: Date(timeIntervalSince1970: modifiedTime))
+    }
 
     func loadGroups() async {
         loading = true

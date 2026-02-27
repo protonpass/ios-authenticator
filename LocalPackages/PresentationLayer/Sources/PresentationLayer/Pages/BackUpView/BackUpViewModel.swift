@@ -212,17 +212,7 @@ final class BackUpViewModel {
             try keychainService.set(bookmarkData,
                                     for: AppConstants.Settings.backupFolderBookmark,
                                     shouldSync: false)
-            backUpManager.setDestinationFolder(folderURL)
-            settingsService.toggleDocumentBackup(true)
-            backupActivated = true
-            updateFolderDisplay(from: folderURL)
-
-            loadData()
-
-            if backups.isEmpty {
-                entryDataService.backUpEntries()
-                loadData()
-            }
+            activateBackup(at: folderURL)
         } catch {
             log(.error, "Failed to set default destination: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
@@ -249,17 +239,7 @@ final class BackUpViewModel {
                 try keychainService.set(bookmarkData,
                                         for: AppConstants.Settings.backupFolderBookmark,
                                         shouldSync: false)
-                backUpManager.setDestinationFolder(url)
-                settingsService.toggleDocumentBackup(true)
-                backupActivated = true
-                updateFolderDisplay(from: url)
-
-                loadData()
-
-                if backups.isEmpty {
-                    entryDataService.backUpEntries()
-                    loadData()
-                }
+                activateBackup(at: url)
             } catch {
                 log(.error, "Failed to create bookmark: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
@@ -315,6 +295,18 @@ private extension BackUpViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = .sheet(config)
         alertService.showAlert(alert)
+    }
+
+    func activateBackup(at url: URL) {
+        backUpManager.setDestinationFolder(url)
+        settingsService.toggleDocumentBackup(true)
+        backupActivated = true
+        updateFolderDisplay(from: url)
+        loadData()
+        if backups.isEmpty {
+            entryDataService.backUpEntries()
+            loadData()
+        }
     }
 
     func authenticateAndPerform(_ block: () throws -> Void) async {

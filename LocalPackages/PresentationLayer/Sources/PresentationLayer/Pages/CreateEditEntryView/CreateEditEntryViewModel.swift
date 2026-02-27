@@ -76,12 +76,7 @@ final class CreateEditEntryViewModel {
 
     func save() {
         trimInputs()
-        guard !secret.isEmpty, !name.isEmpty else {
-            return
-        }
-        guard canSave else {
-            return
-        }
+        guard canSave else { return }
 
         let params: EntryParameters = if type == .totp {
             .totp(TotpParams(name: name,

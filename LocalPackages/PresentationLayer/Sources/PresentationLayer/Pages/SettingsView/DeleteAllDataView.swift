@@ -82,8 +82,9 @@ struct DeleteAllDataView: View {
 
 private extension DeleteAllDataView {
     var idle: some View {
-        NavigationStack {
+        ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading, spacing: 16) {
+                Spacer()
                 Text("Delete all data", bundle: .module)
                     .foregroundStyle(.textNorm)
                     .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
@@ -126,15 +127,13 @@ private extension DeleteAllDataView {
                 Spacer()
             }
             .padding()
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: dismiss.callAsFunction) {
-                        Image(systemName: "xmark.circle.fill")
-                            .frame(width: 24)
-                            .foregroundStyle(.textWeak)
-                    }
-                }
+
+            Button(action: dismiss.callAsFunction) {
+                Image(systemName: "xmark.circle.fill")
+                    .frame(width: 24)
+                    .foregroundStyle(.textWeak)
             }
+            .padding()
         }
     }
 
@@ -158,7 +157,7 @@ private extension DeleteAllDataView {
                     ],
                     startPoint: .init(x: 0.5, y: 0),
                     endPoint: .init(x: 0.5, y: 1)))
-                .cornerRadius(26)
+                .clipShape(.rect(cornerRadius: 26))
                 .shadow(color: Color(red: 1, green: 0.37, blue: 0.37).opacity(0.25),
                         radius: 12,
                         x: 0,

@@ -240,8 +240,7 @@ public extension EntryRepository {
         try await localReorder(entries)
         if isAuthenticated {
             do {
-                let newOrderedEntries = try await getAllLocalEntries().entries.decodedEntries
-                try await batchRemoteReordering(entries: newOrderedEntries)
+                try await batchRemoteReordering(entries: entries)
             } catch {
                 log(.error, "Failed to remote reorder: \(error.localizedDescription)")
                 throw error

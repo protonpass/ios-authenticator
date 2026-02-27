@@ -34,7 +34,7 @@ import SwiftUI
 import VisionKit
 
 @Observable
-final class ScannerViewModel: ObservableObject {
+final class ScannerViewModel {
     var scanning = true
     private(set) var takingPhoto = false
     private(set) var shouldDismiss = false

@@ -67,6 +67,10 @@ private struct BoxedDigit: View {
     let codeCount: Int
     let textColor: Color
 
+    private var digitBoxWidth: CGFloat {
+        codeCount == 7 || codeCount == 6 ? 28 : 24
+    }
+
     var body: some View {
         if char.isWhitespace {
             Text(verbatim: " ")
@@ -83,7 +87,7 @@ private struct BoxedDigit: View {
                     .monospaced()
                     .foregroundStyle(textColor)
             }
-            .frame(width: codeCount == 7 || codeCount == 6 ? 28 : 24, height: 36)
+            .frame(width: digitBoxWidth, height: 36)
         }
     }
 }

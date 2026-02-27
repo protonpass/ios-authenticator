@@ -150,7 +150,7 @@ struct CreateEditEntryView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(.inputBackground)
-        .cornerRadius(16)
+        .clipShape(.rect(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16)
             .inset(by: 0.5)
             .stroke(.inputBorder, lineWidth: 1))
@@ -222,7 +222,7 @@ private extension CreateEditEntryView {
                 .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background(.dropdownBackground)
-                .cornerRadius(16)
+                .clipShape(.rect(cornerRadius: 16))
                 .padding(.horizontal, 16)
             }
             .adaptiveButtonStyle()
@@ -296,7 +296,7 @@ private extension CreateEditEntryView {
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(.dropdownBackground)
-            .cornerRadius(16)
+            .clipShape(.rect(cornerRadius: 16))
             .optionShadow()
         }
     }

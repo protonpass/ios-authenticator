@@ -333,12 +333,9 @@ extension SettingsViewModel {
 
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
-        if let laError = error as? LAError, laError.code == .userCancel {
-            logManager.log(.error, category: .ui, error.localizedDescription)
-        } else {
-            logManager.log(.error, category: .ui, error.localizedDescription)
-            alertService.showError(error, mainDisplay: false, action: nil)
-        }
+        logManager.log(.error, category: .ui, error.localizedDescription)
+        if let laError = error as? LAError, laError.code == .userCancel { return }
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 
     func haptic() {
