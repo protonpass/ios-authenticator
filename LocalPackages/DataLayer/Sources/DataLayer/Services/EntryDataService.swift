@@ -591,8 +591,7 @@ private extension EntryDataService {
     func reorderItems(remoteEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
         let localEntries = try await repository.getAllLocalEntries()
 
-        guard Set(remoteEntries.map(\.id)) != Set(localEntries.decodedEntries.map(\.id))
-            || remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
+        guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
             return localEntries.decodedEntries
         }
 
