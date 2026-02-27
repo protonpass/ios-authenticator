@@ -73,7 +73,9 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
 
     public func updateOrder(newOrder: Int, remoteModifiedTime: TimeInterval? = nil) {
         order = newOrder
-        modifiedTime = remoteModifiedTime ?? Date.now.timeIntervalSince1970
+        if let remoteModifiedTime {
+            modifiedTime = remoteModifiedTime
+        }
     }
 
     // periphery:ignore
