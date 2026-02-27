@@ -27,7 +27,6 @@ import Models
 import ProtonCoreNetworking
 import ProtonCoreServices
 
-// swiftlint:disable file_length
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
@@ -688,5 +687,3 @@ extension [OrderedEntry] {
         self.first { $0.entry.id == entryId }
     }
 }
-
-// swiftlint:enable file_length
