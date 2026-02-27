@@ -148,6 +148,7 @@ private extension BackUpView {
                                              onToggle: viewModel.toggleBackup))
             if viewModel.backupActivated {
                 SettingDivider()
+
                 Button { viewModel.changeFolder() } label: {
                     VStack(alignment: .leading, spacing: 4) {
                         row(title: .localized("Folder location", .module), imageName: "chevron.right")
@@ -167,6 +168,8 @@ private extension BackUpView {
                             .padding(.bottom, 8)
                         }
                     }
+                    .paddingIfNotLiquidGlass()
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
@@ -182,6 +185,7 @@ private extension BackUpView {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)
+                    .paddingIfNotLiquidGlass()
                 }
             }
             VStack {
@@ -251,6 +255,17 @@ private extension BackUpView {
                 .foregroundStyle(.textNorm)
         }
         .contentShape(.rect)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func paddingIfNotLiquidGlass() -> some View {
+        if #unavailable(iOS 26, macOS 26) {
+            padding(DesignConstant.padding)
+        } else {
+            self
+        }
     }
 }
 
