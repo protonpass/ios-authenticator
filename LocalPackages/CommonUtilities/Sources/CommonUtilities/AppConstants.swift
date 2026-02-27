@@ -116,7 +116,7 @@ public enum AppConstants: Sendable {
     @MainActor
     public static var adjustableSearchBarPosition: Bool {
         if #available(iOS 26, macOS 26, *) {
-            !ProcessInfo.processInfo.isiOSAppOnMac
+            isPhone
         } else {
             true
         }
