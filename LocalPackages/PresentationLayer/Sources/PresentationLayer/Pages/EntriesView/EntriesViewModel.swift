@@ -225,9 +225,7 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                if entryDataService.hasDuplicateEntries {
-                    showDuplicateEntriesAlert()
-                }
+                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }

@@ -60,7 +60,7 @@ final class MockSettingsService: SettingsServicing {
     func togglePassBanner(_ value: Bool) { showPassBanner = value }
     func toggleHapticFeedback(_ value: Bool) { hapticFeedbackEnabled = value }
     func toggleFocusSearchOnLaunch(_ value: Bool) { focusSearchOnLaunch = value }
-    func toggleDocumentBackup(_ value: Bool) { folderBackup = value }
+    func toggleFolderBackup(_ value: Bool) { folderBackup = value }
     func setBackupFolderBookmark(_ data: Data?) { backupFolderBookmark = data }
     func toggleICloudSync(_ value: Bool) { iCloudSync = value }
     func setInstallationTimestamp(_ value: TimeInterval) { installationTimestamp = value }

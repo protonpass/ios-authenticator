@@ -25,7 +25,6 @@ import Foundation
 import Models
 
 final class MockedSettingsService: SettingsServicing {
-
     init() {}
 
     var isFirstRun = false
@@ -92,7 +91,7 @@ final class MockedSettingsService: SettingsServicing {
         focusSearchOnLaunch = value
     }
     
-    func toggleDocumentBackup(_ value: Bool) {
+    func toggleFolderBackup(_ value: Bool) {
         folderBackup = value
     }
 

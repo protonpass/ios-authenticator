@@ -105,7 +105,9 @@ private extension DeleteAllDataView {
                 if viewModel.backupActivated {
                     Toggle("Delete all local backups", isOn: $viewModel.shouldDeleteLocalBackups)
                     if viewModel.shouldDeleteLocalBackups {
-                        Text("You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone.") // swiftlint:disable:this line_length
+                        // swiftlint:disable:next line_length
+                        Text("You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone.",
+                             bundle: .module)
                             .font(.footnote)
                             .foregroundStyle(.danger)
                     }

@@ -100,7 +100,7 @@ struct BackUpView: View {
                     viewModel.selectedBackup = nil
                 }
             } message: { backup in
-                Text("Are you sure you want to restore the backup named \(backup.name)?")
+                Text("Are you sure you want to restore the backup named \(backup.name)?", bundle: .module)
             }
             .alert("Delete backup",
                    isPresented: $viewModel.backupToDelete.mappedToBool(),
@@ -108,7 +108,8 @@ struct BackUpView: View {
                 Button("Delete", role: .destructive) { viewModel.confirmDeleteBackup() }
                 Button("Cancel", role: .cancel) { viewModel.backupToDelete = nil }
             } message: { backup in
-                Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.")
+                Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.",
+                     bundle: .module)
             }
 
         #if os(iOS)
