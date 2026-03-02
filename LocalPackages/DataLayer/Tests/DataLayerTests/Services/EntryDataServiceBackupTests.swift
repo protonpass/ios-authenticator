@@ -79,7 +79,7 @@ struct EntryDataServiceBackupTests {
 
     private func prepareForBackup(entries: [EntryUiModel]) throws {
         sut.updateData(entries)
-        mockSettings.documentBackup = true
+        mockSettings.folderBackup = true
         try mockKeychain.set("test-password", for: AppConstants.Settings.backupPassword, shouldSync: false)
     }
 
@@ -89,7 +89,7 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_whenDocumentBackupDisabled_doesNotCallWrite() throws {
         let entry = makeEntry()
         sut.updateData([makeUiModel(entry: entry)])
-        mockSettings.documentBackup = false
+        mockSettings.folderBackup = false
 
         sut.backUpEntries()
 
@@ -133,7 +133,7 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_whenNoPasswordInKeychain_doesNotThrow() {
         let entry = makeEntry()
         sut.updateData([makeUiModel(entry: entry)])
-        mockSettings.documentBackup = true
+        mockSettings.folderBackup = true
         // No password set in keychain
 
         sut.backUpEntries()
