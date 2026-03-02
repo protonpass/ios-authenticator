@@ -13,3 +13,8 @@ repos:
         files: \.swift$
         entry: swiftformat
         language: swift
+
+exclude: |
+    (?x)(
+        ^.build/|
+    )

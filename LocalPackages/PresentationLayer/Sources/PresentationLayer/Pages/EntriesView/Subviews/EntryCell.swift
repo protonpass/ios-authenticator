@@ -169,7 +169,8 @@ struct EntryCell: View, @preconcurrency Equatable {
     }
 
     private var copyAnimation: AnyTransition {
-        currentCodeCopy ? .move(edge: .trailing) : .move(edge: .leading)
+        let xOffset: CGFloat = currentCodeCopy ? 100 : -100
+        return .offset(x: xOffset).combined(with: .opacity)
     }
 }
 
