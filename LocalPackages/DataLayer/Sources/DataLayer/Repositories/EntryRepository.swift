@@ -44,20 +44,16 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     // MARK: - local CRUD
 
-    @MainActor
-    func getAllLocalEntries() async throws -> [EntryState]
-    @MainActor
+    func getAllLocalEntries() async throws -> (entries: [EntryState], duplicateCount: Int)
+    func getDuplicateEntryGroups() async throws -> [DuplicateEntryGroup]
+    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws
     func localUpsert(_ entries: [OrderedEntry]) async throws
     // periphery:ignore
-    @MainActor
     func localRemoves(_ entriesId: [String]) async throws
 
     // periphery:ignore
-    @MainActor
     func localRemoveAll() async throws
-    @MainActor
     func localUpdate(_ entry: OrderedEntry) async throws -> OrderedEntry?
-    @MainActor
     func localReorder(_ entries: [OrderedEntry]) async throws
 
     func unsyncAllEntries() async throws
@@ -155,7 +151,7 @@ public extension EntryRepository {
     }
 
     nonisolated func deserialize(serializedData: [Data]) throws -> [Entry] {
-        try rustClient.deserializeEntries(serialized: serializedData).toEntries
+        try rustClient.deserializeEntries(entries: serializedData).toEntries
     }
 
     nonisolated func generateCodes(entries: [Entry], time: TimeInterval) throws -> [Code] {
@@ -179,7 +175,7 @@ public extension EntryRepository {
 
         return TotpParams(name: entry.name,
                           secret: params.secret,
-                          issuer: params.issuer,
+                          issuer: params.issuer ?? "",
                           period: Int(params.period),
                           digits: Int(params.digits),
                           algorithm: params.algorithm.toTotpAlgorithm,
@@ -244,10 +240,11 @@ public extension EntryRepository {
         try await localReorder(entries)
         if isAuthenticated {
             do {
-                let newOrderedEntries = try await getAllLocalEntries().decodedEntries
+                let newOrderedEntries = try await getAllLocalEntries().entries.decodedEntries
                 try await batchRemoteReordering(entries: newOrderedEntries)
             } catch {
                 log(.error, "Failed to remote reorder: \(error.localizedDescription)")
+                throw error
             }
         }
     }
@@ -256,9 +253,9 @@ public extension EntryRepository {
 // MARK: - CLoud / local CRUD
 
 public extension EntryRepository {
-    func getAllLocalEntries() async throws -> [EntryState] {
+    func getAllLocalEntries() async throws -> (entries: [EntryState], duplicateCount: Int) {
         log(.debug, "Fetching all local entries")
-        var entriesToDelete = [EncryptedEntryEntity]()
+        var entriesDuplicated = [EncryptedEntryEntity]()
 
         do {
             let encryptedEntries: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
@@ -274,7 +271,7 @@ public extension EntryRepository {
                 if latestEntriesById[entry.id] == nil {
                     latestEntriesById[entry.id] = entry // First (i.e., latest) occurrence
                 } else {
-                    entriesToDelete.append(entry) // Older duplicate
+                    entriesDuplicated.append(entry) // Older duplicate
                 }
             }
 
@@ -292,32 +289,75 @@ public extension EntryRepository {
             let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
             let decryptableCount = decryptedEntries.count(where: { !$0.isNonDecryptable })
 
-            // Step 4: Delete duplicates
-
-            if !entriesToDelete.isEmpty {
-                await cleanUpDuplication(entriesToDelete)
-            }
-
             log(.info,
                 "Successfully fetched \(decryptableCount) decryptable, \(nonDecryptableCount) non decryptable")
-            return decryptedEntries
-        } catch {
-            if !entriesToDelete.isEmpty {
-                await cleanUpDuplication(entriesToDelete)
+            if !entriesDuplicated.isEmpty {
+                log(.warning,
+                    "Found \(entriesDuplicated.count) duplicate entries with ids: \(entriesDuplicated.map(\.id))")
             }
+
+            return (decryptedEntries, entriesDuplicated.count)
+        } catch {
             log(.error, "Failed to fetch local entries: \(error.localizedDescription)")
             throw error
         }
     }
 
-    private func cleanUpDuplication(_ entriesToDelete: [EncryptedEntryEntity]) async {
-        do {
-            log(.info, "Found \(entriesToDelete.count) duplicate entries to remove")
-            try await localDataManager.persistentStorage.delete(datas: entriesToDelete)
-            log(.info, "Successfully deleted duplicate entries from local storage")
-        } catch {
-            log(.error, "Failed to delete duplicate entries: \(error)")
+    func getDuplicateEntryGroups() async throws -> [DuplicateEntryGroup] {
+        let allEntities: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+            .fetch(predicate: nil,
+                   sortingDescriptor: [SortDescriptor(\.modifiedTime, order: .reverse)])
+
+        var groupedById = [String: [EncryptedEntryEntity]]()
+        for entity in allEntities {
+            groupedById[entity.id, default: []].append(entity)
         }
+
+        var groups = [DuplicateEntryGroup]()
+
+        for (entryId, entities) in groupedById where entities.count > 1 {
+            let decryptedStates = try encryptionService.decrypt(entries: entities)
+
+            var groupDisplayName = entryId
+            var groupIssuer = ""
+            for state in decryptedStates {
+                if case let .decrypted(orderedEntry) = state {
+                    groupDisplayName = orderedEntry.entry.name
+                    groupIssuer = orderedEntry.entry.issuer
+                    break
+                }
+            }
+
+            let infos: [DuplicateEntryInfo] = entities.enumerated().map { index, entity in
+                var name = groupDisplayName
+                var issuer = groupIssuer
+                if case let .decrypted(orderedEntry) = decryptedStates[index] {
+                    name = orderedEntry.entry.name
+                    issuer = orderedEntry.entry.issuer
+                }
+                return DuplicateEntryInfo(entryId: entity.id,
+                                          modifiedTime: entity.modifiedTime,
+                                          displayName: name,
+                                          issuer: issuer,
+                                          isCurrentlyActive: index == 0)
+            }
+
+            groups.append(DuplicateEntryGroup(entryId: entryId,
+                                              displayName: groupDisplayName,
+                                              issuer: groupIssuer,
+                                              entries: infos))
+        }
+
+        return groups.sorted { $0.displayName.lowercased() < $1.displayName.lowercased() }
+    }
+
+    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {
+        log(.debug, "Deleting duplicate for entryId: \(entryId), modifiedTime: \(modifiedTime)")
+        let predicate = #Predicate<EncryptedEntryEntity> {
+            $0.id == entryId && $0.modifiedTime == modifiedTime
+        }
+        try await localDataManager.persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
+        log(.info, "Deleted duplicate for entryId: \(entryId)")
     }
 
     func localUpsert(_ entries: [OrderedEntry]) async throws {
@@ -386,15 +426,14 @@ public extension EntryRepository {
         }
     }
 
-    @MainActor
     func localRemoves(_ entriesId: [String]) async throws {
         guard !entriesId.isEmpty else {
             return
         }
-        await log(.debug, "Deleting entries with ids \(entriesId) from local storage")
+        log(.debug, "Deleting entries with ids \(entriesId) from local storage")
         let predicate = #Predicate<EncryptedEntryEntity> { entriesId.contains($0.id) }
         try await localDataManager.persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
-        await log(.info, "Successfully deleted entries \(entriesId) from local storage")
+        log(.info, "Successfully deleted entries \(entriesId) from local storage")
     }
 
     func localRemoveAll() async throws {
@@ -438,10 +477,9 @@ public extension EntryRepository {
         }
     }
 
-    @MainActor
     func localReorder(_ entries: [OrderedEntry]) async throws {
-        await log(.debug,
-                  "Updating order for \(entries.count) entries")
+        log(.debug,
+            "Updating order for \(entries.count) entries")
         do {
             let idsToFetch: [String] = entries.map(\.id)
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
@@ -450,10 +488,10 @@ public extension EntryRepository {
             let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
                 .fetch(predicate: predicate)) ?? []
 
-            await log(.debug, "Found \(encryptedEntries.count) local entries for order update")
+            log(.debug, "Found \(encryptedEntries.count) local entries for order update")
 
             guard entries.count == encryptedEntries.count else {
-                await log(.debug, "Found discrepancy in number of entries to update")
+                log(.debug, "Found discrepancy in number of entries to update")
                 return
             }
 
@@ -463,9 +501,9 @@ public extension EntryRepository {
                     entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
                 }
             }
-            await log(.info, "Successfully saved updated order to local storage")
+            log(.info, "Successfully saved updated order to local storage")
         } catch {
-            await log(.error, "Failed to update entry order: \(error.localizedDescription)")
+            log(.error, "Failed to update entry order: \(error.localizedDescription)")
             throw error
         }
     }
@@ -736,6 +774,7 @@ public extension EntryRepository {
                         .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) != nil {
                         syncState = .synced
                     }
+
                     let orderedEntry = OrderedEntry(entry: decryptedEntry,
                                                     keyId: encryptedEntry.authenticatorKeyID,
                                                     remoteId: encryptedEntry.entryID,

@@ -32,7 +32,7 @@ let package = Package(
         .package(name: "DomainLayer", path: "../DomainLayer"),
         .package(name: "Macro", path: "../Macro"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
-        .package(url: "https://github.com/ProtonMail/protoncore_ios", from: "35.0.0")
+        .package(url: "https://github.com/ProtonMail/protoncore_ios", from: "36.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

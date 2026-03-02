@@ -24,102 +24,100 @@ import CommonUtilities
 import Macro
 import Models
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(spacing: 32) {
-            section {
-                SettingRow(title: .localized("Automatic Backup", .module),
-                           trailingMode: .toggle(isOn: viewModel.backupActivated,
-                                                 onToggle: viewModel.toggleBackICloudUp))
-                SettingDivider()
-                if showBackup() {
-                    Button { viewModel.openICloudFolder() } label: {
-                        row(title: .localized("Folder location", .module), imageName: "chevron.right")
-                    }
-                    .buttonStyle(.plain)
+        mainContent
+            .task {
+                viewModel.loadData()
+            }
+            .fileImporter(isPresented: $viewModel.showFolderPicker,
+                          allowedContentTypes: [.folder],
+                          onCompletion: viewModel.handleFolderSelection)
+            .showSpinner(viewModel.loading)
+            .padding(.bottom, 10)
+            .scrollContentBackground(.hidden)
+            .errorMessageAlert($viewModel.errorMessage)
+            .sheetAlertService()
+            .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
+                SecureField("Password", text: $viewModel.password)
+                    .autocorrectionDisabled()
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                SecureField("Confirm password", text: $viewModel.confirmedPassword)
+                    .autocorrectionDisabled()
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                Button { viewModel.savePassword() } label: {
+                    Text("Save password", bundle: .module)
+                }
+                .disabled(!viewModel.passwordSavable)
+                Button("Cancel", role: .cancel) {
+                    viewModel.password = ""
+                    viewModel.confirmedPassword = ""
+                }
+            } message: {
+                Text("Set a password to protect backup files.", bundle: .module)
+            }
+            .alert("Choose backup destination", isPresented: $viewModel.showDestinationAlert) {
+                Button { viewModel.useDefaultDestination() } label: {
+                    Text("Use default folder", bundle: .module)
+                }
+                Button { viewModel.showFolderPicker = true } label: {
+                    Text("Choose folder", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                // swiftlint:disable:next line_length
+                Text("Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app.",
+                     bundle: .module)
+            }
+            .alert("Please enter the password used to encrypt this backup.",
+                   isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
+                   presenting: viewModel.passwordProtectionFile) { backup in
+                SecureField("Password", text: $viewModel.password)
+                    .autocorrectionDisabled()
+                    .textContentType(.oneTimeCode)
+                    .textInputAutocapitalization(.never)
+                Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
+                    Text("Decrypt the backup", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {
+                    viewModel.password = ""
                 }
             }
-            .frame(maxHeight: showBackup() ? 120 : 75)
-
-            if showBackup() {
-                section("BACKUPS") {
-                    ForEach(viewModel.backups) { backup in
-                        Button { viewModel.load(backup: backup) } label: {
-                            row(title: .localized("Backup from \(backup.displayedDate)", .module))
-                        }
-                        .buttonStyle(.plain)
-
-                        if backup != viewModel.backups.last {
-                            Divider()
-                        }
-                    }
+            .alert("Backup restoration",
+                   isPresented: $viewModel.selectedBackup.mappedToBool(),
+                   presenting: viewModel.selectedBackup) { backup in
+                Button { viewModel.load(backup: backup) } label: {
+                    Text("Restore", bundle: .module)
                 }
-                VStack {
-                    Text("Only the last 5 backups are kept.", bundle: .module)
-                    if let displayedDate = viewModel.backups.first?.displayedDate {
-                        Text("Last backup: \(displayedDate)", bundle: .module)
-                    }
+                Button("Cancel", role: .cancel) {
+                    viewModel.selectedBackup = nil
                 }
-                .dynamicFont(size: 13, textStyle: .body)
-                .foregroundStyle(.textWeak)
+            } message: { backup in
+                Text("Are you sure you want to restore the backup named \(backup.name)?", bundle: .module)
             }
-            Spacer()
-        }
-        .frame(maxHeight: .infinity)
-        .animation(.default, value: viewModel.backupActivated)
-        .task {
-            viewModel.loadData()
-        }
-        .showSpinner(viewModel.loading)
-        .padding(.bottom, 10)
-        .scrollContentBackground(.hidden)
-        .errorMessageAlert($viewModel.errorMessage)
-        .sheetAlertService()
-        .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
-            SecureField("Password", text: $viewModel.password)
-                .autocorrectionDisabled()
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
-            SecureField("Confirm password", text: $viewModel.confirmedPassword)
-                .autocorrectionDisabled()
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
-            Button { viewModel.savePassword() } label: {
-                Text("Save password", bundle: .module)
+            .alert("Delete backup",
+                   isPresented: $viewModel.backupToDelete.mappedToBool(),
+                   presenting: viewModel.backupToDelete) { _ in
+                Button("Delete", role: .destructive) { viewModel.confirmDeleteBackup() }
+                Button("Cancel", role: .cancel) { viewModel.backupToDelete = nil }
+            } message: { backup in
+                Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.",
+                     bundle: .module)
             }
-            .disabled(!viewModel.passwordSavable)
-            Button("Cancel", role: .cancel) {
-                viewModel.password = ""
-                viewModel.confirmedPassword = ""
-            }
-        } message: {
-            Text("Set a password to protect backup files.", bundle: .module)
-        }
-        .alert("Please enter the password used to encrypt this backup.",
-               isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
-               presenting: viewModel.passwordProtectionFile) { backup in
-            SecureField("Password", text: $viewModel.password)
-                .autocorrectionDisabled()
-                .textContentType(.oneTimeCode)
-                .textInputAutocapitalization(.never)
-            Button { viewModel.loadPasswordProtectedBackup(backup: backup) } label: {
-                Text("Decrypt the backup", bundle: .module)
-            }
-            Button("Cancel", role: .cancel) {
-                viewModel.password = ""
-            }
-        }
 
         #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
         #endif
-        .toolbar { toolbarContent }
-        .navigationTitle(Text("Backups", bundle: .module))
-        .fullScreenMainBackground()
+            .toolbar { toolbarContent }
+            .navigationTitle(Text("Backups", bundle: .module))
+            .fullScreenMainBackground()
     }
 
     private var isDarkMode: Bool {
@@ -148,38 +146,126 @@ struct BackUpView: View {
         }
         #endif
     }
+}
 
-    func showBackup() -> Bool {
-        viewModel.backupActivated && !viewModel.backups.isEmpty
+// MARK: - Views elements
+
+private extension BackUpView {
+    var mainContent: some View {
+        List {
+            setupSection
+            backupSection
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .listStyle(.insetGrouped)
+        .frame(maxHeight: .infinity)
+        .animation(.default, value: viewModel.backupActivated)
+    }
+
+    var setupSection: some View {
+        section("BACKUP SETTINGS") {
+            SettingRow(title: .localized("Automatic Backup", .module),
+                       trailingMode: .toggle(isOn: viewModel.backupActivated,
+                                             onToggle: viewModel.toggleBackup))
+            if viewModel.backupActivated {
+                SettingDivider()
+                Button { viewModel.showFolderPicker = true } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        row(title: .localized("Folder location", .module), imageName: "chevron.right")
+                        if let folderName = viewModel.folderDisplayName {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(verbatim: folderName) // ignore:missing_bundle
+                                    .dynamicFont(size: 13, textStyle: .body)
+                                    .foregroundStyle(.textWeak)
+                                if let path = viewModel.folderPath {
+                                    Text(verbatim: path) // ignore:missing_bundle
+                                        .dynamicFont(size: 11, textStyle: .caption1)
+                                        .foregroundStyle(.textWeak.opacity(0.7))
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                }
+                            }
+                            .padding(.bottom, 8)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var backupSection: some View {
+        if viewModel.showBackup {
+            section("BACKUPS") {
+                ForEach(viewModel.backups) { backup in
+                    Button { viewModel.selectedBackup = backup } label: {
+                        row(title: .localized("Backup from \(backup.displayedDate)", .module))
+                    }
+                    .buttonStyle(.plain)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            viewModel.deleteBackup(backup)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+            VStack {
+                Text("Only the last 5 backups are kept.", bundle: .module)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                if let displayedDate = viewModel.backups.first?.displayedDate {
+                    Text("Last backup: \(displayedDate)", bundle: .module)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
+            .dynamicFont(size: 13, textStyle: .body)
+            .foregroundStyle(.textWeak)
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+        }
     }
 }
 
 // MARK: - Utils
 
 private extension BackUpView {
-    func section(_ title: LocalizedStringKey? = nil, @ViewBuilder content: () -> some View) -> some View {
-        VStack(spacing: DesignConstant.padding) {
-            if let title {
-                Text(title, bundle: .module)
-                    .dynamicFont(size: 13, textStyle: .footnote)
-                    .foregroundStyle(.textWeak)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, DesignConstant.padding)
-            }
-
-            LazyVStack(alignment: .leading, spacing: 0) {
+    @ViewBuilder
+    func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            Section(content: {
                 content()
+            }, header: {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                }
+            })
+        } else {
+            VStack(spacing: DesignConstant.padding) {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DesignConstant.padding)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    content()
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(isDarkMode ? .white.opacity(0.08) : .white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .inset(by: 0.5)
+                    .stroke(settingsBorder, lineWidth: 1))
             }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(isDarkMode ? .white.opacity(0.08) : .white)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .inset(by: 0.5)
-                .stroke(settingsBorder, lineWidth: 1))
+            .plainListRow()
+            .padding(.horizontal, DesignConstant.padding)
+            .padding(.top, DesignConstant.padding * 2)
         }
-        .plainListRow()
-        .padding(.horizontal, DesignConstant.padding)
-        .padding(.top, DesignConstant.padding * 2)
     }
 
     func row(title: TextContent,
@@ -192,7 +278,6 @@ private extension BackUpView {
             Image(systemName: imageName)
                 .foregroundStyle(.textNorm)
         }
-        .padding(DesignConstant.padding)
         .contentShape(.rect)
     }
 }

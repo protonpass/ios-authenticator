@@ -24,6 +24,7 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
+import Macro
 import Models
 
 struct PasswordProtectedBackup: Identifiable {
@@ -35,17 +36,27 @@ struct PasswordProtectedBackup: Identifiable {
 final class BackUpViewModel {
     private(set) var backups: [BackUpFileInfo] = []
     private(set) var loading = false
-    private(set) var backupActivated = true
+    private(set) var backupActivated = false
 
     var errorMessage: String?
 
     var password = ""
     var confirmedPassword = ""
     var showPasswordAlert = false
+    var showDestinationAlert = false
+    var showFolderPicker = false
+    var folderDisplayName: String?
+    var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
+    var selectedBackup: BackUpFileInfo?
+    var backupToDelete: BackUpFileInfo?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
+    }
+
+    var showBackup: Bool {
+        backupActivated && !backups.isEmpty
     }
 
     @ObservationIgnored
@@ -70,12 +81,20 @@ final class BackUpViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logger
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+    @ObservationIgnored
+    private var toggleBackupTask: Task<Void, Never>?
 
     init() {
         setUp()
     }
 
     func loadData() {
+        guard backupActivated else {
+            return
+        }
         do {
             backups = try backUpManager.getAllDocumentsData()
         } catch {
@@ -85,7 +104,8 @@ final class BackUpViewModel {
     }
 
     func load(backup: BackUpFileInfo) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             var content = ""
             defer { loading = false }
             do {
@@ -105,7 +125,8 @@ final class BackUpViewModel {
     }
 
     func loadPasswordProtectedBackup(backup: PasswordProtectedBackup) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             defer {
                 loading = false
                 password = ""
@@ -123,12 +144,41 @@ final class BackUpViewModel {
         }
     }
 
-    func toggleBackICloudUp() {
-        if backupActivated {
-            settingsService.toggleICloudBackUp(false)
-            backupActivated = false
-        } else {
-            showPasswordAlert = true
+    func toggleBackup() {
+        guard toggleBackupTask == nil else { return }
+        toggleBackupTask = Task { [weak self] in
+            guard let self else { return }
+            defer { toggleBackupTask = nil }
+            await authenticateAndPerform {
+                if backupActivated {
+                    settingsService.toggleFolderBackup(false)
+                    try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
+                                                isSynced: false)
+                    backUpManager.clearDestinationFolder()
+                    backupActivated = false
+                    backups = []
+                    folderDisplayName = nil
+                    folderPath = nil
+                } else {
+                    showPasswordAlert = true
+                }
+            }
+        }
+    }
+
+    func deleteBackup(_ backup: BackUpFileInfo) {
+        backupToDelete = backup
+    }
+
+    func confirmDeleteBackup() {
+        guard let backup = backupToDelete else { return }
+        backupToDelete = nil
+        do {
+            try backUpManager.delete(fileName: backup.name)
+            loadData()
+        } catch {
+            log(.error, "Failed to delete backup: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -150,21 +200,67 @@ final class BackUpViewModel {
             try keychainService.set(password,
                                     for: AppConstants.Settings.backupPassword,
                                     shouldSync: false)
-            settingsService.toggleICloudBackUp(true)
-            backupActivated = true
+            showDestinationAlert = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }
     }
 
-    func openICloudFolder() {
-        backUpManager.openICloudFolder()
+    func useDefaultDestination() {
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory,
+                                                          in: .userDomainMask).first else {
+            errorMessage = "Unable to access Documents directory."
+            return
+        }
+
+        setBackupFolder(documentsURL)
+    }
+
+    func handleFolderSelection(_ result: Result<URL, Error>) {
+        switch result {
+        case let .success(url):
+            guard url.startAccessingSecurityScopedResource() else {
+                errorMessage = "Unable to access the selected folder."
+                return
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            setBackupFolder(url)
+        case let .failure(error):
+            log(.error, "Folder picker failed: \(error.localizedDescription)")
+        }
     }
 }
 
 private extension BackUpViewModel {
     func setUp() {
-        backupActivated = settingsService.iCloudBackUp
+        backupActivated = settingsService.folderBackup
+        guard backupActivated else { return }
+
+        // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade
+        if let legacyData = settingsService.backupFolderBookmark {
+            try? keychainService.set(legacyData,
+                                     for: AppConstants.Settings.backupFolderBookmark,
+                                     shouldSync: false)
+            settingsService.setBackupFolderBookmark(nil)
+        }
+
+        do {
+            let bookmarkData: Data = try keychainService.get(keyId: AppConstants.Settings.backupFolderBookmark,
+                                                             isSynced: false)
+            let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+            updateFolderDisplay(from: url)
+        } catch {
+            log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
+            settingsService.toggleFolderBackup(false)
+            backupActivated = false
+        }
+    }
+
+    func updateFolderDisplay(from parentURL: URL) {
+        let backupDir = parentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
+        folderDisplayName = backupDir.lastPathComponent
+        folderPath = parentURL.path
     }
 
     func showCompletion(_ numberOfEntries: Int) {
@@ -179,5 +275,42 @@ private extension BackUpViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = .sheet(config)
         alertService.showAlert(alert)
+    }
+
+    func authenticateAndPerform(_ block: () throws -> Void) async {
+        let reason = #localized("Please authenticate", bundle: .module)
+        do {
+            if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                   reason: reason) {
+                try block()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func setBackupFolder(_ folderUrl: URL) {
+        do {
+            let bookmarkData = try folderUrl.bookmarkData(options: .minimalBookmark,
+                                                          includingResourceValuesForKeys: nil,
+                                                          relativeTo: nil)
+            try keychainService.set(bookmarkData,
+                                    for: AppConstants.Settings.backupFolderBookmark,
+                                    shouldSync: false)
+            backUpManager.setDestinationFolder(folderUrl)
+            settingsService.toggleFolderBackup(true)
+            backupActivated = true
+            updateFolderDisplay(from: folderUrl)
+
+            loadData()
+
+            if backups.isEmpty {
+                entryDataService.backUpEntries()
+                loadData()
+            }
+        } catch {
+            log(.error, "Failed to create bookmark: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
     }
 }

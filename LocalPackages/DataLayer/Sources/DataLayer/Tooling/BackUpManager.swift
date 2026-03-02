@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import Foundation
 import Macro
 import Models
@@ -28,10 +29,11 @@ public protocol BackUpServicing: Sendable {
     func write(data: Data) throws
     func read(fileName: String) throws -> Data
     func getAllDocumentsData() throws -> [BackUpFileInfo]
-    // periphery:ignore
     func delete(fileName: String) throws
-    func deleteAllFilesInICloudDocuments() throws
-    func openICloudFolder()
+    func deleteAllBackupFiles() throws
+    func setDestinationFolder(_ url: URL)
+    func resolveDestinationFolder(from bookmarkData: Data) throws -> URL
+    func clearDestinationFolder()
 }
 
 public struct BackUpFileInfo: Sendable, Equatable, Identifiable {
@@ -57,6 +59,7 @@ public final class BackUpManager: BackUpServicing {
     private let coordinator: NSFileCoordinator
     private let maxBackupCount: Int
     private let dateFormatter: DateFormatter
+    private var documentURL: URL?
 
     public init(maxBackupCount: Int = 5) {
         coordinator = NSFileCoordinator()
@@ -65,12 +68,25 @@ public final class BackUpManager: BackUpServicing {
         dateFormatter.dateFormat = "yyyy-MM-dd"
     }
 
-    private var containerURL: URL? {
-        FileManager.default.url(forUbiquityContainerIdentifier: nil)
+    public func setDestinationFolder(_ url: URL) {
+        documentURL = url
     }
 
-    private var documentURL: URL? {
-        containerURL?.appendingPathComponent("Documents")
+    public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
+        var isStale = false
+        let url = try URL(resolvingBookmarkData: bookmarkData,
+                          options: [],
+                          relativeTo: nil,
+                          bookmarkDataIsStale: &isStale)
+        if isStale {
+            throw AuthError.backup(.staleBookmark)
+        }
+        documentURL = url
+        return url
+    }
+
+    public func clearDestinationFolder() {
+        documentURL = nil
     }
 
     public func write(data: Data) throws {
@@ -78,17 +94,20 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let todayFileName = getTodaysBackupFileName()
-        let targetURL = documentURL.appendingPathComponent(todayFileName)
+        try documentURL.withSecurityScopedAccess {
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            let todayFileName = getTodaysBackupFileName()
+            let targetURL = backupDir.appendingPathComponent(todayFileName)
 
-        if FileManager.default.fileExists(atPath: targetURL.path) {
-            try coordinatedWrite(at: targetURL) { url in
-                try data.write(to: url, options: .atomic)
-            }
-        } else {
-            try enforceFileRotationPolicy()
-            try coordinatedWrite(at: targetURL) { url in
-                try data.write(to: url, options: .atomic)
+            if FileManager.default.fileExists(atPath: targetURL.path) {
+                try coordinatedWrite(at: targetURL) { url in
+                    try data.write(to: url, options: .atomic)
+                }
+            } else {
+                try enforceFileRotationPolicy()
+                try coordinatedWrite(at: targetURL) { url in
+                    try data.write(to: url, options: .atomic)
+                }
             }
         }
     }
@@ -97,89 +116,93 @@ public final class BackUpManager: BackUpServicing {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
         }
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        var coordinationError: NSError?
-        var data: Data?
-        var readError: Error?
 
-        coordinator.coordinate(readingItemAt: targetURL, options: [], error: &coordinationError) { url in
-            do {
-                data = try Data(contentsOf: url)
-            } catch {
-                readError = error
+        return try documentURL.withSecurityScopedAccess {
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            let targetURL = backupDir.appendingPathComponent(fileName)
+            var coordinationError: NSError?
+            var data: Data?
+            var readError: Error?
+
+            coordinator.coordinate(readingItemAt: targetURL, options: [], error: &coordinationError) { url in
+                do {
+                    data = try Data(contentsOf: url)
+                } catch {
+                    readError = error
+                }
             }
-        }
 
-        if let error = readError {
-            throw error
-        }
+            if let error = readError {
+                throw error
+            }
 
-        if let coordinationError {
-            throw coordinationError
-        }
+            if let coordinationError {
+                throw coordinationError
+            }
 
-        // Make sure the data read is not empty
-        guard let data else {
-            throw AuthError.backup(.noData)
-        }
+            guard let data else {
+                throw AuthError.backup(.noData)
+            }
 
-        return data
+            return data
+        }
     }
 
-    public func deleteAllFilesInICloudDocuments() throws {
+    public func deleteAllBackupFiles() throws {
         guard let documentURL else {
             return
         }
 
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: nil,
-                                                                   options: [])
-
-        for fileURL in fileURLs {
-            try FileManager.default.removeItem(at: fileURL)
-        }
-    }
-
-    public func openICloudFolder() {
-        guard let documentURL else {
-            return
-        }
-
-        if !FileManager.default.fileExists(atPath: documentURL.path, isDirectory: nil) {
-            do {
-                try FileManager.default.createDirectory(at: documentURL, withIntermediateDirectories: true)
-            } catch {
+        try documentURL.withSecurityScopedAccess {
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            guard backupDir.lastPathComponent == AppConstants.BackupSettings.defaultFolderName else {
                 return
             }
-        }
-
-        if let filesAppURL = URL(string: "shareddocuments://\(documentURL.path)") {
-            if UIApplication.shared.canOpenURL(filesAppURL) {
-                UIApplication.shared.open(filesAppURL)
-            } else {
-                print("Could not open Files app. Please make sure it's installed.")
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
+                                                                       includingPropertiesForKeys: nil,
+                                                                       options: [])
+            for fileURL in fileURLs {
+                try FileManager.default.removeItem(at: fileURL)
             }
-        } else {
-            print("Could not create proper URL to open iCloud folder.")
         }
     }
 
     public func getAllDocumentsData() throws -> [BackUpFileInfo] {
-        try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+        guard let documentURL else {
+            throw AuthError.backup(.noDestinationFolder)
+        }
+
+        return try documentURL.withSecurityScopedAccess {
+            try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+        }
     }
 
-    // periphery:ignore
     public func delete(fileName: String) throws {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let targetURL = documentURL.appendingPathComponent(fileName)
-        try coordinatedDelete(at: targetURL)
+        try documentURL.withSecurityScopedAccess {
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            let targetURL = backupDir.appendingPathComponent(fileName)
+            try coordinatedDelete(at: targetURL)
+        }
     }
 }
 
 private extension BackUpManager {
+    /// Returns the app-owned backup directory inside the user-selected folder.
+    /// Creates it if missing.
+    private func backupDirectoryURL(in documentURL: URL) throws -> URL {
+        let dir = documentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName,
+                                                     isDirectory: true)
+
+        // Always create if missing (idempotent).
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+        return dir
+    }
+
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
         return "Proton_Authenticator_backup_\(todayString).json"
@@ -204,7 +227,8 @@ private extension BackUpManager {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+        let backupDir = try backupDirectoryURL(in: documentURL)
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
                                                                    includingPropertiesForKeys: [
                                                                        .creationDateKey,
                                                                        .isDirectoryKey
@@ -212,10 +236,19 @@ private extension BackUpManager {
                                                                    options: .skipsHiddenFiles)
 
         return try fileURLs.compactMap { url -> BackUpFileInfo? in
-            let resourceValues = try url.resourceValues(forKeys: [.isDirectoryKey, .creationDateKey])
+            guard url.pathExtension.lowercased() == "json" else {
+                return nil
+            }
+
+            let resourceValues = try url.resourceValues(forKeys: [
+                .isDirectoryKey,
+                .creationDateKey,
+                .contentModificationDateKey
+            ])
             guard let isDirectory = resourceValues.isDirectory,
                   !isDirectory,
-                  let creationDate = resourceValues.creationDate else {
+                  let creationDate = resourceValues.creationDate
+                  ?? resourceValues.contentModificationDate else {
                 return nil
             }
             return BackUpFileInfo(name: url.lastPathComponent, creationDate: creationDate, url: url)
@@ -293,25 +326,33 @@ private extension BackUpManager {
 
 private extension Date {
     var formattedBackupDate: String {
-        let formatter = DateFormatter()
         let calendar = Calendar.current
-        let isToday = calendar.isDateInToday(self)
-        let isYesterday = calendar.isDateInYesterday(self)
-
-        if isToday || isYesterday {
-            formatter.doesRelativeDateFormatting = true
-            formatter.dateStyle = .short
-            formatter.timeStyle = .short
-
-            return formatter.string(from: self)
+        let formatter = DateFormatter()
+        if calendar.isDateInToday(self) || calendar.isDateInYesterday(self) {
+            return formatter.relativeFormatter.string(from: self)
+        } else if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
+            return formatter.sameYearFormatter.string(from: self)
         } else {
-            formatter.doesRelativeDateFormatting = false
-            if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
-                formatter.setLocalizedDateFormatFromTemplate("MMM d, HH:mm")
-            } else {
-                formatter.setLocalizedDateFormatFromTemplate("MMM d yyyy, HH:mm")
-            }
-            return formatter.string(from: self)
+            return formatter.otherYearFormatter.string(from: self)
         }
+    }
+}
+
+private extension DateFormatter {
+    var relativeFormatter: DateFormatter {
+        doesRelativeDateFormatting = true
+        dateStyle = .short
+        timeStyle = .short
+        return self
+    }
+
+    var sameYearFormatter: DateFormatter {
+        setLocalizedDateFormatFromTemplate("MMM d, HH:mm")
+        return self
+    }
+
+    var otherYearFormatter: DateFormatter {
+        setLocalizedDateFormatFromTemplate("MMM d yyyy, HH:mm")
+        return self
     }
 }

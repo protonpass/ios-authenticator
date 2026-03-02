@@ -91,6 +91,7 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
+            .animation(.default, value: viewModel.hasDuplicateEntries)
             .settingsListStyle()
             #if os(iOS)
                 .toolbar {
@@ -197,35 +198,17 @@ public struct SettingsView: View {
     }
 }
 
-// swiftlint:disable line_length
-
 // MARK: - Sections
 
 private extension SettingsView {
     var securitySection: some View {
         section("SECURITY") {
-            if viewModel.fullBackupEnabled {
-                SettingRow(title: .localized("Backups", .module),
-                           trailingMode: .detailChevronRight) {
-                    router.navigate(to: .backup)
-                }
-
-                SettingDivider()
-            } else {
-                if #available(iOS 18, *) {
-                    SettingRow(title: .localized("Backup", .module),
-                               subtitle: .localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                                    .module),
-                               trailingMode: .toggle(isOn: viewModel.iCloudSync,
-                                                     onToggle: viewModel.toggleICloudSyncBackup))
-                        .toggleAccessibilityLabel(#localized("Backup", bundle: .module)
-                            + ","
-                            + #localized("Proton Authenticator will periodically save all the data to iCloud.",
-                                         bundle: .module),
-                            activateStatus(viewModel.iCloudSync))
-                    SettingDivider()
-                }
+            SettingRow(title: .localized("Backups", .module),
+                       trailingMode: .detailChevronRight) {
+                router.navigate(to: .backup)
             }
+
+            SettingDivider()
 
             #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
@@ -358,6 +341,14 @@ private extension SettingsView {
             Button { showExportAlert.toggle() } label: {
                 SettingRow(title: .localized("Export", .module))
             }
+
+            if viewModel.hasDuplicateEntries {
+                SettingDivider()
+                SettingRow(title: .localized("Manage duplicate entries", .module),
+                           trailingMode: .detailChevronRight) {
+                    router.navigate(to: .duplicates)
+                }
+            }
         }
     }
 
@@ -432,8 +423,6 @@ private extension SettingsView {
         active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
     }
 }
-
-// swiftlint:enable line_length
 
 // MARK: - Utils
 

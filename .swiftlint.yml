@@ -23,9 +23,14 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
   - LocalPackages/DomainLayer/Tests
   - LocalPackages/Models/Tests
   - LocalPackages/PresentationLayer/Tests
-  - fastlane/*
+  - fastlane
   - misc/*
   - LocalPackages/**/Package.swift
+  - "**/.build"
+  - .build
+  - DerivedData
+  - "**/.build/**"
+  - "**/DerivedData/**"
 
 ##############
 #Disabled rules#

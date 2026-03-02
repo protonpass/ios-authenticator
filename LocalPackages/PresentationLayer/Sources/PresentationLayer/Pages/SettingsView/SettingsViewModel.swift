@@ -36,8 +36,6 @@ import UniformTypeIdentifiers
 
 @Observable
 final class SettingsViewModel {
-    private(set) var fullBackupEnabled = false
-    private(set) var iCloudSync = true
     private(set) var syncEnabled = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
@@ -113,9 +111,6 @@ final class SettingsViewModel {
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
-    private var toggleICloudSyncTask: Task<Void, Never>?
-
-    @ObservationIgnored
     private var cancellables: Set<AnyCancellable> = []
 
     var theme: Theme {
@@ -159,6 +154,10 @@ final class SettingsViewModel {
         userSessionManager.userData?.user.email ?? ""
     }
 
+    var hasDuplicateEntries: Bool {
+        entryDataService.hasDuplicateEntries
+    }
+
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
@@ -171,10 +170,6 @@ final class SettingsViewModel {
             return true
         }
         biometricLock = authenticationService.biometricEnabled
-
-        fullBackupEnabled = settingsService.fullBackUp
-
-        iCloudSync = settingsService.iCloudSync
 
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
@@ -195,9 +190,6 @@ extension SettingsViewModel {
 
     func getSyncMode() -> SyncMode {
         var mode: SyncMode = []
-        if iCloudSync {
-            mode.insert(.iCloud)
-        }
 
         if syncEnabled {
             mode.insert(.proton)
@@ -222,19 +214,6 @@ extension SettingsViewModel {
 
     func togglePassBanner() {
         settingsService.togglePassBanner(!settingsService.showPassBanner)
-    }
-
-    func toggleICloudSyncBackup() {
-        guard toggleICloudSyncTask == nil else { return }
-        toggleICloudSyncTask = Task { [weak self] in
-            guard let self else { return }
-            defer { toggleICloudSyncTask = nil }
-            await authenticateAndPerform {
-                settingsService.toggleICloudSync(!iCloudSync)
-                iCloudSync.toggle()
-            }
-            await localDataManager.refreshLocalStorage()
-        }
     }
 
     #if os(iOS)

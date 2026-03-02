@@ -21,7 +21,6 @@
 
 import Combine
 import CommonUtilities
-import CoreData
 import DataLayer
 import FactoryKit
 import Foundation
@@ -142,23 +141,6 @@ final class EntriesViewModel: ObservableObject {
     private(set) var deleteTask: Task<Void, Never>?
 
     init() {
-        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] notification in
-                let key = NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-                guard let self,
-                      let event = notification.userInfo?[key] as? NSPersistentCloudKitContainer.Event,
-                      event.endDate != nil, event.type == .import
-                else { return }
-                logger.log(.debug,
-                           category: .ui,
-                           "Received notification of updates from iCloud Database",
-                           function: #function,
-                           line: #line)
-                loadEntries()
-            }
-            .store(in: &cancellables)
-
         searchTextStream
             .dropFirst()
             .removeDuplicates()
@@ -243,7 +225,7 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                refreshInAppMessage()
+                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -274,7 +256,8 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                refreshInAppMessage()
+
+                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -384,17 +367,17 @@ private extension EntriesViewModel {
         }
     }
 
-    // swiftlint:disable line_length
-    func refreshInAppMessage() {
-        if settingsService.iCloudSync, entryDataService.hasNonDecryptableEntries {
-            inAppService.show(InAppMessage(id: "iCloudSyncWarning",
-                                           title: #localized("Information", bundle: .module),
-                                           body: #localized("If you run into iCloud sync issues, try turning iCloud Passwords & Keychain off and then back on.",
-                                                            bundle: .module),
-                                           urlString: AppConstants.CommonUrls.iCloudSyncInfos))
-        }
+    func showDuplicateEntriesAlertIfNeed() {
+        guard !settingsService.duplicateAlertShown, entryDataService.hasDuplicateEntries else { return }
+        settingsService.setDuplicateAlertShown(true)
+        // swiftlint:disable line_length
+        alertService.showAlert(.main(.init(title: "Duplicate entries detected",
+                                           titleBundle: .module,
+                                           message: .localized("Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\".",
+                                                               .module),
+                                           actions: [.ok])))
+        // swiftlint:enable line_length
     }
-    // swiftlint:enable line_length
 }
 
 private extension [EntryUiModel] {

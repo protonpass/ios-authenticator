@@ -31,7 +31,6 @@ struct QAMenuView: View {
         NavigationStack {
             List {
                 onboardingSection
-                fullBackup
                 passBannerSection
                 scannerSection
                 actionsSection
@@ -66,19 +65,6 @@ private extension QAMenuView {
             Toggle(isOn: $viewModel.onboarded, label: { Text(verbatim: "Onboarded") })
         }, header: {
             Text(verbatim: "Onboarding")
-        })
-    }
-
-    var fullBackup: some View {
-        Section(content: {
-            Toggle(isOn: $viewModel.fullBackupActivated, label: { Text(verbatim: "iCloud backup section") })
-            if viewModel.fullBackupActivated {
-                Button { viewModel.deleteAll() } label: {
-                    Text(verbatim: "Delete all backups")
-                }
-            }
-        }, header: {
-            Text(verbatim: "Backup options")
         })
     }
 
@@ -120,6 +106,12 @@ private extension QAMenuView {
                 viewModel.deleteAllKeychainData(synchronized: false)
             } label: {
                 Text(verbatim: "Remove all non synchronized data stored in keychain")
+            }
+
+            Button {
+                viewModel.deleteAllBackupFiles()
+            } label: {
+                Text(verbatim: "Remove all backup files")
             }
 
             Button {

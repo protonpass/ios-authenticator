@@ -60,12 +60,6 @@ final class QAMenuViewModel {
         }
     }
 
-    var fullBackupActivated: Bool {
-        didSet {
-            appSettings.setFullBackup(fullBackupActivated)
-        }
-    }
-
     var unsupportedScanning: Bool {
         didSet {
             appSettings.setUnsupportedScanning(unsupportedScanning)
@@ -98,7 +92,6 @@ final class QAMenuViewModel {
         installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
-        fullBackupActivated = appSettings.fullBackUp
         unsupportedScanning = appSettings.unsupportedScanning
         loadKeychainContent()
         loadEntryContent()
@@ -156,8 +149,8 @@ final class QAMenuViewModel {
         }
     }
 
-    func deleteAll() {
-        try? backUpManager.deleteAllFilesInICloudDocuments()
+    func deleteAllBackupFiles() {
+        try? backUpManager.deleteAllBackupFiles()
     }
 
     func loadKeychainContent() {
@@ -167,9 +160,10 @@ final class QAMenuViewModel {
 
     func loadEntryContent() {
         Task {
-            guard let content = try? await entryRepository.getAllLocalEntries() else {
+            guard let result = try? await entryRepository.getAllLocalEntries() else {
                 return
             }
+            let content = result.entries
             let nonDecryptableEntries = content.filter(\.isNonDecryptable).count
             let decryptableEntries = content.count(where: { !$0.isNonDecryptable })
             entriesContent = EntryContent(numberOfDecryptedEntries: decryptableEntries,

@@ -98,10 +98,6 @@ private extension DeleteAllDataView {
 
                 deletionLabel("Data on this device")
 
-                if mode.contains(.iCloud) {
-                    deletionLabel("Data in iCloud")
-                }
-
                 if mode.contains(.proton) {
                     deletionLabel("Data on Proton servers")
                 }
@@ -129,9 +125,14 @@ private extension DeleteAllDataView {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: dismiss.callAsFunction) {
-                        Image(systemName: "xmark.circle.fill")
-                            .frame(width: 24)
-                            .foregroundStyle(.textWeak)
+                        if #available(iOS 26, macOS 26, *) {
+                            Image(systemName: "xmark")
+                        } else {
+                            Image(systemName: "xmark")
+                                .frame(width: 24)
+                                .foregroundStyle(.textWeak)
+                                .adaptiveButtonStyle()
+                        }
                     }
                 }
             }

@@ -42,7 +42,11 @@ public struct OnboardingView: View {
                           context: .onboarding,
                           onComplete: goNext)
         .onChange(of: viewModel.biometricEnabled, goNext)
-        .onChange(of: viewModel.iCloudSyncEnabled, goNext)
+        .sheet(isPresented: $viewModel.showBackUpView, onDismiss: goNext) {
+            NavigationStack {
+                BackUpView()
+            }
+        }
     }
 }
 
@@ -74,11 +78,12 @@ private extension OnboardingView {
                         .frame(maxWidth: 260)
                         .offset(y: AppConstants.isPhone ? height / 10 : 0)
 
-                case .iCloudSync:
-                    LottieView(animation: .named("iCloudSync", bundle: .module))
+                case .backup:
+                    LottieView(animation: .named("LockTree", bundle: .module))
                         .playing(loopMode: .playOnce)
-                        .scaleEffect(AppConstants.isPhone ? 1.2 : 1.5)
-                        .offset(y: height / 5)
+                        .frame(maxWidth: 185)
+                    Spacer()
+                        .frame(height: 60)
                 }
             }
             .frame(height: height)
@@ -110,7 +115,7 @@ private extension OnboardingView {
                 switch viewModel.currentStep {
                 case .intro:
                     actions(supportSkipping: false)
-                case .biometric, .iCloudSync, .import:
+                case .backup, .biometric, .import:
                     actions()
                 }
             }
@@ -131,8 +136,8 @@ private extension OnboardingView {
                     showImportOptions.toggle()
                 case .biometric:
                     viewModel.enableBiometric()
-                case .iCloudSync:
-                    viewModel.enableICloudSync()
+                case .backup:
+                    viewModel.enableBackup()
                 }
             }
             .impactHaptic()
@@ -172,7 +177,7 @@ private extension OnboardStep {
             "Import codes"
         case .biometric:
             "Protect your data"
-        case .iCloudSync:
+        case .backup:
             "Keep your data safe"
         }
     }
@@ -192,8 +197,8 @@ private extension OnboardStep {
             case .opticID:
                 "Add an extra layer of security with Optic ID."
             }
-        case .iCloudSync:
-            "Back up your data securely with encrypted iCloud sync."
+        case .backup:
+            "Set up automatic encrypted backups to a folder of your choice."
         }
     }
 
@@ -212,8 +217,8 @@ private extension OnboardStep {
             case .opticID:
                 "Enable Optic ID"
             }
-        case .iCloudSync:
-            "Enable iCloud sync"
+        case .backup:
+            "Set up backups"
         }
     }
 }
