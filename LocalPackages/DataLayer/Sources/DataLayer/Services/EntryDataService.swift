@@ -353,7 +353,7 @@ public extension EntryDataService {
     }
 
     func backUpEntries() {
-        guard settings.documentBackup else { return }
+        guard settings.folderBackup else { return }
 
         do {
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,

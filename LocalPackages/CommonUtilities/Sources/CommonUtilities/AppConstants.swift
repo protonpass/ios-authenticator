@@ -42,6 +42,7 @@ public enum AppConstants: Sendable {
     public static let appStoreUrl = "itms-apps://itunes.apple.com/app/id6741758667"
     public static let maxFileSizeInBytes = 10 * 1_024 * 1_024 // 10 MB
     public static let icloudContainerIdentifier = "iCloud.me.proton.authenticator"
+    public static let defaultFolderName = "Proton Authenticator Backups"
 
     public enum QA {
         public static let mockEntriesDisplay = "MockEntriesDisplay"
@@ -61,7 +62,7 @@ public enum AppConstants: Sendable {
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
-        public static let documentBackup = "ICloudDocumentBackUp"
+        public static let folderBackup = "FolderBackup"
         public static let iCloudSync = "ICloudBackUp"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"

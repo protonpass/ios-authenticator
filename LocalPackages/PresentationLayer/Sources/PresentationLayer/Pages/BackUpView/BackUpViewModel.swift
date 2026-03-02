@@ -199,7 +199,7 @@ final class BackUpViewModel {
             return
         }
 
-        let folderURL = documentsURL.appendingPathComponent(Self.defaultFolderName)
+        let folderURL = documentsURL.appendingPathComponent(AppConstants.defaultFolderName)
 
         do {
             if !FileManager.default.fileExists(atPath: folderURL.path) {
@@ -272,10 +272,8 @@ final class BackUpViewModel {
 }
 
 private extension BackUpViewModel {
-    static let defaultFolderName = "Proton Authenticator Backups"
-
     func setUp() {
-        backupActivated = settingsService.documentBackup
+        backupActivated = settingsService.folderBackup
         guard backupActivated else { return }
 
         // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade

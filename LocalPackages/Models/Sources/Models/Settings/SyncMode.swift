@@ -26,6 +26,5 @@ public struct SyncMode: OptionSet, Sendable {
     }
 
     public static let local = SyncMode(rawValue: 1 << 0)
-    public static let iCloud = SyncMode(rawValue: 1 << 1)
-    public static let proton = SyncMode(rawValue: 1 << 2)
+    public static let proton = SyncMode(rawValue: 1 << 1)
 }

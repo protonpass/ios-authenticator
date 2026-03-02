@@ -35,7 +35,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
     var iCloudSync: Bool { get }
-    var documentBackup: Bool { get }
+    var folderBackup: Bool { get }
     var backupFolderBookmark: Data? { get }
     var fullBackUp: Bool { get }
     var unsupportedScanning: Bool { get }
@@ -81,7 +81,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
     public private(set) var iCloudSync: Bool
-    public private(set) var documentBackup: Bool
+    public private(set) var folderBackup: Bool
     public private(set) var backupFolderBookmark: Data?
     public private(set) var fullBackUp: Bool
     public private(set) var unsupportedScanning: Bool
@@ -95,7 +95,7 @@ public final class SettingsService: SettingsServicing {
             AppConstants.Settings.installationTimestamp: Date.now.timeIntervalSince1970,
             AppConstants.Settings.hapticFeedbackEnabled: true,
             AppConstants.Settings.iCloudSync: false,
-            AppConstants.Settings.documentBackup: false,
+            AppConstants.Settings.folderBackup: false,
             AppConstants.Settings.fullBackUp: false,
             AppConstants.Settings.unsupportedScanning: false,
             AppConstants.Settings.duplicateAlertShown: false
@@ -118,7 +118,7 @@ public final class SettingsService: SettingsServicing {
         hapticFeedbackEnabled = store.bool(forKey: AppConstants.Settings.hapticFeedbackEnabled)
         focusSearchOnLaunch = store.bool(forKey: AppConstants.Settings.focusSearchOnLaunchEnabled)
         iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
-        documentBackup = store.bool(forKey: AppConstants.Settings.documentBackup)
+        folderBackup = store.bool(forKey: AppConstants.Settings.folderBackup)
         backupFolderBookmark = store.data(forKey: AppConstants.Settings.backupFolderBookmark)
         unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
         sortOption = store.value(for: AppConstants.Settings.sortOption)
@@ -198,9 +198,9 @@ public extension SettingsService {
     }
 
     func toggleDocumentBackup(_ value: Bool) {
-        update(currentValue: &documentBackup,
+        update(currentValue: &folderBackup,
                newValue: value,
-               key: AppConstants.Settings.documentBackup)
+               key: AppConstants.Settings.folderBackup)
         if !value {
             setBackupFolderBookmark(nil)
         }
