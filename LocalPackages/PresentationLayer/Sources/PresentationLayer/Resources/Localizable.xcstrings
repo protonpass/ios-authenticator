@@ -3148,16 +3148,6 @@
         }
       }
     },
-    "Delete all local backups" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete all local backups"
-          }
-        }
-      }
-    },
     "Delete backup" : {
       "localizations" : {
         "en" : {
@@ -12508,16 +12498,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu seçeneği, satırın sağındaki değiştirme düğmesine tıklayarak değiştirebilirsiniz."
-          }
-        }
-      }
-    },
-    "You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone."
           }
         }
       }

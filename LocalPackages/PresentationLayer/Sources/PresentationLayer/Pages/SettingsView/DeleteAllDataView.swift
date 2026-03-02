@@ -102,17 +102,6 @@ private extension DeleteAllDataView {
                     deletionLabel("Data on Proton servers")
                 }
 
-                if viewModel.backupActivated {
-                    Toggle("Delete all local backups", isOn: $viewModel.shouldDeleteLocalBackups)
-                    if viewModel.shouldDeleteLocalBackups {
-                        // swiftlint:disable:next line_length
-                        Text("You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone.",
-                             bundle: .module)
-                            .font(.footnote)
-                            .foregroundStyle(.danger)
-                    }
-                }
-
                 TextField(#localized("Please type \"%@\" to proceed", bundle: .module, deleteText),
                           text: $confirmationText)
                     .foregroundStyle(.textNorm)
@@ -132,7 +121,6 @@ private extension DeleteAllDataView {
 
                 Spacer()
             }
-            .animation(.default, value: viewModel.shouldDeleteLocalBackups)
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

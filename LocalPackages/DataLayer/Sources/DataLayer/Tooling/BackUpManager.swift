@@ -94,7 +94,7 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try withSecurityScopedAccess(to: documentURL) {
+        try documentURL.withSecurityScopedAccess {
             let backupDir = try backupDirectoryURL(in: documentURL)
             let todayFileName = getTodaysBackupFileName()
             let targetURL = backupDir.appendingPathComponent(todayFileName)
@@ -117,7 +117,7 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try withSecurityScopedAccess(to: documentURL) {
+        return try documentURL.withSecurityScopedAccess {
             let backupDir = try backupDirectoryURL(in: documentURL)
             let targetURL = backupDir.appendingPathComponent(fileName)
             var coordinationError: NSError?
@@ -153,7 +153,7 @@ public final class BackUpManager: BackUpServicing {
             return
         }
 
-        try withSecurityScopedAccess(to: documentURL) {
+        try documentURL.withSecurityScopedAccess {
             let backupDir = try backupDirectoryURL(in: documentURL)
             guard backupDir.lastPathComponent == AppConstants.BackupSettings.defaultFolderName else {
                 return
@@ -172,7 +172,7 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try withSecurityScopedAccess(to: documentURL) {
+        return try documentURL.withSecurityScopedAccess {
             try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
         }
     }
@@ -182,7 +182,7 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try withSecurityScopedAccess(to: documentURL) {
+        try documentURL.withSecurityScopedAccess {
             let backupDir = try backupDirectoryURL(in: documentURL)
             let targetURL = backupDir.appendingPathComponent(fileName)
             try coordinatedDelete(at: targetURL)
@@ -201,16 +201,6 @@ private extension BackUpManager {
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
         return dir
-    }
-
-    func withSecurityScopedAccess<T>(to url: URL, body: () throws -> T) rethrows -> T {
-        let didStart = url.startAccessingSecurityScopedResource()
-        defer {
-            if didStart {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-        return try body()
     }
 
     func getTodaysBackupFileName() -> String {
@@ -250,7 +240,11 @@ private extension BackUpManager {
                 return nil
             }
 
-            let resourceValues = try url.resourceValues(forKeys: [.isDirectoryKey, .creationDateKey])
+            let resourceValues = try url.resourceValues(forKeys: [
+                .isDirectoryKey,
+                .creationDateKey,
+                .contentModificationDateKey
+            ])
             guard let isDirectory = resourceValues.isDirectory,
                   !isDirectory,
                   let creationDate = resourceValues.creationDate
