@@ -54,7 +54,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
     func toggleICloudSync(_ value: Bool)
-    func toggleDocumentBackup(_ value: Bool)
+    func toggleFolderBackup(_ value: Bool)
     func setBackupFolderBookmark(_ data: Data?)
     func setUnsupportedScanning(_ value: Bool)
     func setSortOption(_ value: SortOption)
@@ -197,7 +197,7 @@ public extension SettingsService {
                key: AppConstants.Settings.iCloudSync)
     }
 
-    func toggleDocumentBackup(_ value: Bool) {
+    func toggleFolderBackup(_ value: Bool) {
         update(currentValue: &folderBackup,
                newValue: value,
                key: AppConstants.Settings.folderBackup)

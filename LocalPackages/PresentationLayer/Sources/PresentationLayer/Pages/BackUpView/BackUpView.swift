@@ -67,7 +67,7 @@ struct BackUpView: View {
                 Button { viewModel.useDefaultDestination() } label: {
                     Text("Use default folder", bundle: .module)
                 }
-                Button { viewModel.chooseCustomDestination() } label: {
+                Button { viewModel.showFolderPicker = true } label: {
                     Text("Choose folder", bundle: .module)
                 }
                 Button("Cancel", role: .cancel) {}
@@ -168,7 +168,7 @@ private extension BackUpView {
                                              onToggle: viewModel.toggleBackup))
             if viewModel.backupActivated {
                 SettingDivider()
-                Button { viewModel.changeFolder() } label: {
+                Button { viewModel.showFolderPicker = true } label: {
                     VStack(alignment: .leading, spacing: 4) {
                         row(title: .localized("Folder location", .module), imageName: "chevron.right")
                         if let folderName = viewModel.folderDisplayName {
@@ -198,7 +198,7 @@ private extension BackUpView {
         if viewModel.showBackup {
             section("BACKUPS") {
                 ForEach(viewModel.backups) { backup in
-                    Button { viewModel.selectBackup(backup) } label: {
+                    Button { viewModel.selectedBackup = backup } label: {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)

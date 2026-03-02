@@ -48,13 +48,12 @@ struct DuplicateEntriesView: View {
         }
     }
 
-    // swiftlint:disable:next todo
-    // TODO: content state implementation
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        ContentUnavailableView {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 48))
                 .foregroundStyle(.accent)
+        } description: {
             Text("No duplicate entries", bundle: .module)
                 .dynamicFont(size: 17, textStyle: .body)
                 .foregroundStyle(.textNorm)
@@ -99,8 +98,4 @@ struct DuplicateEntriesView: View {
             }
         }
     }
-}
-
-#Preview {
-    DuplicateEntriesView()
 }

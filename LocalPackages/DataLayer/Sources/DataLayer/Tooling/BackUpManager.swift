@@ -31,7 +31,6 @@ public protocol BackUpServicing: Sendable {
     func getAllDocumentsData() throws -> [BackUpFileInfo]
     func delete(fileName: String) throws
     func deleteAllBackupFiles() throws
-    func openBackupFolder()
     func setDestinationFolder(_ url: URL)
     func resolveDestinationFolder(from bookmarkData: Data) throws -> URL
     func clearDestinationFolder()
@@ -165,21 +164,6 @@ public final class BackUpManager: BackUpServicing {
             for fileURL in fileURLs {
                 try FileManager.default.removeItem(at: fileURL)
             }
-        }
-    }
-
-    public func openBackupFolder() {
-        guard let documentURL else {
-            return
-        }
-
-        let backupDir = documentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName,
-                                                           isDirectory: true)
-        var components = URLComponents()
-        components.scheme = "shareddocuments"
-        components.path = backupDir.path
-        if let filesAppURL = components.url, UIApplication.shared.canOpenURL(filesAppURL) {
-            UIApplication.shared.open(filesAppURL)
         }
     }
 
