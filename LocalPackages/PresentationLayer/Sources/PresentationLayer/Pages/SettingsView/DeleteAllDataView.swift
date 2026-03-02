@@ -98,12 +98,17 @@ private extension DeleteAllDataView {
 
                 deletionLabel("Data on this device")
 
-//                if mode.contains(.iCloud) {
-//                    deletionLabel("Data in iCloud")
-//                }
-
                 if mode.contains(.proton) {
                     deletionLabel("Data on Proton servers")
+                }
+
+                if viewModel.backupActivated {
+                    Toggle("Delete all local backups", isOn: $viewModel.shouldDeleteLocalBackups)
+                    if viewModel.shouldDeleteLocalBackups {
+                        Text("You have selected to delete all current local backups. This will erase all data that was backed up to your device. This is permanent and cannot be undone.")
+                            .font(.footnote)
+                            .foregroundStyle(.danger)
+                    }
                 }
 
                 TextField(#localized("Please type \"%@\" to proceed", bundle: .module, deleteText),
@@ -129,9 +134,14 @@ private extension DeleteAllDataView {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: dismiss.callAsFunction) {
-                        Image(systemName: "xmark.circle.fill")
-                            .frame(width: 24)
-                            .foregroundStyle(.textWeak)
+                        if #available(iOS 26, macOS 26, *) {
+                            Image(systemName: "xmark")
+                        } else {
+                            Image(systemName: "xmark")
+                                .frame(width: 24)
+                                .foregroundStyle(.textWeak)
+                                .adaptiveButtonStyle()
+                        }
                     }
                 }
             }

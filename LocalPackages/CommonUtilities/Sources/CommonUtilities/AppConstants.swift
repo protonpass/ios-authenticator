@@ -42,7 +42,6 @@ public enum AppConstants: Sendable {
     public static let appStoreUrl = "itms-apps://itunes.apple.com/app/id6741758667"
     public static let maxFileSizeInBytes = 10 * 1_024 * 1_024 // 10 MB
     public static let icloudContainerIdentifier = "iCloud.me.proton.authenticator"
-    public static let defaultFolderName = "Proton Authenticator Backups"
 
     public enum QA {
         public static let mockEntriesDisplay = "MockEntriesDisplay"
@@ -75,6 +74,10 @@ public enum AppConstants: Sendable {
 
     public enum NetworkSettings {
         public static let batchSize = 100
+    }
+
+    public enum BackupSettings {
+        public static let defaultFolderName = "Proton Authenticator Backups"
     }
 
     @MainActor

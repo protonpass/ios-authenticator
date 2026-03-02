@@ -25,6 +25,7 @@ import Observation
 @Observable
 final class DeleteAllDataViewModel {
     private(set) var state: State = .idle
+    var shouldDeleteLocalBackups = false
 
     enum State: Equatable {
         case idle
@@ -44,9 +45,20 @@ final class DeleteAllDataViewModel {
         }
     }
 
+    var backupActivated: Bool {
+        settingsService.folderBackup
+    }
+
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
     private(set) var entryDataService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.backUpManager)
+    private var backUpManager
 
     init() {}
 
@@ -57,6 +69,9 @@ final class DeleteAllDataViewModel {
             guard let self else { return }
             do {
                 try await entryDataService.deleteAllEntries()
+                if backupActivated, shouldDeleteLocalBackups {
+                    try backUpManager.deleteAllBackupFiles()
+                }
                 state = .deleted
             } catch {
                 state = .error(error)

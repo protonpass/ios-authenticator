@@ -204,7 +204,7 @@ final class BackUpViewModel {
             return
         }
 
-        let folderURL = documentsURL.appendingPathComponent(AppConstants.defaultFolderName)
+        let folderURL = documentsURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
 
         do {
             if !FileManager.default.fileExists(atPath: folderURL.path) {
