@@ -48,6 +48,7 @@ final class BackUpViewModel {
     var folderDisplayName: String?
     var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
+    var selectedBackup: BackUpFileInfo?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
@@ -162,6 +163,10 @@ final class BackUpViewModel {
                 }
             }
         }
+    }
+
+    func selectBackup(_ backup: BackUpFileInfo) {
+        selectedBackup = backup
     }
 
     func backup() {

@@ -242,10 +242,15 @@ private extension BackUpManager {
                                                                    options: .skipsHiddenFiles)
 
         return try fileURLs.compactMap { url -> BackUpFileInfo? in
+            guard url.pathExtension.lowercased() == "json" else {
+                return nil
+            }
+
             let resourceValues = try url.resourceValues(forKeys: [.isDirectoryKey, .creationDateKey])
             guard let isDirectory = resourceValues.isDirectory,
                   !isDirectory,
-                  let creationDate = resourceValues.creationDate else {
+                  let creationDate = resourceValues.creationDate
+                  ?? resourceValues.contentModificationDate else {
                 return nil
             }
             return BackUpFileInfo(name: url.lastPathComponent, creationDate: creationDate, url: url)

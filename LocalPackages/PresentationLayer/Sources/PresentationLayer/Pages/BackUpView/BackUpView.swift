@@ -90,6 +90,18 @@ struct BackUpView: View {
                     viewModel.password = ""
                 }
             }
+            .alert("Backup restoration",
+                   isPresented: $viewModel.selectedBackup.mappedToBool(),
+                   presenting: viewModel.selectedBackup) { backup in
+                Button { viewModel.load(backup: backup) } label: {
+                    Text("Restore", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {
+                    viewModel.selectedBackup = nil
+                }
+            } message: { backup in
+                Text("Are you sure you want to restore the backup named \(backup.name)?")
+            }
 
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -142,7 +154,7 @@ private extension BackUpView {
     }
 
     var setupSection: some View {
-        section("SETUP") {
+        section("BACKUP SETTINGS") {
             SettingRow(title: .localized("Automatic Backup", .module),
                        trailingMode: .toggle(isOn: viewModel.backupActivated,
                                              onToggle: viewModel.toggleBackup))
@@ -178,7 +190,7 @@ private extension BackUpView {
         if viewModel.showBackup {
             section("BACKUPS") {
                 ForEach(viewModel.backups) { backup in
-                    Button { viewModel.load(backup: backup) } label: {
+                    Button { viewModel.selectBackup(backup) } label: {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)

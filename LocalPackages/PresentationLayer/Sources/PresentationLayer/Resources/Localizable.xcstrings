@@ -836,6 +836,16 @@
         }
       }
     },
+    "Are you sure you want to restore the backup named %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to restore the backup named %@?"
+          }
+        }
+      }
+    },
     "Are you sure?" : {
       "localizations" : {
         "de" : {
@@ -1158,6 +1168,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Şimdi yedekle"
+          }
+        }
+      }
+    },
+    "Backup restoration" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup restoration"
+          }
+        }
+      }
+    },
+    "BACKUP SETTINGS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACKUP SETTINGS"
           }
         }
       }
@@ -9130,6 +9160,16 @@
         }
       }
     },
+    "Restore" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore"
+          }
+        }
+      }
+    },
     "Retry" : {
       "localizations" : {
         "de" : {
@@ -10108,16 +10148,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ayarlar"
-          }
-        }
-      }
-    },
-    "SETUP" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SETUP"
           }
         }
       }
