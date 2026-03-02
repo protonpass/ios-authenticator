@@ -102,6 +102,14 @@ struct BackUpView: View {
             } message: { backup in
                 Text("Are you sure you want to restore the backup named \(backup.name)?")
             }
+            .alert("Delete backup",
+                   isPresented: $viewModel.backupToDelete.mappedToBool(),
+                   presenting: viewModel.backupToDelete) { _ in
+                Button("Delete", role: .destructive) { viewModel.confirmDeleteBackup() }
+                Button("Cancel", role: .cancel) { viewModel.backupToDelete = nil }
+            } message: { backup in
+                Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.")
+            }
 
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -194,6 +202,13 @@ private extension BackUpView {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            viewModel.deleteBackup(backup)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 }
             }
             VStack {

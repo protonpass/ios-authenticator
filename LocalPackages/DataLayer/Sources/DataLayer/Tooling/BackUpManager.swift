@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
+import CommonUtilities
 import Foundation
 import Macro
 import Models
@@ -28,7 +29,6 @@ public protocol BackUpServicing: Sendable {
     func write(data: Data) throws
     func read(fileName: String) throws -> Data
     func getAllDocumentsData() throws -> [BackUpFileInfo]
-    // periphery:ignore
     func delete(fileName: String) throws
     func deleteAllBackupFiles() throws
     func openBackupFolder()
@@ -96,8 +96,9 @@ public final class BackUpManager: BackUpServicing {
         }
 
         try withSecurityScopedAccess(to: documentURL) {
+            let backupDir = try backupDirectoryURL(in: documentURL)
             let todayFileName = getTodaysBackupFileName()
-            let targetURL = documentURL.appendingPathComponent(todayFileName)
+            let targetURL = backupDir.appendingPathComponent(todayFileName)
 
             if FileManager.default.fileExists(atPath: targetURL.path) {
                 try coordinatedWrite(at: targetURL) { url in
@@ -118,7 +119,8 @@ public final class BackUpManager: BackUpServicing {
         }
 
         return try withSecurityScopedAccess(to: documentURL) {
-            let targetURL = documentURL.appendingPathComponent(fileName)
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            let targetURL = backupDir.appendingPathComponent(fileName)
             var coordinationError: NSError?
             var data: Data?
             var readError: Error?
@@ -153,10 +155,13 @@ public final class BackUpManager: BackUpServicing {
         }
 
         try withSecurityScopedAccess(to: documentURL) {
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            guard backupDir.lastPathComponent == AppConstants.BackupSettings.defaultFolderName else {
+                return
+            }
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
                                                                        includingPropertiesForKeys: nil,
                                                                        options: [])
-
             for fileURL in fileURLs {
                 try FileManager.default.removeItem(at: fileURL)
             }
@@ -168,9 +173,11 @@ public final class BackUpManager: BackUpServicing {
             return
         }
 
+        let backupDir = documentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName,
+                                                           isDirectory: true)
         var components = URLComponents()
         components.scheme = "shareddocuments"
-        components.path = documentURL.path
+        components.path = backupDir.path
         if let filesAppURL = components.url, UIApplication.shared.canOpenURL(filesAppURL) {
             UIApplication.shared.open(filesAppURL)
         }
@@ -186,20 +193,32 @@ public final class BackUpManager: BackUpServicing {
         }
     }
 
-    // periphery:ignore
     public func delete(fileName: String) throws {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
         }
 
         try withSecurityScopedAccess(to: documentURL) {
-            let targetURL = documentURL.appendingPathComponent(fileName)
+            let backupDir = try backupDirectoryURL(in: documentURL)
+            let targetURL = backupDir.appendingPathComponent(fileName)
             try coordinatedDelete(at: targetURL)
         }
     }
 }
 
 private extension BackUpManager {
+    /// Returns the app-owned backup directory inside the user-selected folder.
+    /// Creates it if missing.
+    private func backupDirectoryURL(in documentURL: URL) throws -> URL {
+        let dir = documentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName,
+                                                     isDirectory: true)
+
+        // Always create if missing (idempotent).
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+        return dir
+    }
+
     func withSecurityScopedAccess<T>(to url: URL, body: () throws -> T) rethrows -> T {
         let didStart = url.startAccessingSecurityScopedResource()
         defer {
@@ -234,7 +253,8 @@ private extension BackUpManager {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+        let backupDir = try backupDirectoryURL(in: documentURL)
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
                                                                    includingPropertiesForKeys: [
                                                                        .creationDateKey,
                                                                        .isDirectoryKey

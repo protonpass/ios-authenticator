@@ -766,6 +766,16 @@
         }
       }
     },
+    "Are you sure you want to delete the backup \"%@\"? This cannot be undone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete the backup \"%@\"? This cannot be undone."
+          }
+        }
+      }
+    },
     "Are you sure you want to delete this entry? This action is irreversible." : {
       "localizations" : {
         "de" : {
@@ -3144,6 +3154,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete all local backups"
+          }
+        }
+      }
+    },
+    "Delete backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete backup"
           }
         }
       }

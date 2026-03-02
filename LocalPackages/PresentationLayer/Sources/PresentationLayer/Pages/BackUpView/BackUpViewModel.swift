@@ -49,6 +49,7 @@ final class BackUpViewModel {
     var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
     var selectedBackup: BackUpFileInfo?
+    var backupToDelete: BackUpFileInfo?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
@@ -169,6 +170,22 @@ final class BackUpViewModel {
         selectedBackup = backup
     }
 
+    func deleteBackup(_ backup: BackUpFileInfo) {
+        backupToDelete = backup
+    }
+
+    func confirmDeleteBackup() {
+        guard let backup = backupToDelete else { return }
+        backupToDelete = nil
+        do {
+            try backUpManager.delete(fileName: backup.name)
+            loadData()
+        } catch {
+            log(.error, "Failed to delete backup: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func backup() {
         entryDataService.backUpEntries()
         loadData()
@@ -204,23 +221,17 @@ final class BackUpViewModel {
             return
         }
 
-        let folderURL = documentsURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
-
         do {
-            if !FileManager.default.fileExists(atPath: folderURL.path) {
-                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-            }
-
-            let bookmarkData = try folderURL.bookmarkData(options: [],
-                                                          includingResourceValuesForKeys: nil,
-                                                          relativeTo: nil)
+            let bookmarkData = try documentsURL.bookmarkData(options: [],
+                                                             includingResourceValuesForKeys: nil,
+                                                             relativeTo: nil)
             try keychainService.set(bookmarkData,
                                     for: AppConstants.Settings.backupFolderBookmark,
                                     shouldSync: false)
-            backUpManager.setDestinationFolder(folderURL)
+            backUpManager.setDestinationFolder(documentsURL)
             settingsService.toggleDocumentBackup(true)
             backupActivated = true
-            updateFolderDisplay(from: folderURL)
+            updateFolderDisplay(from: documentsURL)
 
             loadData()
 
@@ -301,9 +312,10 @@ private extension BackUpViewModel {
         }
     }
 
-    func updateFolderDisplay(from url: URL) {
-        folderDisplayName = url.lastPathComponent
-        folderPath = url.path
+    func updateFolderDisplay(from parentURL: URL) {
+        let backupDir = parentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
+        folderDisplayName = backupDir.lastPathComponent
+        folderPath = parentURL.path
     }
 
     func showCompletion(_ numberOfEntries: Int) {
