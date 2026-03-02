@@ -109,6 +109,12 @@ private extension QAMenuView {
             }
 
             Button {
+                viewModel.deleteAllBackupFiles()
+            } label: {
+                Text(verbatim: "Remove all backup files")
+            }
+
+            Button {
                 viewModel.deleteAllLogs()
             } label: {
                 Text(verbatim: "Remove all local logs")
