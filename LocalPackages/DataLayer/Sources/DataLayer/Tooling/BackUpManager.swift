@@ -74,10 +74,8 @@ public final class BackUpManager: BackUpServicing {
 
     public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
         var isStale = false
-        // .withSecurityScope (raw 1<<10) is macOS-only at compile time;
-        // use the raw value so the iOS binary can pass it when running on Mac.
         let resolutionOptions: URL.BookmarkResolutionOptions = ProcessInfo.processInfo.isiOSAppOnMac
-            ? URL.BookmarkResolutionOptions(rawValue: 1 << 10)
+            ? .macSecurityScope
             : []
         let url = try URL(resolvingBookmarkData: bookmarkData,
                           options: resolutionOptions,

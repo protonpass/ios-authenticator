@@ -291,10 +291,8 @@ private extension BackUpViewModel {
 
     func setBackupFolder(_ folderUrl: URL) {
         do {
-            // .withSecurityScope (raw 1<<11) is macOS-only at compile time;
-            // use the raw value so the iOS binary can pass it when running on Mac.
             let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
-                ? URL.BookmarkCreationOptions(rawValue: 1 << 11)
+                ? .macSecurityScope
                 : .minimalBookmark
             let bookmarkData = try folderUrl.bookmarkData(options: bookmarkOptions,
                                                           includingResourceValuesForKeys: nil,
