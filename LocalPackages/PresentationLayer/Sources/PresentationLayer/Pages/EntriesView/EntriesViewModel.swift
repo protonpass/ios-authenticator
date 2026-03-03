@@ -220,7 +220,7 @@ final class EntriesViewModel {
         guard fullSyncTask == nil else {
             return
         }
-        fullSyncTask = Task { @MainActor [weak self] in
+        fullSyncTask = Task { [weak self] in
             guard let self else { return }
             defer {
                 fullSyncTask = nil
@@ -271,7 +271,7 @@ extension EntriesViewModel {
         hapticsManager(.defaultImpact)
         #endif
         badgeTask?.cancel()
-        badgeTask = Task { @MainActor [weak self] in
+        badgeTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else { return }
@@ -379,7 +379,7 @@ private extension EntriesViewModel {
 
     func confirmDelete(_ entry: EntryUiModel) {
         guard deleteTask == nil else { return }
-        deleteTask = Task { @MainActor [weak self] in
+        deleteTask = Task { [weak self] in
             guard let self else { return }
             defer { deleteTask = nil }
             do {
