@@ -79,8 +79,9 @@ private extension OnboardingView {
                         .offset(y: AppConstants.isPhone ? height / 10 : 0)
 
                 case .backup:
-                    LottieView(animation: .named("LockTree", bundle: .module))
-                        .playing(loopMode: .playOnce)
+                    Image(.backupsOnboarding)
+                        .resizable()
+                        .scaledToFit()
                         .frame(maxWidth: 185)
                     Spacer()
                         .frame(height: 60)
