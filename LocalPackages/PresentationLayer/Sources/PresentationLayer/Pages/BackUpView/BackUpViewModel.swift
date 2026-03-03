@@ -48,6 +48,8 @@ final class BackUpViewModel {
     var folderDisplayName: String?
     var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
+    var selectedBackup: BackUpFileInfo?
+    var backupToDelete: BackUpFileInfo?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
@@ -149,7 +151,7 @@ final class BackUpViewModel {
             defer { toggleBackupTask = nil }
             await authenticateAndPerform {
                 if backupActivated {
-                    settingsService.toggleDocumentBackup(false)
+                    settingsService.toggleFolderBackup(false)
                     try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
                                                 isSynced: false)
                     backUpManager.clearDestinationFolder()
@@ -161,6 +163,22 @@ final class BackUpViewModel {
                     showPasswordAlert = true
                 }
             }
+        }
+    }
+
+    func deleteBackup(_ backup: BackUpFileInfo) {
+        backupToDelete = backup
+    }
+
+    func confirmDeleteBackup() {
+        guard let backup = backupToDelete else { return }
+        backupToDelete = nil
+        do {
+            try backUpManager.delete(fileName: backup.name)
+            loadData()
+        } catch {
+            log(.error, "Failed to delete backup: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -188,10 +206,6 @@ final class BackUpViewModel {
         }
     }
 
-    func changeFolder() {
-        showFolderPicker = true
-    }
-
     func useDefaultDestination() {
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory,
                                                           in: .userDomainMask).first else {
@@ -199,28 +213,7 @@ final class BackUpViewModel {
             return
         }
 
-        let folderURL = documentsURL.appendingPathComponent(Self.defaultFolderName)
-
-        do {
-            if !FileManager.default.fileExists(atPath: folderURL.path) {
-                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-            }
-
-            let bookmarkData = try folderURL.bookmarkData(options: [],
-                                                          includingResourceValuesForKeys: nil,
-                                                          relativeTo: nil)
-            try keychainService.set(bookmarkData,
-                                    for: AppConstants.Settings.backupFolderBookmark,
-                                    shouldSync: false)
-            activateBackup(at: folderURL)
-        } catch {
-            log(.error, "Failed to set default destination: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func chooseCustomDestination() {
-        showFolderPicker = true
+        setBackupFolder(documentsURL)
     }
 
     func handleFolderSelection(_ result: Result<URL, Error>) {
@@ -232,19 +225,7 @@ final class BackUpViewModel {
             }
             defer { url.stopAccessingSecurityScopedResource() }
 
-            do {
-                let bookmarkData = try url.bookmarkData(options: .minimalBookmark,
-                                                        includingResourceValuesForKeys: nil,
-                                                        relativeTo: nil)
-                try keychainService.set(bookmarkData,
-                                        for: AppConstants.Settings.backupFolderBookmark,
-                                        shouldSync: false)
-                activateBackup(at: url)
-            } catch {
-                log(.error, "Failed to create bookmark: \(error.localizedDescription)")
-                errorMessage = error.localizedDescription
-            }
-
+            setBackupFolder(url)
         case let .failure(error):
             log(.error, "Folder picker failed: \(error.localizedDescription)")
         }
@@ -252,10 +233,8 @@ final class BackUpViewModel {
 }
 
 private extension BackUpViewModel {
-    static let defaultFolderName = "Proton Authenticator Backups"
-
     func setUp() {
-        backupActivated = settingsService.documentBackup
+        backupActivated = settingsService.folderBackup
         guard backupActivated else { return }
 
         // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade
@@ -273,14 +252,15 @@ private extension BackUpViewModel {
             updateFolderDisplay(from: url)
         } catch {
             log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
-            settingsService.toggleDocumentBackup(false)
+            settingsService.toggleFolderBackup(false)
             backupActivated = false
         }
     }
 
-    func updateFolderDisplay(from url: URL) {
-        folderDisplayName = url.lastPathComponent
-        folderPath = url.path
+    func updateFolderDisplay(from parentURL: URL) {
+        let backupDir = parentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
+        folderDisplayName = backupDir.lastPathComponent
+        folderPath = parentURL.path
     }
 
     func showCompletion(_ numberOfEntries: Int) {
@@ -297,18 +277,6 @@ private extension BackUpViewModel {
         alertService.showAlert(alert)
     }
 
-    func activateBackup(at url: URL) {
-        backUpManager.setDestinationFolder(url)
-        settingsService.toggleDocumentBackup(true)
-        backupActivated = true
-        updateFolderDisplay(from: url)
-        loadData()
-        if backups.isEmpty {
-            entryDataService.backUpEntries()
-            loadData()
-        }
-    }
-
     func authenticateAndPerform(_ block: () throws -> Void) async {
         let reason = #localized("Please authenticate", bundle: .module)
         do {
@@ -317,6 +285,36 @@ private extension BackUpViewModel {
                 try block()
             }
         } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func setBackupFolder(_ folderUrl: URL) {
+        do {
+            // .withSecurityScope (raw 1<<11) is macOS-only at compile time;
+            // use the raw value so the iOS binary can pass it when running on Mac.
+            let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
+                ? URL.BookmarkCreationOptions(rawValue: 1 << 11)
+                : .minimalBookmark
+            let bookmarkData = try folderUrl.bookmarkData(options: bookmarkOptions,
+                                                          includingResourceValuesForKeys: nil,
+                                                          relativeTo: nil)
+            try keychainService.set(bookmarkData,
+                                    for: AppConstants.Settings.backupFolderBookmark,
+                                    shouldSync: false)
+            backUpManager.setDestinationFolder(folderUrl)
+            settingsService.toggleFolderBackup(true)
+            backupActivated = true
+            updateFolderDisplay(from: folderUrl)
+
+            loadData()
+
+            if backups.isEmpty {
+                entryDataService.backUpEntries()
+                loadData()
+            }
+        } catch {
+            log(.error, "Failed to create bookmark: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }

@@ -149,7 +149,7 @@ final class QAMenuViewModel {
         }
     }
 
-    func deleteAll() {
+    func deleteAllBackupFiles() {
         try? backUpManager.deleteAllBackupFiles()
     }
 

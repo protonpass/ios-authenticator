@@ -766,6 +766,16 @@
         }
       }
     },
+    "Are you sure you want to delete the backup \"%@\"? This cannot be undone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete the backup \"%@\"? This cannot be undone."
+          }
+        }
+      }
+    },
     "Are you sure you want to delete this entry? This action is irreversible." : {
       "localizations" : {
         "de" : {
@@ -832,6 +842,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bu kaydı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+          }
+        }
+      }
+    },
+    "Are you sure you want to restore the backup named %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to restore the backup named %@?"
           }
         }
       }
@@ -971,7 +991,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Otomatik yedekleme"
+            "value" : "Otomatik yedeklensin"
           }
         }
       }
@@ -1162,6 +1182,26 @@
         }
       }
     },
+    "Backup restoration" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup restoration"
+          }
+        }
+      }
+    },
+    "BACKUP SETTINGS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACKUP SETTINGS"
+          }
+        }
+      }
+    },
     "Backups" : {
       "localizations" : {
         "de" : {
@@ -1221,7 +1261,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yedekler"
+            "value" : "Yedekleme"
           }
         }
       }
@@ -1285,7 +1325,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "YEDEKLER"
+            "value" : "YEDEKLEME"
           }
         }
       }
@@ -1435,7 +1475,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alt"
+            "value" : "Altta"
           }
         }
       }
@@ -3104,6 +3144,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tüm verileri sil"
+          }
+        }
+      }
+    },
+    "Delete backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete backup"
           }
         }
       }
@@ -5818,7 +5868,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veren (A-Z)"
+            "value" : "Verene göre (A-Z)"
           }
         }
       }
@@ -5882,7 +5932,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veren (Z-A)"
+            "value" : "Verene göre (Z-A)"
           }
         }
       }
@@ -6895,7 +6945,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İlerle"
+            "value" : "Sonraki"
           }
         }
       }
@@ -7465,7 +7515,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yalnızca son 5 yedekleme tutulur."
+            "value" : "Yalnızca son 5 yedek tutulur."
           }
         }
       }
@@ -9130,6 +9180,16 @@
         }
       }
     },
+    "Restore" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore"
+          }
+        }
+      }
+    },
     "Retry" : {
       "localizations" : {
         "de" : {
@@ -10112,16 +10172,6 @@
         }
       }
     },
-    "SETUP" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SETUP"
-          }
-        }
-      }
-    },
     "Several images could not be processed. See logs for more details." : {
       "localizations" : {
         "de" : {
@@ -10967,7 +11017,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aygıtlar arasında eşitleme"
+            "value" : "Aygıtlar arasında eşitlensin"
           }
         }
       }
@@ -11737,7 +11787,7 @@
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Üst"
+            "value" : "Üstte"
           }
         }
       }

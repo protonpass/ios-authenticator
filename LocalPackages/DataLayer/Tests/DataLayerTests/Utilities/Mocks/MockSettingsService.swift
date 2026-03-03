@@ -24,6 +24,7 @@ import Models
 
 @MainActor
 final class MockSettingsService: SettingsServicing {
+    
     init() {}
 
     var isFirstRun = false
@@ -35,7 +36,7 @@ final class MockSettingsService: SettingsServicing {
     var showPassBanner = false
     var hapticFeedbackEnabled = false
     var focusSearchOnLaunch = false
-    var documentBackup = false
+    var folderBackup = false
     var backupFolderBookmark: Data?
     var iCloudSync = false
     var fullBackUp = false
@@ -59,7 +60,7 @@ final class MockSettingsService: SettingsServicing {
     func togglePassBanner(_ value: Bool) { showPassBanner = value }
     func toggleHapticFeedback(_ value: Bool) { hapticFeedbackEnabled = value }
     func toggleFocusSearchOnLaunch(_ value: Bool) { focusSearchOnLaunch = value }
-    func toggleDocumentBackup(_ value: Bool) { documentBackup = value }
+    func toggleFolderBackup(_ value: Bool) { folderBackup = value }
     func setBackupFolderBookmark(_ data: Data?) { backupFolderBookmark = data }
     func toggleICloudSync(_ value: Bool) { iCloudSync = value }
     func setInstallationTimestamp(_ value: TimeInterval) { installationTimestamp = value }

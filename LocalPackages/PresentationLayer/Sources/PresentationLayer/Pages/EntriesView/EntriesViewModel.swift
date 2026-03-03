@@ -205,11 +205,7 @@ final class EntriesViewModel {
                 if Task.isCancelled {
                     return
                 }
-                if entryDataService.hasDuplicateEntries {
-                    showDuplicateEntriesAlert()
-                } else {
-                    settingsService.setDuplicateAlertShown(false)
-                }
+                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -240,11 +236,8 @@ final class EntriesViewModel {
                 if Task.isCancelled {
                     return
                 }
-                if entryDataService.hasDuplicateEntries {
-                    showDuplicateEntriesAlert()
-                } else {
-                    settingsService.setDuplicateAlertShown(false)
-                }
+
+                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -372,10 +365,8 @@ private extension EntriesViewModel {
         }
     }
 
-    func refreshInAppMessage() {}
-
-    func showDuplicateEntriesAlert() {
-        guard !settingsService.duplicateAlertShown else { return }
+    func showDuplicateEntriesAlertIfNeed() {
+        guard !settingsService.duplicateAlertShown, entryDataService.hasDuplicateEntries else { return }
         settingsService.setDuplicateAlertShown(true)
         // swiftlint:disable line_length
         alertService.showAlert(.main(.init(title: "Duplicate entries detected",

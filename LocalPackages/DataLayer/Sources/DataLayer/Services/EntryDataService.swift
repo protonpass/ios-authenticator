@@ -27,7 +27,6 @@ import Models
 import ProtonCoreNetworking
 import ProtonCoreServices
 
-// swiftlint:disable file_length
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
@@ -276,7 +275,7 @@ public extension EntryDataService {
             _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
 
-            let newOrderedItems = try await reorderItems()
+            let newOrderedItems = try await reorderItems(remoteEntries: remoteOrderedEntries)
             let entries = try await generateUIEntries(from: newOrderedItems)
             updateData(entries)
             backUpEntries()
@@ -354,7 +353,7 @@ public extension EntryDataService {
     }
 
     func backUpEntries() {
-        guard settings.documentBackup else { return }
+        guard settings.folderBackup else { return }
 
         do {
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
@@ -608,80 +607,55 @@ private extension EntryDataService {
     }
 
     @MainActor
-    func reorderItems() async throws -> [OrderedEntry] {
-        async let remoteOrderedEntries = repository.fetchAllRemoteEntries()
-        async let localEntriesFetch = repository.getAllLocalEntries()
-
-        let (remoteEntries, localResult) = try await (remoteOrderedEntries, localEntriesFetch)
+    func reorderItems(remoteEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
+        let localResult = try await repository.getAllLocalEntries()
         let localEntries = localResult.entries
 
         guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
             return localEntries.decodedEntries
         }
 
-        return try await performReordering(remoteEntries: remoteEntries, localEntries: localEntries.decodedEntries)
+        return try await performReordering(remoteEntries: remoteEntries,
+                                           localEntries: localEntries.decodedEntries)
     }
 
     @MainActor
     func performReordering(remoteEntries: [OrderedEntry],
                            localEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
-        var mergedItems = [String: OrderedEntry]()
+        let remoteIds = Set(remoteEntries.map(\.id))
 
-        // Track all items
-        let allItems = localEntries + remoteEntries
+        // Start with remote entries in their server-returned order
+        // (this IS the "last reorder wins" order from any device)
+        var result = remoteEntries
 
-        for item in allItems {
-            if let existing = mergedItems[item.id] {
-                // Conflict resolution: prefer most recently modified
-                if item.modifiedTime > existing.modifiedTime {
-                    mergedItems[item.id] = item
-                }
-            } else {
-                mergedItems[item.id] = item
-            }
-        }
+        // Append local-only entries (not yet pushed to remote) at the end,
+        // preserving their relative local order
+        let localOnlyEntries = localEntries
+            .filter { !remoteIds.contains($0.id) }
+            .sorted { $0.order < $1.order }
+        result.append(contentsOf: localOnlyEntries)
 
-        let sortedItems = mergedItems.values.sorted { item1, item2 in
-            if item1.order != item2.order {
-                return item1.order < item2.order
-            }
-            return item1.modifiedTime > item2.modifiedTime
-        }
-
-        let mergedOrderedItems = sortedItems.enumerated().map { index, item in
+        // Re-index sequentially: 0, 1, 2, ...
+        let reindexed = result.enumerated().map { index, item in
             item.updateOrder(index)
         }
 
+        // Determine which entries actually need a DB/remote order update
         var itemsToUpdate: [OrderedEntry] = []
+        for entry in reindexed {
+            let localOrder = localEntries.first { $0.id == entry.id }?.order
+            let remoteOrder = remoteEntries.first { $0.id == entry.id }?.order
 
-        for newOrderedItem in mergedOrderedItems {
-            let newOrder = newOrderedItem.order
-            let itemId = newOrderedItem.id
-
-            var needsUpdate = false
-
-            // Check if local version needs updating
-            if let localItem = localEntries.first(where: { $0.id == itemId }),
-               localItem.order != newOrder {
-                needsUpdate = true
-            }
-
-            // Check if remote version needs updating
-            if let remoteItem = remoteEntries.first(where: { $0.id == itemId }),
-               remoteItem.order != newOrder {
-                needsUpdate = true
-            }
-
-            if needsUpdate {
-                itemsToUpdate.append(newOrderedItem)
+            if localOrder != entry.order || remoteOrder != entry.order {
+                itemsToUpdate.append(entry)
             }
         }
 
         if !itemsToUpdate.isEmpty {
-            try await repository.completeReorder(entries: itemsToUpdate)
+            try await repository.localReorder(itemsToUpdate)
         }
 
-        return mergedOrderedItems
+        return reindexed
     }
 }
 
@@ -710,5 +684,3 @@ extension [OrderedEntry] {
         self.first { $0.entry.id == entryId }
     }
 }
-
-// swiftlint:enable file_length

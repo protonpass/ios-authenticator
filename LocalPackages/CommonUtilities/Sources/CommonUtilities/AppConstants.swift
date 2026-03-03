@@ -61,7 +61,7 @@ public enum AppConstants: Sendable {
         public static let authenticationState = "AuthenticationState"
         public static let hapticFeedbackEnabled = "HapticFeedbackEnabled"
         public static let focusSearchOnLaunchEnabled = "FocusSearchOnLaunchEnabled"
-        public static let documentBackup = "ICloudDocumentBackUp"
+        public static let folderBackup = "FolderBackup"
         public static let iCloudSync = "ICloudBackUp"
         public static let remoteEncryptionKeyId = "RemoteEncryptionKeyId"
         public static let fullBackUp = "FullBackUp"
@@ -74,6 +74,10 @@ public enum AppConstants: Sendable {
 
     public enum NetworkSettings {
         public static let batchSize = 100
+    }
+
+    public enum BackupSettings {
+        public static let defaultFolderName = "Proton Authenticator Backups"
     }
 
     @MainActor
@@ -118,7 +122,7 @@ public enum AppConstants: Sendable {
     @MainActor
     public static var adjustableSearchBarPosition: Bool {
         if #available(iOS 26, macOS 26, *) {
-            !ProcessInfo.processInfo.isiOSAppOnMac
+            isPhone
         } else {
             true
         }

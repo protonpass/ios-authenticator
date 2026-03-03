@@ -66,7 +66,7 @@ struct BackUpView: View {
                 Button { viewModel.useDefaultDestination() } label: {
                     Text("Use default folder", bundle: .module)
                 }
-                Button { viewModel.chooseCustomDestination() } label: {
+                Button { viewModel.showFolderPicker = true } label: {
                     Text("Choose folder", bundle: .module)
                 }
                 Button("Cancel", role: .cancel) {}
@@ -88,6 +88,27 @@ struct BackUpView: View {
                 Button("Cancel", role: .cancel) {
                     viewModel.password = ""
                 }
+            }
+            .alert("Backup restoration",
+                   isPresented: $viewModel.selectedBackup.mappedToBool(),
+                   presenting: viewModel.selectedBackup) { backup in
+                Button { viewModel.load(backup: backup) } label: {
+                    Text("Restore", bundle: .module)
+                }
+                Button("Cancel", role: .cancel) {
+                    viewModel.selectedBackup = nil
+                }
+            } message: { backup in
+                Text("Are you sure you want to restore the backup named \(backup.name)?", bundle: .module)
+            }
+            .alert("Delete backup",
+                   isPresented: $viewModel.backupToDelete.mappedToBool(),
+                   presenting: viewModel.backupToDelete) { _ in
+                Button("Delete", role: .destructive) { viewModel.confirmDeleteBackup() }
+                Button("Cancel", role: .cancel) { viewModel.backupToDelete = nil }
+            } message: { backup in
+                Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.",
+                     bundle: .module)
             }
 
         #if os(iOS)
@@ -133,14 +154,13 @@ private extension BackUpView {
     }
 
     var setupSection: some View {
-        SettingsSectionContainer(title: "SETUP") {
+        SettingsSectionContainer(title: "BACKUP SETTINGS") {
             SettingRow(title: .localized("Automatic Backup", .module),
                        trailingMode: .toggle(isOn: viewModel.backupActivated,
                                              onToggle: viewModel.toggleBackup))
             if viewModel.backupActivated {
                 SettingDivider()
-
-                Button { viewModel.changeFolder() } label: {
+                Button { viewModel.showFolderPicker = true } label: {
                     VStack(alignment: .leading, spacing: 4) {
                         row(title: .localized("Folder location", .module), imageName: "chevron.right")
                         if let folderName = viewModel.folderDisplayName {
@@ -172,11 +192,18 @@ private extension BackUpView {
         if viewModel.showBackup {
             SettingsSectionContainer(title: "BACKUPS") {
                 ForEach(viewModel.backups) { backup in
-                    Button { viewModel.load(backup: backup) } label: {
+                    Button { viewModel.selectedBackup = backup } label: {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)
                     .paddingIfNotLiquidGlass()
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            viewModel.deleteBackup(backup)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 }
             }
             VStack {
