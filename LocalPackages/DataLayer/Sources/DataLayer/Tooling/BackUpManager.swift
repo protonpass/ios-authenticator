@@ -74,11 +74,11 @@ public final class BackUpManager: BackUpServicing {
 
     public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
         var isStale = false
-        let resolutionOptions: URL.BookmarkResolutionOptions = ProcessInfo.processInfo.isiOSAppOnMac
-            ? .macSecurityScope
-            : []
+//        let resolutionOptions: URL.BookmarkResolutionOptions = ProcessInfo.processInfo.isiOSAppOnMac
+//            ? .macSecurityScope
+//            : []
         let url = try URL(resolvingBookmarkData: bookmarkData,
-                          options: resolutionOptions,
+                          options: ProcessInfo.processInfo.isiOSAppOnMac ? .macSecurityScope : [],
                           relativeTo: nil,
                           bookmarkDataIsStale: &isStale)
         if isStale {

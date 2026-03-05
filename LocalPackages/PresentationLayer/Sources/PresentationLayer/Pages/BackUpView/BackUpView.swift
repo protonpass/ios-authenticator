@@ -63,16 +63,12 @@ struct BackUpView: View {
                 Text("Set a password to protect backup files.", bundle: .module)
             }
             .alert("Choose backup destination", isPresented: $viewModel.showDestinationAlert) {
-                Button { viewModel.useDefaultDestination() } label: {
-                    Text("Use default folder", bundle: .module)
-                }
                 Button { viewModel.showFolderPicker = true } label: {
-                    Text("Choose folder", bundle: .module)
+                    Text("Choose Backup Location", bundle: .module)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                // swiftlint:disable:next line_length
-                Text("Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app.",
+                Text("A “Proton Authenticator Backups” folder will be created in the selected location.",
                      bundle: .module)
             }
             .alert("Please enter the password used to encrypt this backup.",

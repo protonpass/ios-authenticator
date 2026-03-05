@@ -195,7 +195,7 @@ extension [EntryState] {
 
 extension EntryState {
     var toLocalEntry: LocalEntry? {
-        guard case let .decrypted(entry) = self else { return nil }
+        guard case let .decrypted(_, entry) = self else { return nil }
         return LocalEntry(entry: entry.entry.toRustEntry,
                           state: entry.syncState.toLocalEntryState,
                           modifyTime: Int64(entry.modifiedTime),

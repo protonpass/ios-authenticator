@@ -320,23 +320,22 @@ public extension EntryRepository {
             var groupDisplayName = entryId
             var groupIssuer = ""
             for state in decryptedStates {
-                if case let .decrypted(orderedEntry) = state {
+                if case let .decrypted(_, orderedEntry) = state {
                     groupDisplayName = orderedEntry.entry.name
                     groupIssuer = orderedEntry.entry.issuer
                     break
                 }
             }
 
-            let infos: [DuplicateEntryInfo] = zip(entities, decryptedStates).enumerated().map { index, pair in
-                let (entity, state) = pair
+            let infos: [DuplicateEntryInfo] = decryptedStates.enumerated().map { index, state in
                 var name = groupDisplayName
                 var issuer = groupIssuer
-                if case let .decrypted(orderedEntry) = state {
+                if case let .decrypted(_, orderedEntry) = state {
                     name = orderedEntry.entry.name
                     issuer = orderedEntry.entry.issuer
                 }
-                return DuplicateEntryInfo(entryId: entity.id,
-                                          modifiedTime: entity.modifiedTime,
+                return DuplicateEntryInfo(entryId: state.encryptedEntry.id,
+                                          modifiedTime: state.encryptedEntry.modifiedTime,
                                           displayName: name,
                                           issuer: issuer,
                                           isCurrentlyActive: index == 0)
@@ -746,9 +745,12 @@ public extension EntryRepository {
         log(.debug, "Fetching entries from remote")
 
         do {
-            let allLocalEntities: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
-                .fetch(predicate: nil)) ?? []
-            let localIdSet = Set(allLocalEntities.map(\.id))
+            var localIdSet = Set<String>()
+
+            if let allLocalEntities: [EncryptedEntryEntity] = try? await localDataManager.persistentStorage
+                .fetch(predicate: nil), !allLocalEntities.isEmpty {
+                localIdSet = Set(allLocalEntities.map(\.id))
+            }
 
             var sinceLastToken: String?
 

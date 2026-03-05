@@ -587,7 +587,7 @@ struct EntryRepositoryTests {
         #expect(result.duplicateCount == 1)
 
         // The kept entry must be the newest one
-        if case .decrypted(let kept) = result.entries.first {
+        if case let .decrypted( _, kept) = result.entries.first {
             #expect(kept.modifiedTime == newerTime)
         } else {
             Issue.record("Expected a decrypted entry")
@@ -757,7 +757,7 @@ struct EntryRepositoryTests {
         #expect(result.entries.count == 1)
 
         // Verify the remaining entry is the newer (active) one
-        if case .decrypted(let kept) = result.entries.first {
+        if case let .decrypted(_, kept) = result.entries.first {
             #expect(kept.modifiedTime == newerTime)
         } else {
             Issue.record("Expected a decrypted entry")
@@ -771,7 +771,7 @@ private extension EntryRepositoryTests {
     /// Injects a raw duplicate entity into the persistence layer for the given entry ID,
     /// with a `modifiedTime` offset from the current time.
     func injectDuplicate(forEntryId entryId: String, olderThanCurrentBy offset: TimeInterval) async throws {
-        let storage = await localDataManager.persistentStorage
+        let storage = localDataManager.persistentStorage
         let entity = EncryptedEntryEntity(id: entryId,
                                           encryptedData: Data(),
                                           remoteId: "",
@@ -787,7 +787,7 @@ private extension EntryRepositoryTests {
     func injectDuplicate(forEntryId entryId: String,
                          withModifiedTime modifiedTime: TimeInterval,
                          encryptedData data: Data) async throws {
-        let storage = await localDataManager.persistentStorage
+        let storage = localDataManager.persistentStorage
         let entity = EncryptedEntryEntity(id: entryId,
                                           encryptedData: data,
                                           remoteId: "",

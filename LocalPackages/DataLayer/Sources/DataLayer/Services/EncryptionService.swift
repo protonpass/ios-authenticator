@@ -26,23 +26,32 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(OrderedEntry)
-    case nonDecryptable(String)
+    case decrypted(EncryptedEntryEntity, OrderedEntry)
+    case nonDecryptable(EncryptedEntryEntity, String)
 
     public var entry: OrderedEntry? {
         switch self {
-        case let .decrypted(entry):
+        case let .decrypted(_, entry):
             entry
         default:
             nil
         }
     }
 
+    public var encryptedEntry: EncryptedEntryEntity {
+        switch self {
+        case let .decrypted(entry, _):
+            entry
+        case let .nonDecryptable(entry, _):
+            entry
+        }
+    }
+
     public var encryptionKeyId: String {
         switch self {
-        case let .decrypted(entry):
+        case let .decrypted(_, entry):
             entry.keyId ?? ""
-        case let .nonDecryptable(keyId):
+        case let .nonDecryptable(_, keyId):
             keyId
         }
     }
@@ -129,7 +138,7 @@ public extension EncryptionService {
         } catch {
             log(.warning,
                 "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
-            return .nonDecryptable(entry.keyId)
+            return .nonDecryptable(entry, entry.keyId)
         }
 
         if AppConstants.isQaBuild {
@@ -149,7 +158,7 @@ public extension EncryptionService {
                                             flags: entry.flags,
                                             revision: entry.revision,
                                             contentFormatVersion: entry.contentFormatVersion)
-            return .decrypted(orderedEntry)
+            return .decrypted(entry, orderedEntry)
         } catch {
             if AppConstants.isQaBuild {
                 log(.error,
@@ -159,7 +168,7 @@ public extension EncryptionService {
                 log(.error,
                     "Failed to decrypt entry \(entry.id) with key \(entry.keyId) \(error.localizedDescription)")
             }
-            return .nonDecryptable(entry.keyId)
+            return .nonDecryptable(entry, entry.keyId)
         }
     }
 

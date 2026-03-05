@@ -71,6 +71,16 @@
         }
       }
     },
+    "A “Proton Authenticator Backups” folder will be created in the selected location." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A “Proton Authenticator Backups” folder will be created in the selected location."
+          }
+        }
+      }
+    },
     "Account: %@" : {
       "comment" : "Placeholder is the user's email address",
       "localizations" : {
@@ -1330,16 +1340,6 @@
         }
       }
     },
-    "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app."
-          }
-        }
-      }
-    },
     "Biometric lock" : {
       "localizations" : {
         "de" : {
@@ -1840,12 +1840,12 @@
         }
       }
     },
-    "Choose folder" : {
+    "Choose Backup Location" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose folder"
+            "value" : "Choose Backup Location"
           }
         }
       }
@@ -12138,16 +12138,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydı güncelle"
-          }
-        }
-      }
-    },
-    "Use default folder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use default folder"
           }
         }
       }

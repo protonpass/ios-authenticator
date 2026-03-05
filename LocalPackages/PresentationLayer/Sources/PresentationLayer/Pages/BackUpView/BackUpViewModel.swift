@@ -206,16 +206,6 @@ final class BackUpViewModel {
         }
     }
 
-    func useDefaultDestination() {
-        guard let documentsURL = FileManager.default.urls(for: .documentDirectory,
-                                                          in: .userDomainMask).first else {
-            errorMessage = "Unable to access Documents directory."
-            return
-        }
-
-        setBackupFolder(documentsURL)
-    }
-
     func handleFolderSelection(_ result: Result<URL, Error>) {
         switch result {
         case let .success(url):
