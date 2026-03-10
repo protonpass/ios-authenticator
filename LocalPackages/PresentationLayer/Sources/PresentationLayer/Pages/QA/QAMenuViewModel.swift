@@ -153,6 +153,28 @@ final class QAMenuViewModel {
         try? backUpManager.deleteAllBackupFiles()
     }
 
+    func generateDuplicateEntry() {
+        Task {
+            isLoading = true
+            defer { isLoading = false }
+            do {
+                let syncedToRemote = try await entryRepository.generateDuplicateEntry()
+                let message = syncedToRemote
+                    ? "Duplicate entry created locally and synced to remote"
+                    : "Duplicate entry created locally (not connected)"
+                alertService.showAlert(.sheet(.init(title: "OK",
+                                                    titleBundle: .module,
+                                                    message: .verbatim(message),
+                                                    actions: [.ok])))
+            } catch {
+                alertService.showAlert(.sheet(.init(title: "An error occurred",
+                                                    titleBundle: .module,
+                                                    message: .verbatim("Error: \(error.localizedDescription)"),
+                                                    actions: [.ok])))
+            }
+        }
+    }
+
     func loadKeychainContent() {
         keychainContent = keychainService.getAllContent().map { element in KeychainContent(id: UUID().uuidString,
                                                                                            content: element) }

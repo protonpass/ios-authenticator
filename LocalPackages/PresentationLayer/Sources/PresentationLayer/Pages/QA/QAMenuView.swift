@@ -119,6 +119,12 @@ private extension QAMenuView {
             } label: {
                 Text(verbatim: "Remove all local logs")
             }
+
+            Button {
+                viewModel.generateDuplicateEntry()
+            } label: {
+                Text(verbatim: "Generate duplicate entry (local + remote if connected)")
+            }
         }, header: {
             Text(verbatim: "Actions")
         })
