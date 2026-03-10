@@ -27,6 +27,8 @@ import Models
 import ProtonCoreNetworking
 import ProtonCoreServices
 
+// swiftlint:disable file_length
+
 @MainActor
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
@@ -102,6 +104,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var totpGenerator: any TotpGeneratorProtocol
     @ObservationIgnored
     private var entryUpdateTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var fullRefreshTask: Task<Void, Error>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
     @ObservationIgnored
@@ -188,10 +192,11 @@ public extension EntryDataService {
             return
         }
         let oldEntry = data[index]
-        data[index] = oldEntry.copy(newEntry: entry)
+        let newEntry = oldEntry.copy(newEntry: entry)
 
-        try await repository.completeUpdate(entry: data[index].orderedEntry, oldEntry: oldEntry.orderedEntry)
+        try await repository.completeUpdate(entry: newEntry.orderedEntry, oldEntry: oldEntry.orderedEntry)
 
+        data[index] = newEntry
         updateData(data)
         backUpEntries()
     }
@@ -254,45 +259,29 @@ public extension EntryDataService {
     }
 
     func updateData(_ entries: [EntryUiModel]) {
-        log(.debug, "Updating data with \(entries.count) entries")
-        startUpdatingTotpCode(entries.map(\.orderedEntry.entry))
-        dataState = .loaded(entries)
+        let deduplicated = entries.deduplicatedByNewestModifiedTime()
+        if deduplicated.count != entries.count {
+            log(.warning, "Dedup removed \(entries.count - deduplicated.count) duplicate entries from data state")
+        }
+        log(.debug, "Updating data with \(deduplicated.count) entries")
+        startUpdatingTotpCode(deduplicated.map(\.orderedEntry.entry))
+        dataState = .loaded(deduplicated)
     }
 
     func fullRefresh() async throws {
-        log(.debug, "Full BE refresh")
-        hasDuplicateEntries = false
-        do {
-            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
-
-            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
-            if Task.isCancelled { return }
-            let localResult = try await repository.getAllLocalEntries()
-            let entriesStates = localResult.entries
-            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
-            hasDuplicateEntries = localResult.duplicateCount > 0
-
-            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
-                                        entriesStates: entriesStates)
-
-            let newOrderedItems = try await reorderItems(remoteEntries: remoteOrderedEntries)
-            let entries = try await generateUIEntries(from: newOrderedItems)
-            updateData(entries)
-            backUpEntries()
-        } catch {
-            log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
-            if let coreError = error as? ResponseError,
-               coreError.bestShotAtReasonableErrorCode == APIErrorCode.potentiallyBlocked {
-                log(.info, "No internet connection or Proton is blocked. Loading local entries.")
-                try await loadEntries()
-                return
-            }
-
-            if let data = dataState.data, !data.isEmpty {
-                return
-            }
-            dataState = .failed(error)
+        if let existing = fullRefreshTask {
+            log(.debug, "Full BE refresh already in progress, joining existing task")
+            try await existing.value
+            return
         }
+
+        let task = Task { [weak self] in
+            guard let self else { return }
+            try await performFullRefresh()
+        }
+        fullRefreshTask = task
+        defer { fullRefreshTask = nil }
+        try await task.value
     }
 
     func unsyncAllEntries() async throws {
@@ -455,6 +444,44 @@ private extension EntryDataService {
         }
     }
 
+    func performFullRefresh() async throws {
+        log(.debug, "Full BE refresh")
+        hasDuplicateEntries = false
+        do {
+            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
+
+            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
+
+            if Task.isCancelled { return }
+            let localResult = try await repository.getAllLocalEntries()
+            let entriesStates = localResult.entries
+
+            hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
+            hasDuplicateEntries = localResult.duplicateCount > 0
+            if Task.isCancelled { return }
+            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
+                                        entriesStates: entriesStates)
+            if Task.isCancelled { return }
+            let newOrderedItems = try await reorderItems(remoteEntries: remoteOrderedEntries)
+            let entries = try await generateUIEntries(from: newOrderedItems)
+            updateData(entries)
+            backUpEntries()
+        } catch {
+            log(.error, "Failed to fullRefresh: \(error.localizedDescription), error: \(error)")
+            if let coreError = error as? ResponseError,
+               coreError.bestShotAtReasonableErrorCode == APIErrorCode.potentiallyBlocked {
+                log(.info, "No internet connection or Proton is blocked. Loading local entries.")
+                try await loadEntries()
+                return
+            }
+
+            if let data = dataState.data, !data.isEmpty {
+                return
+            }
+            dataState = .failed(error)
+        }
+    }
+
     func save(_ entry: Entry,
               remoteId: String? = nil) async throws {
         var data: [EntryUiModel] = dataState.data ?? []
@@ -474,11 +501,11 @@ private extension EntryDataService {
                                       modifiedTime: Date.currentTimestamp,
                                       revision: 0,
                                       contentFormatVersion: AppConstants.ContentFormatVersion.entry)
+        let remoteResults = try await repository.completeSave(entries: [orderEntry])
+
         var entryUI = EntryUiModel(orderedEntry: orderEntry,
                                    code: code,
                                    issuerInfo: issuerInfo)
-        let remoteResults = try await repository.completeSave(entries: [entryUI.orderedEntry])
-
         if let remoteResult = remoteResults?.first {
             entryUI = entryUI.updateRemoteInfos(remoteResult.entryID)
         }
@@ -536,7 +563,7 @@ private extension EntryDataService {
 
         var changed: [OrderedEntry] = []
 
-        for (index, uiEntry) in uiEntries.enumerated() where uiEntry.orderedEntry.order != index {
+        for (index, uiEntry) in uiEntries.enumerated() {
             let updated = uiEntry.updateOrder(index)
             uiEntries[index] = updated
             changed.append(updated.orderedEntry)
@@ -551,7 +578,8 @@ private extension EntryDataService {
 
     func updateCodes(newCodes: [Code]) {
         guard let entries = dataState.data else { return }
-        let codesByEntryId = Dictionary(uniqueKeysWithValues: newCodes.map { ($0.entry.id, $0) })
+        let codesByEntryId = Dictionary(newCodes.map { ($0.entry.id, $0) },
+                                        uniquingKeysWith: { _, latest in latest })
         let updated = entries.map { entry -> EntryUiModel in
             guard let newCode = codesByEntryId[entry.id] else { return entry }
             return entry.updateCode(newCode)
@@ -684,3 +712,5 @@ extension [OrderedEntry] {
         self.first { $0.entry.id == entryId }
     }
 }
+
+// swiftlint:enable file_length

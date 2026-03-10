@@ -56,7 +56,6 @@ final class EntriesViewModel {
         settingsService.sortOption
     }
 
-    @ObservationIgnored
     var query = "" {
         didSet {
             searchTextStream.send(query)
@@ -195,7 +194,7 @@ final class EntriesViewModel {
 
     func loadEntries() {
         loadLocalTask?.cancel()
-        loadLocalTask = Task { @MainActor [weak self] in
+        loadLocalTask = Task { [weak self] in
             guard let self else { return }
             do {
                 if Task.isCancelled {

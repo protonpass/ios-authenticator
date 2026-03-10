@@ -59,7 +59,7 @@ enum EntryAction: Sendable, Equatable, Hashable {
 public struct EntriesView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
-    @State private var viewModel = EntriesViewModel()
+    @InjectedObservable(\ViewModelContainer.entriesViewModel) var viewModel
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var hoveringEntry: EntryUiModel?
@@ -273,7 +273,6 @@ private extension EntriesView {
             .padding(.horizontal)
             .listRowInsets(EdgeInsets())
         }
-        .animation(.default, value: viewModel.entries)
         .listStyle(.plain)
         #if os(iOS)
             .listRowSpacing(12)

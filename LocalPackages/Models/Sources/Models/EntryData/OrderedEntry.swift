@@ -112,3 +112,22 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
         // creationDate and modifiedTime are intentionally excluded
     }
 }
+
+public extension [OrderedEntry] {
+    /// Removes duplicate entries (same `id`), keeping only the one with the newest `modifiedTime`.
+    func deduplicatedByNewestModifiedTime() -> [OrderedEntry] {
+        var seen = [String: Int]()
+        var result = [OrderedEntry]()
+        for entry in self {
+            if let existingIndex = seen[entry.id] {
+                if entry.modifiedTime > result[existingIndex].modifiedTime {
+                    result[existingIndex] = entry
+                }
+            } else {
+                seen[entry.id] = result.count
+                result.append(entry)
+            }
+        }
+        return result
+    }
+}

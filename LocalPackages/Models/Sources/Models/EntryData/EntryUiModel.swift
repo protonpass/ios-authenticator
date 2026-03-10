@@ -63,3 +63,22 @@ public extension EntryUiModel {
                      issuerInfo: issuerInfo)
     }
 }
+
+public extension [EntryUiModel] {
+    /// Removes duplicate entries (same `id`), keeping only the one with the newest `modifiedTime`.
+    func deduplicatedByNewestModifiedTime() -> [EntryUiModel] {
+        var seen = [String: Int]()
+        var result = [EntryUiModel]()
+        for entry in self {
+            if let existingIndex = seen[entry.id] {
+                if entry.orderedEntry.modifiedTime > result[existingIndex].orderedEntry.modifiedTime {
+                    result[existingIndex] = entry
+                }
+            } else {
+                seen[entry.id] = result.count
+                result.append(entry)
+            }
+        }
+        return result
+    }
+}

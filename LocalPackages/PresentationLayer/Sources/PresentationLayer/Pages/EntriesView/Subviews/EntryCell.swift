@@ -70,7 +70,7 @@ private struct HighlightedText: View, Equatable {
     }
 }
 
-struct EntryCell: View, @preconcurrency Equatable {
+struct EntryCell: View, Equatable {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
