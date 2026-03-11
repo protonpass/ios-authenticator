@@ -96,5 +96,5 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
     func loadDuplicateGroups() async {
     }
     
-    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {}
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws {}
 }

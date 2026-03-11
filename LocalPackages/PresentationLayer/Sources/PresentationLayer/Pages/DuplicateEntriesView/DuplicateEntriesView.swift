@@ -33,6 +33,7 @@ struct DuplicateEntriesView: View {
             .showSpinner(viewModel.loading)
             .errorMessageAlert($viewModel.errorMessage)
             .scrollContentBackground(.hidden)
+            .background { activeDeleteAlert }
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -52,7 +53,7 @@ struct DuplicateEntriesView: View {
         ContentUnavailableView {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 48))
-                .foregroundStyle(.accent)
+                .foregroundStyle(.textWeak)
         } description: {
             Text("No duplicate entries", bundle: .module)
                 .dynamicFont(size: 17, textStyle: .body)
@@ -78,23 +79,58 @@ struct DuplicateEntriesView: View {
     private func entryRow(_ entry: DuplicateEntryInfo) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(verbatim: viewModel.formattedDate(for: entry.modifiedTime))
+                Text("Modified: \(viewModel.formattedDate(for: entry.modifiedTime))", bundle: .module)
                     .dynamicFont(size: 15, textStyle: .body)
                     .foregroundStyle(.textNorm)
-                if entry.isCurrentlyActive {
-                    Text("Currently used", bundle: .module)
+                Text("Created: \(viewModel.formattedDate(for: entry.creationDate))", bundle: .module)
+                    .dynamicFont(size: 13, textStyle: .caption1)
+                    .foregroundStyle(.textWeak)
+                HStack(spacing: 4) {
+                    Text(verbatim: viewModel.syncStatusText(for: entry))
                         .dynamicFont(size: 13, textStyle: .caption1)
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(.textWeak)
+                    if entry.revision > 0 {
+                        Text(verbatim: "·")
+                            .dynamicFont(size: 13, textStyle: .caption1)
+                            .foregroundStyle(.textWeak)
+                        Text("Revision \(entry.revision)", bundle: .module)
+                            .dynamicFont(size: 13, textStyle: .caption1)
+                            .foregroundStyle(.textWeak)
+                    }
+                    if entry.isCurrentlyActive {
+                        Spacer()
+                        Text("Currently used", bundle: .module)
+                            .dynamicFont(size: 13, textStyle: .caption1)
+                            .foregroundStyle(.accent)
+                    }
                 }
             }
             Spacer()
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
-                viewModel.delete(entryId: entry.entryId, modifiedTime: entry.modifiedTime)
+                viewModel.delete(entry: entry)
             } label: {
                 Label { Text("Delete", bundle: .module) } icon: { Image(systemName: "trash") }
             }
         }
+    }
+}
+
+// MARK: - Active entry delete confirmation
+
+private extension DuplicateEntriesView {
+    var activeDeleteAlert: some View {
+        EmptyView()
+            .alert("Delete active copy?",
+                   isPresented: $viewModel.showActiveDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    viewModel.confirmDeleteActive()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This is the currently active copy. Deleting it will make an older copy active.",
+                     bundle: .module)
+            }
     }
 }

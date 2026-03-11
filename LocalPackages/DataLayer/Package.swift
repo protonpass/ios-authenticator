@@ -68,7 +68,10 @@ let package = Package(
         ),
         .testTarget(
             name: "DataLayerTests",
-            dependencies: ["DataLayer"]
+            dependencies: [
+                "DataLayer",
+                .product(name: "CommonUtilities", package: "CommonUtilities")
+            ]
         ),
     ]
 )

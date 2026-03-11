@@ -219,6 +219,9 @@ public extension EntryDataService {
             log(.debug, "No order changes required")
         }
         updateData(updatedOrderedEntries)
+        if hasDuplicateEntries {
+            await loadDuplicateGroups()
+        }
         backUpEntries()
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
