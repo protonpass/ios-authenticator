@@ -19,15 +19,20 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
+import Models
 
-/// A single copy of a duplicated entry, identified by its `entryId` + `modifiedTime` pair.
+/// A single copy of a duplicated entry, identified by its `entryId` + `modifiedTime` + `creationDate` triple.
 public struct DuplicateEntryInfo: Sendable, Identifiable, Equatable {
     public var id: String {
-        "\(entryId)_\(modifiedTime)"
+        "\(entryId)_\(modifiedTime)_\(creationDate)"
     }
 
     public let entryId: String
     public let modifiedTime: TimeInterval
+    public let creationDate: TimeInterval
+    public let syncState: EntrySyncState
+    public let hasRemoteId: Bool
+    public let revision: Int
     public let displayName: String
     public let issuer: String
     /// `true` for the copy currently used by the app (most recently modified).

@@ -57,11 +57,9 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func importEntries(from sources: [TwofaImportSource]) async throws -> Int
     func stopTotpGenerator()
     func startTotpGenerator()
-
     func unsyncAllEntries() async throws
-
     func loadDuplicateGroups() async
-    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws
 }
 
 public extension EntryDataServiceProtocol {
@@ -106,6 +104,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
     private var fullRefreshTask: Task<Void, Error>?
+    @ObservationIgnored
+    private var loadTask: Task<Void, Error>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
     @ObservationIgnored
@@ -240,22 +240,20 @@ public extension EntryDataService {
     }
 
     func loadEntries() async throws {
-        log(.debug, "Loading entries")
-        hasDuplicateEntries = false
-        do {
-            if Task.isCancelled { return }
-            let result = try await repository.getAllLocalEntries()
-            if Task.isCancelled { return }
-            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
-            hasNonDecryptableEntries = result.entries.containsNonDecryptedEntries
-            hasDuplicateEntries = result.duplicateCount > 0
-            log(.debug, "Loaded \(entries.count) entries.")
-            updateData(entries)
-        } catch {
-            log(.error, "Failed to load entries: \(error)")
-            if let data = dataState.data, !data.isEmpty { return }
-            dataState = .failed(error)
+        if let existingTask = loadTask {
+            log(.debug, "Loading entries already in progress, joining existing task")
+            try await existingTask.value
+            return
         }
+
+        let task = Task {
+            try await performLoadingEntries()
+        }
+
+        loadTask = task
+        defer { loadTask = nil }
+
+        try await task.value
     }
 
     func updateData(_ entries: [EntryUiModel]) {
@@ -275,8 +273,7 @@ public extension EntryDataService {
             return
         }
 
-        let task = Task { [weak self] in
-            guard let self else { return }
+        let task = Task {
             try await performFullRefresh()
         }
         fullRefreshTask = task
@@ -306,8 +303,10 @@ public extension EntryDataService {
         }
     }
 
-    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {
-        try await repository.deleteLocalDuplicate(entryId: entryId, modifiedTime: modifiedTime)
+    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws {
+        try await repository.deleteLocalDuplicate(entryId: entryId,
+                                                  modifiedTime: modifiedTime,
+                                                  creationDate: creationDate)
         await loadDuplicateGroups()
     }
 
@@ -444,17 +443,17 @@ private extension EntryDataService {
         }
     }
 
+    /// @concurrent
     func performFullRefresh() async throws {
         log(.debug, "Full BE refresh")
         hasDuplicateEntries = false
         do {
-            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
-
-            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
-
-            if Task.isCancelled { return }
             let localResult = try await repository.getAllLocalEntries()
             let entriesStates = localResult.entries
+            if Task.isCancelled { return }
+
+            try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
+            let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
 
             hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
             hasDuplicateEntries = localResult.duplicateCount > 0
@@ -478,6 +477,26 @@ private extension EntryDataService {
             if let data = dataState.data, !data.isEmpty {
                 return
             }
+            dataState = .failed(error)
+        }
+    }
+
+    /// @concurrent
+    func performLoadingEntries() async throws {
+        log(.debug, "Loading entries")
+        hasDuplicateEntries = false
+        do {
+            if Task.isCancelled { return }
+            let result = try await repository.getAllLocalEntries()
+            if Task.isCancelled { return }
+            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
+            hasNonDecryptableEntries = result.entries.containsNonDecryptedEntries
+            hasDuplicateEntries = result.duplicateCount > 0
+            log(.debug, "Loaded \(entries.count) entries.")
+            updateData(entries)
+        } catch {
+            log(.error, "Failed to load entries: \(error)")
+            if let data = dataState.data, !data.isEmpty { return }
             dataState = .failed(error)
         }
     }
@@ -622,15 +641,17 @@ private extension EntryDataService {
                 }
             }
         }
-
+        if Task.isCancelled { return false }
         async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
-        async let remoteSave = repository.remoteSave(entries: itemsToPushToRemote)
-        async let remoteUpdate = repository.remoteUpdates(entries: itemsToUpdateRemotely)
+        async let remoteSaveResults = repository.remoteSave(entries: itemsToPushToRemote)
+        async let remoteUpdateResults = repository.remoteUpdates(entries: itemsToUpdateRemotely)
         async let localRemove: () = repository.localRemoves(itemIdsToDeleteLocally)
         async let fullyRemove: () = repository.completeRemoves(entries: itemsToFullyDelete)
 
-        _ = try await (localEntriesFetch, remoteSave, remoteUpdate, localRemove, fullyRemove)
+        let (_, saveResults, updateResults, _, _) =
+            try await (localEntriesFetch, remoteSaveResults, remoteUpdateResults, localRemove, fullyRemove)
 
+        try await updateItemFromRemote(itemsToPushToRemote, saveResults, itemsToUpdateRemotely, updateResults)
         return !operations.isEmpty
     }
 
@@ -684,6 +705,23 @@ private extension EntryDataService {
         }
 
         return reindexed
+    }
+
+    func updateItemFromRemote(_ itemsToPushToRemote: [OrderedEntry],
+                              _ saveResults: [RemoteEncryptedEntry],
+                              _ itemsToUpdateRemotely: [OrderedEntry],
+                              _ updateResults: [RemoteEncryptedEntry]) async throws {
+        // Update local entities with remote response data (remoteId, revision, modifiedTime, etc.)
+        var resultByEntryId = [String: RemoteEncryptedEntry]()
+        for (index, entry) in itemsToPushToRemote.enumerated() where index < saveResults.count {
+            resultByEntryId[entry.id] = saveResults[index]
+        }
+        for entry in itemsToUpdateRemotely {
+            guard let remoteId = entry.remoteId,
+                  let result = updateResults.first(where: { $0.entryID == remoteId }) else { continue }
+            resultByEntryId[entry.id] = result
+        }
+        try await repository.updateLocalEntitiesWithRemoteResponse(resultByEntryId)
     }
 }
 

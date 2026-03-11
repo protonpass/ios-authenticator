@@ -46,7 +46,7 @@ public protocol EntryRepositoryProtocol: Sendable {
 
     func getAllLocalEntries() async throws -> (entries: [EntryState], duplicateCount: Int)
     func getDuplicateEntryGroups() async throws -> [DuplicateEntryGroup]
-    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws
+    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws
     func localUpsert(_ entries: [OrderedEntry]) async throws
     // periphery:ignore
     func localRemoves(_ entriesId: [String]) async throws
@@ -66,11 +66,18 @@ public protocol EntryRepositoryProtocol: Sendable {
     @_spi(QA)
     func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity]
 
+    /// Creates a new test TOTP entry, saves it (+ remote if connected), then inserts a duplicate
+    /// local row with `modifiedTime - 100` to simulate a real duplicate scenario.
+    /// - Returns: `true` if the entry was also synced to remote, `false` if local only.
+    @_spi(QA)
+    func generateDuplicateEntry() async throws -> Bool
+
     // MARK: - Remote Proton BE CRUD
 
     func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
     func remoteUpdate(entry: OrderedEntry) async throws -> RemoteEncryptedEntry
     func remoteUpdates(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry]
+    func updateLocalEntitiesWithRemoteResponse(_ resultByEntryId: [String: RemoteEncryptedEntry]) async throws
 
     func remoteDeletes(remoteEntryIds: [String]) async throws
     func singleItemRemoteReordering(entryId: String, entries: [OrderedEntry]) async throws
@@ -190,7 +197,14 @@ public extension EntryRepository {
         try await localUpsert(entries)
         if isAuthenticated {
             do {
-                return try await remoteSave(entries: entries)
+                let remoteResults = try await remoteSave(entries: entries)
+                // Build mapping using array position: entries and results are in the same order
+                var resultByEntryId = [String: RemoteEncryptedEntry]()
+                for (index, entry) in entries.enumerated() where index < remoteResults.count {
+                    resultByEntryId[entry.id] = remoteResults[index]
+                }
+                try await updateLocalEntitiesWithRemoteResponse(resultByEntryId)
+                return remoteResults
             } catch {
                 log(.error, "Failed to remote save: \(error.localizedDescription)")
             }
@@ -203,19 +217,23 @@ public extension EntryRepository {
             do {
                 try await remoteDeletes(remoteEntryIds: entries.compactMap(\.remoteId))
             } catch {
-                if error.httpCode != 422 {
-                    let entryIDs = entries.map((\.id))
-                    let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
-                    let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
-                    guard !entities.isEmpty else {
-                        log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
-                        return
-                    }
-                    try? await localDataManager.persistentStorage.performTransaction {
-                        entities.switchToDelete()
-                    }
-                    return
-                }
+                log(.error, "Failed to remote deletes \(entries.map(\.id)) \(error.localizedDescription)")
+                throw error
+//
+//                print("woot error while deleting item remotly: \(error)")
+//                if error.httpCode != 422 {
+//                    let entryIDs = entries.map((\.id))
+//                    let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
+//                    let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
+//                    guard !entities.isEmpty else {
+//                        log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
+//                        return
+//                    }
+//                    try? await localDataManager.persistentStorage.performTransaction {
+//                        entities.switchToDelete()
+//                    }
+//                    return
+//                }
             }
         }
 
@@ -226,7 +244,8 @@ public extension EntryRepository {
         let orderedEntity = try await localUpdate(entry)
         if isAuthenticated, let orderedEntity {
             do {
-                _ = try await remoteUpdate(entry: orderedEntity)
+                let result = try await remoteUpdate(entry: orderedEntity)
+                try await updateLocalEntitiesWithRemoteResponse([entry.id: result])
             } catch {
                 log(.error, "Failed to remote update \(entry.id) \(error.localizedDescription)")
                 log(.warning, "Revert local update \(entry.id)")
@@ -350,10 +369,13 @@ public extension EntryRepository {
         return groups.sorted { $0.displayName.lowercased() < $1.displayName.lowercased() }
     }
 
-    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {
-        log(.debug, "Deleting duplicate for entryId: \(entryId), modifiedTime: \(modifiedTime)")
+    func deleteLocalDuplicate(entryId: String,
+                              modifiedTime: TimeInterval,
+                              creationDate: TimeInterval) async throws {
+        log(.debug,
+            "Deleting duplicate for entryId: \(entryId), modifiedTime: \(modifiedTime), creationDate: \(creationDate)")
         let predicate = #Predicate<EncryptedEntryEntity> {
-            $0.id == entryId && $0.modifiedTime == modifiedTime
+            $0.id == entryId && $0.modifiedTime == modifiedTime && $0.creationDate == creationDate
         }
         try await localDataManager.persistentStorage.delete(EncryptedEntryEntity.self, predicate: predicate)
         log(.info, "Deleted duplicate for entryId: \(entryId)")
@@ -387,7 +409,10 @@ public extension EntryRepository {
             }
             log(.debug, "Adding \(newEntries.count) new entries")
 
-            let newEncryptedEntries = try newEntries.map { try encrypt($0, shouldEncryptWithLocalKey: true) }
+            let newEncryptedEntries = try newEntries.map { try encrypt($0,
+                                                                       encryptionKeyId: encryptionService
+                                                                           .localEncryptionKeyId)
+            }
 
             try await localDataManager.persistentStorage.batchSave(content: newEncryptedEntries)
             log(.info, "Successfully saved \(newEncryptedEntries.count) new entries locally")
@@ -441,6 +466,29 @@ public extension EntryRepository {
         log(.info, "Successfully removed all entries from local storage")
     }
 
+    /// Updates all local entities (including duplicates) with remote response data.
+    /// - Parameter resultByEntryId: Maps entry id → `RemoteEncryptedEntry` from the BE response.
+    func updateLocalEntitiesWithRemoteResponse(_ resultByEntryId: [String: RemoteEncryptedEntry]) async throws {
+        guard !resultByEntryId.isEmpty else { return }
+        let idsToFetch = Array(resultByEntryId.keys)
+        let predicate = #Predicate<EncryptedEntryEntity> { idsToFetch.contains($0.id) }
+        let allEntities: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+            .fetch(predicate: predicate)
+
+        guard !allEntities.isEmpty else {
+            log(.debug, "No local entities found for remote response update")
+            return
+        }
+
+        try await localDataManager.persistentStorage.performTransaction {
+            for entity in allEntities {
+                guard let result = resultByEntryId[entity.id] else { continue }
+                entity.update(with: result)
+            }
+        }
+        log(.debug, "Updated \(allEntities.count) local entities with remote response")
+    }
+
     func localUpdate(_ entry: OrderedEntry) async throws -> OrderedEntry? {
         log(.debug, "Updating entry with ID: \(entry.id)")
         do {
@@ -463,7 +511,7 @@ public extension EntryRepository {
 
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
-                                keyId: entity.keyId,
+                                keyId: localKeyId,
                                 remoteId: entity.remoteId,
                                 order: entity.order,
                                 syncState: entry.syncState,
@@ -477,8 +525,7 @@ public extension EntryRepository {
     }
 
     func localReorder(_ entries: [OrderedEntry]) async throws {
-        log(.debug,
-            "Updating order for \(entries.count) entries")
+        log(.debug, "Updating order for \(entries.count) entries")
         do {
             let idsToFetch: [String] = entries.map(\.id)
             let predicate = #Predicate<EncryptedEntryEntity> { entity in
@@ -489,15 +536,15 @@ public extension EntryRepository {
 
             log(.debug, "Found \(encryptedEntries.count) local entries for order update")
 
-            guard entries.count == encryptedEntries.count else {
-                log(.debug, "Found discrepancy in number of entries to update")
-                return
+            if encryptedEntries.count != entries.count {
+                log(.warning,
+                    "Duplicate entries detected during reorder: expected \(entries.count), found \(encryptedEntries.count)")
             }
 
             try await localDataManager.persistentStorage.performTransaction {
-                for entry in encryptedEntries {
-                    guard let orderedEntry = entries.first(where: { $0.id == entry.id }) else { continue }
-                    entry.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
+                for entity in encryptedEntries {
+                    guard let orderedEntry = entries.first(where: { $0.id == entity.id }) else { continue }
+                    entity.updateOrder(newOrder: orderedEntry.order, remoteModifiedTime: orderedEntry.modifiedTime)
                 }
             }
             log(.info, "Successfully saved updated order to local storage")
@@ -537,12 +584,57 @@ public extension EntryRepository {
     func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity] {
         try await localDataManager.persistentStorage.fetch(predicate: nil)
     }
+
+    func generateDuplicateEntry() async throws -> Bool {
+        let newId = UUID().uuidString
+        let testEntry = Entry(id: newId,
+                              name: "QA Duplicate Test",
+                              uri: "otpauth://totp/QA%3ATest?secret=JBSWY3DPEHPK3PXP&issuer=QA&period=30",
+                              period: 30,
+                              issuer: "QA",
+                              secret: "JBSWY3DPEHPK3PXP",
+                              type: .totp,
+                              note: nil)
+        let now = Date.now.timeIntervalSince1970
+        let orderedEntry = OrderedEntry(entry: testEntry,
+                                        keyId: encryptionService.localEncryptionKeyId,
+                                        remoteId: nil,
+                                        order: 0,
+                                        modifiedTime: now,
+                                        revision: 0,
+                                        contentFormatVersion: entryContentFormatVersion)
+
+        let remoteResults = try await completeSave(entries: [orderedEntry])
+
+        // Fetch the entity (possibly updated with remote data) and insert a duplicate with an older modifiedTime
+        let predicate = #Predicate<EncryptedEntryEntity> { $0.id == newId }
+        let entities: [EncryptedEntryEntity] = try await localDataManager.persistentStorage
+            .fetch(predicate: predicate)
+        guard let entity = entities.max(by: { $0.modifiedTime < $1.modifiedTime }) else {
+            return remoteResults != nil
+        }
+
+        let duplicate = EncryptedEntryEntity(id: entity.id,
+                                             encryptedData: entity.encryptedData,
+                                             remoteId: entity.remoteId,
+                                             keyId: entity.keyId,
+                                             order: entity.order,
+                                             syncState: entity.syncState,
+                                             creationDate: entity.creationDate,
+                                             modifiedTime: entity.modifiedTime - 100,
+                                             flags: entity.flags,
+                                             contentFormatVersion: entity.contentFormatVersion,
+                                             revision: entity.revision)
+        try await localDataManager.persistentStorage.batchSave(content: [duplicate])
+        return remoteResults != nil
+    }
 }
 
 // MARK: - Remote proton BE CRUD for entries
 
 public extension EntryRepository {
     func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry] {
+        guard !entries.isEmpty else { return [] }
         log(.debug, "Saving \(entries.count) entries to remote")
 
         guard let remoteEncryptionKeyId else {
@@ -551,13 +643,12 @@ public extension EntryRepository {
         }
 
         do {
-            guard !entries.isEmpty else { return [] }
-
             let encryptedRequests = try entries.map { entry in
-                try StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                      content: self.encrypt(entry, shouldEncryptWithLocalKey: false).encryptedData
-                                          .encodeBase64(),
-                                      contentFormatVersion: entryContentFormatVersion)
+                let encryptedData = try encryptionService.encrypt(entry: entry.entry,
+                                                                  keyId: remoteEncryptionKeyId)
+                return StoreEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
+                                         content: encryptedData.encodeBase64(),
+                                         contentFormatVersion: entryContentFormatVersion)
             }
 
             let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
@@ -584,17 +675,6 @@ public extension EntryRepository {
                 }
 
             log(.info, "Successfully stored \(combinedResults.count) entries on remote")
-
-            let idsToFetch: [String] = entries.map(\.id)
-            let predicate = #Predicate<EncryptedEntryEntity> { entity in
-                idsToFetch.contains(entity.id)
-            }
-            let encryptedEntries: [EncryptedEntryEntity] = await (try? localDataManager.persistentStorage
-                .fetch(predicate: predicate, sortingDescriptor: [SortDescriptor(\.order)])) ?? []
-
-            try await localDataManager.persistentStorage.performTransaction {
-                encryptedEntries.updateData(with: combinedResults)
-            }
             return combinedResults
         } catch {
             log(.error, "Failed to store entries on remote: \(error.localizedDescription)")
@@ -616,22 +696,14 @@ public extension EntryRepository {
         }
 
         do {
-            let encryptedEntry = try encrypt(entry, shouldEncryptWithLocalKey: false)
+            let encryptedData = try encryptionService.encrypt(entry: entry.entry,
+                                                              keyId: remoteEncryptionKeyId)
             let request = UpdateEntryRequest(authenticatorKeyID: remoteEncryptionKeyId,
-                                             content: encryptedEntry.encryptedData.encodeBase64(),
+                                             content: encryptedData.encodeBase64(),
                                              contentFormatVersion: entryContentFormatVersion,
                                              lastRevision: entry.revision)
 
             let result = try await apiClient.update(entryId: remoteId, request: request)
-
-            let entityId = entry.id
-            if let localEntity = try await localDataManager.persistentStorage
-                .fetchOne(predicate: #Predicate<EncryptedEntryEntity> { $0.id == entityId }) {
-                log(.debug, "Found local entry, and updating it with remote entry data")
-                localEntity.update(with: result)
-                try await localDataManager.persistentStorage.save(data: localEntity)
-            }
-
             log(.info, "Successfully updated entry with id \(remoteId) on remote")
             return result
         } catch {
@@ -650,13 +722,13 @@ public extension EntryRepository {
 
         let encryptedRequests = try entries.compactMap { entry -> BatchUpdateEntryRequest? in
             guard let remoteId = entry.remoteId else { return nil }
-            return try BatchUpdateEntryRequest(entryID: remoteId,
-                                               authenticatorKeyID: remoteEncryptionKeyId,
-                                               content: self.encrypt(entry, shouldEncryptWithLocalKey: false)
-                                                   .encryptedData
-                                                   .encodeBase64(),
-                                               contentFormatVersion: entryContentFormatVersion,
-                                               lastRevision: entry.revision)
+            let encryptedData = try encryptionService.encrypt(entry: entry.entry,
+                                                              keyId: remoteEncryptionKeyId)
+            return BatchUpdateEntryRequest(entryID: remoteId,
+                                           authenticatorKeyID: remoteEncryptionKeyId,
+                                           content: encryptedData.encodeBase64(),
+                                           contentFormatVersion: entryContentFormatVersion,
+                                           lastRevision: entry.revision)
         }
 
         let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
@@ -697,8 +769,7 @@ public extension EntryRepository {
                 }
             }
 
-            // Wait for all tasks to complete — no result collection
-            for try await _ in group {}
+            try await group.waitForAll()
         }
     }
 
@@ -777,7 +848,7 @@ public extension EntryRepository {
                     let syncState: EntrySyncState = localIdSet.contains(decryptedEntry.id) ? .synced : .unsynced
 
                     let orderedEntry = OrderedEntry(entry: decryptedEntry,
-                                                    keyId: encryptedEntry.authenticatorKeyID,
+                                                    keyId: nil,
                                                     remoteId: encryptedEntry.entryID,
                                                     order: index,
                                                     syncState: syncState,
@@ -878,18 +949,7 @@ extension EntryRepository {
 
 private extension EntryRepository {
     func encrypt(_ entry: OrderedEntry,
-                 shouldEncryptWithLocalKey: Bool) throws -> EncryptedEntryEntity {
-        let encryptionKeyId: String
-        if shouldEncryptWithLocalKey {
-            encryptionKeyId = encryptionService.localEncryptionKeyId
-        } else {
-            if let remoteEncryptionKeyId {
-                encryptionKeyId = remoteEncryptionKeyId
-            } else {
-                throw AuthError.crypto(.missingRemoteEncryptionKey)
-            }
-        }
-
+                 encryptionKeyId: String) throws -> EncryptedEntryEntity {
         let remoteId = entry.remoteId ?? ""
 
         let encryptedData = try encryptionService.encrypt(entry: entry.entry,

@@ -21,12 +21,15 @@
 import DataLayer
 import FactoryKit
 import Foundation
+import Models
 
 @Observable
 final class DuplicateEntriesViewModel {
     private(set) var groups: [DuplicateEntryGroup] = []
     private(set) var loading = false
     var errorMessage: String?
+    var showActiveDeleteConfirmation = false
+    private(set) var pendingDeleteEntry: DuplicateEntryInfo?
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.entryDataService)
@@ -44,8 +47,17 @@ final class DuplicateEntriesViewModel {
         return formatter
     }()
 
-    func formattedDate(for modifiedTime: TimeInterval) -> String {
-        dateFormatter.string(from: Date(timeIntervalSince1970: modifiedTime))
+    func formattedDate(for timestamp: TimeInterval) -> String {
+        dateFormatter.string(from: Date(timeIntervalSince1970: timestamp))
+    }
+
+    func syncStatusText(for entry: DuplicateEntryInfo) -> String {
+        if entry.hasRemoteId, entry.syncState == .synced {
+            return String(localized: "Synced", bundle: .module)
+        } else if entry.hasRemoteId {
+            return String(localized: "Not synced", bundle: .module)
+        }
+        return String(localized: "Local only", bundle: .module)
     }
 
     func loadGroups() async {
@@ -55,13 +67,30 @@ final class DuplicateEntriesViewModel {
         groups = entryDataService.duplicateGroups
     }
 
-    func delete(entryId: String, modifiedTime: TimeInterval) {
+    func delete(entry: DuplicateEntryInfo) {
+        if entry.isCurrentlyActive {
+            pendingDeleteEntry = entry
+            showActiveDeleteConfirmation = true
+            return
+        }
+        performDelete(entry: entry)
+    }
+
+    func confirmDeleteActive() {
+        guard let entry = pendingDeleteEntry else { return }
+        pendingDeleteEntry = nil
+        performDelete(entry: entry)
+    }
+
+    private func performDelete(entry: DuplicateEntryInfo) {
         Task { [weak self] in
             guard let self else { return }
             loading = true
             defer { loading = false }
             do {
-                try await entryDataService.deleteDuplicate(entryId: entryId, modifiedTime: modifiedTime)
+                try await entryDataService.deleteDuplicate(entryId: entry.entryId,
+                                                           modifiedTime: entry.modifiedTime,
+                                                           creationDate: entry.creationDate)
                 groups = entryDataService.duplicateGroups
             } catch {
                 logger.log(.error, category: .data, error.localizedDescription)
