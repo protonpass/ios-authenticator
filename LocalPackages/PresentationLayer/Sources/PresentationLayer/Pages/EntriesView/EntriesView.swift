@@ -28,7 +28,7 @@ import Models
 import SimpleToast
 import SwiftUI
 
-enum EntryAction: Sendable, Equatable, Hashable {
+enum EntryAction: Equatable, Hashable {
     case copyCurrentCode(EntryUiModel)
     case copyNextCode(EntryUiModel)
     case edit(EntryUiModel)

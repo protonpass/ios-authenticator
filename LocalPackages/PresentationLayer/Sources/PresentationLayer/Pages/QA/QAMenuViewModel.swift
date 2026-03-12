@@ -182,10 +182,9 @@ final class QAMenuViewModel {
 
     func loadEntryContent() {
         Task {
-            guard let result = try? await entryRepository.getAllLocalEntries() else {
+            guard let content = try? await entryRepository.getAllLocalEntries() else {
                 return
             }
-            let content = result.entries
             let nonDecryptableEntries = content.filter(\.isNonDecryptable).count
             let decryptableEntries = content.count(where: { !$0.isNonDecryptable })
             entriesContent = EntryContent(numberOfDecryptedEntries: decryptableEntries,

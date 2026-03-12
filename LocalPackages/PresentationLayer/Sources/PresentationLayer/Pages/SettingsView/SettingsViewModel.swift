@@ -154,10 +154,6 @@ final class SettingsViewModel {
         userSessionManager.userData?.user.email ?? ""
     }
 
-    var hasDuplicateEntries: Bool {
-        entryDataService.hasDuplicateEntries
-    }
-
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in

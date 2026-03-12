@@ -33,8 +33,6 @@ import ProtonCoreServices
 public protocol EntryDataServiceProtocol: Sendable, Observable {
     var dataState: DataState<[EntryUiModel]> { get }
     var hasNonDecryptableEntries: Bool { get }
-    var hasDuplicateEntries: Bool { get }
-    var duplicateGroups: [DuplicateEntryGroup] { get }
 
     func getEntry(from uri: String) async throws -> Entry
     func insertAndRefreshEntry(from uri: String) async throws
@@ -58,8 +56,6 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func stopTotpGenerator()
     func startTotpGenerator()
     func unsyncAllEntries() async throws
-    func loadDuplicateGroups() async
-    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws
 }
 
 public extension EntryDataServiceProtocol {
@@ -89,8 +85,6 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
     public private(set) var hasNonDecryptableEntries = false
-    public private(set) var hasDuplicateEntries = false
-    public private(set) var duplicateGroups: [DuplicateEntryGroup] = []
 
     @ObservationIgnored
     private let repository: any EntryRepositoryProtocol
@@ -120,6 +114,8 @@ public final class EntryDataService: EntryDataServiceProtocol {
     private let settings: SettingsServicing
     @ObservationIgnored
     private let keychainService: KeychainServicing
+    @ObservationIgnored
+    private var savingEntryIds: Set<String> = []
 
     // MARK: - Init
 
@@ -183,6 +179,13 @@ public extension EntryDataService {
     }
 
     func updateAndRefreshEntry(for entryId: String, with params: EntryParameters) async throws {
+        guard !savingEntryIds.contains(entryId) else {
+            log(.warning, "Entry \(entryId) update already in progress, skipping")
+            return
+        }
+        savingEntryIds.insert(entryId)
+        defer { savingEntryIds.remove(entryId) }
+
         log(.debug, "Updating and refreshing entry with ID: \(entryId)")
 
         var entry = try createEntry(with: params)
@@ -219,9 +222,6 @@ public extension EntryDataService {
             log(.debug, "No order changes required")
         }
         updateData(updatedOrderedEntries)
-        if hasDuplicateEntries {
-            await loadDuplicateGroups()
-        }
         backUpEntries()
         log(.debug, "Deleted entry with ID: \(entry.id)")
     }
@@ -288,29 +288,13 @@ public extension EntryDataService {
         log(.debug, "Unsyncing all entries")
         do {
             try await repository.unsyncAllEntries()
-            let result = try await repository.getAllLocalEntries()
-            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
+            let entryStates = try await repository.getAllLocalEntries()
+            let entries = try await generateUIEntries(from: entryStates.decodedEntries)
             updateData(entries)
         } catch {
             log(.error, "Failed to unsync all entries: \(error.localizedDescription)")
             throw error
         }
-    }
-
-    func loadDuplicateGroups() async {
-        do {
-            duplicateGroups = try await repository.getDuplicateEntryGroups()
-            hasDuplicateEntries = !duplicateGroups.isEmpty
-        } catch {
-            log(.error, "Failed to load duplicate groups: \(error.localizedDescription)")
-        }
-    }
-
-    func deleteDuplicate(entryId: String, modifiedTime: TimeInterval, creationDate: TimeInterval) async throws {
-        try await repository.deleteLocalDuplicate(entryId: entryId,
-                                                  modifiedTime: modifiedTime,
-                                                  creationDate: creationDate)
-        await loadDuplicateGroups()
     }
 
     func deleteAllEntries() async throws {
@@ -385,7 +369,7 @@ public extension EntryDataService {
         let results = try importService.importEntries(from: sources)
         var data: [EntryUiModel] = dataState.data ?? []
         let filteredResults = results.entries
-            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isDuplicate(of: entry) }) }
+            .filter { entry in !data.contains(where: { $0.orderedEntry.entry.isContentDuplicate(of: entry) }) }
         let codes = try repository.generateCodes(entries: filteredResults)
 
         var index = data.count
@@ -449,17 +433,14 @@ private extension EntryDataService {
     /// @concurrent
     func performFullRefresh() async throws {
         log(.debug, "Full BE refresh")
-        hasDuplicateEntries = false
         do {
-            let localResult = try await repository.getAllLocalEntries()
-            let entriesStates = localResult.entries
+            let entriesStates = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
 
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
 
             hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
-            hasDuplicateEntries = localResult.duplicateCount > 0
             if Task.isCancelled { return }
             _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                         entriesStates: entriesStates)
@@ -487,14 +468,12 @@ private extension EntryDataService {
     /// @concurrent
     func performLoadingEntries() async throws {
         log(.debug, "Loading entries")
-        hasDuplicateEntries = false
         do {
             if Task.isCancelled { return }
-            let result = try await repository.getAllLocalEntries()
+            let entryStates = try await repository.getAllLocalEntries()
             if Task.isCancelled { return }
-            let entries = try await generateUIEntries(from: result.entries.decodedEntries)
-            hasNonDecryptableEntries = result.entries.containsNonDecryptedEntries
-            hasDuplicateEntries = result.duplicateCount > 0
+            let entries = try await generateUIEntries(from: entryStates.decodedEntries)
+            hasNonDecryptableEntries = entryStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
         } catch {
@@ -506,6 +485,13 @@ private extension EntryDataService {
 
     func save(_ entry: Entry,
               remoteId: String? = nil) async throws {
+        guard !savingEntryIds.contains(entry.id) else {
+            log(.warning, "Entry \(entry.id) save already in progress, skipping duplicate call")
+            return
+        }
+        savingEntryIds.insert(entry.id)
+        defer { savingEntryIds.remove(entry.id) }
+
         var data: [EntryUiModel] = dataState.data ?? []
 
         let codes = try repository.generateCodes(entries: [entry])
@@ -660,8 +646,7 @@ private extension EntryDataService {
 
     @MainActor
     func reorderItems(remoteEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
-        let localResult = try await repository.getAllLocalEntries()
-        let localEntries = localResult.entries
+        let localEntries = try await repository.getAllLocalEntries()
 
         guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
             return localEntries.decodedEntries

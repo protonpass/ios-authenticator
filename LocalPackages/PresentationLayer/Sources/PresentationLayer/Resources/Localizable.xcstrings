@@ -2672,16 +2672,6 @@
         }
       }
     },
-    "Currently used" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Currently used"
-          }
-        }
-      }
-    },
     "Dark" : {
       "localizations" : {
         "de" : {
@@ -3708,36 +3698,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
-          }
-        }
-      }
-    },
-    "Duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries"
-          }
-        }
-      }
-    },
-    "Duplicate entries detected" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries detected"
-          }
-        }
-      }
-    },
-    "Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\"." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\"."
           }
         }
       }
@@ -6525,16 +6485,6 @@
         }
       }
     },
-    "Manage duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage duplicate entries"
-          }
-        }
-      }
-    },
     "MANAGE YOUR DATA" : {
       "localizations" : {
         "de" : {
@@ -7086,16 +7036,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Henüz bir kod yok"
-          }
-        }
-      }
-    },
-    "No duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No duplicate entries"
           }
         }
       }

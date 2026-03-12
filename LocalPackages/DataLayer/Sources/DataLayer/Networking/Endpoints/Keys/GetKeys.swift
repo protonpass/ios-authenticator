@@ -21,11 +21,11 @@
 import Foundation
 import Models
 
-struct PaginatedKeys: Decodable, Equatable, Sendable {
+struct PaginatedKeys: Decodable, Equatable {
     let keys: [RemoteEncryptedKey]
 }
 
-struct GetKeysResponse: Decodable, Equatable, Sendable {
+struct GetKeysResponse: Decodable, Equatable {
     let keys: PaginatedKeys
 }
 

@@ -600,7 +600,6 @@ public final class AuthDoH: DoH, ServerConfig {
             case "scientist":
                 let name = userDefaults.string(forKey: "pref_scientist_env_name")
                 environment = .scientist(name ?? "")
-
             default:
                 // Fallback to "Automatic" mode
                 #if DEBUG

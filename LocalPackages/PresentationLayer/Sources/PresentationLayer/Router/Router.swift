@@ -25,7 +25,6 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case backup
-    case duplicates
 }
 
 public enum SheetDestination: Hashable, Identifiable {
@@ -78,8 +77,6 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .backup:
                     BackUpView()
-                case .duplicates:
-                    DuplicateEntriesView()
                 }
             }
     }

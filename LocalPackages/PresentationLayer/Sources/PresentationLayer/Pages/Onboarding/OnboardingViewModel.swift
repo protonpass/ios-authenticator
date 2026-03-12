@@ -26,7 +26,7 @@ import Macro
 import Models
 import SwiftUI
 
-enum OnboardStep: Sendable {
+enum OnboardStep {
     case intro, `import`, biometric(BiometricType), backup
 }
 

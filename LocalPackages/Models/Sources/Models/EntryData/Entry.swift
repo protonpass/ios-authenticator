@@ -67,6 +67,11 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         id == other.id
     }
 
+    /// Same TOTP content = same authenticator entry regardless of id
+    public func isContentDuplicate(of other: Entry) -> Bool {
+        secret == other.secret && issuer == other.issuer && type == other.type
+    }
+
     public var capitalLetter: String {
         issuer.first?.uppercased() ?? "-"
     }

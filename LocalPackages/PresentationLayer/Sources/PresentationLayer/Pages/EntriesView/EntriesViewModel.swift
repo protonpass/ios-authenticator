@@ -204,7 +204,6 @@ final class EntriesViewModel {
                 if Task.isCancelled {
                     return
                 }
-                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -235,8 +234,6 @@ final class EntriesViewModel {
                 if Task.isCancelled {
                     return
                 }
-
-                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -362,18 +359,6 @@ private extension EntriesViewModel {
         } else {
             entries = []
         }
-    }
-
-    func showDuplicateEntriesAlertIfNeed() {
-        guard !settingsService.duplicateAlertShown, entryDataService.hasDuplicateEntries else { return }
-        settingsService.setDuplicateAlertShown(true)
-        // swiftlint:disable line_length
-        alertService.showAlert(.main(.init(title: "Duplicate entries detected",
-                                           titleBundle: .module,
-                                           message: .localized("Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\".",
-                                                               .module),
-                                           actions: [.ok])))
-        // swiftlint:enable line_length
     }
 
     func confirmDelete(_ entry: EntryUiModel) {

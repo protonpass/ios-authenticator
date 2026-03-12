@@ -22,7 +22,7 @@ import Foundation
 import Models
 import ProtonCoreNetworking
 
-struct GetEntriesResponse: Decodable, Sendable, Equatable {
+struct GetEntriesResponse: Decodable, Equatable {
     let entries: PaginatedEntries
 }
 

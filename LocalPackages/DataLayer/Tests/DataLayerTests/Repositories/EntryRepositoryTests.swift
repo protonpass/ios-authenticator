@@ -194,7 +194,7 @@ struct EntryRepositoryTests {
        
         try await sut.localUpsert(entry)
         
-        var entries = try await sut.getAllLocalEntries().entries.decodedEntries
+        var entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 1)
@@ -213,7 +213,7 @@ struct EntryRepositoryTests {
                                   keyId: localKeyId)
        
         try await sut.localUpsert(entry2)
-        entries = try await sut.getAllLocalEntries().entries.decodedEntries
+        entries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(entries.count == 2)
@@ -259,7 +259,7 @@ struct EntryRepositoryTests {
         
         try await sut.localUpsert(entries)
         
-        let fetchedEntries = try await sut.getAllLocalEntries().entries
+        let fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -305,7 +305,7 @@ struct EntryRepositoryTests {
         try await sut.localUpsert(entries)
         try await sut.localRemoveAll()
         
-        let fetchedEntries = try await sut.getAllLocalEntries().entries
+        let fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 0)
@@ -351,14 +351,14 @@ struct EntryRepositoryTests {
         try await sut.localUpsert(entries)
         try await sut.localRemoves([entries.first!.entry.id])
         
-        var fetchedEntries = try await sut.getAllLocalEntries().entries
+        var fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 2)
 
         try await sut.localRemoves(["id2"])
 
-         fetchedEntries = try await sut.getAllLocalEntries().entries
+         fetchedEntries = try await sut.getAllLocalEntries()
 
         // Assert
         #expect(fetchedEntries.count == 1)
@@ -416,7 +416,7 @@ struct EntryRepositoryTests {
 
        _ = try await sut.localUpdate(newEntry1)
         
-        let fetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.count == 3)
@@ -517,7 +517,7 @@ struct EntryRepositoryTests {
         
         try await sut.localUpsert(entries)
         
-        let fetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
+        let fetchedEntries = try await sut.getAllLocalEntries().decodedEntries
 
         // Assert
         #expect(fetchedEntries.first?.entry.id == "id0")
@@ -526,18 +526,19 @@ struct EntryRepositoryTests {
         
         try await sut.localReorder(reorderEntries)
         
-        let reorderedfetchedEntries = try await sut.getAllLocalEntries().entries.decodedEntries
+        let reorderedfetchedEntries = try await sut.getAllLocalEntries().decodedEntries
         
         #expect(reorderedfetchedEntries.first?.entry.id == "id3")
 
         #expect(reorderedfetchedEntries.last?.entry.id == "id0")
     }
 
-    // MARK: - Duplicate detection
+    // MARK: - Silent duplicate cleanup
 
-    @Test("getAllLocalEntries returns zero duplicate count when no duplicates exist")
-    func getAllLocalEntries_noDuplicates_returnsZeroDuplicateCount() async throws {
+    @Test("getAllLocalEntries returns entries when no duplicates exist")
+    func getAllLocalEntries_noDuplicates_returnsEntries() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
+        // swiftlint:disable:next line_length
         let entry = OrderedEntry(entry: Entry(id: "id1", name: "GitHub", uri: "otpauth://totp/GitHub:user?secret=CKTQQJVWT5IXTGD&issuer=GitHub&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
@@ -546,32 +547,43 @@ struct EntryRepositoryTests {
 
         let result = try await sut.getAllLocalEntries()
 
-        #expect(result.duplicateCount == 0)
-        #expect(result.entries.count == 1)
+        #expect(result.count == 1)
     }
 
-    @Test("getAllLocalEntries returns correct duplicate count when duplicates exist")
-    func getAllLocalEntries_withDuplicates_returnsDuplicateCount() async throws {
+    @Test("getAllLocalEntries silently cleans same-content duplicates")
+    func getAllLocalEntries_withSameContentDuplicates_cleansUp() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
+        // swiftlint:disable:next line_length
         let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub", uri: "otpauth://totp/GitHub:user?secret=CKTQQJVWT5IXTGD&issuer=GitHub&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
                                  order: 0, keyId: localKeyId)
         try await sut.localUpsert(entry)
-        try await injectDuplicate(forEntryId: "dup-id", olderThanCurrentBy: 100)
+        try await injectDuplicate(forEntryId: "dup-id", withModifiedTime: Date.now.timeIntervalSince1970 - 100,
+                                  encryptedData: encryptedData(for: entry))
+
+        // Before cleanup, 2 raw entities exist
+        let rawBefore = try await sut.getAllLocalEncryptedEntries().filter { $0.id == "dup-id" }
+        #expect(rawBefore.count == 2)
 
         let result = try await sut.getAllLocalEntries()
 
-        #expect(result.duplicateCount == 1)
+        // After silent cleanup, only 1 entry returned
+        #expect(result.count == 1)
+
+        // Raw DB should also have only 1 entity now
+        let rawAfter = try await sut.getAllLocalEncryptedEntries().filter { $0.id == "dup-id" }
+        #expect(rawAfter.count == 1)
     }
 
-    @Test("getAllLocalEntries returns only one entry per ID when duplicates exist")
-    func getAllLocalEntries_withDuplicates_deduplicatesKeepingNewest() async throws {
+    @Test("getAllLocalEntries keeps newest entry when cleaning same-content duplicates")
+    func getAllLocalEntries_withDuplicates_keepsNewest() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
         let newerTime = Date.now.timeIntervalSince1970
         let olderTime = newerTime - 100
 
         let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
+                                              // swiftlint:disable:next line_length
                                               uri: "otpauth://totp/GitHub:user?secret=CKTQQJVWT5IXTGD&issuer=GitHub&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
@@ -584,166 +596,67 @@ struct EntryRepositoryTests {
 
         let result = try await sut.getAllLocalEntries()
 
-        // Only the deduplicated entry should be returned
-        #expect(result.entries.count == 1)
-        #expect(result.duplicateCount == 1)
+        #expect(result.count == 1)
 
         // The kept entry must be the newest one
-        if case let .decrypted( _, kept) = result.entries.first {
+        if case let .decrypted(_, kept) = result.first {
             #expect(kept.modifiedTime == newerTime)
         } else {
             Issue.record("Expected a decrypted entry")
         }
     }
 
-    @Test("getAllLocalEntries handles multiple independent duplicates")
-    func getAllLocalEntries_multipleDuplicateGroups_returnsCorrectCounts() async throws {
+    @Test("getAllLocalEntries silently cleans multiple independent duplicate groups")
+    func getAllLocalEntries_multipleDuplicateGroups_cleansAll() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
 
         let entryA = OrderedEntry(entry: Entry(id: "a", name: "GitHub",
+                                               // swiftlint:disable:next line_length
                                                uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
                                                period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
                                                type: .totp, note: nil),
                                   order: 0, keyId: localKeyId)
         let entryB = OrderedEntry(entry: Entry(id: "b", name: "Proton",
+                                               // swiftlint:disable:next line_length
                                                uri: "otpauth://totp/Proton?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
                                                period: 30, issuer: "Proton", secret: "CKTQQJVWT5IXTGD",
                                                type: .totp, note: nil),
                                   order: 1, keyId: localKeyId)
         try await sut.localUpsert([entryA, entryB])
 
-        // Inject one duplicate for "a" and two duplicates for "b"
-        try await injectDuplicate(forEntryId: "a", olderThanCurrentBy: 50)
-        try await injectDuplicate(forEntryId: "b", olderThanCurrentBy: 50)
-        try await injectDuplicate(forEntryId: "b", olderThanCurrentBy: 100)
+        // Inject duplicates with valid encrypted data
+        try await injectDuplicate(forEntryId: "a", withModifiedTime: Date.now.timeIntervalSince1970 - 50,
+                                  encryptedData: encryptedData(for: entryA))
+        try await injectDuplicate(forEntryId: "b", withModifiedTime: Date.now.timeIntervalSince1970 - 50,
+                                  encryptedData: encryptedData(for: entryB))
+        try await injectDuplicate(forEntryId: "b", withModifiedTime: Date.now.timeIntervalSince1970 - 100,
+                                  encryptedData: encryptedData(for: entryB))
 
         let result = try await sut.getAllLocalEntries()
 
-        #expect(result.entries.count == 2)
-        #expect(result.duplicateCount == 3) // 1 extra for "a", 2 extra for "b"
+        // Only 2 unique entries remain after silent cleanup
+        #expect(result.count == 2)
     }
 
-    @Test("getDuplicateEntryGroups returns empty when no duplicates")
-    func getDuplicateEntryGroups_noDuplicates_returnsEmpty() async throws {
+    @Test("getAllLocalEntries deletes non-decryptable duplicates as fallback")
+    func getAllLocalEntries_nonDecryptableDuplicate_deletesIt() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
-        let entry = OrderedEntry(entry: Entry(id: "id1", name: "GitHub",
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
+        // swiftlint:disable:next line_length
+        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub", uri: "otpauth://totp/GitHub:user?secret=CKTQQJVWT5IXTGD&issuer=GitHub&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
                                  order: 0, keyId: localKeyId)
         try await sut.localUpsert(entry)
-
-        let groups = try await sut.getDuplicateEntryGroups()
-
-        #expect(groups.isEmpty)
-    }
-
-    @Test("getDuplicateEntryGroups returns one group with all copies")
-    func getDuplicateEntryGroups_withDuplicates_returnsGroup() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, keyId: localKeyId)
-        try await sut.localUpsert(entry)
+        // Inject a non-decryptable duplicate (empty data, dummy key)
         try await injectDuplicate(forEntryId: "dup-id", olderThanCurrentBy: 100)
 
-        let groups = try await sut.getDuplicateEntryGroups()
-
-        #expect(groups.count == 1)
-        #expect(groups.first?.entryId == "dup-id")
-        #expect(groups.first?.entries.count == 2)
-    }
-
-    @Test("getDuplicateEntryGroups marks newest entry as currently active")
-    func getDuplicateEntryGroups_marksNewestEntryAsCurrentlyActive() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let newerTime = Date.now.timeIntervalSince1970
-        let olderTime = newerTime - 100
-
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, modifiedTime: newerTime, keyId: localKeyId)
-        try await sut.localUpsert(entry)
-        try await injectDuplicate(forEntryId: "dup-id", withModifiedTime: olderTime,
-                                  encryptedData: encryptedData(for: entry))
-
-        let groups = try await sut.getDuplicateEntryGroups()
-
-        let entries = try #require(groups.first?.entries)
-        let activeEntry = try #require(entries.first(where: { $0.isCurrentlyActive }))
-        let inactiveEntry = try #require(entries.first(where: { !$0.isCurrentlyActive }))
-
-        #expect(activeEntry.modifiedTime == newerTime)
-        #expect(inactiveEntry.modifiedTime == olderTime)
-    }
-
-    @Test("deleteLocalDuplicate removes only the matching entity")
-    func deleteLocalDuplicate_removesMatchingEntity() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let newerTime = Date.now.timeIntervalSince1970
-        let olderTime = newerTime - 100
-
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, modifiedTime: newerTime, keyId: localKeyId)
-        try await sut.localUpsert(entry)
-        try await injectDuplicate(forEntryId: "dup-id", withModifiedTime: olderTime,
-                                  encryptedData: encryptedData(for: entry))
-
-        // Verify we have 2 entities before deletion
-        var result = try await sut.getAllLocalEntries()
-        #expect(result.duplicateCount == 1)
-
-        // Get the creation date of the older duplicate from the groups
-        let groups = try await sut.getDuplicateEntryGroups()
-        let olderEntry = try #require(groups.first?.entries.first(where: { !$0.isCurrentlyActive }))
-
-        // Delete the older duplicate
-        try await sut.deleteLocalDuplicate(entryId: "dup-id", modifiedTime: olderTime,
-                                           creationDate: olderEntry.creationDate)
-
-        result = try await sut.getAllLocalEntries()
-        #expect(result.duplicateCount == 0)
-        #expect(result.entries.count == 1)
-    }
-
-    @Test("deleteLocalDuplicate does not affect other entries")
-    func deleteLocalDuplicate_doesNotAffectOtherEntries() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let newerTime = Date.now.timeIntervalSince1970
-        let olderTime = newerTime - 100
-
-        let entryA = OrderedEntry(entry: Entry(id: "a", name: "GitHub",
-                                               uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                               period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                               type: .totp, note: nil),
-                                  order: 0, modifiedTime: newerTime, keyId: localKeyId)
-        let entryB = OrderedEntry(entry: Entry(id: "b", name: "Proton",
-                                               uri: "otpauth://totp/Proton?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                               period: 30, issuer: "Proton", secret: "CKTQQJVWT5IXTGD",
-                                               type: .totp, note: nil),
-                                  order: 1, keyId: localKeyId)
-        try await sut.localUpsert([entryA, entryB])
-        try await injectDuplicate(forEntryId: "a", withModifiedTime: olderTime,
-                                  encryptedData: encryptedData(for: entryA))
-
-        let groups = try await sut.getDuplicateEntryGroups()
-        let olderDup = try #require(groups.first?.entries.first(where: { !$0.isCurrentlyActive }))
-
-        try await sut.deleteLocalDuplicate(entryId: "a", modifiedTime: olderTime,
-                                           creationDate: olderDup.creationDate)
-
         let result = try await sut.getAllLocalEntries()
 
-        // Both logical entries survive; duplicate is gone
-        #expect(result.entries.count == 2)
-        #expect(result.duplicateCount == 0)
+        #expect(result.count == 1)
+
+        // Raw DB should also have only 1 entity
+        let rawAfter = try await sut.getAllLocalEncryptedEntries().filter { $0.id == "dup-id" }
+        #expect(rawAfter.count == 1)
     }
 
     @Test("localReorder succeeds when duplicate entries exist in DB")
@@ -751,11 +664,13 @@ struct EntryRepositoryTests {
         let localKeyId = encryptionService.localEncryptionKeyId
         let entries: [OrderedEntry] = [
             .init(entry: Entry(id: "id0", name: "First",
+                               // swiftlint:disable:next line_length
                                uri: "otpauth://totp/First?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
                                period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
                                type: .totp, note: nil),
                   order: 0, keyId: localKeyId),
             .init(entry: Entry(id: "id1", name: "Second",
+                               // swiftlint:disable:next line_length
                                uri: "otpauth://totp/Second?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
                                period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
                                type: .totp, note: nil),
@@ -774,7 +689,7 @@ struct EntryRepositoryTests {
         // Should not throw or silently return
         try await sut.localReorder(reorderEntries)
 
-        let result = try await sut.getAllLocalEntries().entries.decodedEntries
+        let result = try await sut.getAllLocalEntries().decodedEntries
         #expect(result.first?.entry.id == "id1")
         #expect(result.last?.entry.id == "id0")
     }
@@ -783,6 +698,7 @@ struct EntryRepositoryTests {
     func localReorder_withDuplicates_updatesAllCopies() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId
         let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "Test",
+                                              // swiftlint:disable:next line_length
                                               uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
@@ -812,6 +728,7 @@ struct EntryRepositoryTests {
         let olderTime = newerTime - 100
 
         let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "Test",
+                                              // swiftlint:disable:next line_length
                                               uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
                                               period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
                                               type: .totp, note: nil),
@@ -860,124 +777,6 @@ struct EntryRepositoryTests {
         #expect(entity.order == 7)
     }
 
-    @Test("deleteLocalDuplicate does not delete the active entry when only older copy is targeted")
-    func deleteLocalDuplicate_doesNotDeleteActiveEntry() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let newerTime = Date.now.timeIntervalSince1970
-        let olderTime = newerTime - 100
-
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, modifiedTime: newerTime, keyId: localKeyId)
-        try await sut.localUpsert(entry)
-        try await injectDuplicate(forEntryId: "dup-id", withModifiedTime: olderTime,
-                                  encryptedData: encryptedData(for: entry))
-
-        // Get the creation date of the older duplicate
-        let groups = try await sut.getDuplicateEntryGroups()
-        let olderDup = try #require(groups.first?.entries.first(where: { !$0.isCurrentlyActive }))
-
-        // Delete the OLD copy (not the active one)
-        try await sut.deleteLocalDuplicate(entryId: "dup-id", modifiedTime: olderTime,
-                                           creationDate: olderDup.creationDate)
-
-        let result = try await sut.getAllLocalEntries()
-        #expect(result.entries.count == 1)
-
-        // Verify the remaining entry is the newer (active) one
-        if case let .decrypted(_, kept) = result.entries.first {
-            #expect(kept.modifiedTime == newerTime)
-        } else {
-            Issue.record("Expected a decrypted entry")
-        }
-    }
-
-    @Test("deleteLocalDuplicate with creationDate only deletes exact match when modifiedTimes are equal")
-    func deleteLocalDuplicate_withCreationDate_onlyDeletesExactMatch() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let now = Date.now.timeIntervalSince1970
-        let sharedModifiedTime = now - 50
-        let creationDateA = now - 200
-        let creationDateB = now - 300
-
-        // Insert a primary entry
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              // swiftlint:disable:next line_length
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, modifiedTime: now, keyId: localKeyId)
-        try await sut.localUpsert(entry)
-
-        // Inject two duplicates with the SAME modifiedTime but different creationDates
-        let storage = localDataManager.persistentStorage
-        let data = try encryptedData(for: entry)
-        let dupA = EncryptedEntryEntity(id: "dup-id", encryptedData: data, remoteId: "",
-                                        keyId: localKeyId, order: 0, syncState: .unsynced,
-                                        creationDate: creationDateA, modifiedTime: sharedModifiedTime)
-        let dupB = EncryptedEntryEntity(id: "dup-id", encryptedData: data, remoteId: "",
-                                        keyId: localKeyId, order: 0, syncState: .unsynced,
-                                        creationDate: creationDateB, modifiedTime: sharedModifiedTime)
-        try await storage.batchSave(content: [dupA, dupB])
-
-        // We should now have 3 entities (1 primary + 2 duplicates)
-        let allBefore = try await sut.getAllLocalEncryptedEntries().filter { $0.id == "dup-id" }
-        #expect(allBefore.count == 3)
-
-        // Delete only dupA using its exact creationDate
-        try await sut.deleteLocalDuplicate(entryId: "dup-id", modifiedTime: sharedModifiedTime,
-                                           creationDate: creationDateA)
-
-        // dupB and the primary should remain
-        let allAfter = try await sut.getAllLocalEncryptedEntries().filter { $0.id == "dup-id" }
-        #expect(allAfter.count == 2)
-
-        // Verify that dupB (with creationDateB) still exists
-        #expect(allAfter.contains(where: { $0.creationDate == creationDateB }))
-        // Verify that dupA (with creationDateA) was removed
-        #expect(!allAfter.contains(where: { $0.creationDate == creationDateA }))
-    }
-
-    @Test("getDuplicateEntryGroups populates syncState, hasRemoteId, revision, and creationDate")
-    func getDuplicateEntryGroups_populatesNewFields() async throws {
-        let localKeyId = encryptionService.localEncryptionKeyId
-        let now = Date.now.timeIntervalSince1970
-        let creationDate = now - 500
-
-        let entry = OrderedEntry(entry: Entry(id: "dup-id", name: "GitHub",
-                                              // swiftlint:disable:next line_length
-                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
-                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
-                                              type: .totp, note: nil),
-                                 order: 0, modifiedTime: now, keyId: localKeyId)
-        try await sut.localUpsert(entry)
-
-        // Inject a duplicate with specific properties
-        let storage = localDataManager.persistentStorage
-        let data = try encryptedData(for: entry)
-        let dup = EncryptedEntryEntity(id: "dup-id", encryptedData: data, remoteId: "remote-123",
-                                       keyId: localKeyId, order: 0, syncState: .synced,
-                                       creationDate: creationDate, modifiedTime: now - 100,
-                                       revision: 3)
-        try await storage.batchSave(content: [dup])
-
-        let groups = try await sut.getDuplicateEntryGroups()
-        let group = try #require(groups.first)
-        #expect(group.entries.count == 2)
-
-        // The duplicate (older modifiedTime) should be the non-active entry
-        let duplicate = try #require(group.entries.first(where: { !$0.isCurrentlyActive }))
-        #expect(duplicate.creationDate == creationDate)
-        #expect(duplicate.syncState == .synced)
-        #expect(duplicate.hasRemoteId == true)
-        #expect(duplicate.revision == 3)
-
-        // The active entry should have the expected defaults from localUpsert
-        let active = try #require(group.entries.first(where: { $0.isCurrentlyActive }))
-        #expect(active.hasRemoteId == false)
-    }
 }
 
 // MARK: - Duplicate injection helpers

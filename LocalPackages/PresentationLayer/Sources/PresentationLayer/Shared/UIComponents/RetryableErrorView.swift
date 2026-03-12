@@ -27,7 +27,7 @@ struct RetryableErrorView: View {
     let error: any Error
     let onRetry: () -> Void
 
-    enum Mode: Sendable {
+    enum Mode {
         /// Full-page error view, error message displayed  with retry button below
         case vertical(textColor: Color)
         /// Inlined error view, error message displayed with retry button on the right
