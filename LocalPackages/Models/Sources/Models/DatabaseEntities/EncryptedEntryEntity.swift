@@ -92,9 +92,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     }
 
     public func update(with orderedEntry: OrderedEntry) {
-        // swiftlint:disable:next todo
-        // TODO: check if this is needed
-//        order = orderedEntry.order
+        order = orderedEntry.order
         syncState = orderedEntry.syncState
         remoteId = orderedEntry.remoteId ?? ""
         modifiedTime = orderedEntry.modifiedTime

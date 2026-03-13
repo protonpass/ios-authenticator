@@ -430,7 +430,6 @@ private extension EntryDataService {
         }
     }
 
-    /// @concurrent
     func performFullRefresh() async throws {
         log(.debug, "Full BE refresh")
         do {
@@ -465,7 +464,6 @@ private extension EntryDataService {
         }
     }
 
-    /// @concurrent
     func performLoadingEntries() async throws {
         log(.debug, "Loading entries")
         do {
