@@ -68,7 +68,7 @@ struct BackUpView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("A “Proton Authenticator Backups” folder will be created in the selected location.",
+                Text("A \"Proton Authenticator Backups\" folder will be created in the selected location.",
                      bundle: .module)
             }
             .alert("Please enter the password used to encrypt this backup.",
