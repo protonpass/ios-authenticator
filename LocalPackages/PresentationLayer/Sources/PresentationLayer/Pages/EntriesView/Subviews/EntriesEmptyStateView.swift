@@ -34,12 +34,14 @@ struct EntriesEmptyStateView: View {
         switch dataState {
         case .loading:
             ProgressView()
+
         case let .loaded(entries):
             if entries.isEmpty {
                 noCodesView
             } else if entriesEmpty, !query.isEmpty {
                 noSearchResultsView
             }
+
         case let .failed(error):
             RetryableErrorView(tintColor: .danger, error: error, onRetry: reloadData)
         }
@@ -52,6 +54,7 @@ struct EntriesEmptyStateView: View {
                 .scaledToFit()
                 .frame(width: 210, height: 120)
                 .padding(.bottom, 16)
+                .accessibilityHidden(true)
         } description: {
             VStack(spacing: 8) {
                 Text("No codes yet", bundle: .module)

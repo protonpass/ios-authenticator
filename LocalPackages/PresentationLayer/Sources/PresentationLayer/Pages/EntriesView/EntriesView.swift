@@ -57,9 +57,12 @@ enum EntryAction: Equatable, Hashable {
 }
 
 public struct EntriesView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.scenePhase) private var scenePhase
-    @InjectedObservable(\ViewModelContainer.entriesViewModel) var viewModel
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
+    @Environment(\.scenePhase)
+    private var scenePhase
+    @InjectedObservable(\ViewModelContainer.entriesViewModel)
+    private var viewModel
     @State private var router = Router()
     @State private var draggingEntry: EntryUiModel?
     @State private var hoveringEntry: EntryUiModel?
@@ -78,7 +81,7 @@ public struct EntriesView: View {
 
     public var body: some View {
         NavigationStack {
-            mainContainer
+            mainContainer // swiftlint:disable:this accessibility_trait_for_button
                 .scrollDismissesKeyboard(.immediately)
                 .onTapGesture {
                     searchFieldFocus = false
@@ -220,12 +223,14 @@ private extension EntriesView {
         switch searchBarAlignment {
         case .top:
             true
+
         case .bottom:
             if #available(iOS 26, macOS 26, *) {
                 true
             } else {
                 false
             }
+
         default:
             false
         }
@@ -390,10 +395,13 @@ private extension EntriesView {
         switch action {
         case .copyCurrentCode:
             viewModel.copyTokenToClipboard(entryAction: action)
+
         case .copyNextCode:
             viewModel.copyTokenToClipboard(entryAction: action)
+
         case let .edit(entry):
             router.presentedSheet = .createEditEntry(entry)
+
         case let .delete(entry):
             viewModel.delete(entry)
         }
@@ -417,11 +425,13 @@ private extension EntriesView {
         switch status {
         case .authorized, .notDetermined:
             router.presentedFullscreenSheet = .qrCodeScanner
+
         case .denied, .restricted:
             let config = AlertConfiguration.noCameraAccess {
                 router.presentedSheet = .createEditEntry(nil)
             }
             alertService.showAlert(.main(config))
+
         @unknown default:
             router.presentedFullscreenSheet = .qrCodeScanner
         }

@@ -97,11 +97,11 @@ public final class KeysManager: KeysProvider {
         if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: true) {
             try migrationSymmetricKeyToUnsync(lockedSymmetricKeyData)
             return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
-        } else if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: false) {
-            return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
-        } else {
-            return try buildSymmetricKey(mainKey: mainKey)
         }
+        if let lockedSymmetricKeyData: Data = try? keychain.get(keyId: keychainKey, isSynced: false) {
+            return try unlockSymmetricKey(mainKey: mainKey, lockedSymmetricKeyData)
+        }
+        return try buildSymmetricKey(mainKey: mainKey)
     }
 
     public func get(keyId: String) throws -> Data {

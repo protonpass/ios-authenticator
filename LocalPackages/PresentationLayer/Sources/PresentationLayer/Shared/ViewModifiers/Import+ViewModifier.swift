@@ -121,6 +121,7 @@ struct ImportingServiceModifier: ViewModifier {
         switch selectedOption {
         case .googleAuthenticator:
             showImportFromGoogleOptions.toggle()
+
         default:
             viewModel.importEntries(from: selectedOption)
         }
@@ -133,8 +134,10 @@ struct ImportingServiceModifier: ViewModifier {
             switch status {
             case .authorized, .notDetermined:
                 showScanner.toggle()
+
             case .denied, .restricted:
                 viewModel.alertNoCameraPermission()
+
             @unknown default:
                 showScanner.toggle()
             }
@@ -302,9 +305,8 @@ private extension View {
         if AppConstants.isMobile
             || (ProcessInfo.processInfo.isiOSAppOnMac && option != .scanQrCode) {
             return true
-        } else {
-            return false
         }
+        return false
         #else
         option == .scanQrCode ? false : true
         #endif
@@ -583,6 +585,7 @@ private final class ImportViewModel: ObservableObject {
                     let numberOfImportedEntries = try await entryDataService
                         .importEntries(from: .googleQr(contents: barcode.payload))
                     showCompletion(numberOfImportedEntries)
+
                 case let .failure(error):
                     if error is DataScannerViewController.ScanningUnavailable {
                         appSettings.setUnsupportedScanning(true)
@@ -686,9 +689,11 @@ private extension ImportViewModel {
         let config = AlertConfiguration(title: "An error occurred",
                                         titleBundle: .module,
                                         message: .verbatim(message),
-                                        actions: [.init(title: "OK",
-                                                        titleBundle: .module,
-                                                        role: .cancel)])
+                                        actions: [
+                                            .init(title: "OK",
+                                                  titleBundle: .module,
+                                                  role: .cancel)
+                                        ])
         showAlert(config)
     }
 
@@ -703,10 +708,13 @@ private extension UTType {
         switch self {
         case .plainText, .text:
             .txt(content)
+
         case .json:
             .json(content)
+
         case .commaSeparatedText:
             .csv(content)
+
         default:
             .generic(content)
         }
@@ -726,22 +734,31 @@ private extension ImportOption {
         switch self {
         case .googleAuthenticator:
             "Google Authenticator"
+
         case .twoFas:
             "2FAS"
+
         case .aegisAuthenticator:
             "Aegis Authenticator"
+
         case .bitwardenAuthenticator:
             "Bitwarden Authenticator"
+
         case .enteAuth:
             "Ente Auth"
+
         case .lastPassAuthenticator:
             "LastPass Authenticator"
+
         case .protonAuthenticator:
             "Proton Authenticator"
+
         case .protonPass:
             "Proton Pass"
+
         case .authy:
             "Authy"
+
         case .microsoft:
             "Microsoft Authenticator"
         }
@@ -751,18 +768,25 @@ private extension ImportOption {
         switch self {
         case .aegisAuthenticator:
             [.json, .text, .plainText]
+
         case .bitwardenAuthenticator:
             [.json, .commaSeparatedText]
+
         case .lastPassAuthenticator:
             [.json]
+
         case .enteAuth, .twoFas:
             [.text, .plainText, .twoFAS]
+
         case .protonAuthenticator:
             [.text, .plainText, .json]
+
         case .protonPass:
             [.zip]
+
         case .googleAuthenticator:
             [.image, .jpeg, .png]
+
         default:
             []
         }
@@ -785,20 +809,28 @@ private extension ImportOption {
         return switch self {
         case .twoFas:
             .twofas(contents: textContent(), password: password)
+
         case .aegisAuthenticator:
             .aegis(contents: type.toTwofaImportFileType(content: textContent()), password: password)
+
         case .bitwardenAuthenticator:
             .bitwarden(contents: type.toTwofaImportFileType(content: textContent()))
+
         case .enteAuth:
             .ente(contents: textContent())
+
         case .googleAuthenticator:
             try .googleQr(contents: qrContent())
+
         case .lastPassAuthenticator:
             .lastpass(contents: type.toTwofaImportFileType(content: textContent()))
+
         case .protonAuthenticator:
             .protonAuthenticator(contents: textContent(), password: password)
+
         case .protonPass:
             .protonPass(contents: content)
+
         case .authy, .microsoft:
             nil
         }
@@ -808,22 +840,31 @@ private extension ImportOption {
         switch self {
         case .googleAuthenticator:
             Image(.googleAuthIcon)
+
         case .twoFas:
             Image(.twoFAIcon)
+
         case .aegisAuthenticator:
             Image(.aegisIcon)
+
         case .bitwardenAuthenticator:
             Image(.bitwardenIcon)
+
         case .enteAuth:
             Image(.enteIcon)
+
         case .lastPassAuthenticator:
             Image(.lastpassIcon)
+
         case .protonAuthenticator:
             Image(.protonAuthIcon)
+
         case .protonPass:
             Image(.protonPassIcon)
+
         case .authy:
             Image(.authyIcon)
+
         case .microsoft:
             Image(.microsoftIcon)
         }
@@ -833,6 +874,7 @@ private extension ImportOption {
         switch self {
         case .authy, .microsoft:
             false
+
         default:
             true
         }
@@ -844,8 +886,10 @@ private extension GoogleImportType {
         switch self {
         case .scanQrCode:
             "Scan a QR code"
+
         case .pickPhoto:
             "Choose one or more Photos"
+
         case .importFromFiles:
             "Import from Files"
         }
@@ -862,20 +906,28 @@ private extension ImportOption {
         switch self {
         case .googleAuthenticator:
             "Please go to **☰ > Transfer accounts > Export accounts**\n\nThis will create one or more QR codes that you can use here."
+
         case .twoFas:
             "Please go to **Settings > 2FAS Backup > Export**\n\nThis will create a 2fas file that you can use here."
+
         case .aegisAuthenticator:
             "Please go to **⋮ > Settings > Import & Export > Export**\n\nThis will create a Json file that you can use here."
+
         case .bitwardenAuthenticator:
             "Please go to **Settings > Export**\n\nThis will create a Json file that you can use here."
+
         case .enteAuth:
             "Please go to **☰ > Data > Export codes**\n\nChoose **Plain text**, this will create a txt file that you can use here."
+
         case .lastPassAuthenticator:
             "Please go to **⚙ > Transfer accounts > Export accounts to file**\n\nThis will create a Json file that you can use here."
+
         case .protonAuthenticator:
             "Please go to **⚙ > Export**\n\nThis will create a Json file that you can use here."
+
         case .protonPass:
             "In Proton Pass extension, web or desktop app, go to **☰ > Settings > Export**\n\nMake sure to choose the **zip format without file attachments**.\n\nThis will create a zip file that you can use here."
+
         case .authy, .microsoft:
             "Unfortunately, \(title) doesn’t currently support exporting data from their app. Consider contacting \(title) to request this feature. \n\nPlease import your data manually for now."
         }
@@ -908,6 +960,7 @@ private struct ExplanationView: View {
                             .scaledToFit()
                             .frame(width: 24)
                             .foregroundStyle(.textNorm.opacity(0.7))
+                            .accessibility(label: Text("Close", bundle: .module))
                     }
                     .adaptiveButtonStyle()
                     .padding(16)
@@ -923,10 +976,13 @@ private struct ExplanationView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32)
+                        .accessibilityHidden(true)
 
                     Image(.protonAuthIcon)
                         .resizable()
                         .frame(width: 74, height: 74)
+                        .accessibilityHidden(true)
+
                     Spacer()
                 }
                 .frame(height: 170)
@@ -942,6 +998,7 @@ private struct ExplanationView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 433, height: 433)
+                            .accessibilityHidden(true)
                     }
                     .frame(width: 225, height: 225)
                     .contentShape(Circle())
@@ -990,6 +1047,7 @@ private struct ExplanationView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
+                            .accessibility(label: Text("Close", bundle: .module))
                     }
                 }
             }
@@ -1013,6 +1071,7 @@ private struct ImportView: View {
                             .scaledToFit()
                             .frame(width: 24)
                             .foregroundStyle(.textNorm.opacity(0.7))
+                            .accessibility(label: Text("Close", bundle: .module))
                     }
                     .adaptiveButtonStyle()
                     .padding(16)
@@ -1052,6 +1111,7 @@ private struct ImportView: View {
                                     .resizable()
                                     .frame(width: 22, height: 22)
                                     .foregroundStyle(Color(red: 1, green: 0.83, blue: 0.5))
+                                    .accessibilityHidden(true)
                             }
                         }
                         .padding(.vertical, 24)
@@ -1071,6 +1131,7 @@ private struct ImportView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: dismiss.callAsFunction) {
                         Image(systemName: "xmark")
+                            .accessibility(label: Text("Close", bundle: .module))
                     }
                 }
             }

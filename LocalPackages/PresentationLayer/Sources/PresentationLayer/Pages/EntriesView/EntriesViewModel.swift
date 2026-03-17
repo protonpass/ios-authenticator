@@ -380,20 +380,26 @@ private extension [EntryUiModel] {
         switch option {
         case .manual:
             self
+
         case .issuerAsc:
             sorted(by: {
                 $0.orderedEntry.entry.issuer.lowercased() < $1.orderedEntry.entry.issuer.lowercased()
             })
+
         case .issuerDesc:
             sorted(by: {
                 $0.orderedEntry.entry.issuer.lowercased() > $1.orderedEntry.entry.issuer.lowercased()
             })
+
         case .creationDateAsc:
             sorted(by: { $0.orderedEntry.creationDate < $1.orderedEntry.creationDate })
+
         case .creationDateDesc:
             sorted(by: { $0.orderedEntry.creationDate > $1.orderedEntry.creationDate })
+
         case .modificationDateAsc:
             sorted(by: { $0.orderedEntry.modifiedTime < $1.orderedEntry.modifiedTime })
+
         case .modificationDateDesc:
             sorted(by: { $0.orderedEntry.modifiedTime > $1.orderedEntry.modifiedTime })
         }

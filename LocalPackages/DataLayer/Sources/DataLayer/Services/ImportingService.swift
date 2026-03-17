@@ -52,18 +52,25 @@ public final class ImportingService: ImportingServicing {
             let result = switch source {
             case let .twofas(contents, password):
                 try parse2fas(contents, password: password)
+
             case let .aegis(contents, password):
                 try parseAegis(contents, password: password)
+
             case let .bitwarden(contents):
                 try parseBitwarden(contents)
+
             case let .ente(contents):
                 try parseEnte(contents)
+
             case let .googleQr(contents):
                 try parseGoogleQr(contents)
+
             case let .lastpass(contents):
                 try parseLastpass(contents)
+
             case let .protonAuthenticator(contents, password):
                 try parseAuthenticator(contents, password: password)
+
             case let .protonPass(contents):
                 try parsePass(contents)
             }
@@ -156,7 +163,8 @@ private extension ImportingService {
 
         if case .json = content {
             return try importer.importFromBitwardenJson(contents: content.content)
-        } else if case .csv = content {
+        }
+        if case .csv = content {
             return try importer.importFromBitwardenCsv(contents: content.content)
         }
         log(.error, "Bitwarden content is in wrong format")
@@ -172,7 +180,8 @@ private extension ImportingService {
 
         if case .json = content {
             return try importer.importFromAegisJson(contents: content.content, password: password)
-        } else if case .txt = content {
+        }
+        if case .txt = content {
             return try importer.importFromAegisTxt(contents: content.content)
         }
 

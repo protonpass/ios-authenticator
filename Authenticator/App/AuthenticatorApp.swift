@@ -144,6 +144,7 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
         switch authenticationService.currentState {
         case .inactive:
             true
+
         case let .active(authenticated: isChecked):
             isChecked
         }
@@ -263,9 +264,8 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
             guard let self else { return }
             if isCheckingBiometric {
                 return
-            } else {
-                isCheckingBiometric = true
             }
+            isCheckingBiometric = true
             defer { isCheckingBiometric = false }
             do {
                 try await authenticationService.checkBiometrics()

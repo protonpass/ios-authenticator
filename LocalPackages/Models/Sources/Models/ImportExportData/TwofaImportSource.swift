@@ -35,10 +35,13 @@ public enum TwofaImportSource: Sendable, Equatable {
         switch self {
         case let .twofas(contents: contents, _):
             .twofas(contents: contents, password: password)
+
         case let .aegis(contents: contents, _):
             .aegis(contents: contents, password: password)
+
         case let .protonAuthenticator(contents: contents, _):
             .protonAuthenticator(contents: contents, password: password)
+
         default:
             self
         }
@@ -68,10 +71,13 @@ public enum TwofaImportFileType: Sendable, Equatable {
         switch self {
         case let .json(value):
             value
+
         case let .csv(value):
             value
+
         case let .txt(value):
             value
+
         case let .generic(value):
             value
         }

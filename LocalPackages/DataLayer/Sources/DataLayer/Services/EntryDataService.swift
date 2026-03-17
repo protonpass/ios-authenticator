@@ -97,9 +97,9 @@ public final class EntryDataService: EntryDataServiceProtocol {
     @ObservationIgnored
     private var entryUpdateTask: Task<Void, Never>?
     @ObservationIgnored
-    private var fullRefreshTask: Task<Void, Error>?
+    private var fullRefreshTask: Task<Void, Never>?
     @ObservationIgnored
-    private var loadTask: Task<Void, Error>?
+    private var loadTask: Task<Void, Never>?
     @ObservationIgnored
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
     @ObservationIgnored
@@ -242,21 +242,21 @@ public extension EntryDataService {
         backUpEntries()
     }
 
-    func loadEntries() async throws {
+    func loadEntries() async {
         if let existingTask = loadTask {
             log(.debug, "Loading entries already in progress, joining existing task")
-            try await existingTask.value
+            await existingTask.value
             return
         }
 
         let task = Task {
-            try await performLoadingEntries()
+            await performLoadingEntries()
         }
 
         loadTask = task
         defer { loadTask = nil }
 
-        try await task.value
+        await task.value
     }
 
     func updateData(_ entries: [EntryUiModel]) {
@@ -269,19 +269,19 @@ public extension EntryDataService {
         dataState = .loaded(deduplicated)
     }
 
-    func fullRefresh() async throws {
+    func fullRefresh() async {
         if let existing = fullRefreshTask {
             log(.debug, "Full BE refresh already in progress, joining existing task")
-            try await existing.value
+            await existing.value
             return
         }
 
         let task = Task {
-            try await performFullRefresh()
+            await performFullRefresh()
         }
         fullRefreshTask = task
         defer { fullRefreshTask = nil }
-        try await task.value
+        await task.value
     }
 
     func unsyncAllEntries() async throws {
@@ -316,7 +316,7 @@ public extension EntryDataService {
                 }
             }
 
-            try await loadEntries()
+            await loadEntries()
 
             if let remoteError {
                 throw remoteError
@@ -360,9 +360,8 @@ public extension EntryDataService {
 
         if let password {
             return try repository.export(entries: entries, with: password)
-        } else {
-            return try repository.export(entries: entries)
         }
+        return try repository.export(entries: entries)
     }
 
     func importEntries(from sources: [TwofaImportSource]) async throws -> Int {
@@ -430,7 +429,7 @@ private extension EntryDataService {
         }
     }
 
-    func performFullRefresh() async throws {
+    func performFullRefresh() async {
         log(.debug, "Full BE refresh")
         do {
             let entriesStates = try await repository.getAllLocalEntries()
@@ -453,7 +452,7 @@ private extension EntryDataService {
             if let coreError = error as? ResponseError,
                coreError.bestShotAtReasonableErrorCode == APIErrorCode.potentiallyBlocked {
                 log(.info, "No internet connection or Proton is blocked. Loading local entries.")
-                try await loadEntries()
+                await loadEntries()
                 return
             }
 
@@ -464,7 +463,7 @@ private extension EntryDataService {
         }
     }
 
-    func performLoadingEntries() async throws {
+    func performLoadingEntries() async {
         log(.debug, "Loading entries")
         do {
             if Task.isCancelled { return }
@@ -528,6 +527,7 @@ private extension EntryDataService {
         case let .steam(params):
             log(.debug, "Creating Steam entry")
             return try repository.createSteamEntry(params: params)
+
         case let .totp(params):
             log(.debug, "Creating TOTP entry")
             return try repository.createTotpEntry(params: params)
@@ -612,12 +612,15 @@ private extension EntryDataService {
                     let syncedEntry = orderedEntry.updateSyncState(.synced)
                     itemsToUpsertLocally.append(syncedEntry)
                 }
+
             case .deleteLocal:
                 itemIdsToDeleteLocally.append(operation.entry.id)
+
             case .deleteLocalAndRemote:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
                     itemsToFullyDelete.append(orderedEntry)
                 }
+
             case .push:
                 if let orderedEntry = entriesStates.getFirstOrderedEntry(for: operation.entry.id) {
                     if operation.remoteId != nil, let revision = operation.revision {

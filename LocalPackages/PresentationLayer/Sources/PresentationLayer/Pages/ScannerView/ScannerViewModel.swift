@@ -111,6 +111,7 @@ final class ScannerViewModel {
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
                 await generateEntry(from: barcode.payload)
+
             case let .failure(error):
                 handleScanningError(error)
             }

@@ -32,14 +32,19 @@ public enum ImageParsingFailureReason: CustomDebugStringConvertible, Equatable, 
         switch self {
         case .errorProcessingImage:
             "Error processing image"
+
         case .importFailed:
             "Error importing image"
+
         case .failedDetectingQRCode:
             "Error detecting QR code"
+
         case .qrCodeEmpty:
             "Empty QR code"
+
         case .failedToConvertToCiImage:
             "Failed to convert to CIImage"
+
         case .failedToParseCapturedPhoto:
             "Failed to parse captured photo"
         }

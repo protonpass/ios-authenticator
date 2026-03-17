@@ -53,15 +53,15 @@ public final class IOSToWatchCommunicationManager: NSObject, WCSessionDelegate, 
         session.activate()
     }
 
-    public func sessionDidBecomeInactive(_ session: WCSession) {}
+    public func sessionDidBecomeInactive(_: WCSession) {}
 
-    public func sessionDidDeactivate(_ session: WCSession) {}
+    public func sessionDidDeactivate(_: WCSession) {}
 
-    public func session(_ session: WCSession,
-                        activationDidCompleteWith activationState: WCSessionActivationState,
-                        error: (any Error)?) {}
+    public func session(_: WCSession,
+                        activationDidCompleteWith _: WCSessionActivationState,
+                        error _: (any Error)?) {}
 
-    public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
+    public func session(_: WCSession, didReceiveMessageData messageData: Data) {
         do {
             let message = try decoder.decode(WatchIOSMessageType.self, from: messageData)
             parseMessage(message: message)
@@ -79,12 +79,14 @@ private extension IOSToWatchCommunicationManager {
             case .syncData:
                 let entries = await entryDataService.dataState.orderEntries
                 sendAllPages(entries: entries)
+
             case let .code(newCode):
                 #if canImport(UIKit)
                 await pasteToClipboard(newCode)
                 #else
                 return
                 #endif
+
             default:
                 return
             }

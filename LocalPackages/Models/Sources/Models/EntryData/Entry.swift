@@ -52,7 +52,7 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         precomputedHash = hasher.combineAndFinalize(id, name, uri, period, issuer, secret, note, type)
     }
 
-    static var `default`: Entry {
+    static var `default`: Self {
         .init(id: "",
               name: "",
               uri: "",
@@ -63,12 +63,12 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
               note: nil)
     }
 
-    public func isDuplicate(of other: Entry) -> Bool {
+    public func isDuplicate(of other: Self) -> Bool {
         id == other.id
     }
 
     /// Same TOTP content = same authenticator entry regardless of id
-    public func isContentDuplicate(of other: Entry) -> Bool {
+    public func isContentDuplicate(of other: Self) -> Bool {
         secret == other.secret && issuer == other.issuer && type == other.type
     }
 

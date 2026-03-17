@@ -59,6 +59,7 @@ public final class DeepLinkService: DeepLinkServicing {
         switch url.linkType {
         case .otpauth:
             try await process(url: url)
+
         default:
             return
         }

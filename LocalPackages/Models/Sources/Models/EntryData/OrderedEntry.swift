@@ -58,39 +58,39 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
         entry.id
     }
 
-    public func updateEntry(_ newEntry: Entry) -> OrderedEntry {
+    public func updateEntry(_ newEntry: Entry) -> Self {
         var updatedSelf = self
         updatedSelf.entry = newEntry
         updatedSelf.modifiedTime = Date.now.timeIntervalSince1970
         return updatedSelf
     }
 
-    public func updateOrder(_ newOrder: Int) -> OrderedEntry {
+    public func updateOrder(_ newOrder: Int) -> Self {
         var updatedSelf = self
         updatedSelf.order = newOrder
         return updatedSelf
     }
 
-    public func updateSyncState(_ newSyncState: EntrySyncState) -> OrderedEntry {
+    public func updateSyncState(_ newSyncState: EntrySyncState) -> Self {
         var updatedSelf = self
         updatedSelf.syncState = newSyncState
         return updatedSelf
     }
 
-    public func updateRevision(_ newRevision: Int) -> OrderedEntry {
+    public func updateRevision(_ newRevision: Int) -> Self {
         var updatedSelf = self
         updatedSelf.revision = newRevision
         return updatedSelf
     }
 
-    public func updateRemoteInfos(_ remoteId: String) -> OrderedEntry {
+    public func updateRemoteInfos(_ remoteId: String) -> Self {
         var updatedSelf = self
         updatedSelf.remoteId = remoteId
         updatedSelf.syncState = .synced
         return updatedSelf
     }
 
-    public static func == (lhs: OrderedEntry, rhs: OrderedEntry) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry == rhs.entry &&
             lhs.remoteId == rhs.remoteId &&
             lhs.order == rhs.order &&

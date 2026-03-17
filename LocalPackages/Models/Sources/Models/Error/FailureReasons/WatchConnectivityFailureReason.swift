@@ -32,14 +32,19 @@ public enum WatchConnectivityFailureReason: CustomDebugStringConvertible, Equata
         switch self {
         case .companionNotReachable:
             "Could not reach the companion app"
+
         case let .messageDecodingFailed(error):
             "Failed to decode received message: \(error)"
+
         case let .sessionActivationFailed(error):
             "Failed to activate session: \(error)"
+
         case .timeout:
             "Connection to the companion app timed out"
+
         case .sessionNotActivated:
             "Session not activated yet"
+
         case .notPaired:
             "Not paired with the companion app"
         }

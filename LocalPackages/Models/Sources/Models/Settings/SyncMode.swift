@@ -25,6 +25,6 @@ public struct SyncMode: OptionSet, Sendable {
         self.rawValue = rawValue
     }
 
-    public static let local = SyncMode(rawValue: 1 << 0)
-    public static let proton = SyncMode(rawValue: 1 << 1)
+    public static let local = Self(rawValue: 1 << 0)
+    public static let proton = Self(rawValue: 1 << 1)
 }

@@ -93,6 +93,7 @@ public extension View {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
                     .resizableSheet()
+
             case .settings:
                 SettingsView()
                     .resizableSheet()

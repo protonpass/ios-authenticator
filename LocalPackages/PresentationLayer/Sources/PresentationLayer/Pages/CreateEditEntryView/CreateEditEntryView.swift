@@ -383,14 +383,17 @@ private extension CreateEditEntryView {
         switch focusedField {
         case .name:
             focusedField = .secret
+
         case .secret:
             if viewModel.type == .totp {
                 focusedField = .issuer
             } else {
                 focusedField = nil
             }
+
         case .issuer:
             focusedField = nil
+
         case .none:
             break
         }

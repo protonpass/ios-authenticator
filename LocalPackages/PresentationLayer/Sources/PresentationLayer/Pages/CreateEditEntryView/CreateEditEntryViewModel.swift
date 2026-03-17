@@ -106,6 +106,7 @@ final class CreateEditEntryViewModel {
                     switch error {
                     case .InvalidSecret:
                         errorMessage = #localized("Invalid secret: %@", bundle: .module, error.message)
+
                     default:
                         errorMessage = error.message
                     }
@@ -126,6 +127,7 @@ private extension CreateEditEntryViewModel {
             name = uiEntry.orderedEntry.entry.name
             secret = uiEntry.orderedEntry.entry.secret
             type = .steam
+
         case .totp:
             if let params = try? entryDataService.getTotpParams(entry: uiEntry.orderedEntry.entry) {
                 name = params.name

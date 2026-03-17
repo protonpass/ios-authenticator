@@ -90,12 +90,12 @@ private struct QRCodeImage: Transferable {
             guard let nsImage = NSImage(data: data) else {
                 throw AuthError.imageParsing(.importFailed)
             }
-            return QRCodeImage(image: nsImage)
+            return Self(image: nsImage)
             #elseif canImport(UIKit)
             guard let uiImage = UIImage(data: data) else {
                 throw AuthError.imageParsing(.importFailed)
             }
-            return QRCodeImage(image: uiImage)
+            return Self(image: uiImage)
             #else
             throw AuthError.imageParsing(.importFailed)
             #endif

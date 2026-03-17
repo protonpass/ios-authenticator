@@ -35,6 +35,7 @@ struct PassBanner: View {
                     .frame(width: 24)
                     .padding(DesignConstant.padding)
                     .foregroundStyle(.white)
+                    .accessibility(label: Text("Close", bundle: .module))
             }
         }
         .frame(height: 220)
@@ -67,10 +68,11 @@ private extension PassBanner {
         ZStack {
             HStack {
                 Spacer()
-                Image("passPreview", bundle: .module)
+                Image(.passPreview)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 150, alignment: .trailing)
+                    .accessibilityHidden(true)
             }
             .frame(maxWidth: .infinity)
 
@@ -109,10 +111,11 @@ private extension PassBanner {
                 HStack(spacing: DesignConstant.padding / 2) {
                     ZStack {
                         Color.white
-                        Image("logoPass", bundle: .module)
+                        Image(.logoPass)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 22)
+                            .accessibilityHidden(true)
                     }
                     .frame(width: 36, height: 36)
                     .clipShape(RoundedRectangle(cornerRadius: 12))

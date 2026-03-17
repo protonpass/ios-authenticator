@@ -24,7 +24,7 @@ import SwiftUI
 public enum Theme: Int, Sendable, CaseIterable, IntegerDefaulting {
     case dark, light, system
 
-    public static var `default`: Theme {
+    public static var `default`: Self {
         .system
     }
 
@@ -32,8 +32,10 @@ public enum Theme: Int, Sendable, CaseIterable, IntegerDefaulting {
         switch self {
         case .system:
             nil
+
         case .light:
             .light
+
         case .dark:
             .dark
         }

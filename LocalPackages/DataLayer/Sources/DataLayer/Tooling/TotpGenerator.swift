@@ -44,12 +44,12 @@ public actor TotpGenerator: TotpGeneratorProtocol {
         cancellableGenerator = nil
     }
 
-    public func startTotpCodeUpdate(_ entries: [Entry]) async throws {
-        await stopUpdating()
+    public func startTotpCodeUpdate(_ entries: [Entry]) throws {
+        stopUpdating()
         cancellableGenerator = try rustTotpGenerator.start(entries: entries.toRustEntries, callback: self)
     }
 
-    public func stopUpdating() async {
+    public func stopUpdating() {
         cancellableGenerator?.cancel()
         cancellableGenerator = nil
     }

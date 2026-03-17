@@ -28,14 +28,14 @@ public struct TextDocument: FileDocument, Transferable, Codable {
     private let content: String
 
     public init(_ content: String = "") {
-        title = TextDocument.exportFileName
+        title = Self.exportFileName
         self.content = content
     }
 
     public static let readableContentTypes: [UTType] = [.text]
 
-    public init(configuration: ReadConfiguration) throws {
-        title = TextDocument.exportFileName
+    public init(configuration: ReadConfiguration) {
+        title = Self.exportFileName
         if let data = configuration.file.regularFileContents,
            let newContent = String(data: data, encoding: .utf8) {
             content = newContent
@@ -45,7 +45,7 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         }
     }
 
-    public func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    public func fileWrapper(configuration _: WriteConfiguration) -> FileWrapper {
         let data = Data(content.utf8)
         return FileWrapper(regularFileWithContents: data)
     }
@@ -64,7 +64,7 @@ public struct TextDocument: FileDocument, Transferable, Codable {
             // This is required but won't be used for sharing
             let data = try Data(contentsOf: received.file)
             let content = String(data: data, encoding: .utf8) ?? ""
-            return TextDocument(content)
+            return Self(content)
         }
 
         // Add fallback data representation

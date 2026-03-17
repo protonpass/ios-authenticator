@@ -34,8 +34,8 @@ public struct Code: Sendable, Equatable, Hashable, Identifiable, Codable {
         precomputedHash = hasher.combineAndFinalize(current, next, entry)
     }
 
-    public static var `default`: Code {
-        Code(current: "", next: "", entry: Entry.default)
+    public static var `default`: Self {
+        Self(current: "", next: "", entry: Entry.default)
     }
 
     public var id: Int {

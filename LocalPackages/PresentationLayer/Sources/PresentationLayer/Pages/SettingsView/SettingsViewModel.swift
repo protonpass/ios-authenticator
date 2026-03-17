@@ -366,7 +366,7 @@ nonisolated struct TextFile: FileDocument {
         text = initialText
     }
 
-    init(configuration: ReadConfiguration) throws {
+    init(configuration: ReadConfiguration) {
         if let data = configuration.file.regularFileContents {
             text = String(bytes: data, encoding: .utf8) ?? ""
         } else {
@@ -374,7 +374,7 @@ nonisolated struct TextFile: FileDocument {
         }
     }
 
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    func fileWrapper(configuration _: WriteConfiguration) -> FileWrapper {
         let data = Data(text.utf8)
         return FileWrapper(regularFileWithContents: data)
     }

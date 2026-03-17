@@ -56,6 +56,7 @@ struct EntriesActionBar: View {
             Image(systemName: "magnifyingglass")
                 .fontWeight(.medium)
                 .foregroundStyle(.textWeak)
+                .accessibilityHidden(true)
 
             TextField(text: $query,
                       label: {
@@ -80,6 +81,7 @@ struct EntriesActionBar: View {
                         .foregroundStyle(.textWeak)
                         .animation(.default, value: query.isEmpty)
                         .opacity(query.isEmpty ? 0 : 1)
+                        .accessibility(label: Text("Clear search", bundle: .module))
                 })
                 .adaptiveButtonStyle()
             }

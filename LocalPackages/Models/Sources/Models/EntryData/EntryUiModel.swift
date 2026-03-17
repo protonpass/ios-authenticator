@@ -37,16 +37,16 @@ public struct EntryUiModel: Sendable, Identifiable, Equatable, Hashable, Codable
         self.issuerInfo = issuerInfo
     }
 
-    public func copy(newEntry: Entry) -> EntryUiModel {
-        EntryUiModel(orderedEntry: orderedEntry.updateEntry(newEntry),
-                     code: code,
-                     issuerInfo: issuerInfo)
+    public func copy(newEntry: Entry) -> Self {
+        Self(orderedEntry: orderedEntry.updateEntry(newEntry),
+             code: code,
+             issuerInfo: issuerInfo)
     }
 
-    public func updateRemoteInfos(_ remoteId: String) -> EntryUiModel {
-        EntryUiModel(orderedEntry: orderedEntry.updateRemoteInfos(remoteId),
-                     code: code,
-                     issuerInfo: issuerInfo)
+    public func updateRemoteInfos(_ remoteId: String) -> Self {
+        Self(orderedEntry: orderedEntry.updateRemoteInfos(remoteId),
+             code: code,
+             issuerInfo: issuerInfo)
     }
 }
 

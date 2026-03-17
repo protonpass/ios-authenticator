@@ -72,8 +72,10 @@ public final class TOTPCountdownManager: TOTPCountdownProtocol {
         let color: Color = switch timeRemaining {
         case 0...5:
             .timer1
+
         case 5...10:
             .timer2
+
         default:
             .timer3
         }

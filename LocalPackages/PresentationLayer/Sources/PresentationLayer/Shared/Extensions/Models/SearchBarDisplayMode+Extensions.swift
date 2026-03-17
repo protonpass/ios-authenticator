@@ -26,6 +26,7 @@ extension SearchBarDisplayMode {
         switch self {
         case .bottom:
             "Bottom"
+
         case .top:
             "Top"
         }

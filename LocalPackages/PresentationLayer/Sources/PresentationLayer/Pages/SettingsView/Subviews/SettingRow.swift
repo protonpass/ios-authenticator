@@ -52,6 +52,7 @@ struct SettingRow: View {
                     .frame(maxWidth: 22)
                     .padding(6)
                     .padding(.trailing, DesignConstant.padding)
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -86,10 +87,12 @@ struct SettingRow: View {
 
                     Image(systemName: "chevron.up.chevron.down")
                         .foregroundStyle(.textNorm)
+                        .accessibilityHidden(true)
 
                 case .detailChevronRight:
                     Image(systemName: "chevron.right")
                         .foregroundStyle(.textNorm)
+                        .accessibilityHidden(true)
                 }
             }
         }

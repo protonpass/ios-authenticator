@@ -65,7 +65,7 @@ private struct HighlightedText: View, Equatable {
         return attributedString
     }
 
-    static func == (lhs: HighlightedText, rhs: HighlightedText) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.text == rhs.text && lhs.highlighted == rhs.highlighted
     }
 }
@@ -160,7 +160,7 @@ struct EntryCell: View, Equatable {
         }
     }
 
-    static func == (lhs: EntryCell, rhs: EntryCell) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry == rhs.entry &&
             lhs.searchTerm == rhs.searchTerm &&
             lhs.configuration == rhs.configuration &&
@@ -321,6 +321,7 @@ private struct CodeView: View, @preconcurrency Equatable {
                 Spacer()
             }
             .contentShape(.rect)
+            .accessibilityAddTraits(.isButton)
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
             .opacity(codeOpacity(isCurrentCode: true))
 
@@ -336,12 +337,13 @@ private struct CodeView: View, @preconcurrency Equatable {
                     .textShadow()
             }
             .opacity(codeOpacity(isCurrentCode: false))
+            .accessibilityAddTraits(.isButton)
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyNextCode(entry)) })
         }
         .animation(.default, value: showCopyBadge)
     }
 
-    static func == (lhs: CodeView, rhs: CodeView) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry.code == rhs.entry.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs
             .configuration
     }

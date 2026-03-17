@@ -216,6 +216,7 @@ final class BackUpViewModel {
             defer { url.stopAccessingSecurityScopedResource() }
 
             setBackupFolder(url)
+
         case let .failure(error):
             log(.error, "Folder picker failed: \(error.localizedDescription)")
         }

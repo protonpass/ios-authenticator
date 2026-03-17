@@ -56,23 +56,27 @@ public extension ServiceContainer {
                                               reachabilityManager: ToolsContainer.shared.reachabilityManager(),
                                               backUpManager: self.backUpManager(),
                                               settings: self.settingsService(),
-                                              keychainService: self.keychainService()) }
+                                              keychainService: self.keychainService())
+        }
     }
 
     var encryptionService: Factory<any EncryptionServicing> {
         self { EncryptionService(keysProvider: self.keysManager(),
-                                 logger: self.logger) }
+                                 logger: self.logger)
+        }
     }
 
     var keychainService: Factory<any KeychainServicing> {
         self { KeychainService(service: AppConstants.service,
                                accessGroup: AppConstants.keychainGroup,
-                               logger: self.logger) }
+                               logger: self.logger)
+        }
     }
 
     var deepLinkService: Factory<any DeepLinkServicing> {
         self { DeepLinkService(service: self.entryDataService(),
-                               alertService: self.alertService()) }
+                               alertService: self.alertService())
+        }
     }
 
     var alertService: Factory<any AlertServiceProtocol> {
@@ -85,7 +89,8 @@ public extension ServiceContainer {
 
     var authenticationService: Factory<any AuthenticationServicing> {
         self { @MainActor in AuthenticationService(keychain: self.keychainService(),
-                                                   logger: self.logger) }
+                                                   logger: self.logger)
+        }
     }
 
     var toastService: Factory<any ToastServiceProtocol> {
@@ -128,7 +133,8 @@ public extension ServiceContainer {
 
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
         self { @MainActor in IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
-                                                            logger: self.logger) }
+                                                            logger: self.logger)
+        }
     }
 
     var cameraManager: Factory<any CameraManagerProtocol> {

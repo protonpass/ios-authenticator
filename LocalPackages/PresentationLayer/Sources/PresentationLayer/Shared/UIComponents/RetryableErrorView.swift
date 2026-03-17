@@ -33,12 +33,12 @@ struct RetryableErrorView: View {
         /// Inlined error view, error message displayed with retry button on the right
         case horizontal(textColor: Color)
 
-        static var defaultVertical: Mode {
+        static var defaultVertical: Self {
             .vertical(textColor: .textNorm)
         }
 
         // periphery:ignore
-        static var defaultHorizontal: Mode {
+        static var defaultHorizontal: Self {
             .horizontal(textColor: .textNorm)
         }
     }

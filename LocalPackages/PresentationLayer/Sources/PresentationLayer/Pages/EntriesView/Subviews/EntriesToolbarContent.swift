@@ -53,6 +53,7 @@ struct EntriesToolbarContent: ToolbarContent {
                     switch option {
                     case .creationDateDesc, .issuerDesc, .manual:
                         Divider()
+
                     default:
                         EmptyView()
                     }

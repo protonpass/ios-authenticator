@@ -62,12 +62,14 @@ extension UseCaseContainer {
         self { CheckAskForReview(settingsService: self.settingsService,
                                  entryDataService: ServiceContainer.shared.entryDataService(),
                                  logger: ToolsContainer.shared.logManager(),
-                                 bundle: .main) }
+                                 bundle: .main)
+        }
     }
 
     var requestForReview: Factory<any RequestForReviewUseCase> {
         self { RequestForReview(reviewService: ServiceContainer.shared.reviewService(),
-                                checkAskForReview: self.checkAskForReview()) }
+                                checkAskForReview: self.checkAskForReview())
+        }
     }
 }
 
@@ -80,7 +82,8 @@ public extension UseCaseContainer {
         self { SetUpFirstRun(settingsService: self.settingsService,
                              authenticationService: ServiceContainer.shared.authenticationService(),
                              userSessionManager: ServiceContainer.shared.userSessionManager(),
-                             logger: self.logger) }
+                             logger: self.logger)
+        }
     }
 
     var setUpSentry: Factory<any SetUpSentryUseCase> {

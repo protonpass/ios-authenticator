@@ -33,6 +33,7 @@ public enum EntryState: Sendable {
         switch self {
         case let .decrypted(_, entry):
             entry
+
         default:
             nil
         }
@@ -42,6 +43,7 @@ public enum EntryState: Sendable {
         switch self {
         case let .decrypted(entry, _):
             entry
+
         case let .nonDecryptable(entry):
             entry
         }
@@ -51,6 +53,7 @@ public enum EntryState: Sendable {
         switch self {
         case let .decrypted(_, entry):
             entry.keyId ?? ""
+
         case let .nonDecryptable(entry):
             entry.keyId
         }
@@ -129,7 +132,7 @@ public final class EncryptionService: EncryptionServicing {
 }
 
 public extension EncryptionService {
-    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
+    func decrypt(entry: EncryptedEntryEntity) -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
 
         let encryptionKey: Data
@@ -172,10 +175,10 @@ public extension EncryptionService {
         }
     }
 
-    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+    func decrypt(entries: [EncryptedEntryEntity]) -> [EntryState] {
         log(.info, "Decrypting \(entries.count) entries")
-        return try entries.map { entry in
-            try decrypt(entry: entry)
+        return entries.map { entry in
+            decrypt(entry: entry)
         }
     }
 

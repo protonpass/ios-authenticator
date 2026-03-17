@@ -595,11 +595,14 @@ public final class AuthDoH: DoH, ServerConfig {
             switch userDefaults.string(forKey: "pref_environment") {
             case "black":
                 environment = .black
+
             case "prod":
                 environment = .prod
+
             case "scientist":
                 let name = userDefaults.string(forKey: "pref_scientist_env_name")
                 environment = .scientist(name ?? "")
+
             default:
                 // Fallback to "Automatic" mode
                 #if DEBUG
@@ -624,9 +627,9 @@ public final class AuthDoH: DoH, ServerConfig {
 }
 
 final class ForceUpgradeControllerImpl: ForceUpgradeController {
-    func performForceUpgrade(message: String,
-                             config: ForceUpgradeConfig,
-                             responseDelegate: ForceUpgradeResponseDelegate?) {}
+    func performForceUpgrade(message _: String,
+                             config _: ForceUpgradeConfig,
+                             responseDelegate _: ForceUpgradeResponseDelegate?) {}
 }
 
 private extension VerifiedData {
@@ -635,6 +638,7 @@ private extension VerifiedData {
             switch self {
             case let .verified(content):
                 return content
+
             case let .unverified(_, error):
                 throw AuthError.crypto(.failedToVerifyContent(error.localizedDescription))
             }

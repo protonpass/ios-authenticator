@@ -43,8 +43,10 @@ struct CapsuleButton: View {
                 switch style {
                 case .borderedFilled:
                     borderedFilledText
+
                 case .bordered:
                     borderedText
+
                 case .filled:
                     filledText
                 }
@@ -112,6 +114,7 @@ private extension View {
             switch style {
             case .borderedFilled, .filled:
                 buttonStyle(.glassProminent)
+
             case .bordered:
                 buttonStyle(.glass)
             }

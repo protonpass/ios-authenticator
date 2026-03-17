@@ -177,7 +177,8 @@ final class QAMenuViewModel {
 
     func loadKeychainContent() {
         keychainContent = keychainService.getAllContent().map { element in KeychainContent(id: UUID().uuidString,
-                                                                                           content: element) }
+                                                                                           content: element)
+        }
     }
 
     func loadEntryContent() {

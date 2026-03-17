@@ -55,5 +55,6 @@ struct AddEntryButton: View {
             .resizable()
             .frame(width: 20, height: 20)
             .foregroundStyle(.white)
+            .accessibilityHidden(true)
     }
 }

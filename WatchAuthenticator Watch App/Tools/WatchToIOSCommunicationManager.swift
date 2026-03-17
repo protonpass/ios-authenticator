@@ -56,8 +56,8 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
         self.session.activate()
     }
 
-    func session(_ session: WCSession,
-                 activationDidCompleteWith activationState: WCSessionActivationState,
+    func session(_: WCSession,
+                 activationDidCompleteWith _: WCSessionActivationState,
                  error: (any Error)?) {
         if let error {
             communicationState
@@ -66,7 +66,7 @@ final class WatchToIOSCommunicationManager: NSObject, WCSessionDelegate, WatchCo
         }
     }
 
-    func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
+    func session(_: WCSession, didReceiveMessageData messageData: Data) {
         cancelTimeout()
         do {
             let message = try decoder.decode(WatchIOSMessageType.self, from: messageData)

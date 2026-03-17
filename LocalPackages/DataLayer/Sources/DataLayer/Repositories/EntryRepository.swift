@@ -143,7 +143,7 @@ public actor EntryRepository: EntryRepositoryProtocol {
 // MARK: - Uri parsing and params from rust lib
 
 public extension EntryRepository {
-    func entry(for uri: String) async throws -> Entry {
+    func entry(for uri: String) throws -> Entry {
         try rustClient.entryFromUri(uri: uri).toEntry
     }
 
@@ -478,7 +478,7 @@ public extension EntryRepository {
         }
     }
 
-    func reset(keyIds: [String]) async throws {
+    func reset(keyIds: [String]) throws {
         for keyId in keyIds {
             try encryptionService.reset(keyId: keyId)
         }
@@ -542,7 +542,7 @@ public extension EntryRepository {
                                              revision: entity.revision)
         try await localDataManager.persistentStorage.batchSave(content: [duplicate])
         let allEntities: [EncryptedEntryEntity] = try await localDataManager.persistentStorage.fetchAll()
-        return remoteResults != nil
+        return !allEntities.isEmpty
     }
 }
 

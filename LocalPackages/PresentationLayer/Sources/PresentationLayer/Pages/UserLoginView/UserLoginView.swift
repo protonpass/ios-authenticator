@@ -41,6 +41,7 @@ struct UserLoginView: View {
                 Image(.loginIcon)
                     .resizable()
                     .scaledToFit()
+                    .accessibilityHidden(true)
                 Spacer()
 
                 VStack(spacing: 8) {
@@ -84,6 +85,7 @@ struct UserLoginView: View {
                         .scaledToFit()
                         .frame(height: 20)
                         .padding(.top, 16)
+                        .accessibilityHidden(true)
                 }
 
                 Spacer()
@@ -94,6 +96,7 @@ struct UserLoginView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Button(action: dismiss.callAsFunction) {
                             Image(systemName: "xmark")
+                                .accessibility(label: Text("Close", bundle: .module))
                         }
                     }
                 } else {
@@ -106,6 +109,7 @@ struct UserLoginView: View {
                                 .scaledToFit()
                                 .frame(width: 24)
                                 .foregroundStyle(.textNorm.opacity(0.7))
+                                .accessibility(label: Text("Close", bundle: .module))
                         }
                         .adaptiveButtonStyle()
                     }

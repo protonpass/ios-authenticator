@@ -80,10 +80,10 @@ public struct LogManagerConfiguration: Sendable {
         self.batchSize = batchSize
     }
 
-    public static var `default`: LogManagerConfiguration {
-        LogManagerConfiguration(maxLogEntries: 5_000,
-                                saveInterval: 5,
-                                batchSize: 10)
+    public static var `default`: Self {
+        Self(maxLogEntries: 5_000,
+             saveInterval: 5,
+             batchSize: 10)
     }
 }
 

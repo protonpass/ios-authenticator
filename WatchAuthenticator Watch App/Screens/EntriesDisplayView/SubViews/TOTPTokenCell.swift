@@ -80,7 +80,7 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
         .padding(.vertical, 8)
     }
 
-    static func == (lhs: TOTPTokenCell, rhs: TOTPTokenCell) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry == rhs.entry
     }
 }
@@ -110,8 +110,10 @@ private extension Double {
         switch self {
         case 0.9...1:
             .timer1
+
         case 0.75...0.9:
             .timer2
+
         default:
             .timer3
         }

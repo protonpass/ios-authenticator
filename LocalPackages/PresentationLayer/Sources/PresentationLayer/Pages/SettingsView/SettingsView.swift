@@ -38,8 +38,10 @@ enum SettingsSheet {
         switch self {
         case .logs:
             LogsView()
+
         case .qa:
             QAMenuView()
+
         #if os(iOS)
         case let .login(coordinator):
             UserMobileLoginController(coordinator: coordinator)
@@ -99,6 +101,7 @@ public struct SettingsView: View {
                         } label: {
                             if #available(iOS 26, macOS 26, *) {
                                 Image(systemName: "xmark")
+                                    .accessibility(label: Text("Close", bundle: .module))
                             } else {
                                 Text("Close", bundle: .module)
                                     .foregroundStyle(.purpleInteraction)
@@ -177,6 +180,7 @@ public struct SettingsView: View {
             switch result {
             case let .success(url):
                 viewModel.logManager.log(.info, category: .ui, "File exported to \(url)")
+
             case let .failure(error):
                 viewModel.logManager.log(.error,
                                          category: .ui,
@@ -455,12 +459,16 @@ private extension ProtonProduct {
         switch self {
         case .pass:
             "Store strong, unique passwords to avoid identity theft and breaches."
+
         case .vpn:
             "Browse without being tracked and access blocked content."
+
         case .mail:
             "Protect your inbox from spam, tracking, and targeted ads."
+
         case .drive:
             "Give your precious photos and files the safe home they deserve."
+
         case .calendar:
             "Organize your schedule and keep your plans to yourself."
         }
@@ -480,8 +488,10 @@ private extension Theme {
         switch self {
         case .dark:
             "Dark"
+
         case .light:
             "Light"
+
         case .system:
             "Match system"
         }

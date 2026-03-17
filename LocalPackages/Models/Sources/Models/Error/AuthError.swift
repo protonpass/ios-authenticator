@@ -36,20 +36,28 @@ public enum AuthError: Error, CustomDebugStringConvertible, Equatable, Sendable 
         switch self {
         case let .importing(reason):
             reason.debugDescription
+
         case let .imageParsing(reason):
             reason.debugDescription
+
         case let .encryption(reason):
             reason.debugDescription
+
         case let .generic(reason):
             reason.debugDescription
+
         case let .deeplinking(reason):
             reason.debugDescription
+
         case let .symmetricCrypto(reason):
             reason.debugDescription
+
         case let .crypto(reason):
             reason.debugDescription
+
         case let .backup(reason):
             reason.debugDescription
+
         case let .watchConnectivity(reason):
             reason.debugDescription
         }

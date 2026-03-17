@@ -36,22 +36,31 @@ public enum GenericEntryFailureReason: Sendable, CustomDebugStringConvertible {
         switch self {
         case let .missingGeneratedCodes(codeCount, entryCount):
             "Missing generated codes: \(codeCount) instead of \(entryCount)"
+
         case .missingEntryForGeneratedCode:
             "Missing entry for generated code"
+
         case .wrongTypeOfEntryParams:
             "Wrong type of entry params"
+
         case .duplicatedEntry:
             "An entry with the same data already exists"
+
         case .exportEmptyData:
             "No data to export"
+
         case .mainKeyNotFound:
             "Main key not found"
+
         case .failedToRandomizeData:
             "Failed to randomize data"
+
         case .missingUserData:
             "Missing user data"
+
         case .missingRemoteId:
             "Missing remote id for entity"
+
         case .corruptedUserData:
             "Corrupted user data"
         }

@@ -27,11 +27,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     @LazyInjected(\UseCaseContainer.emptyTempDirectory)
     private var emptyTempDirectory
 
-    func applicationDidFinishLaunching(_ application: UIApplication) {
+    func applicationDidFinishLaunching(_: UIApplication) {
         emptyTempDirectory()
     }
 
-    func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_: UIApplication) {
         emptyTempDirectory()
     }
 }
@@ -43,7 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @LazyInjected(\UseCaseContainer.emptyTempDirectory)
     private var emptyTempDirectory
 
-    func applicationWillTerminate(_ notification: Notification) {
+    func applicationWillTerminate(_: Notification) {
         emptyTempDirectory()
     }
 }

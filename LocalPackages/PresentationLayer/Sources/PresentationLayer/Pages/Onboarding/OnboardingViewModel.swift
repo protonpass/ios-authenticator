@@ -80,8 +80,10 @@ final class OnboardingViewModel {
         switch getBiometricStatus(with: laContext) {
         case .notAvailable:
             logger.log(.warning, category: .ui, "Biometric not available")
+
         case let .available(biometric):
             supportedBiometric = biometric
+
         case let .error(error):
             handle(error.value)
         }
@@ -92,14 +94,17 @@ final class OnboardingViewModel {
         switch currentStep {
         case .intro:
             currentStep = .import
+
         case .import:
             if let supportedBiometric {
                 currentStep = .biometric(supportedBiometric)
             } else {
                 return false
             }
+
         case .biometric:
             currentStep = .backup
+
         case .backup:
             return false
         }

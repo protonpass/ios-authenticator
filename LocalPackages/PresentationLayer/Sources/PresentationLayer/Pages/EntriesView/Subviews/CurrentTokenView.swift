@@ -34,7 +34,7 @@ struct CurrentTokenView: View, @preconcurrency Equatable {
             }
     }
 
-    static func == (lhs: CurrentTokenView, rhs: CurrentTokenView) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs.configuration && lhs.code == rhs.code
     }
 }
@@ -82,6 +82,7 @@ private struct BoxedDigit: View {
                 Image(.digitBackground)
                     .resizable(capInsets: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
                     .padding(-3)
+                    .accessibilityHidden(true)
                 Text(verbatim: "\(char)")
                     .dynamicFont(size: 28, textStyle: .title1, weight: .semibold)
                     .monospaced()

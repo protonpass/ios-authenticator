@@ -31,7 +31,7 @@ public struct EntryCellConfiguration: Equatable, Hashable {
         self.animateCodeChange = animateCodeChange
     }
 
-    public static var `default`: EntryCellConfiguration {
-        EntryCellConfiguration(hideEntryCode: true, digitStyle: .plain, animateCodeChange: true)
+    public static var `default`: Self {
+        Self(hideEntryCode: true, digitStyle: .plain, animateCodeChange: true)
     }
 }

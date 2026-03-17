@@ -43,6 +43,7 @@ struct LogsView: View {
                     } label: {
                         if #available(iOS 26, macOS 26, *) {
                             Image(systemName: "xmark")
+                                .accessibility(label: Text("Close", bundle: .module))
                         } else {
                             Text("Close", bundle: .module)
                                 .foregroundStyle(.accent)
@@ -56,6 +57,7 @@ struct LogsView: View {
                         ShareLink(item: logsUrl) {
                             if #available(iOS 26, macOS 26, *) {
                                 Image(systemName: "square.and.arrow.up")
+                                    .accessibility(label: Text("Share", bundle: .module))
                             } else {
                                 Text("Share", bundle: .module)
                                     .foregroundStyle(.purpleInteraction)

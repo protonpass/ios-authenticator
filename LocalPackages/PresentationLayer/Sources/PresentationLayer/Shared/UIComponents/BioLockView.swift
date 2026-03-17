@@ -39,6 +39,7 @@ public struct BioLockView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 150)
+                .accessibilityHidden(true)
 
             if manualUnlock {
                 CapsuleButton(title: "Unlock",

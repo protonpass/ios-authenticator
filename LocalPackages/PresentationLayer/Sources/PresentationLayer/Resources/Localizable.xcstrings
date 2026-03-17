@@ -71,12 +71,12 @@
         }
       }
     },
-    "A “Proton Authenticator Backups” folder will be created in the selected location." : {
+    "A \"Proton Authenticator Backups\" folder will be created in the selected location." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A “Proton Authenticator Backups” folder will be created in the selected location."
+            "value" : "A \"Proton Authenticator Backups\" folder will be created in the selected location."
           }
         }
       }
@@ -1916,6 +1916,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bir veya birkaç fotoğraf seçin"
+          }
+        }
+      }
+    },
+    "Clear search" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear search"
           }
         }
       }
@@ -7728,6 +7738,16 @@
         }
       }
     },
+    "Photo library" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo library"
+          }
+        }
+      }
+    },
     "Plain" : {
       "localizations" : {
         "de" : {
@@ -11098,6 +11118,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aygıtlarınız arasında eşitleme duraklatıldı"
+          }
+        }
+      }
+    },
+    "Take a photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a photo"
           }
         }
       }
