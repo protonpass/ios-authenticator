@@ -196,10 +196,12 @@ public extension EntryRepository {
         if isAuthenticated {
             do {
                 let remoteResults = try await remoteSave(entries: entries)
-                // Build mapping using array position: entries and results are in the same order
+                // Build mapping using entryID from remote response
                 var resultByEntryId = [String: RemoteEncryptedEntry]()
-                for (index, entry) in entries.enumerated() where index < remoteResults.count {
-                    resultByEntryId[entry.id] = remoteResults[index]
+                for result in remoteResults {
+                    if let matchingEntry = entries.first(where: { $0.remoteId == result.entryID }) {
+                        resultByEntryId[matchingEntry.id] = result
+                    }
                 }
                 try await updateLocalEntitiesWithRemoteResponse(resultByEntryId)
                 return remoteResults
@@ -217,20 +219,6 @@ public extension EntryRepository {
             } catch {
                 log(.error, "Failed to remote deletes \(entries.map(\.id)) \(error.localizedDescription)")
                 throw error
-
-//                if error.httpCode != 422 {
-//                    let entryIDs = entries.map((\.id))
-//                    let predicate = #Predicate<EncryptedEntryEntity> { entryIDs.contains($0.id) }
-//                    let entities = try await localDataManager.persistentStorage.fetch(predicate: predicate)
-//                    guard !entities.isEmpty else {
-//                        log(.warning, "Cannot find local entries with IDs: \(entryIDs)")
-//                        return
-//                    }
-//                    try? await localDataManager.persistentStorage.performTransaction {
-//                        entities.switchToDelete()
-//                    }
-//                    return
-//                }
             }
         }
 
@@ -571,7 +559,7 @@ private extension EntryRepository {
             }
             log(.info, "Successfully updated \(encryptedEntries.count) entries locally")
         } catch {
-            log(.error, "Failed to update entries: \(error.localizedDescription)")
+            log(.error, "Failed to update entries locally: \(error.localizedDescription)")
             throw error
         }
     }
@@ -620,7 +608,7 @@ private extension EntryRepository {
                                                              flags: olderCopy.flags,
                                                              contentFormatVersion: olderCopy
                                                                  .contentFormatVersion,
-                                                             revision: 0)
+                                                             revision: olderCopy.revision)
                         // Delete old entity, insert renamed one
                         entriesToDelete.append(olderCopy)
                         newEntities.append(newEntity)
@@ -666,27 +654,13 @@ public extension EntryRepository {
             }
 
             let batches = encryptedRequests.chunked(into: AppConstants.NetworkSettings.batchSize)
+            var combinedResults = [RemoteEncryptedEntry]()
 
-            let combinedResults: [RemoteEncryptedEntry] =
-                try await withThrowingTaskGroup(of: (Int, [RemoteEncryptedEntry]).self) { [weak self] group in
-                    guard let self else { return [] }
-
-                    for (index, batch) in batches.enumerated() {
-                        group.addTask {
-                            let result = try await self.apiClient
-                                .storeEntries(request: StoreEntriesRequest(entries: batch))
-                            return (index, result)
-                        }
-                    }
-
-                    var resultsByIndex = Array(repeating: [RemoteEncryptedEntry](), count: batches.count)
-
-                    for try await (index, batchResult) in group {
-                        resultsByIndex[index] = batchResult
-                    }
-
-                    return resultsByIndex.flatMap(\.self)
-                }
+            for batch in batches {
+                let result = try await apiClient
+                    .storeEntries(request: StoreEntriesRequest(entries: batch))
+                combinedResults.append(contentsOf: result)
+            }
 
             log(.info, "Successfully stored \(combinedResults.count) entries on remote")
             return combinedResults

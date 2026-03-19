@@ -702,9 +702,12 @@ private extension EntryDataService {
                               _ updateResults: [RemoteEncryptedEntry]) async throws {
         // Update local entities with remote response data (remoteId, revision, modifiedTime, etc.)
         var resultByEntryId = [String: RemoteEncryptedEntry]()
-        for (index, entry) in itemsToPushToRemote.enumerated() where index < saveResults.count {
-            resultByEntryId[entry.id] = saveResults[index]
+        for result in saveResults {
+            if let matchingEntry = itemsToPushToRemote.first(where: { $0.remoteId == result.entryID }) {
+                resultByEntryId[matchingEntry.id] = result
+            }
         }
+
         for entry in itemsToUpdateRemotely {
             guard let remoteId = entry.remoteId,
                   let result = updateResults.first(where: { $0.entryID == remoteId }) else { continue }
