@@ -1,5 +1,5 @@
 //
-// EntryUiModelDeduplicationTests.swift
+// EntryUiModelTests.swift
 // Proton Authenticator - Created on 05/03/2026.
 // Copyright (c) 2026 Proton Technologies AG
 //
@@ -20,9 +20,9 @@
 
 import Models
 import Testing
+import Foundation
 
-@Suite
-struct EntryUiModelDeduplicationTests {
+struct EntryUiModelTests {
     private func makeUiModel(id: String, modifiedTime: TimeInterval, order: Int = 0) -> EntryUiModel {
         let entry = Entry(id: id, name: "Test-\(id)",
                           uri: "otpauth://totp/Test?secret=ABCDEFGH",
