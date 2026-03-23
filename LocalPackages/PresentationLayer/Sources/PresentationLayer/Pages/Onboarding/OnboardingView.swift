@@ -79,8 +79,9 @@ private extension OnboardingView {
                         .offset(y: AppConstants.isPhone ? height / 10 : 0)
 
                 case .backup:
-                    LottieView(animation: .named("LockTree", bundle: .module))
-                        .playing(loopMode: .playOnce)
+                    Image(.backupsOnboarding)
+                        .resizable()
+                        .scaledToFit()
                         .frame(maxWidth: 185)
                     Spacer()
                         .frame(height: 60)
@@ -115,6 +116,7 @@ private extension OnboardingView {
                 switch viewModel.currentStep {
                 case .intro:
                     actions(supportSkipping: false)
+
                 case .backup, .biometric, .import:
                     actions()
                 }
@@ -132,10 +134,13 @@ private extension OnboardingView {
                 switch viewModel.currentStep {
                 case .intro:
                     goNext()
+
                 case .import:
                     showImportOptions.toggle()
+
                 case .biometric:
                     viewModel.enableBiometric()
+
                 case .backup:
                     viewModel.enableBackup()
                 }
@@ -146,13 +151,14 @@ private extension OnboardingView {
                 CapsuleButton(title: "Skip", textColor: .textNorm, style: .bordered, action: goNext)
                     .impactHaptic()
             } else {
-                Image("protonSlogan", bundle: .module)
+                Image(.protonSlogan)
                     .resizable()
                     .scaledToFit()
                     .foregroundStyle(.textNorm)
                     .frame(height: 52)
                     .frame(maxWidth: 220)
                     .padding(.horizontal)
+                    .accessibilityHidden(true)
             }
         }
         .padding(.horizontal, 40)
@@ -173,10 +179,13 @@ private extension OnboardStep {
         switch self {
         case .intro:
             "Security in every code"
+
         case .import:
             "Import codes"
+
         case .biometric:
             "Protect your data"
+
         case .backup:
             "Keep your data safe"
         }
@@ -186,17 +195,22 @@ private extension OnboardStep {
         switch self {
         case .intro:
             "Use two-factor authentication to safeguard your accounts."
+
         case .import:
             "Bring your security with you.\nTransfer your data to stay protected."
+
         case let .biometric(type):
             switch type {
             case .faceID:
                 "Add an extra layer of security with Face ID."
+
             case .touchID:
                 "Add an extra layer of security with Touch ID."
+
             case .opticID:
                 "Add an extra layer of security with Optic ID."
             }
+
         case .backup:
             "Set up automatic encrypted backups to a folder of your choice."
         }
@@ -206,17 +220,22 @@ private extension OnboardStep {
         switch self {
         case .intro:
             "Get started"
+
         case .import:
             "Import"
+
         case let .biometric(type):
             switch type {
             case .faceID:
                 "Enable Face ID"
+
             case .touchID:
                 "Enable Touch ID"
+
             case .opticID:
                 "Enable Optic ID"
             }
+
         case .backup:
             "Set up backups"
         }

@@ -29,6 +29,7 @@ public enum DataState<T: Sendable & Equatable & Hashable>: Sendable, Equatable {
         switch self {
         case let .loaded(data):
             data
+
         default:
             nil
         }
@@ -38,10 +39,13 @@ public enum DataState<T: Sendable & Equatable & Hashable>: Sendable, Equatable {
         switch (lhs, rhs) {
         case (.loading, .loading):
             true
+
         case let (.failed(lhsError), .failed(rhsError)):
             lhsError.localizedDescription == rhsError.localizedDescription
+
         case let (.loaded(lhsData), .loaded(rhsData)):
             lhsData == rhsData
+
         default:
             false
         }

@@ -22,7 +22,7 @@
 
 // MARK: - Keychain codable wrappers for credential elements & extensions
 
-struct Credentials: Hashable, Sendable, Codable {
+struct Credentials: Hashable, Codable {
     let credential: Credential
     let authCredential: AuthCredential
 }

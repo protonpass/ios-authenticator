@@ -1,22 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Backups have changed" : {
+    "Improved Backup" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backups have changed"
+            "value" : "Improved Backup"
           }
         }
       }
     },
-    "iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up." : {
+    "You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up."
+            "value" : "You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up."
           }
         }
       }

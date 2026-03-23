@@ -27,7 +27,7 @@ import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = ScannerViewModel()
+    @State private var viewModel = ScannerViewModel()
     @State private var showPhotosPicker = false
     @State private var regionOfInterest: CGRect?
     @Environment(Router.self) private var router

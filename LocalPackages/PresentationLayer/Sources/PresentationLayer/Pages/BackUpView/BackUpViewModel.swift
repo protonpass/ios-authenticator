@@ -206,16 +206,6 @@ final class BackUpViewModel {
         }
     }
 
-    func useDefaultDestination() {
-        guard let documentsURL = FileManager.default.urls(for: .documentDirectory,
-                                                          in: .userDomainMask).first else {
-            errorMessage = "Unable to access Documents directory."
-            return
-        }
-
-        setBackupFolder(documentsURL)
-    }
-
     func handleFolderSelection(_ result: Result<URL, Error>) {
         switch result {
         case let .success(url):
@@ -226,6 +216,7 @@ final class BackUpViewModel {
             defer { url.stopAccessingSecurityScopedResource() }
 
             setBackupFolder(url)
+
         case let .failure(error):
             log(.error, "Folder picker failed: \(error.localizedDescription)")
         }
@@ -291,7 +282,10 @@ private extension BackUpViewModel {
 
     func setBackupFolder(_ folderUrl: URL) {
         do {
-            let bookmarkData = try folderUrl.bookmarkData(options: .minimalBookmark,
+            let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
+                ? .macSecurityScope
+                : .minimalBookmark
+            let bookmarkData = try folderUrl.bookmarkData(options: bookmarkOptions,
                                                           includingResourceValuesForKeys: nil,
                                                           relativeTo: nil)
             try keychainService.set(bookmarkData,

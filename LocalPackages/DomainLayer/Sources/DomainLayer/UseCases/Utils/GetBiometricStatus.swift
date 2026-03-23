@@ -64,15 +64,13 @@ public final class GetBiometricStatus: GetBiometricStatusUseCase {
             case .faceID: .available(.faceID)
             case .touchID: .available(.touchID)
             case .opticID: .available(.opticID)
-            @unknown default:
-                .notAvailable
+            @unknown default: .notAvailable
             }
-        } else {
-            if let error {
-                return .error(handle(error))
-            }
-            return .notAvailable
         }
+        if let error {
+            return .error(handle(error))
+        }
+        return .notAvailable
     }
 }
 

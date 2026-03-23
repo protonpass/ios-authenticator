@@ -154,10 +154,6 @@ final class SettingsViewModel {
         userSessionManager.userData?.user.email ?? ""
     }
 
-    var hasDuplicateEntries: Bool {
-        entryDataService.hasDuplicateEntries
-    }
-
     init(bundle: Bundle = .main) {
         self.bundle = bundle
         products = ProtonProduct.allCases.filter { product in
@@ -333,12 +329,9 @@ extension SettingsViewModel {
 
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
-        if let laError = error as? LAError, laError.code == .userCancel {
-            logManager.log(.error, category: .ui, error.localizedDescription)
-        } else {
-            logManager.log(.error, category: .ui, error.localizedDescription)
-            alertService.showError(error, mainDisplay: false, action: nil)
-        }
+        logManager.log(.error, category: .ui, error.localizedDescription)
+        if let laError = error as? LAError, laError.code == .userCancel { return }
+        alertService.showError(error, mainDisplay: false, action: nil)
     }
 
     func haptic() {
@@ -373,7 +366,7 @@ nonisolated struct TextFile: FileDocument {
         text = initialText
     }
 
-    init(configuration: ReadConfiguration) throws {
+    init(configuration: ReadConfiguration) {
         if let data = configuration.file.regularFileContents {
             text = String(bytes: data, encoding: .utf8) ?? ""
         } else {
@@ -381,7 +374,7 @@ nonisolated struct TextFile: FileDocument {
         }
     }
 
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    func fileWrapper(configuration _: WriteConfiguration) -> FileWrapper {
         let data = Data(text.utf8)
         return FileWrapper(regularFileWithContents: data)
     }

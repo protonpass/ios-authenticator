@@ -65,6 +65,7 @@ private extension EntriesDisplayView {
         switch viewModel.dataState {
         case .loading:
             ProgressView()
+
         case let .loaded(entries):
             if viewModel.entries.isEmpty, viewModel.waitingForData {
                 ProgressView()
@@ -111,6 +112,7 @@ private extension EntriesDisplayView {
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal)
             }
+
         case let .failed(error):
             RetryErrorView(tintColor: .danger, error: error) {
                 Task {

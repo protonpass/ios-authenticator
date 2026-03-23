@@ -29,8 +29,10 @@ public enum BackUpFailureReason: Sendable, CustomDebugStringConvertible {
         switch self {
         case .noData:
             "No data was read from the file."
+
         case .noDestinationFolder:
             "The destination folder does not seem to exist."
+
         case .staleBookmark:
             "The bookmark for the backup folder is stale and needs to be re-created."
         }

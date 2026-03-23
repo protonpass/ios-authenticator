@@ -27,18 +27,18 @@ struct RetryableErrorView: View {
     let error: any Error
     let onRetry: () -> Void
 
-    enum Mode: Sendable {
+    enum Mode {
         /// Full-page error view, error message displayed  with retry button below
         case vertical(textColor: Color)
         /// Inlined error view, error message displayed with retry button on the right
         case horizontal(textColor: Color)
 
-        static var defaultVertical: Mode {
+        static var defaultVertical: Self {
             .vertical(textColor: .textNorm)
         }
 
         // periphery:ignore
-        static var defaultHorizontal: Mode {
+        static var defaultHorizontal: Self {
             .horizontal(textColor: .textNorm)
         }
     }

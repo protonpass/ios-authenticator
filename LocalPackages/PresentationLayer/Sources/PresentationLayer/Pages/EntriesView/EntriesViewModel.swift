@@ -28,23 +28,13 @@ import Macro
 import Models
 import SimpleToast
 
-// swiftlint:disable:next todo
-// TODO: remove ObservableObject when apple fixes the retain cycle of @State for @Observable
 @Observable
-final class EntriesViewModel: ObservableObject {
+final class EntriesViewModel {
     var animatingEntry: EntryAction?
 
     var reorderingEntries: [EntryUiModel]?
 
-    var entries: [EntryUiModel] {
-        if let searchResults {
-            return searchResults.sorted(by: settingsService.sortOption)
-        } else if let data = entryDataService.dataState.data {
-            return data.sorted(by: settingsService.sortOption)
-        }
-
-        return []
-    }
+    private(set) var entries: [EntryUiModel] = []
 
     var dataState: DataState<[EntryUiModel]> {
         entryDataService.dataState
@@ -66,7 +56,6 @@ final class EntriesViewModel: ObservableObject {
         settingsService.sortOption
     }
 
-    @ObservationIgnored
     var query = "" {
         didSet {
             searchTextStream.send(query)
@@ -74,8 +63,9 @@ final class EntriesViewModel: ObservableObject {
     }
 
     @ObservationIgnored
-    private var copyBadgeRemainingSeconds = 0
+    private var badgeTask: Task<Void, Never>?
 
+    @ObservationIgnored
     private var searchResults: [EntryUiModel]?
 
     @ObservationIgnored
@@ -174,17 +164,6 @@ final class EntriesViewModel: ObservableObject {
                                                    actions: [.ok])))
             }
             .store(in: &cancellables)
-
-        Timer.publish(every: 1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self else { return }
-                copyBadgeRemainingSeconds -= 1
-                if copyBadgeRemainingSeconds <= 0 {
-                    animatingEntry = nil
-                }
-            }
-            .store(in: &cancellables)
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
@@ -215,7 +194,7 @@ final class EntriesViewModel: ObservableObject {
 
     func loadEntries() {
         loadLocalTask?.cancel()
-        loadLocalTask = Task { @MainActor [weak self] in
+        loadLocalTask = Task { [weak self] in
             guard let self else { return }
             do {
                 if Task.isCancelled {
@@ -225,7 +204,6 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -240,7 +218,7 @@ final class EntriesViewModel: ObservableObject {
         guard fullSyncTask == nil else {
             return
         }
-        fullSyncTask = Task { @MainActor [weak self] in
+        fullSyncTask = Task { [weak self] in
             guard let self else { return }
             defer {
                 fullSyncTask = nil
@@ -256,8 +234,6 @@ final class EntriesViewModel: ObservableObject {
                 if Task.isCancelled {
                     return
                 }
-
-                showDuplicateEntriesAlertIfNeed()
             } catch {
                 handle(error)
             }
@@ -283,7 +259,6 @@ extension EntriesViewModel {
             return
         }
         animatingEntry = entryAction
-        copyBadgeRemainingSeconds = 2
         let code = entryAction.entryUiModel.code
         let codeValue = entryAction.isCurrentCodeCopyAction ? code.current : code.next
         assert(!codeValue.isEmpty, "Code should not be empty")
@@ -291,6 +266,14 @@ extension EntriesViewModel {
         #if os(iOS)
         hapticsManager(.defaultImpact)
         #endif
+        badgeTask?.cancel()
+        badgeTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            animatingEntry = nil
+            badgeTask = nil
+        }
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
@@ -308,16 +291,10 @@ extension EntriesViewModel {
                                   titleBundle: .module,
                                   role: .destructive,
                                   action: { [weak self] in
-                                      guard let self else { return }
-                                      deleteTask = Task { @MainActor [weak self] in
-                                          guard let self else { return }
-                                          defer { deleteTask = nil }
-                                          do {
-                                              try await entryDataService.delete(entry)
-                                          } catch {
-                                              handle(error)
-                                          }
+                                      guard let self else {
+                                          return
                                       }
+                                      confirmDelete(entry)
                                   })
         alertService.showAlert(.main(.init(title: "Delete entry",
                                            titleBundle: .module,
@@ -329,6 +306,10 @@ extension EntriesViewModel {
 
     func refreshSearchResults() {
         executeSearch(query: query)
+    }
+
+    func refreshEntries() {
+        updateEntries()
     }
 }
 
@@ -346,6 +327,7 @@ private extension EntriesViewModel {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if query.isEmpty {
             searchResults = nil
+            updateEntries()
             return
         }
 
@@ -357,26 +339,39 @@ private extension EntriesViewModel {
                 return
             }
             searchResults = await filterData(query: query, data: data)
+            updateEntries()
         }
     }
 
-    nonisolated func filterData(query: String, data: [EntryUiModel]) async -> [EntryUiModel] {
+    @concurrent
+    func filterData(query: String, data: [EntryUiModel]) async -> [EntryUiModel] {
         data.filter {
             $0.orderedEntry.entry.name.lowercased().contains(query) ||
                 $0.orderedEntry.entry.issuer.lowercased().contains(query)
         }
     }
 
-    func showDuplicateEntriesAlertIfNeed() {
-        guard !settingsService.duplicateAlertShown, entryDataService.hasDuplicateEntries else { return }
-        settingsService.setDuplicateAlertShown(true)
-        // swiftlint:disable line_length
-        alertService.showAlert(.main(.init(title: "Duplicate entries detected",
-                                           titleBundle: .module,
-                                           message: .localized("Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\".",
-                                                               .module),
-                                           actions: [.ok])))
-        // swiftlint:enable line_length
+    func updateEntries() {
+        if let results = searchResults {
+            entries = results.sorted(by: settingsService.sortOption)
+        } else if let data = entryDataService.dataState.data {
+            entries = data.sorted(by: settingsService.sortOption)
+        } else {
+            entries = []
+        }
+    }
+
+    func confirmDelete(_ entry: EntryUiModel) {
+        guard deleteTask == nil else { return }
+        deleteTask = Task { [weak self] in
+            guard let self else { return }
+            defer { deleteTask = nil }
+            do {
+                try await entryDataService.delete(entry)
+            } catch {
+                handle(error)
+            }
+        }
     }
 }
 
@@ -385,20 +380,26 @@ private extension [EntryUiModel] {
         switch option {
         case .manual:
             self
+
         case .issuerAsc:
             sorted(by: {
                 $0.orderedEntry.entry.issuer.lowercased() < $1.orderedEntry.entry.issuer.lowercased()
             })
+
         case .issuerDesc:
             sorted(by: {
                 $0.orderedEntry.entry.issuer.lowercased() > $1.orderedEntry.entry.issuer.lowercased()
             })
+
         case .creationDateAsc:
             sorted(by: { $0.orderedEntry.creationDate < $1.orderedEntry.creationDate })
+
         case .creationDateDesc:
             sorted(by: { $0.orderedEntry.creationDate > $1.orderedEntry.creationDate })
+
         case .modificationDateAsc:
             sorted(by: { $0.orderedEntry.modifiedTime < $1.orderedEntry.modifiedTime })
+
         case .modificationDateDesc:
             sorted(by: { $0.orderedEntry.modifiedTime > $1.orderedEntry.modifiedTime })
         }

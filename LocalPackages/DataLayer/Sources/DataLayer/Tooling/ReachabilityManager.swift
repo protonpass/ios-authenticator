@@ -84,8 +84,10 @@ private extension ReachabilityManager {
             case .satisfied:
                 isNetworkAvailable.send(true)
                 checkActualConnectivity()
+
             case .requiresConnection, .unsatisfied:
                 resetNoConnexion()
+
             @unknown default:
                 resetNoConnexion()
             }

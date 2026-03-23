@@ -76,12 +76,7 @@ final class CreateEditEntryViewModel {
 
     func save() {
         trimInputs()
-        guard !secret.isEmpty, !name.isEmpty else {
-            return
-        }
-        guard canSave else {
-            return
-        }
+        guard canSave else { return }
 
         let params: EntryParameters = if type == .totp {
             .totp(TotpParams(name: name,
@@ -111,6 +106,7 @@ final class CreateEditEntryViewModel {
                     switch error {
                     case .InvalidSecret:
                         errorMessage = #localized("Invalid secret: %@", bundle: .module, error.message)
+
                     default:
                         errorMessage = error.message
                     }
@@ -131,6 +127,7 @@ private extension CreateEditEntryViewModel {
             name = uiEntry.orderedEntry.entry.name
             secret = uiEntry.orderedEntry.entry.secret
             type = .steam
+
         case .totp:
             if let params = try? entryDataService.getTotpParams(entry: uiEntry.orderedEntry.entry) {
                 name = params.name

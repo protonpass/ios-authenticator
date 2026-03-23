@@ -38,11 +38,11 @@ struct UserMobileLoginController: UIViewControllerRepresentable {
         Coordinator()
     }
 
-    func makeUIViewController(context: Context) -> UIViewController {
+    func makeUIViewController(context _: Context) -> UIViewController {
         coordinator.rootViewController
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    func updateUIViewController(_: UIViewController, context _: Context) {}
 }
 
 public protocol MobileCoordinatorProtocol {
@@ -110,6 +110,7 @@ final class MobileLoginCoordinator: MobileCoordinatorProtocol {
         switch result {
         case .dismissed:
             return
+
         case let .loggedIn(logInData), let .signedUp(logInData):
             logInAndSignUp = makeLoginAndSignUp()
             Task { [weak self] in

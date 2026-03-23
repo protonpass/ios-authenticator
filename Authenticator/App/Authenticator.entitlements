@@ -34,7 +34,9 @@
 	<array>
 		<string>group.me.proton.authenticator</string>
 	</array>
-	<key>com.apple.security.files.user-selected.read-only</key>
+	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
+	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 	<key>keychain-access-groups</key>
 	<array>

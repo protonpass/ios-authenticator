@@ -29,8 +29,10 @@ public enum ImportingFailureReason: Sendable, CustomDebugStringConvertible {
         switch self {
         case .wrongFormat:
             "Is not the correct file format"
+
         case .contentIsEmpty:
             "No entries detected to import"
+
         case .fileTooLarge:
             "File too large"
         }

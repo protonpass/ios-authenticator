@@ -48,14 +48,14 @@ private class VideoPreviewView: UIView {
 struct CameraView: UIViewRepresentable {
     let session: AVCaptureSession
 
-    func makeUIView(context: Context) -> UIView {
+    func makeUIView(context _: Context) -> UIView {
         let view = VideoPreviewView()
         view.videoPreviewLayer.session = session
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
+    func updateUIView(_: UIView, context _: Context) {}
 }
 
 public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerProtocol {
@@ -77,6 +77,7 @@ public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerPr
             switch self {
             case .noDevices:
                 "No devices"
+
             case .pendingPhotoTaking:
                 "Pending photo taking"
             }
@@ -148,9 +149,9 @@ public final class CameraManager: NSObject, @unchecked Sendable, CameraManagerPr
 }
 
 extension CameraManager: AVCapturePhotoCaptureDelegate {
-    public func photoOutput(_ output: AVCapturePhotoOutput,
+    public func photoOutput(_: AVCapturePhotoOutput,
                             didFinishProcessingPhoto photo: AVCapturePhoto,
-                            error: (any Error)?) {
+                            error _: (any Error)?) {
         takenPhoto.send(photo)
         isTakingPhoto.send(false)
     }

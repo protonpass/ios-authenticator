@@ -93,7 +93,6 @@ struct CreateEditEntryView: View {
                 }
                 .onSubmit(focusNextField)
             }
-            .showSpinner(viewModel.saving)
             .padding(.bottom, 10)
             .scrollContentBackground(.hidden)
             .errorMessageAlert($viewModel.errorMessage)
@@ -107,10 +106,9 @@ struct CreateEditEntryView: View {
                 .animation(.default, value: viewModel.type)
                 .animation(.default, value: showAdvanceOptions)
                 .fullScreenMainBackground()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        focusFirstField()
-                    }
+                .task {
+                    try? await Task.sleep(for: .milliseconds(200))
+                    focusFirstField()
                 }
                 .sheetAlertService()
                 .onChange(of: viewModel.shouldDismiss) {
@@ -124,6 +122,7 @@ struct CreateEditEntryView: View {
                 .onChange(of: focusedField) { _, _ in
                     viewModel.trimInputs()
                 }
+                .showSpinner(viewModel.saving)
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)
@@ -151,7 +150,7 @@ struct CreateEditEntryView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(.inputBackground)
-        .cornerRadius(16)
+        .clipShape(.rect(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16)
             .inset(by: 0.5)
             .stroke(.inputBorder, lineWidth: 1))
@@ -223,7 +222,7 @@ private extension CreateEditEntryView {
                 .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background(.dropdownBackground)
-                .cornerRadius(16)
+                .clipShape(.rect(cornerRadius: 16))
                 .padding(.horizontal, 16)
             }
             .adaptiveButtonStyle()
@@ -297,7 +296,7 @@ private extension CreateEditEntryView {
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(.dropdownBackground)
-            .cornerRadius(16)
+            .clipShape(.rect(cornerRadius: 16))
             .optionShadow()
         }
     }
@@ -384,14 +383,17 @@ private extension CreateEditEntryView {
         switch focusedField {
         case .name:
             focusedField = .secret
+
         case .secret:
             if viewModel.type == .totp {
                 focusedField = .issuer
             } else {
                 focusedField = nil
             }
+
         case .issuer:
             focusedField = nil
+
         case .none:
             break
         }

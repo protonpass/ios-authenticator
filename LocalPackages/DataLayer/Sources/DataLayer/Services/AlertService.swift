@@ -49,8 +49,10 @@ public enum ActionRole: Sendable {
         switch self {
         case .generic:
             nil
+
         case .cancel:
             .cancel
+
         case .destructive:
             .destructive
         }
@@ -74,12 +76,12 @@ public struct ActionConfig: Sendable, Identifiable {
         self.action = action
     }
 
-    public static var ok: ActionConfig {
+    public static var ok: Self {
         .init(title: "OK", titleBundle: .module, role: .generic, action: {})
     }
 
     // periphery:ignore
-    public static var cancel: ActionConfig {
+    public static var cancel: Self {
         .init(title: "Cancel", titleBundle: .module, role: .cancel, action: {})
     }
 }
@@ -122,6 +124,7 @@ public enum AlertDisplay: Identifiable {
         switch self {
         case let .main(config):
             config
+
         case let .sheet(config):
             config
         }
@@ -170,9 +173,11 @@ public final class AlertService: AlertServiceProtocol {
             case .main:
                 showMainAlert = true
                 showSheetAlert = false
+
             case .sheet:
                 showMainAlert = false
                 showSheetAlert = true
+
             case nil:
                 showMainAlert = false
                 showSheetAlert = false
@@ -201,10 +206,12 @@ public final class AlertService: AlertServiceProtocol {
         let config = AlertConfiguration(title: "An error occurred",
                                         titleBundle: .module,
                                         message: .verbatim(error),
-                                        actions: [.init(title: "OK",
-                                                        titleBundle: .module,
-                                                        role: .cancel,
-                                                        action: action)])
+                                        actions: [
+                                            .init(title: "OK",
+                                                  titleBundle: .module,
+                                                  role: .cancel,
+                                                  action: action)
+                                        ])
         alert = mainDisplay ? .main(config) : .sheet(config)
     }
 }

@@ -85,12 +85,16 @@ public enum KeychainError: Error, Equatable, CustomDebugStringConvertible {
         switch self {
         case .invalidData:
             "Invalid data"
+
         case .itemNotFound:
             "Item not found"
+
         case .duplicateItem:
             "Duplicate Item"
+
         case .incorrectAttributeForClass:
             "Incorrect Attribute for Class"
+
         case let .unexpected(oSStatus):
             "Unexpected error - \(oSStatus)"
         }

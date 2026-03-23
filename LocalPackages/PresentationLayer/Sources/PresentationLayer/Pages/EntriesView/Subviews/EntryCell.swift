@@ -32,7 +32,7 @@ import AppKit
 
 import SDWebImageSwiftUI
 
-private struct HighlightedText: View, @preconcurrency Equatable {
+private struct HighlightedText: View, Equatable {
     let text: String
     let highlighted: String
     let placeholder: TextContent
@@ -65,12 +65,12 @@ private struct HighlightedText: View, @preconcurrency Equatable {
         return attributedString
     }
 
-    static func == (lhs: HighlightedText, rhs: HighlightedText) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.text == rhs.text && lhs.highlighted == rhs.highlighted
     }
 }
 
-struct EntryCell: View, @preconcurrency Equatable {
+struct EntryCell: View, Equatable {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showCopyBadge = false
     @State private var copyBadgeSize: CGSize = .zero
@@ -160,7 +160,7 @@ struct EntryCell: View, @preconcurrency Equatable {
         }
     }
 
-    static func == (lhs: EntryCell, rhs: EntryCell) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry == rhs.entry &&
             lhs.searchTerm == rhs.searchTerm &&
             lhs.configuration == rhs.configuration &&
@@ -169,7 +169,8 @@ struct EntryCell: View, @preconcurrency Equatable {
     }
 
     private var copyAnimation: AnyTransition {
-        currentCodeCopy ? .move(edge: .trailing) : .move(edge: .leading)
+        let xOffset: CGFloat = currentCodeCopy ? 100 : -100
+        return .offset(x: xOffset).combined(with: .opacity)
     }
 }
 
@@ -213,11 +214,11 @@ private extension EntryCell {
                 }
             }
             .contentShape(.rect)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
             .simultaneousGesture(TapGesture().onEnded {
                 onAction(.copyCurrentCode(entry))
             })
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
 
             Group {
                 if #available(iOS 26, macOS 26, *) {
@@ -320,6 +321,7 @@ private struct CodeView: View, @preconcurrency Equatable {
                 Spacer()
             }
             .contentShape(.rect)
+            .accessibilityAddTraits(.isButton)
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyCurrentCode(entry)) })
             .opacity(codeOpacity(isCurrentCode: true))
 
@@ -335,12 +337,13 @@ private struct CodeView: View, @preconcurrency Equatable {
                     .textShadow()
             }
             .opacity(codeOpacity(isCurrentCode: false))
+            .accessibilityAddTraits(.isButton)
             .simultaneousGesture(TapGesture().onEnded { onAction(.copyNextCode(entry)) })
         }
         .animation(.default, value: showCopyBadge)
     }
 
-    static func == (lhs: CodeView, rhs: CodeView) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry.code == rhs.entry.code && lhs.showCopyBadge == rhs.showCopyBadge && lhs.configuration == rhs
             .configuration
     }

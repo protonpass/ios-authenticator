@@ -103,15 +103,9 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
     }
 
     @MainActor
-    func getAllLocalEntries() async throws -> (entries: [EntryState], duplicateCount: Int) {
-        (allLocalEntries, 0)
+    func getAllLocalEntries() async throws -> [EntryState] {
+        allLocalEntries
     }
-
-    @MainActor
-    func getDuplicateEntryGroups() async throws -> [DuplicateEntryGroup] { [] }
-
-    @MainActor
-    func deleteLocalDuplicate(entryId: String, modifiedTime: TimeInterval) async throws {}
 
     @MainActor
     func localUpsert(_ entries: [OrderedEntry]) async throws {}
@@ -137,6 +131,10 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
     func resetRemoteKeys() async {}
 
     func getAllLocalEncryptedEntries() async throws -> [EncryptedEntryEntity] { [] }
+
+    func generateDuplicateEntry() async throws -> Bool { false }
+
+    func updateLocalEntitiesWithRemoteResponse(_ resultByEntryId: [String: RemoteEncryptedEntry]) async throws {}
 
     func remoteSave(entries: [OrderedEntry]) async throws -> [RemoteEncryptedEntry] { [] }
 

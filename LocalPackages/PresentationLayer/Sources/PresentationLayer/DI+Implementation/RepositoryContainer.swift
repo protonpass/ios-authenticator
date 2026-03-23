@@ -36,7 +36,8 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
                                apiClient: ToolsContainer.shared.apiClient(),
                                userSessionManager: ServiceContainer.shared.userSessionManager(),
                                store: kSharedUserDefaults,
-                               logger: ToolsContainer.shared.logManager()) }
+                               logger: ToolsContainer.shared.logManager())
+        }
     }
 
     // MARK: - Data sources
@@ -44,6 +45,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
     var userDataSource: Factory<any UserDataProvider> {
         self { UserDataSource(logger: ToolsContainer.shared.logManager(),
                               localDataManager: ServiceContainer.shared.localDataManager(),
-                              encryptionService: ServiceContainer.shared.encryptionService()) }
+                              encryptionService: ServiceContainer.shared.encryptionService())
+        }
     }
 }

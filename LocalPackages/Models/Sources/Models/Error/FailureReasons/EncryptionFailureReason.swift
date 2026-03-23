@@ -28,6 +28,7 @@ public enum EncryptionFailureReason: CustomDebugStringConvertible, Equatable, Se
         switch self {
         case .failedToDecrypt:
             "Failed to decrypt"
+
         case .failedToEncrypt:
             "Failed to encrypt"
         }

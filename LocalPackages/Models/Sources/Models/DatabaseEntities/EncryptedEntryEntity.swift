@@ -92,6 +92,7 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
     }
 
     public func update(with orderedEntry: OrderedEntry) {
+        order = orderedEntry.order
         syncState = orderedEntry.syncState
         remoteId = orderedEntry.remoteId ?? ""
         modifiedTime = orderedEntry.modifiedTime

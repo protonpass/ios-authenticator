@@ -64,9 +64,11 @@ public final class HapticsManager: HapticsServicing {
         case let .impact(intensity):
             impactFeedback.prepare()
             impactFeedback.impactOccurred(intensity: intensity)
+
         case let .notify(type):
             notificationFeedback.prepare()
             notificationFeedback.notificationOccurred(type)
+
         case .selection:
             selectionFeedback.prepare()
             selectionFeedback.selectionChanged()

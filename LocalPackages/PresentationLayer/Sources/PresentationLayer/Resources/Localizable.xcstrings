@@ -71,6 +71,16 @@
         }
       }
     },
+    "A \"Proton Authenticator Backups\" folder will be created in the selected location." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A \"Proton Authenticator Backups\" folder will be created in the selected location."
+          }
+        }
+      }
+    },
     "Account: %@" : {
       "comment" : "Placeholder is the user's email address",
       "localizations" : {
@@ -1330,16 +1340,6 @@
         }
       }
     },
-    "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app."
-          }
-        }
-      }
-    },
     "Biometric lock" : {
       "localizations" : {
         "de" : {
@@ -1840,12 +1840,12 @@
         }
       }
     },
-    "Choose folder" : {
+    "Choose Backup Location" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choose folder"
+            "value" : "Choose Backup Location"
           }
         }
       }
@@ -1916,6 +1916,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bir veya birkaç fotoğraf seçin"
+          }
+        }
+      }
+    },
+    "Clear search" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear search"
           }
         }
       }
@@ -2668,16 +2678,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yeni kod oluştur"
-          }
-        }
-      }
-    },
-    "Currently used" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Currently used"
           }
         }
       }
@@ -3708,36 +3708,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
-          }
-        }
-      }
-    },
-    "Duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries"
-          }
-        }
-      }
-    },
-    "Duplicate entries detected" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries detected"
-          }
-        }
-      }
-    },
-    "Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\"." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duplicate entries were detected in your local database. You can manage them in Settings under \"Manage Your Data\"."
           }
         }
       }
@@ -6525,16 +6495,6 @@
         }
       }
     },
-    "Manage duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage duplicate entries"
-          }
-        }
-      }
-    },
     "MANAGE YOUR DATA" : {
       "localizations" : {
         "de" : {
@@ -7086,16 +7046,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Henüz bir kod yok"
-          }
-        }
-      }
-    },
-    "No duplicate entries" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No duplicate entries"
           }
         }
       }
@@ -7784,6 +7734,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Parola korumalı"
+          }
+        }
+      }
+    },
+    "Photo library" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo library"
           }
         }
       }
@@ -11162,6 +11122,16 @@
         }
       }
     },
+    "Take a photo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a photo"
+          }
+        }
+      }
+    },
     "Tap to copy token to clipboard. Swipe left to delete and right to edit." : {
       "localizations" : {
         "de" : {
@@ -12138,16 +12108,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydı güncelle"
-          }
-        }
-      }
-    },
-    "Use default folder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use default folder"
           }
         }
       }

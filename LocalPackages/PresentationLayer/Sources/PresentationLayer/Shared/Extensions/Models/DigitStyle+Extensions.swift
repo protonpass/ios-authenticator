@@ -26,6 +26,7 @@ extension DigitStyle {
         switch self {
         case .plain:
             "Plain"
+
         case .boxed:
             "Boxed"
         }

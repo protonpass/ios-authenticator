@@ -26,24 +26,36 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(OrderedEntry)
-    case nonDecryptable(String)
+    case decrypted(EncryptedEntryEntity, OrderedEntry)
+    case nonDecryptable(EncryptedEntryEntity)
 
     public var entry: OrderedEntry? {
         switch self {
-        case let .decrypted(entry):
+        case let .decrypted(_, entry):
             entry
+
         default:
             nil
         }
     }
 
+    public var encryptedEntry: EncryptedEntryEntity {
+        switch self {
+        case let .decrypted(entry, _):
+            entry
+
+        case let .nonDecryptable(entry):
+            entry
+        }
+    }
+
     public var encryptionKeyId: String {
         switch self {
-        case let .decrypted(entry):
+        case let .decrypted(_, entry):
             entry.keyId ?? ""
-        case let .nonDecryptable(keyId):
-            keyId
+
+        case let .nonDecryptable(entry):
+            entry.keyId
         }
     }
 
@@ -120,7 +132,7 @@ public final class EncryptionService: EncryptionServicing {
 }
 
 public extension EncryptionService {
-    func decrypt(entry: EncryptedEntryEntity) throws -> EntryState {
+    func decrypt(entry: EncryptedEntryEntity) -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
 
         let encryptionKey: Data
@@ -129,7 +141,7 @@ public extension EncryptionService {
         } catch {
             log(.warning,
                 "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
-            return .nonDecryptable(entry.keyId)
+            return .nonDecryptable(entry)
         }
 
         if AppConstants.isQaBuild {
@@ -149,7 +161,7 @@ public extension EncryptionService {
                                             flags: entry.flags,
                                             revision: entry.revision,
                                             contentFormatVersion: entry.contentFormatVersion)
-            return .decrypted(orderedEntry)
+            return .decrypted(entry, orderedEntry)
         } catch {
             if AppConstants.isQaBuild {
                 log(.error,
@@ -159,14 +171,14 @@ public extension EncryptionService {
                 log(.error,
                     "Failed to decrypt entry \(entry.id) with key \(entry.keyId) \(error.localizedDescription)")
             }
-            return .nonDecryptable(entry.keyId)
+            return .nonDecryptable(entry)
         }
     }
 
-    func decrypt(entries: [EncryptedEntryEntity]) throws -> [EntryState] {
+    func decrypt(entries: [EncryptedEntryEntity]) -> [EntryState] {
         log(.info, "Decrypting \(entries.count) entries")
-        return try entries.map { entry in
-            try decrypt(entry: entry)
+        return entries.map { entry in
+            decrypt(entry: entry)
         }
     }
 

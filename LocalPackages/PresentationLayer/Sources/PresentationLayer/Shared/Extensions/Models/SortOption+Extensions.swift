@@ -26,16 +26,22 @@ extension SortOption {
         switch self {
         case .manual:
             "Manual"
+
         case .issuerAsc:
             "Issuer (A-Z)"
+
         case .issuerDesc:
             "Issuer (Z-A)"
+
         case .creationDateAsc:
             "Last created (oldest)"
+
         case .creationDateDesc:
             "Last created (newest)"
+
         case .modificationDateAsc:
             "Last update (oldest)"
+
         case .modificationDateDesc:
             "Last update (newest)"
         }

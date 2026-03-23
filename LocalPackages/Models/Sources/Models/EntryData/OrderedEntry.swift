@@ -58,39 +58,39 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
         entry.id
     }
 
-    public func updateEntry(_ newEntry: Entry) -> OrderedEntry {
+    public func updateEntry(_ newEntry: Entry) -> Self {
         var updatedSelf = self
         updatedSelf.entry = newEntry
         updatedSelf.modifiedTime = Date.now.timeIntervalSince1970
         return updatedSelf
     }
 
-    public func updateOrder(_ newOrder: Int) -> OrderedEntry {
+    public func updateOrder(_ newOrder: Int) -> Self {
         var updatedSelf = self
         updatedSelf.order = newOrder
         return updatedSelf
     }
 
-    public func updateSyncState(_ newSyncState: EntrySyncState) -> OrderedEntry {
+    public func updateSyncState(_ newSyncState: EntrySyncState) -> Self {
         var updatedSelf = self
         updatedSelf.syncState = newSyncState
         return updatedSelf
     }
 
-    public func updateRevision(_ newRevision: Int) -> OrderedEntry {
+    public func updateRevision(_ newRevision: Int) -> Self {
         var updatedSelf = self
         updatedSelf.revision = newRevision
         return updatedSelf
     }
 
-    public func updateRemoteInfos(_ remoteId: String) -> OrderedEntry {
+    public func updateRemoteInfos(_ remoteId: String) -> Self {
         var updatedSelf = self
         updatedSelf.remoteId = remoteId
         updatedSelf.syncState = .synced
         return updatedSelf
     }
 
-    public static func == (lhs: OrderedEntry, rhs: OrderedEntry) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entry == rhs.entry &&
             lhs.remoteId == rhs.remoteId &&
             lhs.order == rhs.order &&
@@ -110,5 +110,24 @@ public struct OrderedEntry: IdentifiableOrderedEntry, Equatable, Hashable, Codab
         hasher.combine(revision)
         hasher.combine(contentFormatVersion)
         // creationDate and modifiedTime are intentionally excluded
+    }
+}
+
+public extension [OrderedEntry] {
+    /// Removes duplicate entries (same `id`), keeping only the one with the newest `modifiedTime`.
+    func deduplicatedByNewestModifiedTime() -> [OrderedEntry] {
+        var seen = [String: Int]()
+        var result = [OrderedEntry]()
+        for entry in self {
+            if let existingIndex = seen[entry.id] {
+                if entry.modifiedTime > result[existingIndex].modifiedTime {
+                    result[existingIndex] = entry
+                }
+            } else {
+                seen[entry.id] = result.count
+                result.append(entry)
+            }
+        }
+        return result
     }
 }

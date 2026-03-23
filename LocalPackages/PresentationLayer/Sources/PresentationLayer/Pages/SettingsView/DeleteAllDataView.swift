@@ -84,10 +84,6 @@ private extension DeleteAllDataView {
     var idle: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Delete all data", bundle: .module)
-                    .foregroundStyle(.textNorm)
-                    .dynamicFont(size: 28, textStyle: .title1, weight: .bold)
-
                 Text("Proceed with caution. This action is irreversible.", bundle: .module)
                     .foregroundStyle(.textWeak)
                     .dynamicFont(size: 20, textStyle: .title3)
@@ -116,19 +112,20 @@ private extension DeleteAllDataView {
                     .frame(height: 1)
                     .background(colorScheme == .light ? .black.opacity(0.08) : .white.opacity(0.12))
 
+                Spacer()
+
                 deleteButton(viewModel.delete)
                     .padding(.top, 32)
-
-                Spacer()
             }
             .padding()
+            .navigationTitle(Text("Delete all data", bundle: .module))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: dismiss.callAsFunction) {
                         if #available(iOS 26, macOS 26, *) {
                             Image(systemName: "xmark")
                         } else {
-                            Image(systemName: "xmark")
+                            Image(systemName: "xmark.circle.fill")
                                 .frame(width: 24)
                                 .foregroundStyle(.textWeak)
                                 .adaptiveButtonStyle()
@@ -159,7 +156,7 @@ private extension DeleteAllDataView {
                     ],
                     startPoint: .init(x: 0.5, y: 0),
                     endPoint: .init(x: 0.5, y: 1)))
-                .cornerRadius(26)
+                .clipShape(.rect(cornerRadius: 26))
                 .shadow(color: Color(red: 1, green: 0.37, blue: 0.37).opacity(0.25),
                         radius: 12,
                         x: 0,

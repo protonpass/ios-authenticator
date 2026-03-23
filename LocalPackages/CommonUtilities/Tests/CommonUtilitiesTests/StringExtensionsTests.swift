@@ -30,21 +30,21 @@ struct StringExtensionsTests {
     }
     """
 
-    @Test("Separated by group")
-    func separatedByGroup() {
+    @Test
+    func `Separated by group`() {
         #expect("123456".separatedByGroup(3, delimiter: " ") == "123 456")
         #expect("1234567".separatedByGroup(3, delimiter: " ") == "1 234 567")
         #expect("12345678".separatedByGroup(3, delimiter: " ") == "12 345 678")
         #expect("123456789".separatedByGroup(3, delimiter: " ") == "123 456 789")
     }
 
-    @Test("Check valid json string")
-    func validJson() {
+    @Test
+    func `Check valid json string`() {
         #expect(jsonString.isValidJSON == true)
     }
 
-    @Test("Check invalid json string")
-    func invalidJson() {
+    @Test
+    func `Check invalid json string`() {
         #expect("plop".isValidJSON == false)
     }
 }

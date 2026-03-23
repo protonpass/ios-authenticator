@@ -25,7 +25,7 @@ import Testing
 struct SafeMutexTests {
     // MARK: - Basic Functionality Tests
 
-    @Test func basicValueAccess() {
+    @Test func `basic value access`() {
         let mutex = SafeMutex.create(42)
         #expect(mutex.value == 42)
 
@@ -35,7 +35,7 @@ struct SafeMutexTests {
         #expect(mutex.value == 100)
     }
 
-    @Test func withLock() {
+    @Test func `with lock`() {
         let mutex = SafeMutex.create("hello")
         let result = mutex.withLock { value in
             value + " world"
@@ -59,7 +59,7 @@ struct SafeMutexTests {
 
     // MARK: - Modern Concurrency Tests with async/await
 
-    @Test func concurrentReadsAsync() async {
+    @Test func `concurrent reads async`() async {
         let mutex = SafeMutex.create(42)
 
         await withTaskGroup(of: Void.self) { group in
@@ -74,7 +74,7 @@ struct SafeMutexTests {
         #expect(mutex.value == 42)
     }
 
-    @Test func concurrentWritesAsync() async {
+    @Test func `concurrent writes async`() async {
         let mutex = SafeMutex.create(0)
         let iterations = 100
 
@@ -91,7 +91,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations)
     }
 
-    @Test func concurrentModifyAsync() async {
+    @Test func `concurrent modify async`() async {
         let mutex = SafeMutex.create(0)
         let iterations = 100
 
@@ -108,7 +108,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations, "Atomic modifications should result in exact count")
     }
 
-    @Test func atomicIncrementPreventRaceConditionAsync() async {
+    @Test func `atomic increment prevent race condition async`() async {
         // This test demonstrates how modify prevents race conditions
         let mutex = SafeMutex.create(0)
         let iterations = 100
@@ -127,7 +127,7 @@ struct SafeMutexTests {
         #expect(mutex.value == iterations, "Atomic modifications should result in exact count")
     }
 
-    @Test func randomAccessPatternAsync() async {
+    @Test func `random access pattern async`() async {
         let mutex = SafeMutex.create([Int: Int]())
         let iterations = 100
 
@@ -147,7 +147,7 @@ struct SafeMutexTests {
         #expect(mutex.value.count <= 100)
     }
 
-    @Test func interleavedReadWriteAsync() async {
+    @Test func `interleaved read write async`() async {
         let mutex = SafeMutex.create(0)
 
         await withTaskGroup(of: Void.self) { group in
@@ -181,7 +181,7 @@ struct SafeMutexTests {
         // If this completes without crashing, the test passes
     }
 
-    @Test func concurrentComplexOperationsAsync() async {
+    @Test func `concurrent complex operations async`() async {
         struct User: Sendable, Equatable {
             var id: Int
             var name: String
@@ -225,7 +225,7 @@ struct SafeMutexTests {
 
     // MARK: - Performance Tests
 
-    @Test func performanceModifyAsync() async {
+    @Test func `performance modify async`() async {
         let mutex = SafeMutex.create(0)
 
         let startTime = Date()

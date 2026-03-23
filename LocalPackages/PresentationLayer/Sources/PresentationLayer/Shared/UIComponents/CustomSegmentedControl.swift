@@ -29,16 +29,18 @@ struct CustomSegmentedControl<T: CustomSegmentedControlData>: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(data) { option in
-                Text(verbatim: "\(option.rawValue)".uppercased())
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.textNorm)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .cornerRadius(52)
-                    .onTapGesture {
-                        selection = option
-                    }
+                Button {
+                    selection = option
+                } label: {
+                    Text(verbatim: "\(option.rawValue)".uppercased())
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.textNorm)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(option == selection ? .isSelected : [])
             }
         }
         .padding(6)

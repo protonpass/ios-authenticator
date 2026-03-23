@@ -28,7 +28,6 @@ import UniformTypeIdentifiers
 
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         mainContent
@@ -64,16 +63,12 @@ struct BackUpView: View {
                 Text("Set a password to protect backup files.", bundle: .module)
             }
             .alert("Choose backup destination", isPresented: $viewModel.showDestinationAlert) {
-                Button { viewModel.useDefaultDestination() } label: {
-                    Text("Use default folder", bundle: .module)
-                }
                 Button { viewModel.showFolderPicker = true } label: {
-                    Text("Choose folder", bundle: .module)
+                    Text("Choose Backup Location", bundle: .module)
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                // swiftlint:disable:next line_length
-                Text("Backups will be saved to a folder of your choice. The default folder \"Proton Authenticator Backups\" will be created in your app's documents and is accessible via the Files app.",
+                Text("A \"Proton Authenticator Backups\" folder will be created in the selected location.",
                      bundle: .module)
             }
             .alert("Please enter the password used to encrypt this backup.",
@@ -120,14 +115,6 @@ struct BackUpView: View {
             .fullScreenMainBackground()
     }
 
-    private var isDarkMode: Bool {
-        colorScheme == .dark
-    }
-
-    private var settingsBorder: Color {
-        (isDarkMode ? Color.white : .black).opacity(0.12)
-    }
-
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         #if os(iOS)
@@ -163,7 +150,7 @@ private extension BackUpView {
     }
 
     var setupSection: some View {
-        section("BACKUP SETTINGS") {
+        SettingsSectionContainer(title: "BACKUP SETTINGS") {
             SettingRow(title: .localized("Automatic Backup", .module),
                        trailingMode: .toggle(isOn: viewModel.backupActivated,
                                              onToggle: viewModel.toggleBackup))
@@ -188,6 +175,8 @@ private extension BackUpView {
                             .padding(.bottom, 8)
                         }
                     }
+                    .paddingIfNotLiquidGlass()
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
@@ -197,12 +186,13 @@ private extension BackUpView {
     @ViewBuilder
     var backupSection: some View {
         if viewModel.showBackup {
-            section("BACKUPS") {
+            SettingsSectionContainer(title: "BACKUPS") {
                 ForEach(viewModel.backups) { backup in
                     Button { viewModel.selectedBackup = backup } label: {
                         row(title: .localized("Backup from \(backup.displayedDate)", .module))
                     }
                     .buttonStyle(.plain)
+                    .paddingIfNotLiquidGlass()
                     .swipeActions(edge: .trailing) {
                         Button(role: .destructive) {
                             viewModel.deleteBackup(backup)
@@ -231,43 +221,6 @@ private extension BackUpView {
 // MARK: - Utils
 
 private extension BackUpView {
-    @ViewBuilder
-    func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
-        if #available(iOS 26, macOS 26, *) {
-            Section(content: {
-                content()
-            }, header: {
-                if let title {
-                    Text(title, bundle: .module)
-                        .dynamicFont(size: 13, textStyle: .footnote)
-                }
-            })
-        } else {
-            VStack(spacing: DesignConstant.padding) {
-                if let title {
-                    Text(title, bundle: .module)
-                        .dynamicFont(size: 13, textStyle: .footnote)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, DesignConstant.padding)
-                }
-
-                VStack(alignment: .leading, spacing: 0) {
-                    content()
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .background(isDarkMode ? .white.opacity(0.08) : .white)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .inset(by: 0.5)
-                    .stroke(settingsBorder, lineWidth: 1))
-            }
-            .plainListRow()
-            .padding(.horizontal, DesignConstant.padding)
-            .padding(.top, DesignConstant.padding * 2)
-        }
-    }
-
     func row(title: TextContent,
              imageName: String = "clock.arrow.trianglehead.counterclockwise.rotate.90") -> some View {
         HStack(spacing: 0) {

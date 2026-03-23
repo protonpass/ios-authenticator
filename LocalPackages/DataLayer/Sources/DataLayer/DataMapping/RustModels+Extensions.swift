@@ -47,6 +47,7 @@ extension AuthenticatorEntryType {
         switch self {
         case .steam:
             .steam
+
         case .totp:
             .totp
         }
@@ -77,6 +78,7 @@ extension TotpType {
         switch self {
         case .steam:
             .steam
+
         case .totp:
             .totp
         }
@@ -128,8 +130,10 @@ extension TotpAlgorithm {
         switch self {
         case .sha1:
             .sha1
+
         case .sha256:
             .sha256
+
         case .sha512:
             .sha512
         }
@@ -141,8 +145,10 @@ extension Algorithm {
         switch self {
         case .sha1:
             .sha1
+
         case .sha256:
             .sha256
+
         case .sha512:
             .sha512
         }
@@ -195,7 +201,7 @@ extension [EntryState] {
 
 extension EntryState {
     var toLocalEntry: LocalEntry? {
-        guard case let .decrypted(entry) = self else { return nil }
+        guard case let .decrypted(_, entry) = self else { return nil }
         return LocalEntry(entry: entry.entry.toRustEntry,
                           state: entry.syncState.toLocalEntryState,
                           modifyTime: Int64(entry.modifiedTime),
@@ -208,8 +214,10 @@ extension EntrySyncState {
         switch self {
         case .synced:
             .synced
+
         case .unsynced:
             .pendingSync
+
         case .toDelete:
             .pendingToDelete
         }

@@ -35,8 +35,8 @@ struct RestrictedScanningAreaConfig {
         self.borderColor = borderColor
     }
 
-    static var `default`: RestrictedScanningAreaConfig {
-        RestrictedScanningAreaConfig()
+    static var `default`: Self {
+        Self()
     }
 }
 
@@ -102,6 +102,7 @@ struct RestrictedScanningArea: View {
                             .padding(20)
                             .frame(width: 60, height: 60)
                             .foregroundStyle(.white)
+                            .accessibility(label: Text("Close", bundle: .module))
                     }
 
                     Spacer()
@@ -128,6 +129,7 @@ struct RestrictedScanningArea: View {
                                     .resizable()
                                     .frame(width: 60, height: 60)
                                     .foregroundStyle(.white)
+                                    .accessibility(label: Text("Take a photo", bundle: .module))
                             }
                             .disabled(takingPhoto)
                         }
@@ -140,6 +142,7 @@ struct RestrictedScanningArea: View {
                             .padding(16)
                             .frame(width: 60, height: 60)
                             .foregroundStyle(.white)
+                            .accessibility(label: Text("Photo library", bundle: .module))
                     }
                 }
                 .padding(.horizontal, 32)

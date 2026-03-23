@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(grep:*)",
-      "Bash(fastlane unit_test 2>&1 | grep -E \"\\(error:|BUILD FAILED|TEST FAILED|CLEAN FAILED|Number of|failures\\)\" | head -30)"
-    ]
-  }
-}

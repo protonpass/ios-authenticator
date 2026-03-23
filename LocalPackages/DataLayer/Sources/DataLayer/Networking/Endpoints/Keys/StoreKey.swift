@@ -22,11 +22,11 @@ import Foundation
 import Models
 @preconcurrency import ProtonCoreNetworking
 
-struct GetKeyResponse: Decodable, Equatable, Sendable {
+struct GetKeyResponse: Decodable, Equatable {
     let key: RemoteEncryptedKey
 }
 
-struct StoreKeyRequest: Encodable, Sendable {
+struct StoreKeyRequest: Encodable {
     let key: String
 
     enum CodingKeys: String, CodingKey {

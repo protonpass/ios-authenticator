@@ -40,7 +40,7 @@ public struct PaginatedWatchDataCommunication: Sendable, Codable, Equatable {
         currentPage == totalPages - 1
     }
 
-    public static var empty: PaginatedWatchDataCommunication {
+    public static var empty: Self {
         .init(requestId: UUID().uuidString, orderedEntries: [], currentPage: 0, totalPages: 1)
     }
 }

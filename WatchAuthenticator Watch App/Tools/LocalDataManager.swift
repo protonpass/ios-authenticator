@@ -31,7 +31,7 @@ final class LocalDataManager: LocalDataManagerProtocol {
     let persistentStorage: any PersistenceServicing
 
     init() {
-        persistentStorage = LocalDataManager.createPersistenceService()
+        persistentStorage = Self.createPersistenceService()
     }
 }
 

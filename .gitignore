@@ -4,6 +4,7 @@
 
 # Build generated files
 build/
+.claude/
 DerivedData/
 *.hmap
 *.ipa

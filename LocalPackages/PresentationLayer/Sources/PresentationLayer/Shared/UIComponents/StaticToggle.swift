@@ -28,6 +28,7 @@ struct StaticToggle<Label: View>: View {
 
     var body: some View {
         Toggle(isOn: .constant(isOn), label: { label() })
+            .accessibilityAddTraits(.isButton)
             .simultaneousGesture(TapGesture().onEnded {
                 onToggle()
             })

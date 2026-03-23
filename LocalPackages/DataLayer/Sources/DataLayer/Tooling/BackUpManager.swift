@@ -75,7 +75,7 @@ public final class BackUpManager: BackUpServicing {
     public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
         var isStale = false
         let url = try URL(resolvingBookmarkData: bookmarkData,
-                          options: [],
+                          options: ProcessInfo.processInfo.isiOSAppOnMac ? .macSecurityScope : [],
                           relativeTo: nil,
                           bookmarkDataIsStale: &isStale)
         if isStale {
@@ -330,11 +330,11 @@ private extension Date {
         let formatter = DateFormatter()
         if calendar.isDateInToday(self) || calendar.isDateInYesterday(self) {
             return formatter.relativeFormatter.string(from: self)
-        } else if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
-            return formatter.sameYearFormatter.string(from: self)
-        } else {
-            return formatter.otherYearFormatter.string(from: self)
         }
+        if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
+            return formatter.sameYearFormatter.string(from: self)
+        }
+        return formatter.otherYearFormatter.string(from: self)
     }
 }
 

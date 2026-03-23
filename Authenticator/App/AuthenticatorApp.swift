@@ -144,6 +144,7 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
         switch authenticationService.currentState {
         case .inactive:
             true
+
         case let .active(authenticated: isChecked):
             isChecked
         }
@@ -239,9 +240,9 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
 
         await localDataManager.refreshLocalStorage()
         // swiftlint:disable line_length
-        let config = AlertConfiguration(title: "Backups have changed",
+        let config = AlertConfiguration(title: "Improved Backup",
                                         titleBundle: .main,
-                                        message: .localized("iCloud backup has been replaced with local encrypted backups. You can now choose any folder to store your backup files. Go to Settings → Backups to set it up.",
+                                        message: .localized("You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up.",
                                                             .main),
                                         actions: [.ok])
         // swiftlint:enable line_length
@@ -263,9 +264,8 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
             guard let self else { return }
             if isCheckingBiometric {
                 return
-            } else {
-                isCheckingBiometric = true
             }
+            isCheckingBiometric = true
             defer { isCheckingBiometric = false }
             do {
                 try await authenticationService.checkBiometrics()

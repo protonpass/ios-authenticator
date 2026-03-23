@@ -38,8 +38,10 @@ enum SettingsSheet {
         switch self {
         case .logs:
             LogsView()
+
         case .qa:
             QAMenuView()
+
         #if os(iOS)
         case let .login(coordinator):
             UserMobileLoginController(coordinator: coordinator)
@@ -52,7 +54,6 @@ enum SettingsSheet {
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-    @Environment(\.colorScheme) private var colorScheme
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
@@ -91,7 +92,6 @@ public struct SettingsView: View {
                     .padding(.bottom)
             }
             .animation(.default, value: viewModel.showPassBanner)
-            .animation(.default, value: viewModel.hasDuplicateEntries)
             .settingsListStyle()
             #if os(iOS)
                 .toolbar {
@@ -101,6 +101,7 @@ public struct SettingsView: View {
                         } label: {
                             if #available(iOS 26, macOS 26, *) {
                                 Image(systemName: "xmark")
+                                    .accessibility(label: Text("Close", bundle: .module))
                             } else {
                                 Text("Close", bundle: .module)
                                     .foregroundStyle(.purpleInteraction)
@@ -178,9 +179,12 @@ public struct SettingsView: View {
                       defaultFilename: viewModel.exportFileName()) { result in
             switch result {
             case let .success(url):
-                print("Saved to \(url)")
+                viewModel.logManager.log(.info, category: .ui, "File exported to \(url)")
+
             case let .failure(error):
-                print(error.localizedDescription)
+                viewModel.logManager.log(.error,
+                                         category: .ui,
+                                         "File export failed: \(error.localizedDescription)")
             }
         }
     }
@@ -192,17 +196,13 @@ public struct SettingsView: View {
         return .automatic
         #endif
     }
-
-    private var isDarkMode: Bool {
-        colorScheme == .dark
-    }
 }
 
 // MARK: - Sections
 
 private extension SettingsView {
     var securitySection: some View {
-        section("SECURITY") {
+        SettingsSectionContainer(title: "SECURITY") {
             SettingRow(title: .localized("Backups", .module),
                        trailingMode: .detailChevronRight) {
                 router.navigate(to: .backup)
@@ -242,7 +242,7 @@ private extension SettingsView {
     }
 
     var appearanceSection: some View {
-        section("APPEARANCE") {
+        SettingsSectionContainer(title: "APPEARANCE") {
             Menu(content: {
                 ForEach(Theme.allCases, id: \.self) { theme in
                     Button(action: {
@@ -333,7 +333,7 @@ private extension SettingsView {
     }
 
     var dataSection: some View {
-        section("MANAGE YOUR DATA") {
+        SettingsSectionContainer(title: "MANAGE YOUR DATA") {
             SettingRow(title: .localized("Import", .module), onTap: { showImportOptions.toggle() })
 
             SettingDivider()
@@ -341,19 +341,11 @@ private extension SettingsView {
             Button { showExportAlert.toggle() } label: {
                 SettingRow(title: .localized("Export", .module))
             }
-
-            if viewModel.hasDuplicateEntries {
-                SettingDivider()
-                SettingRow(title: .localized("Manage duplicate entries", .module),
-                           trailingMode: .detailChevronRight) {
-                    router.navigate(to: .duplicates)
-                }
-            }
         }
     }
 
     var supportSection: some View {
-        section("SUPPORT") {
+        SettingsSectionContainer(title: "SUPPORT") {
             SettingRow(title: .localized("Report an issue", .module)) {
                 open(urlString: AppConstants.CommonUrls.feedbackUrl)
             }
@@ -365,7 +357,7 @@ private extension SettingsView {
     }
 
     var discoverySection: some View {
-        section("DISCOVER PROTON") {
+        SettingsSectionContainer(title: "DISCOVER PROTON") {
             ForEach(viewModel.products, id: \.self) { product in
                 SettingRow(icon: product.logo,
                            title: .verbatim(product.name),
@@ -415,10 +407,6 @@ private extension SettingsView {
         }
     }
 
-    var settingsBorder: Color {
-        (isDarkMode ? Color.white : .black).opacity(0.12)
-    }
-
     func activateStatus(_ active: Bool) -> String {
         active ? #localized("Enabled", bundle: .module) : #localized("Disabled", bundle: .module)
     }
@@ -427,43 +415,6 @@ private extension SettingsView {
 // MARK: - Utils
 
 private extension SettingsView {
-    @ViewBuilder
-    func section(_ title: LocalizedStringKey?, @ViewBuilder content: () -> some View) -> some View {
-        if #available(iOS 26, macOS 26, *) {
-            Section(content: {
-                content()
-            }, header: {
-                if let title {
-                    Text(title, bundle: .module)
-                        .dynamicFont(size: 13, textStyle: .footnote)
-                }
-            })
-        } else {
-            VStack(spacing: DesignConstant.padding) {
-                if let title {
-                    Text(title, bundle: .module)
-                        .dynamicFont(size: 13, textStyle: .footnote)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, DesignConstant.padding)
-                }
-
-                VStack(alignment: .leading, spacing: 0) {
-                    content()
-                }
-                .frame(maxWidth: .infinity, alignment: .topLeading)
-                .background(isDarkMode ? .white.opacity(0.08) : .white)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .inset(by: 0.5)
-                    .stroke(settingsBorder, lineWidth: 1))
-            }
-            .plainListRow()
-            .padding(.horizontal, DesignConstant.padding)
-            .padding(.top, DesignConstant.padding * 2)
-        }
-    }
-
     func open(urlString: String) {
         if let url = URL(string: urlString) {
             openURL(url)
@@ -508,12 +459,16 @@ private extension ProtonProduct {
         switch self {
         case .pass:
             "Store strong, unique passwords to avoid identity theft and breaches."
+
         case .vpn:
             "Browse without being tracked and access blocked content."
+
         case .mail:
             "Protect your inbox from spam, tracking, and targeted ads."
+
         case .drive:
             "Give your precious photos and files the safe home they deserve."
+
         case .calendar:
             "Organize your schedule and keep your plans to yourself."
         }
@@ -533,8 +488,10 @@ private extension Theme {
         switch self {
         case .dark:
             "Dark"
+
         case .light:
             "Light"
+
         case .system:
             "Match system"
         }

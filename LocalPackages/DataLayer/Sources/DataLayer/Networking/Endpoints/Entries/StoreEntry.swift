@@ -22,7 +22,7 @@ import Foundation
 import Models
 @preconcurrency import ProtonCoreNetworking
 
-struct GetEntryResponse: Decodable, Equatable, Sendable {
+struct GetEntryResponse: Decodable, Equatable {
     let entry: RemoteEncryptedEntry
 }
 

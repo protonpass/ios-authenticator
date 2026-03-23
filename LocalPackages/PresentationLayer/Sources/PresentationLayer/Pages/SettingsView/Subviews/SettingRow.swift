@@ -35,6 +35,15 @@ struct SettingRow: View {
     }
 
     var body: some View {
+        if let onTap {
+            Button(action: onTap, label: { rowContent })
+                .buttonStyle(.plain)
+        } else {
+            rowContent
+        }
+    }
+
+    private var rowContent: some View {
         HStack(spacing: 0) {
             if let icon {
                 Image(icon)
@@ -43,6 +52,7 @@ struct SettingRow: View {
                     .frame(maxWidth: 22)
                     .padding(6)
                     .padding(.trailing, DesignConstant.padding)
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -77,29 +87,64 @@ struct SettingRow: View {
 
                     Image(systemName: "chevron.up.chevron.down")
                         .foregroundStyle(.textNorm)
+                        .accessibilityHidden(true)
 
                 case .detailChevronRight:
                     Image(systemName: "chevron.right")
                         .foregroundStyle(.textNorm)
+                        .accessibilityHidden(true)
                 }
             }
         }
         .paddingIfNotLiquidGlass()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(.rect)
-        .if(onTap) { view, onTap in
-            view.onTapGesture(perform: onTap)
-        }
     }
 }
 
-private extension View {
-    @ViewBuilder
-    func paddingIfNotLiquidGlass() -> some View {
-        if #unavailable(iOS 26, macOS 26) {
-            padding(DesignConstant.padding)
+// MARK: - Shared settings section chrome used by SettingsView and BackUpView
+
+struct SettingsSectionContainer<Content: View>: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let title: LocalizedStringKey?
+    @ViewBuilder let content: () -> Content
+
+    private var settingsBorder: Color {
+        (colorScheme == .dark ? Color.white : .black).opacity(0.12)
+    }
+
+    var body: some View {
+        if #available(iOS 26, macOS 26, *) {
+            Section(content: content, header: {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                }
+            })
         } else {
-            self
+            VStack(spacing: DesignConstant.padding) {
+                if let title {
+                    Text(title, bundle: .module)
+                        .dynamicFont(size: 13, textStyle: .footnote)
+                        .foregroundStyle(.textWeak)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, DesignConstant.padding)
+                }
+
+                VStack(alignment: .leading, spacing: 0) {
+                    content()
+                }
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background(colorScheme == .dark ? .white.opacity(0.08) : .white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .inset(by: 0.5)
+                    .stroke(settingsBorder, lineWidth: 1))
+            }
+            .plainListRow()
+            .padding(.horizontal, DesignConstant.padding)
+            .padding(.top, DesignConstant.padding * 2)
         }
     }
 }

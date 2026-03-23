@@ -37,8 +37,10 @@ final class DeleteAllDataViewModel {
             switch (lhs, rhs) {
             case (.deleted, .deleted), (.deleting, .deleting), (.idle, .idle):
                 true
+
             case let (.error(lError), .error(rError)):
                 lError.localizedDescription == rError.localizedDescription
+
             default:
                 false
             }

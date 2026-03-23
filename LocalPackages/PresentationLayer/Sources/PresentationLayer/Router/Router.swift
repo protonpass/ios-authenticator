@@ -25,12 +25,11 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case backup
-    case duplicates
 }
 
 public enum SheetDestination: Hashable, Identifiable {
-    public var id: Int {
-        hashValue
+    public var id: Self {
+        self
     }
 
     case createEditEntry(EntryUiModel?)
@@ -38,8 +37,8 @@ public enum SheetDestination: Hashable, Identifiable {
 }
 
 public enum FullScreenDestination: Hashable, Identifiable {
-    public var id: Int {
-        hashValue
+    public var id: Self {
+        self
     }
 
     #if os(iOS)
@@ -78,8 +77,6 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .backup:
                     BackUpView()
-                case .duplicates:
-                    DuplicateEntriesView()
                 }
             }
     }
@@ -96,6 +93,7 @@ public extension View {
             case let .createEditEntry(entry):
                 CreateEditEntryView(entry: entry)
                     .resizableSheet()
+
             case .settings:
                 SettingsView()
                     .resizableSheet()

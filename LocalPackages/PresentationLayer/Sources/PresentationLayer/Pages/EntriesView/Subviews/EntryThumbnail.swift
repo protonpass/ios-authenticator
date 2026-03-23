@@ -55,7 +55,7 @@ struct EntryThumbnail: View, @preconcurrency Equatable {
             Color(red: 0.32, green: 0.16, blue: 0.47).opacity(0.3) : .black.opacity(0)
     }
 
-    static func == (lhs: EntryThumbnail, rhs: EntryThumbnail) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.iconUrl == rhs.iconUrl && lhs.letter == rhs.letter
     }
 }
@@ -88,7 +88,7 @@ private struct ThumbnailLetter: View, @preconcurrency Equatable {
                 .stroke(strokeColor, lineWidth: 0.5))
     }
 
-    static func == (lhs: ThumbnailLetter, rhs: ThumbnailLetter) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.text == rhs.text && lhs.strokeColor == rhs.strokeColor
     }
 }

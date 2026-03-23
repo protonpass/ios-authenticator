@@ -69,7 +69,6 @@ public enum AppConstants: Sendable {
         public static let backupPassword = "BackupPassword"
         public static let backupFolderBookmark = "BackupFolderBookmark"
         public static let sortOption = "SortOption"
-        public static let duplicateAlertShown = "DuplicateAlertShown"
     }
 
     public enum NetworkSettings {

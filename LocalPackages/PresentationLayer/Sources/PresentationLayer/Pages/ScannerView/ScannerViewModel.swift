@@ -34,7 +34,7 @@ import SwiftUI
 import VisionKit
 
 @Observable
-final class ScannerViewModel: ObservableObject {
+final class ScannerViewModel {
     var scanning = true
     private(set) var takingPhoto = false
     private(set) var shouldDismiss = false
@@ -111,6 +111,7 @@ final class ScannerViewModel: ObservableObject {
                 guard let barcode = result as? Barcode, !hasPayload else { return }
                 hasPayload = true
                 await generateEntry(from: barcode.payload)
+
             case let .failure(error):
                 handleScanningError(error)
             }

@@ -136,14 +136,17 @@ private extension DataService {
         switch status {
         case .waitingForMessage:
             return
+
         case let .responseReceived(result):
             switch result {
             case let .success(entries):
                 manageReceivedData(entries)
+
             case let .failure(error):
                 if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)
             }
+
         case .idle:
             return
         }

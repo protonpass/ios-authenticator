@@ -29,11 +29,11 @@ public struct ImportResult: Sendable, Equatable, Hashable {
         self.errors = errors
     }
 
-    public static var empty: ImportResult {
+    public static var empty: Self {
         .init(entries: [], errors: [])
     }
 
-    public static func + (lhs: ImportResult, rhs: ImportResult) -> ImportResult {
+    public static func + (lhs: Self, rhs: Self) -> Self {
         .init(entries: lhs.entries + rhs.entries, errors: lhs.errors + rhs.errors)
     }
 }

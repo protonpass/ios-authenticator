@@ -27,11 +27,13 @@ private struct OptionShadowModifier: ViewModifier {
         switch colorScheme {
         case .light:
             content.shadow(color: .inputBorder, radius: 2, x: 0, y: 2)
+
         case .dark:
             content
         // swiftlint:disable:next todo
         // TODO: Make sure shadow's color could not be mixed to backgrounds with opacity
 //                .shadow(color: .green, radius: 2, x: 0, y: -2)
+
         @unknown default:
             content
         }

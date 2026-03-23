@@ -90,7 +90,8 @@ public extension ToolsContainer {
 
     var apiClient: Factory<any APIClientProtocol> {
         self { @MainActor in APIClient(manager: ServiceContainer.shared.userSessionManager(),
-                                       logger: self.logManager()) }
+                                       logger: self.logManager())
+        }
     }
 
     var importingContexts: Factory<CurrentValueSubject<[ImportingContext], Never>> {
