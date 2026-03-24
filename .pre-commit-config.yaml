@@ -15,4 +15,11 @@ repos:
         types: [swift]
         pass_filenames: false
 
+      - id: generate-claude-docs
+        name: Generate Claude Docs
+        entry: bash -c 'scripts/generate-claude-docs.sh && git add docs/claude/'
+        language: system
+        types: [swift]
+        pass_filenames: false
+
 exclude: ^\.build/
