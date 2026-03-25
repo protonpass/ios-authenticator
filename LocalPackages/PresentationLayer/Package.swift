@@ -30,7 +30,7 @@ let package = Package(
         .package(name: "Models", path: "../Models"),
         .package(name: "DataLayer", path: "../DataLayer"),
         .package(name: "DomainLayer", path: "../DomainLayer"),
-        .package(name: "Macro", path: "../Macro"),
+        .package(url: "https://github.com/protonpass/swift-macro", exact: "1.0.0"),
         .package(name: "CommonUtilities", path: "../CommonUtilities"),
         .package(url: "https://github.com/ProtonMail/protoncore_ios", from: "36.0.0")
     ],
@@ -45,7 +45,7 @@ let package = Package(
                 .product(name: "Models", package: "Models"),
                 .product(name: "DataLayer", package: "DataLayer"),
                 .product(name: "DomainLayer", package: "DomainLayer"),
-                .product(name: "Macro", package: "Macro"),
+                .product(name: "Macro", package: "swift-macro"),
                 .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "SimpleToast", package: "SimpleToast"),
                 .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI"),
