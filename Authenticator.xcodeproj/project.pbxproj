@@ -109,7 +109,6 @@
 		537EAE8D2E670F2700C930E8 /* Watch WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Watch WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		537EAE8E2E670F2700C930E8 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		537EAE902E670F2700C930E8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		5B5E0C5C2D5612D400E7BCD4 /* Macro */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Macro; path = LocalPackages/Macro; sourceTree = "<group>"; };
 		5B5E0C9A2D5618F600E7BCD4 /* AuthenticatorRustCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AuthenticatorRustCore; path = LocalPackages/AuthenticatorRustCore; sourceTree = "<group>"; };
 		5B5E0D5C2D5A38DD00E7BCD4 /* Autofill.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Autofill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B5E0D5D2D5A38DD00E7BCD4 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
@@ -312,7 +311,6 @@
 				5B87656B2D527F8700B4CC30 /* DomainLayer */,
 				5B87656C2D527F8700B4CC30 /* Models */,
 				5B87656D2D527F8700B4CC30 /* PresentationLayer */,
-				5B5E0C5C2D5612D400E7BCD4 /* Macro */,
 				5B5E0F512D6F3C6A00E7BCD4 /* TestPlan */,
 				5BF510002E3261A10025E5D2 /* WatchAuthenticator Watch App */,
 				5BF5100E2E3261A30025E5D2 /* WatchAuthenticator Watch AppTests */,

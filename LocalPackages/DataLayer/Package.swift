@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/lukacs-m/SimpleToast", .upToNextMajor(from: "0.1.4")),
         .package(url: "https://github.com/ProtonMail/protoncore_ios", exact: "36.0.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", exact: "4.2.2"),
-        .package(name: "Macro", path: "../Macro"),
+        .package(url: "https://github.com/protonpass/swift-macro", exact: "1.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -42,7 +42,7 @@ let package = Package(
                 .product(name: "CommonUtilities", package: "CommonUtilities"),
                 .product(name: "AuthenticatorRustCore", package: "AuthenticatorRustCore"),
                 .product(name: "SimplyPersist", package: "SimplyPersist"),
-                .product(name: "Macro", package: "Macro"),
+                .product(name: "Macro", package: "swift-macro"),
                 .product(name: "SimpleToast", package: "SimpleToast"),
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
 
