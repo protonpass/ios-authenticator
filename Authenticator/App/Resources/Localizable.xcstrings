@@ -3,20 +3,98 @@
   "strings" : {
     "Improved Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbesserte Datensicherung"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Improved Backup"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia de seguridad mejorada"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia de seguridad mejorada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde améliorée"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbeterde back-up"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup aprimorado"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedekleme iyileştirildi"
           }
         }
       }
     },
     "You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es ist nun möglich, einen beliebigen Ordner als Speicherort für Ihre Sicherungsdateien auszuwählen. Öffne „Einstellungen“ → „Sicherungen“, um dies einzurichten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya puedes elegir la carpeta donde guardar tus copias de seguridad. Configúralo en Ajustes → Copias de seguridad."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya puede elegir la carpeta donde guardar sus copias de seguridad. Configúrela en Ajustes → Copias de seguridad."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez désormais choisir n'importe quel dossier de destination pour stocker vos fichiers de sauvegarde. Allez dans Paramètres → Sauvegardes pour le configurer."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U kunt nu elke map als bestemming kiezen om uw back-upbestanden op te slaan. Ga naar Instellingen → Back-ups om dit in te stellen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artık yedek dosyalarınızın kaydedileceği hedef klasörü istediğiniz gibi seçebilirsiniz. Ayarlar → Yedekler bölümünden ayarlayabilirsiniz."
           }
         }
       }

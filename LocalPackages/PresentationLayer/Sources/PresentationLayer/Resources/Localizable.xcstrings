@@ -45,22 +45,10 @@
             "value" : "%lld seconden"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld s"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld segundos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld с"
           }
         },
         "tr" : {
@@ -73,10 +61,46 @@
     },
     "A \"Proton Authenticator Backups\" folder will be created in the selected location." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am ausgewählten Speicherort wird ein Ordner „Proton Authenticator Backups“ erstellt."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "A \"Proton Authenticator Backups\" folder will be created in the selected location."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se creará la carpeta \"Proton Authenticator Backups\" en la ubicación elegida."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se creará la carpeta «Proton Authenticator Backups» en la ubicación elegida."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dossier « Proton Authenticator Backups » sera créé à l'emplacement sélectionné."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er wordt een map \"Proton Authenticator Backups\" aangemaakt op de geselecteerde locatie."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçilmiş konumda \"Proton Authenticator Backups\" adında bir klasör oluşturulacak."
           }
         }
       }
@@ -126,22 +150,10 @@
             "value" : "Account: %@"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto: %@"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conta: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Аккаунт: %@"
           }
         },
         "tr" : {
@@ -778,10 +790,52 @@
     },
     "Are you sure you want to delete the backup \"%@\"? This cannot be undone." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soll die Sicherung „%@“ wirklich gelöscht werden? Dieser Vorgang kann nicht widerrufen werden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Are you sure you want to delete the backup \"%@\"? This cannot be undone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Seguro que quieres eliminar la copia de seguridad «%@»? Esta acción no se puede deshacer."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Realmente desea eliminar la copia de seguridad «%@»? Esta acción no se puede deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voulez-vous vraiment supprimer la sauvegarde « %@ » ? Cette opération ne peut pas être annulée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi davvero eliminare il backup \"%@\"? Questa operazione non può essere annullata."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet u zeker dat u de back-up \"%@\" wilt verwijderen? Dit kan niet ongedaan worden gemaakt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" yedeğini silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
           }
         }
       }
@@ -858,10 +912,52 @@
     },
     "Are you sure you want to restore the backup named %@?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soll die Sicherung mit dem Namen „%@“ wirklich wiederhergestellt werden?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Are you sure you want to restore the backup named %@?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Seguro que quieres restaurar la copia de seguridad llamada «%@»?"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Realmente desea restaurar la copia de seguridad llamada «%@»?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voulez-vous vraiment restaurer la sauvegarde nommée %@ ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi davvero ripristinare il backup denominato %@?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet u zeker dat u de back-up met de naam %@ wilt herstellen?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ adlı yedeği geri yüklemek istediğinize emin misiniz?"
           }
         }
       }
@@ -1114,16 +1210,10 @@
             "value" : "Backup de %@"
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Резервная копия от %@"
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ üzerinden yedekle"
+            "value" : "%@ üzerinden yedek"
           }
         }
       }
@@ -1194,20 +1284,116 @@
     },
     "Backup restoration" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellung von Datensicherungen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup restoration"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restauración de la copia de seguridad"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restauración de la copia de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restauration de sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristino backup"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-up herstel"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restauração de backup"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedek geri yükleme"
           }
         }
       }
     },
     "BACKUP SETTINGS" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datensicherungseinstellungen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "BACKUP SETTINGS"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONFIGURACIÓN DE COPIA DE SEGURIDAD"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AJUSTES DE COPIA DE SEGURIDAD"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PARAMÈTRES DE SAUVEGARDE"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IMPOSTAZIONI BACKUP"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BACK-UP INSTELLINGEN"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONFIGURAÇÕES DE BACKUP"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YEDEKLEME AYARLARI"
           }
         }
       }
@@ -1832,20 +2018,110 @@
     },
     "Choose backup destination" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherungsziel auswählen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose backup destination"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir destino de la copia de seguridad"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir destino de la copia de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez une destination de sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli la destinazione di backup"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-upbestemming kiezen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecione o destino do backup"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedekleme hedefini seçin"
           }
         }
       }
     },
     "Choose Backup Location" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherungsziel auswählen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose Backup Location"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir destino de la copia de seguridad"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir destino de la copia de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez l'emplacement de sauvegarde"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-uplocatie kiezen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher localização do backup"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedek konumu seçin"
           }
         }
       }
@@ -1922,10 +2198,52 @@
     },
     "Clear search" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchfeld leeren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear search"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpiar búsqueda"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar búsqueda"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer la recherche"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wis zoekopdracht"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar pesquisa"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aramayı temizle"
           }
         }
       }
@@ -2029,7 +2347,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Code : %@"
+            "value" : "code : %@"
           }
         },
         "it" : {
@@ -2477,7 +2795,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Einträge zu deinen Suchkriterien „%@“ gefunden"
+            "value" : "Es wurden keine Einträge gefunden, die deinen Suchkriterien „%@“ entsprechen."
           }
         },
         "en" : {
@@ -2495,13 +2813,13 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No se encontraron entradas que correspondan a sus criterios de búsqueda \"%@\""
+            "value" : "No se encontraron entradas que correspondan a sus criterios de búsqueda «%@»"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucune entrée ne correspond à vos critères de recherche \"%@\""
+            "value" : "Aucune entrée ne correspond à vos critères de recherche « %@ »"
           }
         },
         "it" : {
@@ -2516,28 +2834,16 @@
             "value" : "Kon geen vermeldingen vinden die overeenkomen met uw zoekcriteria \"%@\""
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie znaleziono żadnych pozycji odpowiadających Twoim kryteriom wyszukiwania „%@”"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Não foi possível encontrar entradas correspondentes ao critério de busca \"%@\""
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не удалось найти записи, соответствующие вашим критериям поиска \"%@\""
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "\"%@\" arama ölçütünüze uyan bir kayıt bulunamadı"
+            "value" : "\"%@\" arama ölçütünüz ile eşleşen herhangi bir kayıt bulunamadı."
           }
         }
       }
@@ -3150,10 +3456,58 @@
     },
     "Delete backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherung löschen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete backup"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar copia de seguridad"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar copia de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer la sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina backup"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-up verwijderen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir backup"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedeği sil"
           }
         }
       }
@@ -4342,7 +4696,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Datei „%@“ überschreitet die maximal zulässige Größe"
+            "value" : "Die Datei „%@“ überschreitet die maximal zulässige Größe."
           }
         },
         "en" : {
@@ -4360,7 +4714,7 @@
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El archivo \"%@\" excede el tamaño máximo permitido."
+            "value" : "El archivo \"%@\" excede el tamaño máximo permitido"
           }
         },
         "fr" : {
@@ -4381,22 +4735,10 @@
             "value" : "Bestand \"%@\" overschrijdt de maximaal toegestane grootte"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plik „%@” przekracza maksymalny dozwolony rozmiar"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "O arquivo \"%@\" excede o tamanho máximo permitido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Файл «%@» превышает максимально допустимый размер."
           }
         },
         "tr" : {
@@ -5274,22 +5616,10 @@
             "value" : "Codes importeren van %@"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importuj kody z %@"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importar códigos de %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Импортировать коды из %@"
           }
         },
         "tr" : {
@@ -5478,28 +5808,16 @@
             "value" : "Importeren van %1$@ ondersteunt het bestandsformaat %2$@ niet."
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importowanie z %1$@ nie obsługuje formatu pliku %2$@."
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "A importação de %1$@ não é compatível com o formato de arquivo %2$@."
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Импорт из %1$@ не поддерживает формат файла %2$@."
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ üzerinden içe aktarımda %2$@ dosya biçimini desteklenmiyor."
+            "value" : "%1$@ üzerinden içe aktarmada %2$@ dosya biçimi desteklenmiyor."
           }
         }
       }
@@ -5574,7 +5892,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ungültiges Dateiformat für „%@“. Bitte stelle sicher, dass deine Datei in einem unterstützten Format vorliegt, und versuche es erneut."
+            "value" : "Ungültiges Dateiformat für „%@“. Bitte stell sicher, dass deine Datei ein unterstütztes Format nutzt, und versuche es anschließend erneut."
           }
         },
         "en" : {
@@ -5613,22 +5931,10 @@
             "value" : "Ongeldig bestandsformaat voor \"%@\". Zorg ervoor dat uw bestand een ondersteund formaat heeft en probeer het opnieuw."
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niepoprawny format pliku „%@”. Upewnij się, że plik ma obsługiwany format i spróbuj ponownie."
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Formato de arquivo inválido para \"%@\". Certifique-se de que seu arquivo esteja em um formato compatível e tente novamente."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Недопустимый формат файла «%@». Убедитесь, что ваш файл имеет поддерживаемый формат, и попробуйте снова."
           }
         },
         "tr" : {
@@ -5683,28 +5989,16 @@
             "value" : "Ongeldig geheim: %@"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niepoprawny sekret: %@"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Segredo inválido: %@"
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Неверный секрет: %@"
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gizli anahtar geçersiz: %@"
+            "value" : "Parola geçersiz: %@"
           }
         }
       }
@@ -6025,12 +6319,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Último backup: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Последняя резервная копия: %@"
           }
         },
         "tr" : {
@@ -7740,10 +8028,52 @@
     },
     "Photo library" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotobibliothek"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Photo library"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fototeca"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Galería de fotos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bibliothèque de photos"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotobibliotheek"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biblioteca de fotos"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoğraf kitaplığı"
           }
         }
       }
@@ -8539,7 +8869,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte gib „%@“ ein, um fortzufahren"
+            "value" : "Bitte „%@“ eingeben, um fortzufahren"
           }
         },
         "en" : {
@@ -8551,7 +8881,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Escribe \"%@\" para continuar"
+            "value" : "Escribe «%@» para continuar"
           }
         },
         "es-419" : {
@@ -9142,10 +9472,58 @@
     },
     "Restore" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restore"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstellen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri yükle"
           }
         }
       }
@@ -10044,20 +10422,110 @@
     },
     "Set up automatic encrypted backups to a folder of your choice." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richte automatisch verschlüsselte Datensicherungen in einem Ordner deiner Wahl ein."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Set up automatic encrypted backups to a folder of your choice."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura copias de seguridad cifradas automáticas en la carpeta que elijas."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure copias de seguridad cifradas automáticas en la carpeta que elija."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurez des sauvegardes chiffrées automatiques dans un dossier de votre choix."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta backup automatici crittografati in una cartella a tua scelta."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stel automatische, versleutelde back-ups in naar een map naar keuze."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçtiğiniz bir klasöre otomatik şifrelenmiş yedekleme kurulumu yapın."
           }
         }
       }
     },
     "Set up backups" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datensicherungen einrichten"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Set up backups"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar copias de seguridad"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar copias de seguridad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurer les sauvegardes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura i backup"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-ups instellen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar backups"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedek kurulumu"
           }
         }
       }
@@ -10624,13 +11092,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld Eintrag erfolgreich importiert."
+                  "value" : "%lld Element erfolgreich importiert"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld Einträge erfolgreich importiert."
+                  "value" : "%lld Elemente erfolgreich importiert"
                 }
               }
             }
@@ -10744,36 +11212,6 @@
             }
           }
         },
-        "pl" : {
-          "variations" : {
-            "plural" : {
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Pomyślnie zaimportowano %lld elementy"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Pomyślnie zaimportowano %lld elementów"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Pomyślnie zaimportowano %lld element"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Pomyślnie zaimportowano %lld elementu"
-                }
-              }
-            }
-          }
-        },
         "pt-BR" : {
           "variations" : {
             "plural" : {
@@ -10787,36 +11225,6 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld itens importados com sucesso"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Успешно импортировано %lld элемента"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Успешно импортировано %lld элементов"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Успешно импортирован %lld элемент"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Успешно импортировано %lld элементов"
                 }
               }
             }
@@ -11124,10 +11532,52 @@
     },
     "Take a photo" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotografieren"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Take a photo"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer una foto"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tomar una foto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prendre une photo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak een foto"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tirar uma foto"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoğraf çek"
           }
         }
       }
@@ -11907,7 +12357,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Leider unterstützt %1$@ derzeit den Export von Daten aus ihrer App nicht. Bitte kontaktiere %2$@, um diese Funktion anzufordern. \n\nBitte importiere deine Daten vorerst manuell."
+            "value" : "Leider unterstützt %1$@ derzeit keinen Datenexport aus seiner App. Wende dich bitte an %2$@, um diese Funktion einzufordern.\n\nBitte importiere deine Daten vorerst manuell."
           }
         },
         "en" : {
@@ -11931,7 +12381,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Malheureusement, %1$@ ne prend actuellement pas en charge l'exportation de données depuis son application. Contactez %2$@ pour demander cette fonctionnalité.\n\nVeuillez importer vos données manuellement pour le moment."
+            "value" : "Malheureusement, %1$@ ne prend actuellement pas en charge l'exportation de données depuis son application. Contactez %2$@ pour demander cette fonctionnalité. \n\nVeuillez importer vos données manuellement pour le moment."
           }
         },
         "it" : {
@@ -11943,13 +12393,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Helaas ondersteunt %1$@ momenteel het exporteren van gegevens uit hun app niet. Overweeg contact op te nemen met %2$@ om deze functie aan te vragen.\n\nImporteer uw gegevens voor nu handmatig."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niestety, %1$@ obecnie nie obsługuje eksportu danych ze swojej aplikacji. Rozważ skontaktowanie się z %2$@, aby poprosić o tę funkcję. \n\nNa razie zaimportuj swoje dane ręcznie."
+            "value" : "Helaas ondersteunt %1$@ momenteel het exporteren van gegevens uit hun app niet. Neem eventueel contact op met %2$@ om deze functie aan te vragen.\n\nImporteer uw gegevens voor nu handmatig."
           }
         },
         "pt-BR" : {
@@ -11958,16 +12402,10 @@
             "value" : "No momento, %1$@ não é compatível com a exportação de dados do aplicativo. Entre em contato com %2$@ para solicitar este recurso. \n\nImporte seus dados manualmente por enquanto."
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "К сожалению, %1$@ в настоящее время не поддерживает экспорт данных из своего приложения. Рассмотрите возможность связаться с %2$@, чтобы запросить эту функцию. \n\nПока импортируйте данные вручную."
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ne yazık ki, %1$@ şu anda uygulamalarından verileri dışa aktarmayı desteklemiyor. Bu özelliği istemek için lütfen %2$@ ile görüşmeyi düşünebilirsiniz.\n\nŞimdilik verilerinizi el ile içe aktarın."
+            "value" : "Ne yazık ki %1$@ uygulaması şu anda dışa veri aktarmayı desteklemiyor. Bu özelliği istemek için %2$@ ile görüşmeyi değerlendirebilirsiniz.\n\nLütfen verilerinizi şimdilik el ile aktarın."
           }
         }
       }
@@ -12226,28 +12664,16 @@
             "value" : "Versie %@"
           }
         },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wersja %@"
-          }
-        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versão %@"
           }
         },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия %@"
-          }
-        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ sürümü"
+            "value" : "Sürüm %@"
           }
         }
       }
