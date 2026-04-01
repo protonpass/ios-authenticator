@@ -3,6 +3,7 @@ Liquid Glass design: The app now embraces the latest design language, delivering
 More reliable backup: Due to reliability issues with Apple's iCloud SDK, we've switched to the new backup — works with any drive app including Proton Drive, Dropbox, iCloud Drive and more.
 
 - Upgraded Rust library from 0.28.8 to 1.3.0
+- Upgraded core libraries from 35.0.0 to 36.0.3
 
 # Version 1.3.3
 - Fixed an issue where the iCloud sync error popup was shown repeatedly
