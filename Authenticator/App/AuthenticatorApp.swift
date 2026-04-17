@@ -129,6 +129,9 @@ private extension MainContentView {
         }
         .onChange(of: viewModel.showEntries) { _, newValue in
             viewModel.toggleCover(shouldCover: !newValue)
+            if newValue {
+                viewModel.processPendingDeepLinkIfNeeded()
+            }
         }
         .mainAlertService()
     }
@@ -203,6 +206,9 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
 
+    @ObservationIgnored
+    private var pendingDeepLink: URL?
+
     init() {
         sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
@@ -224,6 +230,20 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     }
 
     func handleDeepLink(_ url: URL) {
+        guard showEntries else {
+            pendingDeepLink = url
+            return
+        }
+        processDeepLink(url)
+    }
+
+    func processPendingDeepLinkIfNeeded() {
+        guard showEntries, let url = pendingDeepLink else { return }
+        pendingDeepLink = nil
+        processDeepLink(url)
+    }
+
+    private func processDeepLink(_ url: URL) {
         Task { [weak self] in
             guard let self else { return }
             do {
