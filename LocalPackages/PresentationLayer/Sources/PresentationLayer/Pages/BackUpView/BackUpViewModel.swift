@@ -249,8 +249,7 @@ private extension BackUpViewModel {
     }
 
     func updateFolderDisplay(from parentURL: URL) {
-        let backupDir = parentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
-        folderDisplayName = backupDir.lastPathComponent
+        folderDisplayName = parentURL.lastPathComponent
         folderPath = parentURL.path
     }
 
