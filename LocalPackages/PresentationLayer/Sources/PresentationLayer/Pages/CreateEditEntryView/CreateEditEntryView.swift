@@ -450,7 +450,7 @@ private extension CreateEditEntryView {
                     } label: {
                         Image(systemName: "checkmark")
                     }
-                    .buttonStyle(.glassProminent)
+                    .adaptiveGlassProminentStyle()
                     .tint(.accent)
                     .disabled(!viewModel.canSave)
                     .opacity(viewModel.canSave ? 1 : 0.4)
@@ -475,4 +475,16 @@ private extension CreateEditEntryView {
 
 #Preview {
     CreateEditEntryView(entry: nil)
+}
+
+private extension View {
+    @available(iOS 26, macOS 26, *)
+    @ViewBuilder
+    func adaptiveGlassProminentStyle() -> some View {
+        if ProcessInfo.processInfo.isiOSAppOnMac {
+            buttonStyle(.borderedProminent)
+        } else {
+            buttonStyle(.glassProminent)
+        }
+    }
 }
