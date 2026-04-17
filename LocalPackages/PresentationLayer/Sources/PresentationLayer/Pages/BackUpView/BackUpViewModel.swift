@@ -137,6 +137,13 @@ final class BackUpViewModel {
                                                                    password: password.nilIfEmpty)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
+            } catch ImportException.BadPassword {
+                let config = AlertConfiguration(title: "Wrong password",
+                                                titleBundle: .module,
+                                                message: nil,
+                                                actions: [.cancel])
+                let alert: AlertDisplay = .sheet(config)
+                alertService.showAlert(alert)
             } catch {
                 log(.error, "Failed to load password protected backup: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
