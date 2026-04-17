@@ -100,13 +100,12 @@ struct EntriesToolbarContent: ToolbarContent {
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
                     Button(action: handleAddNewCode) {
-                        Image(systemName: "plus")
-                            .contentShape(.rect)
+                        Label("Create new code", systemImage: "plus")
+                            .labelStyle(.iconOnly)
                     }
-                    .contentShape(.rect)
-                    .impactHaptic()
                     .accessibilityLabel("Create new code")
                     .buttonStyle(.glassProminent)
+                    .impactHaptic()
                 }
             } else {
                 DefaultToolbarItem(kind: .search)

@@ -122,6 +122,7 @@ struct RestrictedScanningArea: View {
                                 .clipShape(.capsule)
                         }
                         .glassButtonStyleIfLiquidGlass()
+                        .environment(\.colorScheme, .dark)
 
                         if unsupportedScanning {
                             Button(action: takePhoto) {
