@@ -43,7 +43,6 @@ final class BackUpViewModel {
     var password = ""
     var confirmedPassword = ""
     var showPasswordAlert = false
-    var showDestinationAlert = false
     var showFolderPicker = false
     var folderDisplayName: String?
     var folderPath: String?
@@ -207,7 +206,7 @@ final class BackUpViewModel {
             try keychainService.set(password,
                                     for: AppConstants.Settings.backupPassword,
                                     shouldSync: false)
-            showDestinationAlert = true
+            showFolderPicker = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }
