@@ -30,7 +30,6 @@ struct SettingRow: View {
 
     enum TrailingMode {
         case toggle(isOn: Bool, onToggle: () -> Void)
-        case detailChevronUpDown(TextContent)
         case detailChevronRight
     }
 
@@ -79,19 +78,9 @@ struct SettingRow: View {
                     StaticToggle(isOn: isOn, label: { EmptyView() }, onToggle: onToggle)
                         .fixedSize(horizontal: true, vertical: false)
 
-                case let .detailChevronUpDown(detail):
-                    Text(detail) // ignore:missing_bundle
-                        .dynamicFont(size: 17, textStyle: .body)
-                        .foregroundStyle(.textNorm)
-                        .padding(.trailing, DesignConstant.padding / 2)
-
-                    Image(systemName: "chevron.up.chevron.down")
-                        .foregroundStyle(.textNorm)
-                        .accessibilityHidden(true)
-
                 case .detailChevronRight:
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.textNorm)
+                        .foregroundStyle(.textWeak)
                         .accessibilityHidden(true)
                 }
             }
@@ -99,6 +88,39 @@ struct SettingRow: View {
         .paddingIfNotLiquidGlass()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(.rect)
+    }
+}
+
+// MARK: - Row with just a title and a trailing Menu
+
+struct MenuSettingRow<Content: View>: View {
+    let title: TextContent
+    let detail: TextContent
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text(title) // ignore:missing_bundle
+                .foregroundStyle(.textNorm)
+                .dynamicFont(size: 17, textStyle: .body)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Menu(content: content, label: {
+                HStack(spacing: 0) {
+                    Text(detail) // ignore:missing_bundle
+                        .dynamicFont(size: 17, textStyle: .body)
+                        .foregroundStyle(.textWeak)
+                        .padding(.trailing, DesignConstant.padding / 2)
+
+                    Image(systemName: "chevron.up.chevron.down")
+                        .foregroundStyle(.textWeak)
+                        .accessibilityHidden(true)
+                }
+            })
+            .adaptiveMenuStyle()
+        }
+        .paddingIfNotLiquidGlass()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
