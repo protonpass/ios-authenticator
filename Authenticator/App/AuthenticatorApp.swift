@@ -260,9 +260,9 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
 
         await localDataManager.refreshLocalStorage()
         // swiftlint:disable line_length
-        let config = AlertConfiguration(title: "Improved Backup",
+        let config = AlertConfiguration(title: "iCloud backup is no longer available",
                                         titleBundle: .main,
-                                        message: .localized("You can now choose any folder destination to store your backup files. Go to Settings → Backups to set it up.",
+                                        message: .localized("Your 2FA codes are safe. Due to reliability issues with Apple's iCloud, we've switched to the new backup — works with any drive app including Proton Drive, Dropbox, iCloud Drive and more.",
                                                             .main),
                                         actions: [.ok])
         // swiftlint:enable line_length
