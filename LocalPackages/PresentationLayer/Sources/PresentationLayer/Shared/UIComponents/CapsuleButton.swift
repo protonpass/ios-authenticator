@@ -53,6 +53,7 @@ struct CapsuleButton: View {
             }
         }
         .applyCapsuleStyle(style)
+        .tint(.purpleInteraction)
     }
 }
 
