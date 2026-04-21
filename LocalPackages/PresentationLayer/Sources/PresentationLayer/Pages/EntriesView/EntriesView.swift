@@ -69,6 +69,12 @@ public struct EntriesView: View {
     @State private var destinationIndex: Int?
     @State private var showImportOptions = false
     @State private var searchEnabled = false
+    // Debounced mirror of `!viewModel.noEntries`. When the first entry is added on iOS 26,
+    // attaching `.searchable` in the same frame as the new `DefaultToolbarItem(.search, .bottomBar)`
+    // leaves the bottom search capsule rendered without its placeholder/icon. Delaying the
+    // `.searchable` attachment by one run-loop tick lets the toolbar slot mount first, so the
+    // searchable binding wires up cleanly.
+    @State private var attachSearchable = false
     @FocusState private var searchFieldFocus: Bool
 
     private let alertService = resolve(\ServiceContainer.alertService)
@@ -118,7 +124,7 @@ public struct EntriesView: View {
                         }
                     }
                 }
-                .if(nativeSearchable && !viewModel.noEntries) { view in
+                .if(nativeSearchable && attachSearchable) { view in
                     view
                         .searchable(text: $viewModel.query,
                                     isPresented: $searchEnabled,
@@ -132,6 +138,18 @@ public struct EntriesView: View {
 
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
+                    }
+
+                    attachSearchable = !viewModel.noEntries
+                }
+                .onChange(of: viewModel.noEntries) { _, noEntries in
+                    if noEntries {
+                        attachSearchable = false
+                    } else {
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(50))
+                            attachSearchable = true
+                        }
                     }
                 }
                 .onChange(of: scenePhase) { _, newValue in
