@@ -24,7 +24,6 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
-import Macro
 import Models
 
 struct PasswordProtectedBackup: Identifiable {
@@ -43,7 +42,6 @@ final class BackUpViewModel {
     var password = ""
     var confirmedPassword = ""
     var showPasswordAlert = false
-    var showDestinationAlert = false
     var showFolderPicker = false
     var folderDisplayName: String?
     var folderPath: String?
@@ -81,11 +79,6 @@ final class BackUpViewModel {
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logger
-    @ObservationIgnored
-    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
-    private var authenticateBiometrically
-    @ObservationIgnored
-    private var toggleBackupTask: Task<Void, Never>?
 
     init() {
         setUp()
@@ -137,6 +130,13 @@ final class BackUpViewModel {
                                                                    password: password.nilIfEmpty)
                 let numberOfImportedEntries = try await entryDataService.importEntries(from: [source])
                 showCompletion(numberOfImportedEntries)
+            } catch ImportException.BadPassword {
+                let config = AlertConfiguration(title: "Wrong password",
+                                                titleBundle: .module,
+                                                message: nil,
+                                                actions: [.cancel])
+                let alert: AlertDisplay = .sheet(config)
+                alertService.showAlert(alert)
             } catch {
                 log(.error, "Failed to load password protected backup: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
@@ -145,24 +145,17 @@ final class BackUpViewModel {
     }
 
     func toggleBackup() {
-        guard toggleBackupTask == nil else { return }
-        toggleBackupTask = Task { [weak self] in
-            guard let self else { return }
-            defer { toggleBackupTask = nil }
-            await authenticateAndPerform {
-                if backupActivated {
-                    settingsService.toggleFolderBackup(false)
-                    try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
-                                                isSynced: false)
-                    backUpManager.clearDestinationFolder()
-                    backupActivated = false
-                    backups = []
-                    folderDisplayName = nil
-                    folderPath = nil
-                } else {
-                    showPasswordAlert = true
-                }
-            }
+        if backupActivated {
+            settingsService.toggleFolderBackup(false)
+            try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
+                                        isSynced: false)
+            backUpManager.clearDestinationFolder()
+            backupActivated = false
+            backups = []
+            folderDisplayName = nil
+            folderPath = nil
+        } else {
+            showPasswordAlert = true
         }
     }
 
@@ -200,7 +193,7 @@ final class BackUpViewModel {
             try keychainService.set(password,
                                     for: AppConstants.Settings.backupPassword,
                                     shouldSync: false)
-            showDestinationAlert = true
+            showFolderPicker = true
         } catch {
             log(.error, "Failed to save password: \(error.localizedDescription)")
         }
@@ -249,8 +242,7 @@ private extension BackUpViewModel {
     }
 
     func updateFolderDisplay(from parentURL: URL) {
-        let backupDir = parentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName)
-        folderDisplayName = backupDir.lastPathComponent
+        folderDisplayName = parentURL.lastPathComponent
         folderPath = parentURL.path
     }
 
@@ -266,18 +258,6 @@ private extension BackUpViewModel {
                                         actions: [.ok])
         let alert: AlertDisplay = .sheet(config)
         alertService.showAlert(alert)
-    }
-
-    func authenticateAndPerform(_ block: () throws -> Void) async {
-        let reason = #localized("Please authenticate", bundle: .module)
-        do {
-            if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
-                                                   reason: reason) {
-                try block()
-            }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
     }
 
     func setBackupFolder(_ folderUrl: URL) {

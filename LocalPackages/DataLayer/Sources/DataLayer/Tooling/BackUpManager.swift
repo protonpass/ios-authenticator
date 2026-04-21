@@ -94,10 +94,9 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try documentURL.withSecurityScopedAccess {
-            let backupDir = try backupDirectoryURL(in: documentURL)
+        try documentURL.withSecurityScopedAccess { url in
             let todayFileName = getTodaysBackupFileName()
-            let targetURL = backupDir.appendingPathComponent(todayFileName)
+            let targetURL = url.appendingPathComponent(todayFileName)
 
             if FileManager.default.fileExists(atPath: targetURL.path) {
                 try coordinatedWrite(at: targetURL) { url in
@@ -117,9 +116,8 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try documentURL.withSecurityScopedAccess {
-            let backupDir = try backupDirectoryURL(in: documentURL)
-            let targetURL = backupDir.appendingPathComponent(fileName)
+        return try documentURL.withSecurityScopedAccess { url in
+            let targetURL = url.appendingPathComponent(fileName)
             var coordinationError: NSError?
             var data: Data?
             var readError: Error?
@@ -153,12 +151,8 @@ public final class BackUpManager: BackUpServicing {
             return
         }
 
-        try documentURL.withSecurityScopedAccess {
-            let backupDir = try backupDirectoryURL(in: documentURL)
-            guard backupDir.lastPathComponent == AppConstants.BackupSettings.defaultFolderName else {
-                return
-            }
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
+        try documentURL.withSecurityScopedAccess { url in
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: url,
                                                                        includingPropertiesForKeys: nil,
                                                                        options: [])
             for fileURL in fileURLs {
@@ -172,7 +166,7 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try documentURL.withSecurityScopedAccess {
+        return try documentURL.withSecurityScopedAccess { _ in
             try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
         }
     }
@@ -182,27 +176,14 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try documentURL.withSecurityScopedAccess {
-            let backupDir = try backupDirectoryURL(in: documentURL)
-            let targetURL = backupDir.appendingPathComponent(fileName)
+        try documentURL.withSecurityScopedAccess { url in
+            let targetURL = url.appendingPathComponent(fileName)
             try coordinatedDelete(at: targetURL)
         }
     }
 }
 
 private extension BackUpManager {
-    /// Returns the app-owned backup directory inside the user-selected folder.
-    /// Creates it if missing.
-    private func backupDirectoryURL(in documentURL: URL) throws -> URL {
-        let dir = documentURL.appendingPathComponent(AppConstants.BackupSettings.defaultFolderName,
-                                                     isDirectory: true)
-
-        // Always create if missing (idempotent).
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-
-        return dir
-    }
-
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
         return "Proton_Authenticator_backup_\(todayString).json"
@@ -227,8 +208,7 @@ private extension BackUpManager {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        let backupDir = try backupDirectoryURL(in: documentURL)
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: backupDir,
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
                                                                    includingPropertiesForKeys: [
                                                                        .creationDateKey,
                                                                        .isDirectoryKey

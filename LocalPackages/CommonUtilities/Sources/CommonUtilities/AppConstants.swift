@@ -75,10 +75,6 @@ public enum AppConstants: Sendable {
         public static let batchSize = 100
     }
 
-    public enum BackupSettings {
-        public static let defaultFolderName = "Proton Authenticator Backups"
-    }
-
     @MainActor
     public static var isPhone: Bool {
         #if os(iOS)

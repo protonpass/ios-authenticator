@@ -43,13 +43,13 @@ public extension URL.BookmarkResolutionOptions {
 }
 
 public extension URL {
-    func withSecurityScopedAccess<T>(body: () throws -> T) rethrows -> T {
+    func withSecurityScopedAccess<T>(body: (URL) throws -> T) rethrows -> T {
         let didStart = startAccessingSecurityScopedResource()
         defer {
             if didStart {
                 self.stopAccessingSecurityScopedResource()
             }
         }
-        return try body()
+        return try body(self)
     }
 }

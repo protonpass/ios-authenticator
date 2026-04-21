@@ -243,7 +243,8 @@ private extension SettingsView {
 
     var appearanceSection: some View {
         SettingsSectionContainer(title: "APPEARANCE") {
-            Menu(content: {
+            MenuSettingRow(title: .localized("Theme", .module),
+                           detail: .localized(viewModel.theme.title, .module)) {
                 ForEach(Theme.allCases, id: \.self) { theme in
                     Button(action: {
                         viewModel.updateTheme(theme)
@@ -255,17 +256,13 @@ private extension SettingsView {
                         }
                     })
                 }
-            }, label: {
-                SettingRow(title: .localized("Theme", .module),
-                           trailingMode: AppConstants.isIOS ?
-                               .detailChevronUpDown(.localized(viewModel.theme.title, .module)) : nil)
-            })
-            .adaptiveMenuStyle()
+            }
 
             SettingDivider()
 
             if AppConstants.adjustableSearchBarPosition {
-                Menu(content: {
+                MenuSettingRow(title: .localized("Search bar position", .module),
+                               detail: .localized(viewModel.searchBarDisplay.title, .module)) {
                     ForEach(SearchBarDisplayMode.allCases, id: \.self) { theme in
                         Button(action: {
                             viewModel.updateSearchBarDisplay(theme)
@@ -277,18 +274,13 @@ private extension SettingsView {
                             }
                         })
                     }
-                }, label: {
-                    SettingRow(title: .localized("Search bar position", .module),
-                               trailingMode: AppConstants.isIOS ?
-                                   .detailChevronUpDown(.localized(viewModel.searchBarDisplay.title, .module)) :
-                                   nil)
-                })
-                .adaptiveMenuStyle()
+                }
 
                 SettingDivider()
             }
 
-            Menu(content: {
+            MenuSettingRow(title: .localized("Digit style", .module),
+                           detail: .localized(viewModel.digitStyle.title, .module)) {
                 ForEach(DigitStyle.allCases, id: \.self) { style in
                     Button(action: {
                         viewModel.updateDigitStyle(style)
@@ -300,12 +292,7 @@ private extension SettingsView {
                         }
                     })
                 }
-            }, label: {
-                SettingRow(title: .localized("Digit style", .module),
-                           trailingMode: AppConstants.isIOS ?
-                               .detailChevronUpDown(.localized(viewModel.digitStyle.title, .module)) : nil)
-            })
-            .adaptiveMenuStyle()
+            }
             SettingDivider()
             SettingRow(title: .localized("Animate code change", .module),
                        trailingMode: .toggle(isOn: viewModel.animateCodeChange,

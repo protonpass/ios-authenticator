@@ -62,15 +62,6 @@ struct BackUpView: View {
             } message: {
                 Text("Set a password to protect backup files.", bundle: .module)
             }
-            .alert("Choose backup destination", isPresented: $viewModel.showDestinationAlert) {
-                Button { viewModel.showFolderPicker = true } label: {
-                    Text("Choose Backup Location", bundle: .module)
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("A \"Proton Authenticator Backups\" folder will be created in the selected location.",
-                     bundle: .module)
-            }
             .alert("Please enter the password used to encrypt this backup.",
                    isPresented: $viewModel.passwordProtectionFile.mappedToBool(),
                    presenting: viewModel.passwordProtectionFile) { backup in
