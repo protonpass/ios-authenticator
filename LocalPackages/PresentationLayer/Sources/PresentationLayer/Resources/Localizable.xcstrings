@@ -1085,7 +1085,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sauvegarde protégée"
+            "value" : "Protection des données de sauvegarde"
           }
         },
         "it" : {
@@ -2070,6 +2070,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effacer la recherche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella ricerca"
           }
         },
         "nl" : {
@@ -6348,7 +6354,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ostania modyfikacja (od najnowszej)"
+            "value" : "Data modyfikacji (od najnowszych)"
           }
         },
         "pt-BR" : {
@@ -6412,7 +6418,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ostania modyfikacja (od najstarszej)"
+            "value" : "Data modyfikacji (od najstarszych)"
           }
         },
         "pt-BR" : {
@@ -7902,6 +7908,12 @@
             "value" : "Bibliothèque de photos"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Galleria foto"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8277,7 +8289,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veuillez accéder les **⋮ > Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+            "value" : "Accédez à **⋮ > Paramètres > Importer et exporter > Exporter**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
         },
         "it" : {
@@ -8341,7 +8353,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**⚙ > Export** dans les paramètres \n\nCela créera un fichier JSON que vous pourrez utiliser ici."
+            "value" : "Accédez à **⚙ > Export**\n\nCela créera un fichier JSON que vous pourrez utiliser ici."
           }
         },
         "it" : {
@@ -11404,6 +11416,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prendre une photo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scatta una foto"
           }
         },
         "nl" : {
