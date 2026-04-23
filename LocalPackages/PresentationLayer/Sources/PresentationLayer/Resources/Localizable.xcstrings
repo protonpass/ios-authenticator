@@ -1056,6 +1056,16 @@
         }
       }
     },
+    "Backup created" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup created"
+          }
+        }
+      }
+    },
     "Backup data protection" : {
       "localizations" : {
         "de" : {
@@ -3702,6 +3712,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rakamlar"
+          }
+        }
+      }
+    },
+    "Disable automatic backup?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable automatic backup?"
+          }
+        }
+      }
+    },
+    "Disable backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable backup"
           }
         }
       }
@@ -7184,6 +7214,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Henüz bir kod yok"
+          }
+        }
+      }
+    },
+    "No data to backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data to backup"
           }
         }
       }
@@ -12816,6 +12856,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "İçe aktarma dosyanız bir parola ile korunuyor. İlerlemek için lütfen parolayı yazın."
+          }
+        }
+      }
+    },
+    "Your previous backups are stored securely and won't be affected. You can re-enable automatic backup at any time." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your previous backups are stored securely and won't be affected. You can re-enable automatic backup at any time."
           }
         }
       }

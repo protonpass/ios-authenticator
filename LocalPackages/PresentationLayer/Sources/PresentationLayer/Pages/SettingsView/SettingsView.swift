@@ -119,7 +119,6 @@ public struct SettingsView: View {
                 .task {
                     await viewModel.setUp()
                 }
-                .toastDisplay()
                 .fullScreenMainBackground()
                 .sheetAlertService()
                 .importingService($showImportOptions, context: .settings)

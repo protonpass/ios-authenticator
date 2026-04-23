@@ -44,7 +44,8 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
     func reorderItem(from currentPosition: Int, to newPosition: Int) async throws
 
     func fullRefresh() async throws
-    func backUpEntries()
+    @discardableResult
+    func backUpEntries() -> BackUpResult
 
     func deleteAllEntries() async throws
 
@@ -327,8 +328,9 @@ public extension EntryDataService {
         }
     }
 
-    func backUpEntries() {
-        guard settings.folderBackup else { return }
+    @discardableResult
+    func backUpEntries() -> BackUpResult {
+        guard settings.folderBackup else { return .notEnabled }
 
         do {
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
@@ -336,8 +338,15 @@ public extension EntryDataService {
             if let exportData = try exportEntries(password: password).data(using: .utf8) {
                 try backUpManager.write(data: exportData)
             }
+            return .successful
         } catch {
+            if let authError = error as? AuthError,
+               case let .generic(reason) = authError,
+               reason.isExportEmptyData {
+                return .noData
+            }
             log(.error, "Failed to backup entries: \(error)")
+            return .error(error)
         }
     }
 }
@@ -353,7 +362,7 @@ public extension EntryDataService {
     func exportEntries(password: String?) throws -> String {
         log(.debug, password != nil ? "Exporting entries with password" : "Exporting entries")
 
-        guard let data = dataState.data else {
+        guard let data = dataState.data, !data.isEmpty else {
             throw AuthError.generic(.exportEmptyData)
         }
         let entries = data.map(\.orderedEntry.entry)

@@ -1,7 +1,7 @@
 //
-// ToastService.swift
-// Proton Authenticator - Created on 31/03/2025.
-// Copyright (c) 2025 Proton Technologies AG
+// BackUpResult.swift
+// Proton Authenticator - Created on 23/04/2026.
+// Copyright (c) 2026 Proton Technologies AG
 //
 // This file is part of Proton Authenticator.
 //
@@ -19,23 +19,10 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 import Foundation
-import SimpleToast
 
-@MainActor
-public protocol ToastServiceProtocol: Sendable, Observable {
-    var currentToast: SimpleToast? { get set }
-
-    func showToast(_ toast: SimpleToast)
-}
-
-@MainActor
-@Observable
-public final class ToastService: ToastServiceProtocol {
-    public var currentToast: SimpleToast?
-
-    public init() {}
-
-    public func showToast(_ toast: SimpleToast) {
-        currentToast = toast
-    }
+public enum BackUpResult: Sendable {
+    case notEnabled
+    case successful
+    case noData
+    case error(any Error)
 }

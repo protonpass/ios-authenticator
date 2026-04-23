@@ -1,6 +1,11 @@
+# Version 1.4.1
+Improvements:
+- Prompt before disabling automatic backups
+- Show a toast message after manually creating a backup
+
 # Version 1.4.0
 Liquid Glass design: The app now embraces the latest design language, delivering a more modern and native experience.
-More reliable backup: Due to reliability issues with Apple's iCloud SDK, we've switched to the new backup — works with any drive app including Proton Drive, Dropbox, iCloud Drive and more.
+More reliable backup: Due to reliability issues with Apple's iCloud SDK, we've switched to the new backup.
 
 - Upgraded Rust library from 0.28.8 to 1.3.0
 - Upgraded core libraries from 35.0.0 to 36.0.3

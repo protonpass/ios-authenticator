@@ -24,7 +24,9 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
+import Macro
 import Models
+import SimpleToast
 
 struct PasswordProtectedBackup: Identifiable {
     let id = UUID()
@@ -41,13 +43,13 @@ final class BackUpViewModel {
 
     var password = ""
     var confirmedPassword = ""
-    var showPasswordAlert = false
     var showFolderPicker = false
     var folderDisplayName: String?
     var folderPath: String?
     var passwordProtectionFile: PasswordProtectedBackup?
     var selectedBackup: BackUpFileInfo?
     var backupToDelete: BackUpFileInfo?
+    var toast: SimpleToast?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
@@ -144,19 +146,16 @@ final class BackUpViewModel {
         }
     }
 
-    func toggleBackup() {
-        if backupActivated {
-            settingsService.toggleFolderBackup(false)
-            try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
-                                        isSynced: false)
-            backUpManager.clearDestinationFolder()
-            backupActivated = false
-            backups = []
-            folderDisplayName = nil
-            folderPath = nil
-        } else {
-            showPasswordAlert = true
-        }
+    func disableBackup() {
+        guard backupActivated else { return }
+        settingsService.toggleFolderBackup(false)
+        try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
+                                    isSynced: false)
+        backUpManager.clearDestinationFolder()
+        backupActivated = false
+        backups = []
+        folderDisplayName = nil
+        folderPath = nil
     }
 
     func deleteBackup(_ backup: BackUpFileInfo) {
@@ -176,8 +175,21 @@ final class BackUpViewModel {
     }
 
     func backup() {
-        entryDataService.backUpEntries()
+        let result = entryDataService.backUpEntries()
         loadData()
+        switch result {
+        case .notEnabled:
+            break
+
+        case .successful:
+            toast = SimpleToast(title: #localized("Backup created", bundle: .module))
+
+        case .noData:
+            toast = SimpleToast(title: #localized("No data to backup", bundle: .module))
+
+        case let .error(error):
+            toast = SimpleToast(title: error.localizedDescription)
+        }
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
