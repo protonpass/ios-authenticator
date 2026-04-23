@@ -93,10 +93,6 @@ public extension ServiceContainer {
         }
     }
 
-    var toastService: Factory<any ToastServiceProtocol> {
-        self { @MainActor in ToastService() }
-    }
-
     var userSessionManager: Factory<any UserSessionTooling> {
         self {
             UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared

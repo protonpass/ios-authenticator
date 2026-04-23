@@ -26,7 +26,6 @@ import FactoryKit
 import Foundation
 import Macro
 import Models
-import SimpleToast
 
 @Observable
 final class EntriesViewModel {

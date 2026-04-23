@@ -25,7 +25,6 @@ import DataLayer
 import FactoryKit
 import Macro
 import Models
-import SimpleToast
 import SwiftUI
 
 enum EntryAction: Equatable, Hashable {
@@ -92,7 +91,6 @@ public struct EntriesView: View {
                 .onTapGesture {
                     searchFieldFocus = false
                 }
-                .toastDisplay()
                 .refreshable { [weak viewModel] in
                     viewModel?.reloadData()
                 }

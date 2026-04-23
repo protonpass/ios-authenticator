@@ -115,7 +115,6 @@ struct UserLoginView: View {
                     }
                 }
             }
-            .toastDisplay()
             .fullScreenMainBackground()
             .sheetAlertService()
         }

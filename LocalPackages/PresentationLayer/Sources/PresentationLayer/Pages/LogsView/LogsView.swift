@@ -72,7 +72,6 @@ struct LogsView: View {
                 .listSectionSpacing(DesignConstant.padding * 2)
                 .navigationBarTitleDisplayMode(.inline)
             #endif
-                .toastDisplay()
                 .fullScreenMainBackground()
                 .sheetAlertService()
         }
