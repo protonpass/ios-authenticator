@@ -117,4 +117,12 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
             "Failed to verify content: \(error)"
         }
     }
+
+    public var isInactiveUserKey: Bool {
+        if case .inactiveUserKey = self {
+            true
+        } else {
+            false
+        }
+    }
 }
