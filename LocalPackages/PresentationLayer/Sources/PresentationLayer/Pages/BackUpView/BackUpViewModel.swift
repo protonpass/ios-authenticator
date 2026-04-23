@@ -43,7 +43,6 @@ final class BackUpViewModel {
 
     var password = ""
     var confirmedPassword = ""
-    var showPasswordAlert = false
     var showFolderPicker = false
     var folderDisplayName: String?
     var folderPath: String?
@@ -147,19 +146,16 @@ final class BackUpViewModel {
         }
     }
 
-    func toggleBackup() {
-        if backupActivated {
-            settingsService.toggleFolderBackup(false)
-            try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
-                                        isSynced: false)
-            backUpManager.clearDestinationFolder()
-            backupActivated = false
-            backups = []
-            folderDisplayName = nil
-            folderPath = nil
-        } else {
-            showPasswordAlert = true
-        }
+    func disableBackup() {
+        guard backupActivated else { return }
+        settingsService.toggleFolderBackup(false)
+        try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
+                                    isSynced: false)
+        backUpManager.clearDestinationFolder()
+        backupActivated = false
+        backups = []
+        folderDisplayName = nil
+        folderPath = nil
     }
 
     func deleteBackup(_ backup: BackUpFileInfo) {

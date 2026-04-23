@@ -28,6 +28,8 @@ import UniformTypeIdentifiers
 
 struct BackUpView: View {
     @State private var viewModel = BackUpViewModel()
+    @State private var showPasswordAlert = false
+    @State private var showDisableAlert = false
 
     var body: some View {
         mainContent
@@ -42,7 +44,7 @@ struct BackUpView: View {
             .scrollContentBackground(.hidden)
             .errorMessageAlert($viewModel.errorMessage)
             .sheetAlertService()
-            .alert("Backup data protection", isPresented: $viewModel.showPasswordAlert) {
+            .alert("Backup data protection", isPresented: $showPasswordAlert) {
                 SecureField("Password", text: $viewModel.password)
                     .autocorrectionDisabled()
                     .textContentType(.password)
@@ -76,6 +78,17 @@ struct BackUpView: View {
                     viewModel.password = ""
                 }
             }
+            .alert("Disable automatic backup?",
+                   isPresented: $showDisableAlert,
+                   actions: {
+                       Button("Disable backup", action: viewModel.disableBackup)
+                       Button("Cancel", action: {})
+                   },
+                   message: {
+                       // swiftlint:disable:next line_length
+                       Text("Your previous backups are stored securely and won't be affected. You can re-enable automatic backup at any time.",
+                            bundle: .module)
+                   })
             .alert("Backup restoration",
                    isPresented: $viewModel.selectedBackup.mappedToBool(),
                    presenting: viewModel.selectedBackup) { backup in
@@ -144,7 +157,7 @@ private extension BackUpView {
         SettingsSectionContainer(title: "BACKUP SETTINGS") {
             SettingRow(title: .localized("Automatic Backup", .module),
                        trailingMode: .toggle(isOn: viewModel.backupActivated,
-                                             onToggle: viewModel.toggleBackup))
+                                             onToggle: handleBackupToggle))
             if viewModel.backupActivated {
                 SettingDivider()
                 Button { viewModel.showFolderPicker = true } label: {
@@ -223,6 +236,14 @@ private extension BackUpView {
                 .foregroundStyle(.textNorm)
         }
         .contentShape(.rect)
+    }
+
+    func handleBackupToggle() {
+        if viewModel.backupActivated {
+            showDisableAlert = true
+        } else {
+            showPasswordAlert = true
+        }
     }
 }
 
