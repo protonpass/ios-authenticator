@@ -175,9 +175,21 @@ final class BackUpViewModel {
     }
 
     func backup() {
-        entryDataService.backUpEntries()
+        let result = entryDataService.backUpEntries()
         loadData()
-        toast = SimpleToast(title: #localized("Backup created", bundle: .module))
+        switch result {
+        case .notEnabled:
+            break
+
+        case .successful:
+            toast = SimpleToast(title: #localized("Backup created", bundle: .module))
+
+        case .noData:
+            toast = SimpleToast(title: #localized("No data to backup", bundle: .module))
+
+        case let .error(error):
+            toast = SimpleToast(title: error.localizedDescription)
+        }
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {

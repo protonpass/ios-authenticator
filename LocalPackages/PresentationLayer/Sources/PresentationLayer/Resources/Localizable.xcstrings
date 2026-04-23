@@ -7218,6 +7218,16 @@
         }
       }
     },
+    "No data to backup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data to backup"
+          }
+        }
+      }
+    },
     "No export available" : {
       "localizations" : {
         "de" : {
