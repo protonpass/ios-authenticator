@@ -97,7 +97,7 @@ struct BackUpView: View {
                 Text("Are you sure you want to delete the backup \"\(backup.name)\"? This cannot be undone.",
                      bundle: .module)
             }
-
+            .toast(toast: $viewModel.toast)
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif

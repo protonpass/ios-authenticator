@@ -24,7 +24,9 @@ import CommonUtilities
 import DataLayer
 import FactoryKit
 import Foundation
+import Macro
 import Models
+import SimpleToast
 
 struct PasswordProtectedBackup: Identifiable {
     let id = UUID()
@@ -48,6 +50,7 @@ final class BackUpViewModel {
     var passwordProtectionFile: PasswordProtectedBackup?
     var selectedBackup: BackUpFileInfo?
     var backupToDelete: BackUpFileInfo?
+    var toast: SimpleToast?
 
     var passwordSavable: Bool {
         !password.isEmpty && password == confirmedPassword
@@ -178,6 +181,7 @@ final class BackUpViewModel {
     func backup() {
         entryDataService.backUpEntries()
         loadData()
+        toast = SimpleToast(title: #localized("Backup created", bundle: .module))
     }
 
     func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
