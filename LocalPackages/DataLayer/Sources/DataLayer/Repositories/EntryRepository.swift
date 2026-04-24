@@ -828,10 +828,18 @@ public extension EntryRepository {
                             "Missing key \(encryptedEntry.authenticatorKeyID) for entry \(encryptedEntry.entryID), fetching keys")
                         try await fetchRemoteEncryptionKeyOrPushLocalKey()
                     }
-                    guard let decryptedEntry = try encryptionService
-                        .decryptRemoteData(encryptedData: encryptedEntry) else {
-                        continue
+                    var decryptedEntry: Entry?
+
+                    do {
+                        decryptedEntry = try encryptionService
+                            .decryptRemoteData(encryptedData: encryptedEntry)
+                    } catch is AuthenticatorCryptoError {
+                        // Ignore crypto errors (might be because of rotated user keys) and move on
+                    } catch {
+                        throw error
                     }
+
+                    guard let decryptedEntry else { continue }
 
                     let syncState: EntrySyncState = localIdSet.contains(decryptedEntry.id) ? .synced : .unsynced
 
@@ -922,15 +930,25 @@ extension EntryRepository {
             log(.debug, "Retrieved \(encryptedKeysData.count) remote encryption keys")
 
             var newKeysAdded = 0
-            for encryptedKeyData in
-                encryptedKeysData /* where !encryptionService.contains(keyId: encryptedKeyData.keyID) */ {
-                log(.debug, "Processing new key with ID: \(encryptedKeyData.keyID)")
+            for encryptedKeyData in encryptedKeysData {
+                log(.debug, "Processing user key \(encryptedKeyData.keyID)")
 
-                let keyDecrypted = try userSessionManager.userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
-                try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
-                newKeysAdded += 1
+                do {
+                    let keyDecrypted = try userSessionManager.userKeyDecrypt(remoteEncryptedKey: encryptedKeyData)
+                    try encryptionService.saveUserRemoteKey(keyId: encryptedKeyData.keyID, remoteKey: keyDecrypted)
+                    newKeysAdded += 1
+                } catch {
+                    if let authError = error as? AuthError,
+                       case let .crypto(reason) = authError,
+                       reason.isInactiveUserKey {
+                        log(.warning, "Inactive user key \(encryptedKeyData.keyID)")
+                        continue
+                    }
+                    throw error
+                }
             }
-            log(.info, "Successfully processed remote keys, added \(newKeysAdded) new keys")
+            log(.info,
+                "Successfully processed \(encryptedKeysData.count) remote keys, added \(newKeysAdded) new keys")
 
             return try userSessionManager
                 .getRemoteEncryptionKeyLinkedToActiveUserKey(encryptedKeysData)

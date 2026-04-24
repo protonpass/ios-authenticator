@@ -2,6 +2,7 @@
 Improvements:
 - Prompt before disabling automatic backups
 - Show a toast message after manually creating a backup
+- Handle inactive user keys
 
 # Version 1.4.0
 Liquid Glass design: The app now embraces the latest design language, delivering a more modern and native experience.
