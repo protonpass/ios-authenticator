@@ -15,6 +15,12 @@
             "value" : "iCloud backup is no longer available"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La copia de seguridad en iCloud ya no está disponible"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -67,6 +73,12 @@
             "value" : "Your 2FA codes are safe. Due to reliability issues with Apple's iCloud, we've switched to the new backup — works with any drive app including Proton Drive, Dropbox, iCloud Drive and more."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus códigos 2FA están seguros. Debido a problemas de fiabilidad con iCloud de Apple, hemos pasado a un nuevo sistema de copia de seguridad que funciona con cualquier aplicación de almacenamiento, como Proton Drive, Dropbox, iCloud Drive y más."
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -85,10 +97,16 @@
             "value" : "I tuoi codici 2FA sono al sicuro. A causa di problemi di affidabilità con iCloud di Apple, siamo passati al nuovo backup che funziona con qualsiasi app drive incluso Proton Drive, Dropbox, iCloud Drive e molte altre."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uw 2FA-codes zijn veilig. Vanwege betrouwbaarheidsproblemen met Apple's iCloud zijn we overgestapt op de nieuwe back-upservice. Deze werkt met elke opslag-app, waaronder Proton Drive, Dropbox, iCloud Drive en meer."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "İki faktörlü kimlik doğrulama kodlarınız güvende. Apple'ın iCloud hizmetindeki güvenilirlik sorunları nedeniyle yeni yedekleme yöntemine geçtik; bu yöntem Proton Drive, Dropbox, iCloud Drive ve diğer tüm Drive uygulamalarıyla uyumludur."
+            "value" : "İki adımlı doğrulama kodlarınız güvende. Apple iCloud hizmetindeki güvenilirlik sorunları nedeniyle yeni yedekleme yöntemine geçtik. Proton Drive, Dropbox, iCloud Drive ve diğerleri ile uyumludur."
           }
         }
       }
