@@ -1056,6 +1056,16 @@
         }
       }
     },
+    "Automatically sync entries across your Apple devices using iCloud." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically sync entries across your Apple devices using iCloud."
+          }
+        }
+      }
+    },
     "Backup created" : {
       "localizations" : {
         "de" : {
@@ -2956,6 +2966,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Koyu"
+          }
+        }
+      }
+    },
+    "Data in iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data in iCloud"
           }
         }
       }
@@ -11584,6 +11604,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aygıtlarınız arasında eşitleme duraklatıldı"
+          }
+        }
+      }
+    },
+    "Sync with iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync with iCloud"
           }
         }
       }

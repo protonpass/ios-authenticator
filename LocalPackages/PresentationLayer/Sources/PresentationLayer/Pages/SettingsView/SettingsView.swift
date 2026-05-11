@@ -209,6 +209,18 @@ private extension SettingsView {
 
             SettingDivider()
 
+            if #available(iOS 18, *) {
+                SettingRow(title: .localized("Sync with iCloud", .module),
+                           subtitle: .localized("Automatically sync entries across your Apple devices using iCloud.",
+                                                .module),
+                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                 onToggle: viewModel.toggleICloudSyncBackup))
+                    .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),
+                                              activateStatus(viewModel.iCloudSync))
+
+                SettingDivider()
+            }
+
             #if os(iOS)
             SettingRow(title: .localized("Sync between devices", .module),
                        subtitle: !viewModel.emailAddress.isEmpty ?
