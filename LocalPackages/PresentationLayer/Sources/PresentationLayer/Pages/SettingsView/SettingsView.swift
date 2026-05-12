@@ -210,7 +210,7 @@ private extension SettingsView {
             SettingDivider()
 
             if #available(iOS 18, *) {
-                SettingRow(title: .localized("Sync with iCloud", .module),
+                SettingRow(title: .localized("Sync via iCloud", .module),
                            subtitle: .localized("Automatically sync entries across your Apple devices using iCloud.",
                                                 .module),
                            trailingMode: .toggle(isOn: viewModel.iCloudSync,
@@ -222,7 +222,7 @@ private extension SettingsView {
             }
 
             #if os(iOS)
-            SettingRow(title: .localized("Sync between devices", .module),
+            SettingRow(title: .localized("Sync via Proton", .module),
                        subtitle: !viewModel.emailAddress.isEmpty ?
                            .localized("Account: \(viewModel.emailAddress)", .module) : nil,
                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
