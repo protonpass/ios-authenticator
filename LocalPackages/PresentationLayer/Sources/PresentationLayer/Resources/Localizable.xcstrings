@@ -2970,12 +2970,12 @@
         }
       }
     },
-    "Data in iCloud" : {
+    "Data on iCloud" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data in iCloud"
+            "value" : "Data on iCloud"
           }
         }
       }
