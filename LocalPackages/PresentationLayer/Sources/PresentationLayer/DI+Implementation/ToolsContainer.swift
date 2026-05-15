@@ -105,4 +105,8 @@ public extension ToolsContainer {
     var userDefaultsPersistence: Factory<any InAppMessagePersistence> {
         self { UserDefaultsInAppMessagePersistence() }
     }
+
+    var passphraseRebuilder: Factory<any PassphraseRebuilding> {
+        self { DefaultPassphraseRebuilder() }
+    }
 }

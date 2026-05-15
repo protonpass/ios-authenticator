@@ -25,6 +25,7 @@ import ProtonCoreServices
 import Models
 
 public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooling {
+   
     public var sessionWasInvalidated = PassthroughSubject<Bool, Never>()
     public var userLoggedOut = PassthroughSubject<Void, Never>()
 
@@ -102,6 +103,10 @@ public final class MockUserSessionTooling: @unchecked Sendable, UserSessionTooli
     
     public func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws -> RemoteEncryptedKey? {
         nil
+    }
+    
+    public func getLatestUserData(_ oldUserData: ProtonCoreLogin.UserData) async throws -> UserData {
+        throw MockError.stub
     }
 }
 
