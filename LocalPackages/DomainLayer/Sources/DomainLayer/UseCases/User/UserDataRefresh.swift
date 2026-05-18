@@ -55,14 +55,9 @@ public struct UserDataRefresh: RefreshUserDataUseCase {
             return
         }
         try Task.checkCancellation()
-
         logger.log(.info, category: .network, "Start syncing core events")
-        let currentEventId = try await eventsRepository.latestCoreEventId()
 
-        try Task.checkCancellation()
-        let result = try await eventsRepository.event(id: currentEventId)
-
-        guard result.shouldRefreshUserData else {
+        guard try await shouldRefreshUser() else {
             logger.log(.info,
                        category: .network,
                        "Core event refresh: No update action needed, skipping")
@@ -76,6 +71,17 @@ public struct UserDataRefresh: RefreshUserDataUseCase {
         try await userSessionManager.save(newUserData)
         eventsRepository.save(id: latestEventId)
         logger.log(.info, category: .network, "Updated user data")
+    }
+
+    func shouldRefreshUser() async throws -> Bool {
+        guard let currentEventId = eventsRepository.latestCoreEventId() else {
+            return true
+        }
+
+        try Task.checkCancellation()
+        let result = try await eventsRepository.event(id: currentEventId)
+
+        return result.shouldRefreshUserData
     }
 }
 

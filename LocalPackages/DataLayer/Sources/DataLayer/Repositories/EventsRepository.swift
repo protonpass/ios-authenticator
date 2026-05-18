@@ -23,7 +23,7 @@ import Foundation
 import ProtonCoreServices
 
 public protocol EventsRepositoryProtocol: Sendable {
-    func latestCoreEventId() async throws -> String
+    func latestCoreEventId() -> String?
     func latestRemoteCoreEventId() async throws -> String
     func event(id: String) async throws -> CoreEventsResponse
     func save(id: String)
@@ -44,13 +44,12 @@ public final class EventsRepository: EventsRepositoryProtocol {
 }
 
 public extension EventsRepository {
-    func latestCoreEventId() async throws -> String {
-        if let stored = store.string(forKey: AppConstants.Settings.lastCoreEventId),
-           !stored.isEmpty {
-            stored
-        } else {
-            try await latestRemoteCoreEventId()
+    func latestCoreEventId() -> String? {
+        guard let stored = store.string(forKey: AppConstants.Settings.lastCoreEventId),
+              !stored.isEmpty else {
+            return nil
         }
+        return stored
     }
 
     func latestRemoteCoreEventId() async throws -> String {
