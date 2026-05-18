@@ -24,6 +24,7 @@
 import CommonUtilities
 import Foundation
 import Models
+import ProtonCoreAuthentication
 import ProtonCoreChallenge
 import ProtonCoreCrypto
 import ProtonCoreCryptoGoImplementation
@@ -69,6 +70,7 @@ public protocol UserInfoProviding: Sendable {
     func userKeyDecrypt(remoteEncryptedKey: RemoteEncryptedKey) throws -> Data
     func getRemoteEncryptionKeyLinkedToActiveUserKey(_ remoteKeys: [RemoteEncryptedKey]) throws
         -> RemoteEncryptedKey?
+    func getLatestUserData(_ oldUserData: UserData) async throws -> UserData
 }
 
 public typealias UserSessionTooling = APIManagerProtocol & UserInfoProviding
@@ -219,6 +221,44 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         userDataLoaded.send(false)
         isAuthenticatedWithUserData.send(false)
         userLoggedOut.send()
+    }
+
+    public func getLatestUserData(_ oldUserData: UserData) async throws -> UserData {
+        let authenticator = Authenticator(api: apiService)
+        let updatedUser = try await authenticator.getUserInfo()
+        let updatedAddresses = try await authenticator.getAddresses()
+
+        let oldSaltsByID = Dictionary(uniqueKeysWithValues: oldUserData.salts.map { ($0.ID, $0) })
+        let updatedKeySalts = updatedUser.keys.map { key in
+            oldSaltsByID[key.keyID] ?? KeySalt(ID: key.keyID, keySalt: nil)
+        }
+
+        var updatedPassphrases: [String: String] = [:]
+
+        let uniqueOldPassphrases = Set(oldUserData.passphrases.map(\.value))
+        let builder = BuildAndValidatePassphrases()
+
+        for oldPassphrase in uniqueOldPassphrases {
+            if let passphrases = try builder.buildAndValidatePassphrases(passphrase: oldPassphrase,
+                                                                         salts: updatedKeySalts,
+                                                                         userKeys: updatedUser.keys) {
+                updatedPassphrases.merge(passphrases, uniquingKeysWith: { $1 })
+            }
+        }
+
+        if updatedPassphrases.isEmpty {
+            throw AuthError.crypto(.failedToBuildPassphrases)
+        }
+        logger.log(.info,
+                   category: .network,
+                   "Core event refresh: saved \(updatedUser.keys.count) keys / \(updatedAddresses.count) addresses")
+
+        return .init(credential: oldUserData.credential,
+                     user: updatedUser,
+                     salts: updatedKeySalts,
+                     passphrases: updatedPassphrases,
+                     addresses: updatedAddresses,
+                     scopes: oldUserData.scopes)
     }
 }
 

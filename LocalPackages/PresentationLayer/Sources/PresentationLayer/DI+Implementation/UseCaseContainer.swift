@@ -97,4 +97,12 @@ public extension UseCaseContainer {
     var emptyTempDirectory: Factory<any EmptyTempDirectoryUseCase> {
         self { EmptyTempDirectory(logger: self.logger) }
     }
+
+    var userDataRefresh: Factory<any RefreshUserDataUseCase> {
+        self { UserDataRefresh(userSessionManager: ServiceContainer.shared.userSessionManager(),
+                               eventsRepository: RepositoryContainer.shared.eventsRepository(),
+                               passphraseBuilder: ToolsContainer.shared.passphraseRebuilder(),
+                               logger: self.logger)
+        }
+    }
 }

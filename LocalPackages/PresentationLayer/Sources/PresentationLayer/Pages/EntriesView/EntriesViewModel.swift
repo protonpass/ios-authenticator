@@ -90,6 +90,10 @@ final class EntriesViewModel {
     @LazyInjected(\ServiceContainer.userSessionManager)
     private(set) var userSessionManager
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.userDataRefresh)
+    private var userDataRefresh
+
     // periphery:ignore
     @ObservationIgnored
     @Injected(\ServiceContainer.iosToWatchCommunicationManager)
@@ -146,7 +150,7 @@ final class EntriesViewModel {
             .removeDuplicates()
             .sink { [weak self] status in
                 guard let self, status else { return }
-                fullSync()
+                fullSync(refreshUserData: false)
             }
             .store(in: &cancellables)
 
@@ -216,32 +220,6 @@ final class EntriesViewModel {
 
     func checkWatchConnectivity() {
         iosToWatchCommunicationManager.checkIfActive()
-    }
-
-    func fullSync() {
-        guard fullSyncTask == nil else {
-            return
-        }
-        fullSyncTask = Task { [weak self] in
-            guard let self else { return }
-            defer {
-                fullSyncTask = nil
-            }
-            do {
-                if let loadTask = loadLocalTask {
-                    await loadTask.value
-                }
-                if Task.isCancelled {
-                    return
-                }
-                try await entryDataService.fullRefresh()
-                if Task.isCancelled {
-                    return
-                }
-            } catch {
-                handle(error)
-            }
-        }
     }
 
     func cleanSearch() {
@@ -318,6 +296,44 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
+    func fullSync(refreshUserData: Bool = true) {
+        guard fullSyncTask == nil else {
+            return
+        }
+        fullSyncTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                fullSyncTask = nil
+            }
+            do {
+                if let loadTask = loadLocalTask {
+                    await loadTask.value
+                }
+                if Task.isCancelled {
+                    return
+                }
+                if refreshUserData {
+                    do {
+                        try await userDataRefresh()
+                    } catch {
+                        logger.log(.error,
+                                   category: .network,
+                                   "User data refresh failed: \(error.localizedDescription)")
+                    }
+                }
+                if Task.isCancelled {
+                    return
+                }
+                try await entryDataService.fullRefresh()
+                if Task.isCancelled {
+                    return
+                }
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {
         guard !alertService.isShowingAlert else {
             return
