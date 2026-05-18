@@ -25,7 +25,7 @@ import ProtonCoreServices
 public protocol EventsRepositoryProtocol: Sendable {
     func latestCoreEventId() async throws -> String
     func latestRemoteCoreEventId() async throws -> String
-    func event(id: String) async throws -> EventResponse
+    func event(id: String) async throws -> CoreEventsResponse
     func save(id: String)
 }
 
@@ -45,31 +45,26 @@ public final class EventsRepository: EventsRepositoryProtocol {
 
 public extension EventsRepository {
     func latestCoreEventId() async throws -> String {
-        do {
-            return if let stored = store.string(forKey: AppConstants.Settings.lastCoreEventId),
-                      !stored.isEmpty {
-                stored
-            } else {
-                try await apiClient.latestCoreEventId()
-            }
-        } catch {
-            log(.error, "Failed to get latest core event id: \(error.localizedDescription)")
-            throw error
+        if let stored = store.string(forKey: AppConstants.Settings.lastCoreEventId),
+           !stored.isEmpty {
+            stored
+        } else {
+            try await latestRemoteCoreEventId()
         }
     }
 
     func latestRemoteCoreEventId() async throws -> String {
         do {
-            return try await apiClient.latestCoreEventId()
+            return try await apiClient.getLatestCoreEventId()
         } catch {
             log(.error, "Failed to get latest remote core event id: \(error.localizedDescription)")
             throw error
         }
     }
 
-    func event(id: String) async throws -> EventResponse {
+    func event(id: String) async throws -> CoreEventsResponse {
         do {
-            return try await apiClient.event(id: id)
+            return try await apiClient.getCoreEvent(id: id)
         } catch {
             log(.error, "Failed to get core event for \(id): \(error.localizedDescription)")
             throw error

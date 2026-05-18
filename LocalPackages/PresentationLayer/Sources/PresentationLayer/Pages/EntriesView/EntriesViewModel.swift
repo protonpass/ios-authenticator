@@ -150,7 +150,7 @@ final class EntriesViewModel {
             .removeDuplicates()
             .sink { [weak self] status in
                 guard let self, status else { return }
-                fullSync()
+                fullSync(refreshUserData: false)
             }
             .store(in: &cancellables)
 
@@ -230,7 +230,7 @@ final class EntriesViewModel {
 extension EntriesViewModel {
     func reloadData() {
         if isAuthenticated {
-            refreshUserDataThenFullSync()
+            fullSync()
         } else {
             loadEntries()
         }
@@ -296,7 +296,7 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
-    func fullSync() {
+    func fullSync(refreshUserData: Bool = true) {
         guard fullSyncTask == nil else {
             return
         }
@@ -312,38 +312,14 @@ private extension EntriesViewModel {
                 if Task.isCancelled {
                     return
                 }
-                try await entryDataService.fullRefresh()
-                if Task.isCancelled {
-                    return
-                }
-            } catch {
-                handle(error)
-            }
-        }
-    }
-
-    func refreshUserDataThenFullSync() {
-        guard fullSyncTask == nil else {
-            return
-        }
-        fullSyncTask = Task { [weak self] in
-            guard let self else { return }
-            defer {
-                fullSyncTask = nil
-            }
-            do {
-                if let loadTask = loadLocalTask {
-                    await loadTask.value
-                }
-                if Task.isCancelled {
-                    return
-                }
-                do {
-                    try await userDataRefresh()
-                } catch {
-                    logger.log(.error,
-                               category: .network,
-                               "User data refresh failed: \(error.localizedDescription)")
+                if refreshUserData {
+                    do {
+                        try await userDataRefresh()
+                    } catch {
+                        logger.log(.error,
+                                   category: .network,
+                                   "User data refresh failed: \(error.localizedDescription)")
+                    }
                 }
                 if Task.isCancelled {
                     return

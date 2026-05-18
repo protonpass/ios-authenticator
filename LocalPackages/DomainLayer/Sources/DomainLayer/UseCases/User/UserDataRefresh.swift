@@ -30,11 +30,11 @@ import ProtonCoreAuthentication
 import ProtonCoreNetworking
 import ProtonCoreServices
 
-public protocol UserDataRefreshUseCase: Sendable {
+public protocol RefreshUserDataUseCase: Sendable {
     func callAsFunction() async throws
 }
 
-public struct UserDataRefresh: UserDataRefreshUseCase {
+public struct UserDataRefresh: RefreshUserDataUseCase {
     private let userSessionManager: any UserSessionTooling
     private let eventsRepository: any EventsRepositoryProtocol
     private let logger: any LoggerProtocol
@@ -79,7 +79,7 @@ public struct UserDataRefresh: UserDataRefreshUseCase {
     }
 }
 
-private extension EventResponse {
+private extension CoreEventsResponse {
     var shouldRefreshUserData: Bool {
         let events = (users ?? []) + addresses
         return events.contains(where: { $0.action == .update }) || refresh

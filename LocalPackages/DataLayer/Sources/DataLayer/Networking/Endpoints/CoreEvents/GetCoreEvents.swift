@@ -33,7 +33,7 @@ public struct CoreEvent: Decodable, Sendable, Equatable {
     public let action: EventAction
 }
 
-public struct EventResponse: Decodable, Sendable, Equatable {
+public struct CoreEventsResponse: Decodable, Sendable, Equatable {
     public let eventID: String
     public let more: Bool
     public let refresh: Bool
@@ -41,9 +41,9 @@ public struct EventResponse: Decodable, Sendable, Equatable {
     public let addresses: [CoreEvent]
 }
 
-struct GetCoreEvents: Endpoint, @unchecked Sendable {
+struct GetCoreEvents: Endpoint {
     typealias Body = EmptyRequest
-    typealias Response = EventResponse
+    typealias Response = CoreEventsResponse
 
     var debugDescription: String
     var path: String

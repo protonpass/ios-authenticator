@@ -51,8 +51,8 @@ public extension RemoteEntriesDataSource {
 // MARK: - Core events
 
 public protocol RemoteCoreEventsDataSource: Sendable {
-    func latestCoreEventId() async throws -> String
-    func event(id: String) async throws -> EventResponse
+    func getLatestCoreEventId() async throws -> String
+    func getCoreEvent(id: String) async throws -> CoreEventsResponse
 }
 
 public typealias APIClientProtocol = RemoteCoreEventsDataSource & RemoteEntriesDataSource & RemoteKeysDataSource
@@ -177,13 +177,13 @@ public extension APIClient {
 // MARK: - Core events
 
 public extension APIClient {
-    func latestCoreEventId() async throws -> String {
+    func getLatestCoreEventId() async throws -> String {
         let endpoint = GetLatestCoreEventId()
         let result = try await exec(endpoint: endpoint)
         return result.eventID
     }
 
-    func event(id: String) async throws -> EventResponse {
+    func getCoreEvent(id: String) async throws -> CoreEventsResponse {
         let endpoint = GetCoreEvents(eventId: id)
         return try await exec(endpoint: endpoint)
     }
