@@ -130,11 +130,11 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
         
     }
     
-    public func latestCoreEventId() async throws -> String {
+    public func getLatestCoreEventId() async throws -> String {
         ""
     }
     
-    public func event(id: String) async throws -> DataLayer.EventResponse {
+    public func getCoreEvent(id: String) async throws -> CoreEventsResponse {
         throw MockError.stub
     }
     
