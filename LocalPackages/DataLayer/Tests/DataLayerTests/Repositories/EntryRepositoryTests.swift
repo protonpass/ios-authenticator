@@ -19,6 +19,7 @@
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
 
+import CommonUtilities
 import Foundation
 import SimplyPersist
 import Testing
@@ -37,6 +38,9 @@ struct EntryRepositoryTests {
     let sut: EntryRepositoryProtocol
     let encryptionService: any EncryptionServicing
     let localDataManager: MockLocalDataManager
+    let apiClient: MockAPIClient
+    let userSession: MockUserSessionTooling
+    let store: UserDefaults
 
     init() throws {
         let persistenceService = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
@@ -45,11 +49,14 @@ struct EntryRepositoryTests {
         localDataManager = MockLocalDataManager(persistentStorage: persistenceService)
         encryptionService = EncryptionService(keysProvider: MockKeyProvider(),
                                               logger: MockLogger())
+        apiClient = MockAPIClient()
+        userSession = MockUserSessionTooling()
+        store = UserDefaults(suiteName: "EntryRepositoryTests-\(UUID().uuidString)")!
         sut = EntryRepository(localDataManager: localDataManager,
                               encryptionService: encryptionService,
-                              apiClient: MockAPIClient(),
-                              userSessionManager: MockUserSessionTooling(),
-                              store: UserDefaults(),
+                              apiClient: apiClient,
+                              userSessionManager: userSession,
+                              store: store,
                               logger: MockLogger()
         )
     }
@@ -777,6 +784,169 @@ struct EntryRepositoryTests {
         #expect(entity.order == 7)
     }
 
+    // MARK: - Remote update routing for entries with empty remoteId
+
+    @Test("localUpdate returns OrderedEntry with nil remoteId when entity has empty remoteId")
+    func localUpdate_emptyEntityRemoteId_returnsNilRemoteId() async throws {
+        let entryId = "empty-remote-id-entry"
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = Entry(id: entryId, name: "Test",
+                          uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                          period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                          type: .totp, note: nil)
+
+        let encryptedData = try encryptionService.encrypt(entry: entry, keyId: localKeyId)
+        let entity = EncryptedEntryEntity(id: entryId,
+                                          encryptedData: encryptedData,
+                                          remoteId: "",
+                                          keyId: localKeyId,
+                                          order: 0,
+                                          syncState: .unsynced,
+                                          creationDate: Date.now.timeIntervalSince1970,
+                                          modifiedTime: Date.now.timeIntervalSince1970,
+                                          flags: 0,
+                                          contentFormatVersion: 1,
+                                          revision: 1)
+        try await localDataManager.persistentStorage.batchSave(content: [entity])
+
+        let orderedEntry = OrderedEntry(entry: entry, order: 0, keyId: localKeyId)
+        let result = try #require(await sut.localUpdate(orderedEntry))
+
+        #expect(result.remoteId == nil)
+    }
+
+    @Test("remoteUpdate throws missingRemoteId for empty remoteId and does not call API")
+    func remoteUpdate_emptyRemoteId_throwsAndDoesNotHitAPI() async throws {
+        store.set("test-remote-key-id", forKey: AppConstants.Settings.remoteEncryptionKeyId)
+
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = Entry(id: "id-empty", name: "Test",
+                          uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                          period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                          type: .totp, note: nil)
+        let orderedEntry = OrderedEntry(entry: entry,
+                                        keyId: localKeyId,
+                                        remoteId: "",
+                                        order: 0,
+                                        modifiedTime: Date.now.timeIntervalSince1970,
+                                        revision: 1,
+                                        contentFormatVersion: 1)
+
+        await #expect(throws: AuthError.self) {
+            _ = try await sut.remoteUpdate(entry: orderedEntry)
+        }
+
+        #expect(apiClient.lastUpdateEntryId == nil)
+        #expect(!apiClient.calledMethods.contains("update(entryId:request:)"))
+    }
+
+    @Test("completeUpdate routes unsynced entry to remoteSave and updates local remoteId")
+    func completeUpdate_unsyncedEntry_routesToRemoteSave() async throws {
+        let entryId = "unsynced-entry-id"
+        let assignedRemoteId = "be-assigned-remote-id"
+        let remoteKeyId = "test-remote-key-id"
+
+        userSession.isAuthenticatedWithUserData.send(true)
+        let remoteKey = encryptionService.generateKey()
+        try encryptionService.saveUserRemoteKey(keyId: remoteKeyId, remoteKey: remoteKey)
+        store.set(remoteKeyId, forKey: AppConstants.Settings.remoteEncryptionKeyId)
+
+        apiClient.storeEntriesResult = .success([
+            RemoteEncryptedEntry(entryID: assignedRemoteId,
+                                 authenticatorKeyID: remoteKeyId,
+                                 revision: 1,
+                                 contentFormatVersion: 1,
+                                 content: "data",
+                                 flags: 0,
+                                 createTime: 123_456,
+                                 modifyTime: 123_456)
+        ])
+
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = Entry(id: entryId, name: "Test",
+                          uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                          period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                          type: .totp, note: nil)
+        let initialOrderedEntry = OrderedEntry(entry: entry, order: 0, keyId: localKeyId)
+        try await sut.localUpsert([initialOrderedEntry])
+
+        let updatedEntry = Entry(id: entryId, name: "Updated", uri: entry.uri,
+                                 period: entry.period, issuer: entry.issuer,
+                                 secret: entry.secret, type: entry.type, note: nil)
+        let updatedOrderedEntry = OrderedEntry(entry: updatedEntry, order: 0, keyId: localKeyId)
+
+        try await sut.completeUpdate(entry: updatedOrderedEntry, oldEntry: initialOrderedEntry)
+
+        #expect(apiClient.calledMethods.contains("storeEntries(request:)"))
+        #expect(!apiClient.calledMethods.contains("update(entryId:request:)"))
+        #expect(apiClient.lastUpdateEntryId == nil)
+
+        let allEntities = try await sut.getAllLocalEncryptedEntries()
+        let persisted = try #require(allEntities.first(where: { $0.id == entryId }))
+        #expect(persisted.remoteId == assignedRemoteId)
+        #expect(persisted.syncState == .synced)
+    }
+
+    @Test("completeUpdate routes synced entry to remoteUpdate (regression guard)")
+    func completeUpdate_syncedEntry_routesToRemoteUpdate() async throws {
+        let entryId = "synced-entry-id"
+        let validRemoteId = "valid-remote-id"
+        let remoteKeyId = "test-remote-key-id"
+
+        userSession.isAuthenticatedWithUserData.send(true)
+        let remoteKey = encryptionService.generateKey()
+        try encryptionService.saveUserRemoteKey(keyId: remoteKeyId, remoteKey: remoteKey)
+        store.set(remoteKeyId, forKey: AppConstants.Settings.remoteEncryptionKeyId)
+
+        apiClient.updateResult = .success(
+            RemoteEncryptedEntry(entryID: validRemoteId,
+                                 authenticatorKeyID: remoteKeyId,
+                                 revision: 2,
+                                 contentFormatVersion: 1,
+                                 content: "data",
+                                 flags: 0,
+                                 createTime: 123_456,
+                                 modifyTime: 123_457)
+        )
+
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = Entry(id: entryId, name: "Test",
+                          uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                          period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                          type: .totp, note: nil)
+        let encryptedData = try encryptionService.encrypt(entry: entry, keyId: localKeyId)
+        let entity = EncryptedEntryEntity(id: entryId,
+                                          encryptedData: encryptedData,
+                                          remoteId: validRemoteId,
+                                          keyId: localKeyId,
+                                          order: 0,
+                                          syncState: .synced,
+                                          creationDate: Date.now.timeIntervalSince1970,
+                                          modifiedTime: Date.now.timeIntervalSince1970,
+                                          flags: 0,
+                                          contentFormatVersion: 1,
+                                          revision: 1)
+        try await localDataManager.persistentStorage.batchSave(content: [entity])
+
+        let now = Date.now.timeIntervalSince1970
+        let oldOrderedEntry = OrderedEntry(entry: entry, keyId: localKeyId,
+                                           remoteId: validRemoteId, order: 0,
+                                           syncState: .synced, modifiedTime: now,
+                                           revision: 1, contentFormatVersion: 1)
+        let updatedEntry = Entry(id: entryId, name: "Updated", uri: entry.uri,
+                                 period: entry.period, issuer: entry.issuer,
+                                 secret: entry.secret, type: entry.type, note: nil)
+        let updatedOrderedEntry = OrderedEntry(entry: updatedEntry, keyId: localKeyId,
+                                               remoteId: validRemoteId, order: 0,
+                                               syncState: .synced, modifiedTime: now,
+                                               revision: 1, contentFormatVersion: 1)
+
+        try await sut.completeUpdate(entry: updatedOrderedEntry, oldEntry: oldOrderedEntry)
+
+        #expect(apiClient.calledMethods.contains("update(entryId:request:)"))
+        #expect(!apiClient.calledMethods.contains("storeEntries(request:)"))
+        #expect(apiClient.lastUpdateEntryId == validRemoteId)
+    }
 }
 
 // MARK: - Duplicate injection helpers
