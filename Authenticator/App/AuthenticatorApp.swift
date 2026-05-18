@@ -90,7 +90,6 @@ private extension MainContentView {
         }
         .task {
             await viewModel.setUpFirstRun()
-            await viewModel.migrateFromICloudIfNeeded()
         }
         .adaptiveSheet(isPresented: .constant(!viewModel.onboarded),
                        isFullScreen: AppConstants.isPhone) {
@@ -192,10 +191,6 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     private var sentry
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.localDataManager)
-    private var localDataManager
-
-    @ObservationIgnored
     @LazyInjected(\ServiceContainer.reviewService)
     private var reviewService
 
@@ -252,21 +247,6 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
                 alertService.showError(error)
             }
         }
-    }
-
-    func migrateFromICloudIfNeeded() async {
-        guard appSettings.iCloudSync else { return }
-        appSettings.toggleICloudSync(false)
-
-        await localDataManager.refreshLocalStorage()
-        // swiftlint:disable line_length
-        let config = AlertConfiguration(title: "iCloud backup is no longer available",
-                                        titleBundle: .main,
-                                        message: .localized("Your 2FA codes are safe. Due to reliability issues with Apple's iCloud, we've switched to the new backup — works with any drive app including Proton Drive, Dropbox, iCloud Drive and more.",
-                                                            .main),
-                                        actions: [.ok])
-        // swiftlint:enable line_length
-        alertService.showAlert(.main(config))
     }
 
     func resetBiometricCheck() {
