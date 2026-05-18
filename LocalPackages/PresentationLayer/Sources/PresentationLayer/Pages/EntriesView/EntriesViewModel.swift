@@ -192,9 +192,14 @@ final class EntriesViewModel {
     }
 
     func loadEntries() {
-        loadLocalTask?.cancel()
+        guard loadLocalTask == nil else {
+            return
+        }
         loadLocalTask = Task { [weak self] in
             guard let self else { return }
+            defer {
+                loadLocalTask = nil
+            }
             do {
                 if Task.isCancelled {
                     return

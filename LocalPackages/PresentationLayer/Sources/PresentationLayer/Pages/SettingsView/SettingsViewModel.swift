@@ -37,6 +37,7 @@ import UniformTypeIdentifiers
 @Observable
 final class SettingsViewModel {
     private(set) var syncEnabled = false
+    private(set) var iCloudSync = false
     private(set) var products: [ProtonProduct]
     private(set) var versionString: String?
     private(set) var biometricLock = false
@@ -111,6 +112,9 @@ final class SettingsViewModel {
     private var toggleBioLockTask: Task<Void, Never>?
 
     @ObservationIgnored
+    private var toggleICloudSyncTask: Task<Void, Never>?
+
+    @ObservationIgnored
     private var cancellables: Set<AnyCancellable> = []
 
     var theme: Theme {
@@ -166,6 +170,7 @@ final class SettingsViewModel {
             return true
         }
         biometricLock = authenticationService.biometricEnabled
+        iCloudSync = settingsService.iCloudSync
 
         userSessionManager.isAuthenticatedWithUserData
             .receive(on: DispatchQueue.main)
@@ -187,11 +192,32 @@ extension SettingsViewModel {
     func getSyncMode() -> SyncMode {
         var mode: SyncMode = []
 
+        if iCloudSync {
+            mode.insert(.iCloud)
+        }
+
         if syncEnabled {
             mode.insert(.proton)
         }
 
         return mode
+    }
+
+    func toggleICloudSyncBackup() {
+        guard toggleICloudSyncTask == nil else { return }
+        toggleICloudSyncTask = Task { [weak self] in
+            guard let self else { return }
+            defer { toggleICloudSyncTask = nil }
+            var bioAuthenticated = false
+            await authenticateAndPerform {
+                settingsService.toggleICloudSync(!iCloudSync)
+                iCloudSync.toggle()
+                bioAuthenticated = true
+            }
+            if bioAuthenticated {
+                await localDataManager.refreshLocalStorage()
+            }
+        }
     }
 
     func authenticateAndPerform(_ block: () throws -> Void) async {
