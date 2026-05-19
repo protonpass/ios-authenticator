@@ -24,6 +24,7 @@ import SwiftUI
 struct SettingRow: View {
     var icon: ImageResource?
     let title: TextContent
+    var subTitleImage: Image?
     var subtitle: TextContent?
     var trailingMode: TrailingMode?
     var onTap: (() -> Void)?
@@ -60,13 +61,10 @@ struct SettingRow: View {
                     .dynamicFont(size: 17, textStyle: .body)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
-                if let subtitle {
-                    Text(subtitle) // ignore:missing_bundle
-                        .dynamicFont(size: 15, textStyle: .subheadline)
-                        .lineLimit(3)
-                        .foregroundStyle(.textWeak)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                }
+                computedSubtitle
+                    .dynamicFont(size: 15, textStyle: .subheadline)
+                    .foregroundStyle(.textWeak)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
@@ -89,6 +87,15 @@ struct SettingRow: View {
         .paddingIfNotLiquidGlass()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(.rect)
+    }
+
+    @ViewBuilder
+    var computedSubtitle: some View {
+        if let subTitleImage, let subtitle {
+            Text(subTitleImage) + Text(verbatim: " ") + Text(subtitle)
+        } else if let subtitle {
+            Text(subtitle)
+        }
     }
 }
 

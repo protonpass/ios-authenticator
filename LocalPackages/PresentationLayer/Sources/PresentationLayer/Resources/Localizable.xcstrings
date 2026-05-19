@@ -1056,16 +1056,6 @@
         }
       }
     },
-    "Automatically sync entries across your Apple devices using iCloud." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatically sync entries across your Apple devices using iCloud."
-          }
-        }
-      }
-    },
     "Backup created" : {
       "localizations" : {
         "de" : {
