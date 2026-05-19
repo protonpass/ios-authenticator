@@ -92,9 +92,9 @@ struct SettingRow: View {
     @ViewBuilder
     var computedSubtitle: some View {
         if let subTitleImage, let subtitle {
-            Text(subTitleImage) + Text(verbatim: " ") + Text(subtitle)
+            Text(subTitleImage) + Text(verbatim: " ") + Text(subtitle) // ignore:missing_bundle
         } else if let subtitle {
-            Text(subtitle)
+            Text(subtitle) // ignore:missing_bundle
         }
     }
 }
