@@ -40,12 +40,11 @@ struct GetCoreEventsTests {
         """
 
         let expected = CoreEventsResponse(eventID: "current-event-id",
-                                     more: true,
                                      refresh: false,
                                      users: nil,
                                      addresses: [
-                                        CoreEvent(ID: "address-1", action: .update),
-                                        CoreEvent(ID: "address-2", action: .create)
+                                        CoreEvent(action: .update),
+                                        CoreEvent(action: .create)
                                      ])
 
         let result = try CoreEventsResponse.decode(from: string)

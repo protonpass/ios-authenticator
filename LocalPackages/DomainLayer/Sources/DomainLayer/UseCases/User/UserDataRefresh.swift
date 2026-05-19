@@ -87,7 +87,7 @@ public struct UserDataRefresh: RefreshUserDataUseCase {
 
 private extension CoreEventsResponse {
     var shouldRefreshUserData: Bool {
-        let events = (users ?? []) + addresses
+        let events = (users ?? []) + (addresses ?? [])
         return events.contains(where: { $0.action == .update }) || refresh
     }
 }
