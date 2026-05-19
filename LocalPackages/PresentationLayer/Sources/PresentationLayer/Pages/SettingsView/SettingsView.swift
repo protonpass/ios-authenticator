@@ -211,8 +211,7 @@ private extension SettingsView {
 
             if #available(iOS 18, *) {
                 SettingRow(title: .localized("Sync via iCloud", .module),
-                           subtitle: viewModel
-                               .iCloudSync ?
+                           subtitle: viewModel.iCloudSync ?
                                // swiftlint:disable:next line_length
                                .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
                                           .module) :
