@@ -26,12 +26,6 @@ import FactoryKit
 import Foundation
 import Macro
 import Models
-#if canImport(UIKit)
-import UIKit
-#endif
-#if canImport(AppKit)
-import AppKit
-#endif
 
 @Observable
 final class EntriesViewModel {
