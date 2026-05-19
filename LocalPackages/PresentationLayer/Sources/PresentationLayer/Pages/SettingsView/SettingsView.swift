@@ -209,18 +209,6 @@ private extension SettingsView {
 
             SettingDivider()
 
-            if #available(iOS 18, *) {
-                SettingRow(title: .localized("Sync via iCloud", .module),
-                           subtitle: .localized("Automatically sync entries across your Apple devices using iCloud.",
-                                                .module),
-                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
-                                                 onToggle: viewModel.toggleICloudSyncBackup))
-                    .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),
-                                              activateStatus(viewModel.iCloudSync))
-
-                SettingDivider()
-            }
-
             #if os(iOS)
             SettingRow(title: .localized("Sync via Proton", .module),
                        subtitle: !viewModel.emailAddress.isEmpty ?
@@ -233,6 +221,22 @@ private extension SettingsView {
 
             SettingDivider()
             #endif
+
+            if #available(iOS 18, *) {
+                SettingRow(title: .localized("Sync via iCloud", .module),
+                           subTitleImage: Image(systemName: "exclamationmark.triangle"),
+                           subtitle:
+                           // swiftlint:disable:next line_length
+                           .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
+                                      .module),
+                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                 onToggle: viewModel.toggleICloudSyncBackup))
+                    .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),
+                                              activateStatus(viewModel.iCloudSync))
+
+                SettingDivider()
+            }
+
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))

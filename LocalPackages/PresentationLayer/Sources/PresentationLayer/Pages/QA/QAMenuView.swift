@@ -125,6 +125,12 @@ private extension QAMenuView {
             } label: {
                 Text(verbatim: "Generate duplicate entry (local + remote if connected)")
             }
+
+            Button {
+                viewModel.resetICloudDisablePrompt()
+            } label: {
+                Text(verbatim: "Reset iCloud disable prompt")
+            }
         }, header: {
             Text(verbatim: "Actions")
         })

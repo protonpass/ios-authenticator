@@ -1056,16 +1056,6 @@
         }
       }
     },
-    "Automatically sync entries across your Apple devices using iCloud." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatically sync entries across your Apple devices using iCloud."
-          }
-        }
-      }
-    },
     "Backup created" : {
       "localizations" : {
         "de" : {
@@ -3882,6 +3872,16 @@
         }
       }
     },
+    "Disable iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable iCloud sync"
+          }
+        }
+      }
+    },
     "Disabled" : {
       "localizations" : {
         "de" : {
@@ -4088,6 +4088,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
+          }
+        }
+      }
+    },
+    "Due to reliability issues with Apple's iCloud, we recommend using the backup instead." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the backup instead."
           }
         }
       }
@@ -11394,6 +11404,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DESTEK"
+          }
+        }
+      }
+    },
+    "Switch off iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch off iCloud sync"
           }
         }
       }

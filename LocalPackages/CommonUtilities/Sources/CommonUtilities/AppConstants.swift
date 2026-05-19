@@ -70,6 +70,7 @@ public enum AppConstants: Sendable {
         public static let backupFolderBookmark = "BackupFolderBookmark"
         public static let sortOption = "SortOption"
         public static let lastCoreEventId = "LastCoreEventId"
+        public static let iCloudDisablePromptDismissed = "ICloudDisablePromptDismissed"
     }
 
     public enum NetworkSettings {

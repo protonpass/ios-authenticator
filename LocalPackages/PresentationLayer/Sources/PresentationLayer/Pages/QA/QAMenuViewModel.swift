@@ -175,6 +175,14 @@ final class QAMenuViewModel {
         }
     }
 
+    func resetICloudDisablePrompt() {
+        appSettings.setICloudDisablePromptDismissed(false)
+        alertService.showAlert(.sheet(.init(title: "OK",
+                                            titleBundle: .module,
+                                            message: .verbatim("iCloud disable prompt reset. It will be shown on next app launch if iCloud sync is enabled."),
+                                            actions: [.ok])))
+    }
+
     func loadKeychainContent() {
         keychainContent = keychainService.getAllContent().map { element in KeychainContent(id: UUID().uuidString,
                                                                                            content: element)
