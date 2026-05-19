@@ -29,16 +29,14 @@ public enum EventAction: Int, Decodable, Sendable, Equatable {
 }
 
 public struct CoreEvent: Decodable, Sendable, Equatable {
-    public let ID: String
     public let action: EventAction
 }
 
 public struct CoreEventsResponse: Decodable, Sendable, Equatable {
     public let eventID: String
-    public let more: Bool
     public let refresh: Bool
     public let users: [CoreEvent]?
-    public let addresses: [CoreEvent]
+    public let addresses: [CoreEvent]?
 }
 
 struct GetCoreEvents: Endpoint {
