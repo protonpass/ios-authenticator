@@ -133,6 +133,7 @@ public struct EntriesView: View {
                 }
                 .onAppear {
                     viewModel.reloadData()
+                    viewModel.showICloudDisablePromptIfNeeded()
 
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch

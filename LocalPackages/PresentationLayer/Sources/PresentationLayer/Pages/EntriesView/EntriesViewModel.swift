@@ -26,6 +26,12 @@ import FactoryKit
 import Foundation
 import Macro
 import Models
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 @Observable
 final class EntriesViewModel {
@@ -120,6 +126,21 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.inAppMessagingService)
     var inAppService
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager)
+    private var localDataManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.updatingSettings)
+    private var updatingSettings
+
+    @ObservationIgnored
+    private var disableICloudTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
@@ -284,6 +305,52 @@ extension EntriesViewModel {
                                            message: .localized("Are you sure you want to delete this entry? This action is irreversible.",
                                                                .module),
                                            actions: [action])))
+    }
+
+    func showICloudDisablePromptIfNeeded() {
+        guard settingsService.iCloudSync,
+              !settingsService.iCloudDisablePromptDismissed,
+              settingsService.onboarded else {
+            return
+        }
+
+        settingsService.setICloudDisablePromptDismissed(true)
+
+        let disableAction = ActionConfig(title: "Disable iCloud sync",
+                                         titleBundle: .module,
+                                         action: { [weak self] in
+                                             guard let self else { return }
+                                             disableICloudSyncFromPrompt()
+                                         })
+
+        alertService.showAlert(.main(.init(title: "Switch off iCloud sync",
+                                           titleBundle: .module,
+                                           // swiftlint:disable:next line_length
+                                           message: .localized("Due to reliability issues with Apple's iCloud, we recommend using the new backup instead.",
+                                                               .module),
+                                           actions: [disableAction, .ok])))
+    }
+
+    func disableICloudSyncFromPrompt() {
+        guard disableICloudTask == nil else { return }
+        disableICloudTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                disableICloudTask = nil
+                updatingSettings.send(false)
+            }
+            updatingSettings.send(true)
+            let reason = #localized("Please authenticate", bundle: .module)
+            do {
+                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                       reason: reason) {
+                    settingsService.toggleICloudSync(false)
+                    await localDataManager.refreshLocalStorage()
+                }
+            } catch {
+                handle(error)
+            }
+        }
     }
 
     func refreshSearchResults() {

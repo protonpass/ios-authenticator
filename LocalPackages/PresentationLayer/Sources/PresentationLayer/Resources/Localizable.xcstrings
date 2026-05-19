@@ -13117,6 +13117,36 @@
           }
         }
       }
+    },
+    "Switch off iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch off iCloud sync"
+          }
+        }
+      }
+    },
+    "Due to reliability issues with Apple's iCloud, we recommend using the new backup instead." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the new backup instead."
+          }
+        }
+      }
+    },
+    "Disable iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable iCloud sync"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
