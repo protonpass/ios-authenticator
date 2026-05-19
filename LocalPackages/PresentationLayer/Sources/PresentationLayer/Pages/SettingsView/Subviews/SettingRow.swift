@@ -63,6 +63,7 @@ struct SettingRow: View {
                 if let subtitle {
                     Text(subtitle) // ignore:missing_bundle
                         .dynamicFont(size: 15, textStyle: .subheadline)
+                        .lineLimit(2)
                         .foregroundStyle(.textWeak)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 }

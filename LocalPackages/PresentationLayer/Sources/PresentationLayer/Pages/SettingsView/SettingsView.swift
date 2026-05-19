@@ -211,8 +211,13 @@ private extension SettingsView {
 
             if #available(iOS 18, *) {
                 SettingRow(title: .localized("Sync via iCloud", .module),
-                           subtitle: .localized("Automatically sync entries across your Apple devices using iCloud.",
-                                                .module),
+                           subtitle: viewModel
+                               .iCloudSync ?
+                               // swiftlint:disable:next line_length
+                               .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
+                                          .module) :
+                               .localized("Automatically sync entries across your Apple devices using iCloud.",
+                                          .module),
                            trailingMode: .toggle(isOn: viewModel.iCloudSync,
                                                  onToggle: viewModel.toggleICloudSyncBackup))
                     .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),

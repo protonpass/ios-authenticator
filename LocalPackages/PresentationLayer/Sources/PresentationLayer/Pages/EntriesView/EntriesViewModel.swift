@@ -320,7 +320,7 @@ extension EntriesViewModel {
         alertService.showAlert(.main(.init(title: "Switch off iCloud sync",
                                            titleBundle: .module,
                                            // swiftlint:disable:next line_length
-                                           message: .localized("Due to reliability issues with Apple's iCloud, we recommend using the new backup instead.",
+                                           message: .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
                                                                .module),
                                            actions: [disableAction, .ok])))
     }

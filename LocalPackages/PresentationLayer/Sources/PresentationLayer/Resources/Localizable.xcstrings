@@ -3882,6 +3882,16 @@
         }
       }
     },
+    "Disable iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable iCloud sync"
+          }
+        }
+      }
+    },
     "Disabled" : {
       "localizations" : {
         "de" : {
@@ -4088,6 +4098,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
+          }
+        }
+      }
+    },
+    "Due to reliability issues with Apple's iCloud, we recommend using the backup instead." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the backup instead."
           }
         }
       }
@@ -11398,6 +11418,16 @@
         }
       }
     },
+    "Switch off iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch off iCloud sync"
+          }
+        }
+      }
+    },
     "Sync between devices with Proton account" : {
       "localizations" : {
         "de" : {
@@ -13114,36 +13144,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oturumunuzun süresi dolmuş veya iptal edilmiş. Lütfen Proton hesabınızda yeniden oturum açın."
-          }
-        }
-      }
-    },
-    "Switch off iCloud sync" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Switch off iCloud sync"
-          }
-        }
-      }
-    },
-    "Due to reliability issues with Apple's iCloud, we recommend using the new backup instead." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the new backup instead."
-          }
-        }
-      }
-    },
-    "Disable iCloud sync" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disable iCloud sync"
           }
         }
       }
