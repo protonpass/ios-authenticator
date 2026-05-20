@@ -64,8 +64,9 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
 
 
     // MARK: - Tracking
-    
+
     public private(set) var calledMethods: [String] = []
+    public private(set) var lastUpdateEntryId: String?
 
     // MARK: - RemoteKeysDataSource
     
@@ -98,6 +99,7 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
 
     public func update(entryId: String, request: UpdateEntryRequest) async throws -> RemoteEncryptedEntry {
         calledMethods.append(#function)
+        lastUpdateEntryId = entryId
         return try updateResult.get()
     }
 

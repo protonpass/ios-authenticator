@@ -196,12 +196,12 @@ public extension EntryRepository {
         if isAuthenticated {
             do {
                 let remoteResults = try await remoteSave(entries: entries)
-                // Build mapping using entryID from remote response
+                // `remoteSave` preserves input order, so map results to input entries by index.
+                // Matching by `remoteId == result.entryID` cannot work for newly created entries:
+                // their local `remoteId` is nil, while `result.entryID` is the freshly BE-assigned id.
                 var resultByEntryId = [String: RemoteEncryptedEntry]()
-                for result in remoteResults {
-                    if let matchingEntry = entries.first(where: { $0.remoteId == result.entryID }) {
-                        resultByEntryId[matchingEntry.id] = result
-                    }
+                for (index, result) in remoteResults.enumerated() where index < entries.count {
+                    resultByEntryId[entries[index].id] = result
                 }
                 try await updateLocalEntitiesWithRemoteResponse(resultByEntryId)
                 return remoteResults
@@ -215,7 +215,7 @@ public extension EntryRepository {
     func completeRemoves(entries: [OrderedEntry]) async throws {
         if isAuthenticated {
             do {
-                try await remoteDeletes(remoteEntryIds: entries.compactMap(\.remoteId))
+                try await remoteDeletes(remoteEntryIds: entries.compactMap { $0.remoteId?.nilIfEmpty })
             } catch {
                 log(.error, "Failed to remote deletes \(entries.map(\.id)) \(error.localizedDescription)")
                 throw error
@@ -227,16 +227,26 @@ public extension EntryRepository {
 
     func completeUpdate(entry: OrderedEntry, oldEntry: OrderedEntry) async throws {
         let orderedEntity = try await localUpdate(entry)
-        if isAuthenticated, let orderedEntity {
-            do {
-                let result = try await remoteUpdate(entry: orderedEntity)
-                try await updateLocalEntitiesWithRemoteResponse([entry.id: result])
-            } catch {
-                log(.error, "Failed to remote update \(entry.id) \(error.localizedDescription)")
-                log(.warning, "Revert local update \(entry.id)")
-                _ = try await localUpdate(oldEntry)
-                throw error
+        guard isAuthenticated, let orderedEntity else { return }
+
+        do {
+            let result: RemoteEncryptedEntry
+            if orderedEntity.remoteId?.nilIfEmpty != nil {
+                result = try await remoteUpdate(entry: orderedEntity)
+            } else {
+                log(.info,
+                    "Entry \(entry.id) has no remote id; creating on remote instead of updating")
+                guard let firstResult = try await remoteSave(entries: [orderedEntity]).first else {
+                    throw AuthError.generic(.missingRemoteId)
+                }
+                result = firstResult
             }
+            try await updateLocalEntitiesWithRemoteResponse([entry.id: result])
+        } catch {
+            log(.error, "Failed to remote update \(entry.id) \(error.localizedDescription)")
+            log(.warning, "Revert local update \(entry.id)")
+            _ = try await localUpdate(oldEntry)
+            throw error
         }
     }
 
@@ -415,7 +425,7 @@ public extension EntryRepository {
             log(.info, "Successfully updated entry \(entry.id) in local storage")
             return OrderedEntry(entry: entry.entry,
                                 keyId: localKeyId,
-                                remoteId: entity.remoteId,
+                                remoteId: entity.remoteId.nilIfEmpty,
                                 order: entity.order,
                                 syncState: entry.syncState,
                                 modifiedTime: entity.modifiedTime,
@@ -678,7 +688,7 @@ public extension EntryRepository {
             throw AuthError.crypto(.missingRemoteEncryptionKey)
         }
 
-        guard let remoteId = entry.remoteId else {
+        guard let remoteId = entry.remoteId?.nilIfEmpty else {
             log(.error, "No remote id linked to entry for remote update")
             throw AuthError.generic(.missingRemoteId)
         }
@@ -709,7 +719,7 @@ public extension EntryRepository {
         }
 
         let encryptedRequests = try entries.compactMap { entry -> BatchUpdateEntryRequest? in
-            guard let remoteId = entry.remoteId else { return nil }
+            guard let remoteId = entry.remoteId?.nilIfEmpty else { return nil }
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                               keyId: remoteEncryptionKeyId)
             return BatchUpdateEntryRequest(entryID: remoteId,
@@ -785,7 +795,7 @@ public extension EntryRepository {
 
         do {
             let batches: [[String]] = entries
-                .compactMap(\.remoteId)
+                .compactMap { $0.remoteId?.nilIfEmpty }
                 .chunked(into: 500)
             for (index, batch) in batches.enumerated() {
                 log(.debug, "Sending batch \(index + 1)/\(batches.count)")
