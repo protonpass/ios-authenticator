@@ -947,6 +947,85 @@ struct EntryRepositoryTests {
         #expect(!apiClient.calledMethods.contains("storeEntries(request:)"))
         #expect(apiClient.lastUpdateEntryId == validRemoteId)
     }
+
+    // MARK: - completeSave maps remote results back to local entries
+
+    @Test("completeSave populates remoteId and syncs the local entity for a newly saved entry")
+    func completeSave_newEntry_populatesRemoteId() async throws {
+        let entryId = "new-entry"
+        let assignedRemoteId = "be-assigned-remote-id"
+        let remoteKeyId = "test-remote-key-id"
+
+        userSession.isAuthenticatedWithUserData.send(true)
+        let remoteKey = encryptionService.generateKey()
+        try encryptionService.saveUserRemoteKey(keyId: remoteKeyId, remoteKey: remoteKey)
+        store.set(remoteKeyId, forKey: AppConstants.Settings.remoteEncryptionKeyId)
+
+        apiClient.storeEntriesResult = .success([
+            RemoteEncryptedEntry(entryID: assignedRemoteId,
+                                 authenticatorKeyID: remoteKeyId,
+                                 revision: 1,
+                                 contentFormatVersion: 1,
+                                 content: "data",
+                                 flags: 0,
+                                 createTime: 123_456,
+                                 modifyTime: 123_456)
+        ])
+
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = Entry(id: entryId, name: "Test",
+                          uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                          period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                          type: .totp, note: nil)
+        let orderedEntry = OrderedEntry(entry: entry, order: 0, keyId: localKeyId)
+
+        _ = try await sut.completeSave(entries: [orderedEntry])
+
+        let allEntities = try await sut.getAllLocalEncryptedEntries()
+        let persisted = try #require(allEntities.first(where: { $0.id == entryId }))
+        #expect(persisted.remoteId == assignedRemoteId)
+        #expect(persisted.syncState == .synced)
+    }
+
+    @Test("completeSave maps multiple remote results back to local entries by position")
+    func completeSave_multipleEntries_mappedByIndex() async throws {
+        let remoteKeyId = "test-remote-key-id"
+        userSession.isAuthenticatedWithUserData.send(true)
+        let remoteKey = encryptionService.generateKey()
+        try encryptionService.saveUserRemoteKey(keyId: remoteKeyId, remoteKey: remoteKey)
+        store.set(remoteKeyId, forKey: AppConstants.Settings.remoteEncryptionKeyId)
+
+        let remoteIds = ["remote-A", "remote-B", "remote-C"]
+        apiClient.storeEntriesResult = .success(remoteIds.map { remoteId in
+            RemoteEncryptedEntry(entryID: remoteId,
+                                 authenticatorKeyID: remoteKeyId,
+                                 revision: 1,
+                                 contentFormatVersion: 1,
+                                 content: "data",
+                                 flags: 0,
+                                 createTime: 123_456,
+                                 modifyTime: 123_456)
+        })
+
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let localIds = ["local-A", "local-B", "local-C"]
+        let entries = localIds.enumerated().map { index, localId in
+            OrderedEntry(entry: Entry(id: localId, name: "Test \(localId)",
+                                      uri: "otpauth://totp/Test?secret=CKTQQJVWT5IXTGD&issuer=Test&algorithm=SHA1&digits=6&period=30",
+                                      period: 30, issuer: "Test", secret: "CKTQQJVWT5IXTGD",
+                                      type: .totp, note: nil),
+                         order: index, keyId: localKeyId)
+        }
+
+        _ = try await sut.completeSave(entries: entries)
+
+        let allEntities = try await sut.getAllLocalEncryptedEntries()
+        for (index, localId) in localIds.enumerated() {
+            let persisted = try #require(allEntities.first(where: { $0.id == localId }))
+            #expect(persisted.remoteId == remoteIds[index])
+            #expect(persisted.syncState == .synced)
+        }
+    }
 }
 
 // MARK: - Duplicate injection helpers

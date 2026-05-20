@@ -709,12 +709,12 @@ private extension EntryDataService {
                               _ saveResults: [RemoteEncryptedEntry],
                               _ itemsToUpdateRemotely: [OrderedEntry],
                               _ updateResults: [RemoteEncryptedEntry]) async throws {
-        // Update local entities with remote response data (remoteId, revision, modifiedTime, etc.)
+        // Update local entities with remote response data (remoteId, revision, modifiedTime, etc.).
+        // Push results: items in `itemsToPushToRemote` have no local `remoteId` (they're new on remote),
+        // so we map by index — `remoteSave` preserves the order of input entries.
         var resultByEntryId = [String: RemoteEncryptedEntry]()
-        for result in saveResults {
-            if let matchingEntry = itemsToPushToRemote.first(where: { $0.remoteId == result.entryID }) {
-                resultByEntryId[matchingEntry.id] = result
-            }
+        for (index, result) in saveResults.enumerated() where index < itemsToPushToRemote.count {
+            resultByEntryId[itemsToPushToRemote[index].id] = result
         }
 
         for entry in itemsToUpdateRemotely {

@@ -196,12 +196,12 @@ public extension EntryRepository {
         if isAuthenticated {
             do {
                 let remoteResults = try await remoteSave(entries: entries)
-                // Build mapping using entryID from remote response
+                // `remoteSave` preserves input order, so map results to input entries by index.
+                // Matching by `remoteId == result.entryID` cannot work for newly created entries:
+                // their local `remoteId` is nil, while `result.entryID` is the freshly BE-assigned id.
                 var resultByEntryId = [String: RemoteEncryptedEntry]()
-                for result in remoteResults {
-                    if let matchingEntry = entries.first(where: { $0.remoteId == result.entryID }) {
-                        resultByEntryId[matchingEntry.id] = result
-                    }
+                for (index, result) in remoteResults.enumerated() where index < entries.count {
+                    resultByEntryId[entries[index].id] = result
                 }
                 try await updateLocalEntitiesWithRemoteResponse(resultByEntryId)
                 return remoteResults
