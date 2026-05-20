@@ -90,6 +90,10 @@ final class EntriesViewModel {
     @LazyInjected(\ServiceContainer.userSessionManager)
     private(set) var userSessionManager
 
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.userDataRefresh)
+    private var userDataRefresh
+
     // periphery:ignore
     @ObservationIgnored
     @Injected(\ServiceContainer.iosToWatchCommunicationManager)
@@ -116,6 +120,21 @@ final class EntriesViewModel {
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.inAppMessagingService)
     var inAppService
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.authenticateBiometrically)
+    private var authenticateBiometrically
+
+    @ObservationIgnored
+    @LazyInjected(\ServiceContainer.localDataManager)
+    private var localDataManager
+
+    @ObservationIgnored
+    @LazyInjected(\ToolsContainer.updatingSettings)
+    private var updatingSettings
+
+    @ObservationIgnored
+    private var disableICloudTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
@@ -146,7 +165,7 @@ final class EntriesViewModel {
             .removeDuplicates()
             .sink { [weak self] status in
                 guard let self, status else { return }
-                fullSync()
+                fullSync(refreshUserData: false)
             }
             .store(in: &cancellables)
 
@@ -192,9 +211,14 @@ final class EntriesViewModel {
     }
 
     func loadEntries() {
-        loadLocalTask?.cancel()
+        guard loadLocalTask == nil else {
+            return
+        }
         loadLocalTask = Task { [weak self] in
             guard let self else { return }
+            defer {
+                loadLocalTask = nil
+            }
             do {
                 if Task.isCancelled {
                     return
@@ -211,32 +235,6 @@ final class EntriesViewModel {
 
     func checkWatchConnectivity() {
         iosToWatchCommunicationManager.checkIfActive()
-    }
-
-    func fullSync() {
-        guard fullSyncTask == nil else {
-            return
-        }
-        fullSyncTask = Task { [weak self] in
-            guard let self else { return }
-            defer {
-                fullSyncTask = nil
-            }
-            do {
-                if let loadTask = loadLocalTask {
-                    await loadTask.value
-                }
-                if Task.isCancelled {
-                    return
-                }
-                try await entryDataService.fullRefresh()
-                if Task.isCancelled {
-                    return
-                }
-            } catch {
-                handle(error)
-            }
-        }
     }
 
     func cleanSearch() {
@@ -303,6 +301,52 @@ extension EntriesViewModel {
                                            actions: [action])))
     }
 
+    func showICloudDisablePromptIfNeeded() {
+        guard settingsService.iCloudSync,
+              !settingsService.iCloudDisablePromptDismissed,
+              settingsService.onboarded else {
+            return
+        }
+
+        settingsService.setICloudDisablePromptDismissed(true)
+
+        let disableAction = ActionConfig(title: "Disable iCloud sync",
+                                         titleBundle: .module,
+                                         action: { [weak self] in
+                                             guard let self else { return }
+                                             disableICloudSyncFromPrompt()
+                                         })
+
+        alertService.showAlert(.main(.init(title: "Switch off iCloud sync",
+                                           titleBundle: .module,
+                                           // swiftlint:disable:next line_length
+                                           message: .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
+                                                               .module),
+                                           actions: [disableAction, .ok])))
+    }
+
+    func disableICloudSyncFromPrompt() {
+        guard disableICloudTask == nil else { return }
+        disableICloudTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                disableICloudTask = nil
+                updatingSettings.send(false)
+            }
+            updatingSettings.send(true)
+            let reason = #localized("Please authenticate", bundle: .module)
+            do {
+                if try await authenticateBiometrically(policy: AppConstants.laEnablingPolicy,
+                                                       reason: reason) {
+                    settingsService.toggleICloudSync(false)
+                    await localDataManager.refreshLocalStorage()
+                }
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
     func refreshSearchResults() {
         executeSearch(query: query)
     }
@@ -313,6 +357,44 @@ extension EntriesViewModel {
 }
 
 private extension EntriesViewModel {
+    func fullSync(refreshUserData: Bool = true) {
+        guard fullSyncTask == nil else {
+            return
+        }
+        fullSyncTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                fullSyncTask = nil
+            }
+            do {
+                if let loadTask = loadLocalTask {
+                    await loadTask.value
+                }
+                if Task.isCancelled {
+                    return
+                }
+                if refreshUserData {
+                    do {
+                        try await userDataRefresh()
+                    } catch {
+                        logger.log(.error,
+                                   category: .network,
+                                   "User data refresh failed: \(error.localizedDescription)")
+                    }
+                }
+                if Task.isCancelled {
+                    return
+                }
+                try await entryDataService.fullRefresh()
+                if Task.isCancelled {
+                    return
+                }
+            } catch {
+                handle(error)
+            }
+        }
+    }
+
     func handle(_ error: any Error, function: String = #function, line: Int = #line) {
         guard !alertService.isShowingAlert else {
             return

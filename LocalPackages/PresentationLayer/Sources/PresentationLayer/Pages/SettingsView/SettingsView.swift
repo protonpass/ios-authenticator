@@ -210,7 +210,7 @@ private extension SettingsView {
             SettingDivider()
 
             #if os(iOS)
-            SettingRow(title: .localized("Sync between devices", .module),
+            SettingRow(title: .localized("Sync via Proton", .module),
                        subtitle: !viewModel.emailAddress.isEmpty ?
                            .localized("Account: \(viewModel.emailAddress)", .module) : nil,
                        trailingMode: .toggle(isOn: viewModel.syncEnabled,
@@ -221,6 +221,22 @@ private extension SettingsView {
 
             SettingDivider()
             #endif
+
+            if #available(iOS 18, *) {
+                SettingRow(title: .localized("Sync via iCloud", .module),
+                           subTitleImage: Image(systemName: "exclamationmark.triangle"),
+                           subtitle:
+                           // swiftlint:disable:next line_length
+                           .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
+                                      .module),
+                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
+                                                 onToggle: viewModel.toggleICloudSyncBackup))
+                    .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),
+                                              activateStatus(viewModel.iCloudSync))
+
+                SettingDivider()
+            }
+
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))

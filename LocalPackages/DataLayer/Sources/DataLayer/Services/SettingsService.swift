@@ -40,6 +40,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var fullBackUp: Bool { get }
     var unsupportedScanning: Bool { get }
     var sortOption: SortOption { get }
+    var iCloudDisablePromptDismissed: Bool { get }
 
     func setFirstRun(_ value: Bool)
     func setTheme(_ value: Theme)
@@ -57,6 +58,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func setBackupFolderBookmark(_ data: Data?)
     func setUnsupportedScanning(_ value: Bool)
     func setSortOption(_ value: SortOption)
+    func setICloudDisablePromptDismissed(_ value: Bool)
 
     /// For QA purpose
     func setInstallationTimestamp(_ value: TimeInterval)
@@ -84,6 +86,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var fullBackUp: Bool
     public private(set) var unsupportedScanning: Bool
     public private(set) var sortOption: SortOption
+    public private(set) var iCloudDisablePromptDismissed: Bool
 
     public init(store: UserDefaults) {
         self.store = store
@@ -118,6 +121,8 @@ public final class SettingsService: SettingsServicing {
         backupFolderBookmark = store.data(forKey: AppConstants.Settings.backupFolderBookmark)
         unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
         sortOption = store.value(for: AppConstants.Settings.sortOption)
+        iCloudDisablePromptDismissed = store
+            .bool(forKey: AppConstants.Settings.iCloudDisablePromptDismissed)
     }
 }
 
@@ -231,6 +236,12 @@ public extension SettingsService {
         update(currentValue: &sortOption,
                newValue: value,
                key: AppConstants.Settings.sortOption)
+    }
+
+    func setICloudDisablePromptDismissed(_ value: Bool) {
+        update(currentValue: &iCloudDisablePromptDismissed,
+               newValue: value,
+               key: AppConstants.Settings.iCloudDisablePromptDismissed)
     }
 }
 

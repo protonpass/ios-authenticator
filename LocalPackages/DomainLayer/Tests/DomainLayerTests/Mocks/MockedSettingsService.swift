@@ -42,6 +42,7 @@ final class MockedSettingsService: SettingsServicing {
     var fullBackUp = false
     var unsupportedScanning = false
     var sortOption = SortOption.default
+    var iCloudDisablePromptDismissed = false
 
     func setFirstRun(_ value: Bool) {
         isFirstRun = value
@@ -115,5 +116,9 @@ final class MockedSettingsService: SettingsServicing {
 
     func setSortOption(_ value: SortOption) {
         sortOption = value
+    }
+
+    func setICloudDisablePromptDismissed(_ value: Bool) {
+        iCloudDisablePromptDismissed = value
     }
 }

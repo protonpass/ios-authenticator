@@ -71,9 +71,6 @@ final class DeleteAllDataViewModel {
             guard let self else { return }
             do {
                 try await entryDataService.deleteAllEntries()
-                if backupActivated, shouldDeleteLocalBackups {
-                    try backUpManager.deleteAllBackupFiles()
-                }
                 state = .deleted
             } catch {
                 state = .error(error)

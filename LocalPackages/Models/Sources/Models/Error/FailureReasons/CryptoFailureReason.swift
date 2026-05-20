@@ -44,6 +44,7 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
     case unmatchedKeyRotation(lhsKey: Int64, rhsKey: Int64)
     case corruptedContent(String)
     case missingRemoteEncryptionKey
+    case failedToBuildPassphrases
 
     public var debugDescription: String {
         switch self {
@@ -112,6 +113,9 @@ public enum CryptoFailureReason: CustomDebugStringConvertible, Sendable {
 
         case .missingRemoteEncryptionKey:
             "Missing remote encryption key"
+
+        case .failedToBuildPassphrases:
+            "Failed to build passphrases for new user keys"
 
         case let .failedToVerifyContent(error):
             "Failed to verify content: \(error)"

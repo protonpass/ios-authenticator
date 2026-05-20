@@ -2960,6 +2960,16 @@
         }
       }
     },
+    "Data on iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data on iCloud"
+          }
+        }
+      }
+    },
     "Data on Proton servers" : {
       "localizations" : {
         "de" : {
@@ -3862,6 +3872,16 @@
         }
       }
     },
+    "Disable iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable iCloud sync"
+          }
+        }
+      }
+    },
     "Disabled" : {
       "localizations" : {
         "de" : {
@@ -4068,6 +4088,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tamam"
+          }
+        }
+      }
+    },
+    "Due to reliability issues with Apple's iCloud, we recommend using the backup instead." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the backup instead."
           }
         }
       }
@@ -11378,72 +11408,12 @@
         }
       }
     },
-    "Sync between devices" : {
+    "Switch off iCloud sync" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisierung zwischen Geräten"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sync between devices"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronización entre dispositivos"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronización entre dispositivos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisation entre appareils"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizzazione tra dispositivi"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniseren tussen apparaten"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronizacja między urządzeniami"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronização entre dispositivos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронизация между устройствами"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aygıtlar arasında eşitlensin"
+            "value" : "Switch off iCloud sync"
           }
         }
       }
@@ -11584,6 +11554,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aygıtlarınız arasında eşitleme duraklatıldı"
+          }
+        }
+      }
+    },
+    "Sync via iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync via iCloud"
+          }
+        }
+      }
+    },
+    "Sync via Proton" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync via Proton"
+          }
+        }
+      }
+    },
+    "Sync with iCloud" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync with iCloud"
           }
         }
       }

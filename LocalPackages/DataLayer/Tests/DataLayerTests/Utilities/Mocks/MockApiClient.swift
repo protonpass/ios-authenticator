@@ -47,6 +47,8 @@ extension RemoteEncryptedEntry {
 }
 
 public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
+ 
+    
     // MARK: - Stubs
     
     public var getKeysResult: Result<[RemoteEncryptedKey], Error> = .success([])
@@ -128,6 +130,14 @@ public final class MockAPIClient: @unchecked Sendable, APIClientProtocol {
     
     public func delete(entryIds: [String]) async throws {
         
+    }
+    
+    public func getLatestCoreEventId() async throws -> String {
+        ""
+    }
+    
+    public func getCoreEvent(id: String) async throws -> CoreEventsResponse {
+        throw MockError.stub
     }
     
     // MARK: - Helpers

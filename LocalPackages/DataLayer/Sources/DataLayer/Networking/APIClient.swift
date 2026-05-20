@@ -42,7 +42,20 @@ public protocol RemoteEntriesDataSource: Sendable {
     func batchOrdering(request: BatchOrderRequest) async throws
 }
 
-public typealias APIClientProtocol = RemoteEntriesDataSource & RemoteKeysDataSource
+public extension RemoteEntriesDataSource {
+    func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
+        try await getEntries(lastId: lastId)
+    }
+}
+
+// MARK: - Core events
+
+public protocol RemoteCoreEventsDataSource: Sendable {
+    func getLatestCoreEventId() async throws -> String
+    func getCoreEvent(id: String) async throws -> CoreEventsResponse
+}
+
+public typealias APIClientProtocol = RemoteCoreEventsDataSource & RemoteEntriesDataSource & RemoteKeysDataSource
 
 public final class APIClient: APIClientProtocol {
     private let manager: any APIManagerProtocol
@@ -79,6 +92,8 @@ private extension APIClient {
     }
 }
 
+// MARK: - Keys
+
 public extension APIClient {
     func getKeys() async throws -> [RemoteEncryptedKey] {
         log(.debug, "Fetching keys")
@@ -95,11 +110,7 @@ public extension APIClient {
     }
 }
 
-public extension RemoteEntriesDataSource {
-    func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
-        try await getEntries(lastId: lastId)
-    }
-}
+// MARK: - Entries
 
 public extension APIClient {
     func getEntries(lastId: String? = nil) async throws -> PaginatedEntries {
@@ -160,5 +171,20 @@ public extension APIClient {
         log(.debug, "Changing order for \(request.entries.count) entries")
         let endpoint = BatchEntryReordering(request: request)
         _ = try await exec(endpoint: endpoint)
+    }
+}
+
+// MARK: - Core events
+
+public extension APIClient {
+    func getLatestCoreEventId() async throws -> String {
+        let endpoint = GetLatestCoreEventId()
+        let result = try await exec(endpoint: endpoint)
+        return result.eventID
+    }
+
+    func getCoreEvent(id: String) async throws -> CoreEventsResponse {
+        let endpoint = GetCoreEvents(eventId: id)
+        return try await exec(endpoint: endpoint)
     }
 }
