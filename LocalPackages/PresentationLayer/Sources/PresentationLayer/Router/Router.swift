@@ -25,6 +25,7 @@ import SwiftUI
 
 enum RouterDestination: Hashable {
     case backup
+    case iCloudSync
 }
 
 public enum SheetDestination: Hashable, Identifiable {
@@ -77,6 +78,9 @@ struct RouterEmbeded: ViewModifier {
                 switch destination {
                 case .backup:
                     BackUpView()
+
+                case .iCloudSync:
+                    ICloudSyncView()
                 }
             }
     }

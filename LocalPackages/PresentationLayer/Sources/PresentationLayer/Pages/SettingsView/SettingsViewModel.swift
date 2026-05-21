@@ -203,23 +203,6 @@ extension SettingsViewModel {
         return mode
     }
 
-    func toggleICloudSyncBackup() {
-        guard toggleICloudSyncTask == nil else { return }
-        toggleICloudSyncTask = Task { [weak self] in
-            guard let self else { return }
-            defer { toggleICloudSyncTask = nil }
-            var bioAuthenticated = false
-            await authenticateAndPerform {
-                settingsService.toggleICloudSync(!iCloudSync)
-                iCloudSync.toggle()
-                bioAuthenticated = true
-            }
-            if bioAuthenticated {
-                await localDataManager.refreshLocalStorage()
-            }
-        }
-    }
-
     func authenticateAndPerform(_ block: () throws -> Void) async {
         defer { updatingSettings.send(false) }
         updatingSettings.send(true)

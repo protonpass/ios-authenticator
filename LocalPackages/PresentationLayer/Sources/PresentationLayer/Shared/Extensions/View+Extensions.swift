@@ -205,6 +205,12 @@ extension View {
             self
         }
     }
+
+    func toggleAccessibilityLabel(_ label: String, _ state: String) -> some View {
+        accessibilityHint("You can toggle this option by clicking on the toggle button to the right of the row.")
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label + state)
+    }
 }
 
 extension View {
