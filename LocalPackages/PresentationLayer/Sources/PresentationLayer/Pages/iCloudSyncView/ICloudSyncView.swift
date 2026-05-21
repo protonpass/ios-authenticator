@@ -30,7 +30,7 @@ struct ICloudSyncView: View {
 
     var body: some View {
         mainContent
-            .navigationTitle(Text("iCloud Sync", bundle: .module))
+            .navigationTitle(Text("iCloud sync", bundle: .module))
             .fullScreenMainBackground()
     }
 

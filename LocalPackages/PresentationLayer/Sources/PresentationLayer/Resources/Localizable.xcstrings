@@ -5488,16 +5488,6 @@
         }
       }
     },
-    "iCloud Sync" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud Sync"
-          }
-        }
-      }
-    },
     "Import" : {
       "localizations" : {
         "de" : {
