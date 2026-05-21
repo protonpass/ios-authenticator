@@ -222,21 +222,6 @@ private extension SettingsView {
             SettingDivider()
             #endif
 
-            if #available(iOS 18, *) {
-                SettingRow(title: .localized("Sync via iCloud", .module),
-                           subTitleImage: Image(systemName: "exclamationmark.triangle"),
-                           subtitle:
-                           // swiftlint:disable:next line_length
-                           .localized("Due to reliability issues with Apple's iCloud, we recommend using the backup instead.",
-                                      .module),
-                           trailingMode: .toggle(isOn: viewModel.iCloudSync,
-                                                 onToggle: viewModel.toggleICloudSyncBackup))
-                    .toggleAccessibilityLabel(#localized("Sync with iCloud", bundle: .module),
-                                              activateStatus(viewModel.iCloudSync))
-
-                SettingDivider()
-            }
-
             SettingRow(title: .localized("Biometric lock", .module),
                        trailingMode: .toggle(isOn: viewModel.biometricLock,
                                              onToggle: viewModel.toggleBioLock))
@@ -250,6 +235,15 @@ private extension SettingsView {
                                              onToggle: viewModel.toggleHideCode))
                 .toggleAccessibilityLabel(#localized("Hide codes", bundle: .module),
                                           activateStatus(viewModel.shouldHideCode))
+
+            if #available(iOS 18, *) {
+                SettingDivider()
+                SettingRow(title: .localized("iCloud sync", .module),
+                           config: SettingRowConfig(titleColor: .textWeak),
+                           trailingMode: .detailChevronRight) {
+                    router.navigate(to: .iCloudSync)
+                }
+            }
         }
         .onChange(of: viewModel.syncEnabled) {
             viewModel.settingSheet = nil
@@ -501,12 +495,6 @@ private extension Theme {
 }
 
 private extension View {
-    func toggleAccessibilityLabel(_ label: String, _ state: String) -> some View {
-        accessibilityHint("You can toggle this option by clicking on the toggle button to the right of the row.")
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(label + state)
-    }
-
     @ViewBuilder
     func settingsListStyle() -> some View {
         if #available(iOS 26, macOS 26, *) {

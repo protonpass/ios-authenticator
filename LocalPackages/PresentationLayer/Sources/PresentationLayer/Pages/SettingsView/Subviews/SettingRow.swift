@@ -21,10 +21,19 @@
 import Models
 import SwiftUI
 
+struct SettingRowConfig {
+    var subTitleImage: Image?
+    var titleColor: Color = .textNorm
+
+    static var `default`: Self {
+        Self(titleColor: .textNorm)
+    }
+}
+
 struct SettingRow: View {
     var icon: ImageResource?
     let title: TextContent
-    var subTitleImage: Image?
+    var config: SettingRowConfig = .default
     var subtitle: TextContent?
     var trailingMode: TrailingMode?
     var onTap: (() -> Void)?
@@ -57,7 +66,7 @@ struct SettingRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title) // ignore:missing_bundle
-                    .foregroundStyle(.textNorm)
+                    .foregroundStyle(config.titleColor)
                     .dynamicFont(size: 17, textStyle: .body)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
@@ -91,7 +100,7 @@ struct SettingRow: View {
 
     @ViewBuilder
     var computedSubtitle: some View {
-        if let subTitleImage, let subtitle {
+        if let subTitleImage = config.subTitleImage, let subtitle {
             Text(subTitleImage) // ignore:missing_bundle
                 + Text(verbatim: " ") +
                 Text(subtitle) // ignore:missing_bundle

@@ -4092,12 +4092,12 @@
         }
       }
     },
-    "Due to reliability issues with Apple's iCloud, we recommend using the backup instead." : {
+    "Due to reliability issues with Apple's iCloud, we recommend using Proton sync and/or backup system instead." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Due to reliability issues with Apple's iCloud, we recommend using the backup instead."
+            "value" : "Due to reliability issues with Apple's iCloud, we recommend using Proton sync and/or backup system instead."
           }
         }
       }
@@ -5464,6 +5464,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodları gizle"
+          }
+        }
+      }
+    },
+    "ICLOUD SETTINGS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ICLOUD SETTINGS"
+          }
+        }
+      }
+    },
+    "iCloud sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud sync"
+          }
+        }
+      }
+    },
+    "iCloud Sync" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Sync"
           }
         }
       }
