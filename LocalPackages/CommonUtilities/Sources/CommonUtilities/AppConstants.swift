@@ -68,6 +68,7 @@ public enum AppConstants: Sendable {
         public static let unsupportedScanning = "UnsupportedScanning"
         public static let backupPassword = "BackupPassword"
         public static let backupFolderBookmark = "BackupFolderBookmark"
+        public static let lastBackedUpHash = "LastBackedUpHash"
         public static let sortOption = "SortOption"
         public static let lastCoreEventId = "LastCoreEventId"
         public static let iCloudDisablePromptDismissed = "ICloudDisablePromptDismissed"

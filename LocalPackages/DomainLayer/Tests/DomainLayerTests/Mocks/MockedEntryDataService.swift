@@ -87,5 +87,5 @@ final class MockedEntryDataService: EntryDataServiceProtocol {
         []
     }
 
-    func backUpEntries() -> BackUpResult { .successful }
+    func backUpEntries(force: Bool) -> BackUpResult { .successful }
 }

@@ -175,7 +175,8 @@ final class BackUpViewModel {
     }
 
     func backup() {
-        let result = entryDataService.backUpEntries()
+        // User-driven action: bypass the dedup cache so the user always sees a fresh file written.
+        let result = entryDataService.backUpEntries(force: true)
         loadData()
         switch result {
         case .notEnabled:
@@ -186,6 +187,9 @@ final class BackUpViewModel {
 
         case .noData:
             toast = SimpleToast(title: #localized("No data to backup", bundle: .module))
+
+        case .unchanged:
+            break
 
         case let .error(error):
             toast = SimpleToast(title: error.localizedDescription)
@@ -291,7 +295,9 @@ private extension BackUpViewModel {
             loadData()
 
             if backups.isEmpty {
-                entryDataService.backUpEntries()
+                // First write to a newly chosen folder must happen regardless of the cache,
+                // otherwise re-selecting the same folder after emptying it would silently skip.
+                entryDataService.backUpEntries(force: true)
                 loadData()
             }
         } catch {

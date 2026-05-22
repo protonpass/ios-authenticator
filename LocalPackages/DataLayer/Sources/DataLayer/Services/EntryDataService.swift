@@ -22,6 +22,7 @@ import AuthenticatorRustCore
 import Combine
 import CommonUtilities
 import CoreData
+import CryptoKit
 import Foundation
 import Models
 import ProtonCoreNetworking
@@ -45,7 +46,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func fullRefresh() async throws
     @discardableResult
-    func backUpEntries() -> BackUpResult
+    func backUpEntries(force: Bool) -> BackUpResult
 
     func deleteAllEntries() async throws
 
@@ -68,6 +69,13 @@ public extension EntryDataServiceProtocol {
 public extension EntryDataServiceProtocol {
     func importEntries(from source: TwofaImportSource) async throws -> Int {
         try await importEntries(from: [source])
+    }
+}
+
+public extension EntryDataServiceProtocol {
+    @discardableResult
+    func backUpEntries(force: Bool = false) -> BackUpResult {
+        backUpEntries(force: force)
     }
 }
 
@@ -292,6 +300,7 @@ public extension EntryDataService {
             let entryStates = try await repository.getAllLocalEntries()
             let entries = try await generateUIEntries(from: entryStates.decodedEntries)
             updateData(entries)
+            backUpEntries()
         } catch {
             log(.error, "Failed to unsync all entries: \(error.localizedDescription)")
             throw error
@@ -329,14 +338,20 @@ public extension EntryDataService {
     }
 
     @discardableResult
-    func backUpEntries() -> BackUpResult {
+    func backUpEntries(force: Bool) -> BackUpResult {
         guard settings.folderBackup else { return .notEnabled }
+
+        let currentHash = computeEntriesHash()
+        if !force, let stored = settings.lastBackedUpHash, stored == currentHash {
+            return .unchanged
+        }
 
         do {
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
                                                            isSynced: false)
             if let exportData = try exportEntries(password: password).data(using: .utf8) {
                 try backUpManager.write(data: exportData)
+                settings.setLastBackedUpHash(currentHash)
             }
             return .successful
         } catch {
@@ -423,6 +438,40 @@ public extension EntryDataService {
 }
 
 private extension EntryDataService {
+    /// Stable SHA-256 hex digest of the fields that constitute a meaningful change to the
+    /// backed-up dataset. Mirrors the field set in `OrderedEntry.hash(into:)` (intentionally
+    /// excluding `modifiedTime` / `creationDate` so a pure "touch" doesn't trigger a rewrite),
+    /// but uses CryptoKit instead of Swift's `Hasher` so the value is reproducible across
+    /// process restarts and can be persisted via `SettingsServicing.lastBackedUpHash`.
+    ///
+    /// Each variable-length field is length-prefixed (`UInt32` big-endian) to avoid
+    /// ambiguity at boundaries (e.g. "ab" + "c" vs "a" + "bc"); integer fields are written
+    /// as `Int64` big-endian for cross-architecture stability. Entries are sorted by id so
+    /// the digest is independent of the in-memory array order.
+    func computeEntriesHash() -> String {
+        guard let entries = dataState.data, !entries.isEmpty else { return "" }
+        var hasher = SHA256()
+        for orderedEntry in entries.map(\.orderedEntry).sorted(by: { $0.id < $1.id }) {
+            let entry = orderedEntry.entry
+            hasher.appendLengthPrefixed(entry.id)
+            hasher.appendLengthPrefixed(entry.name)
+            hasher.appendLengthPrefixed(entry.uri)
+            hasher.appendLengthPrefixed(entry.issuer)
+            hasher.appendLengthPrefixed(entry.secret)
+            hasher.appendLengthPrefixed(entry.note ?? "")
+            hasher.appendLengthPrefixed(entry.type.rawValue)
+            hasher.appendInt(entry.period)
+            hasher.appendInt(orderedEntry.order)
+            hasher.appendInt(orderedEntry.revision)
+            hasher.appendInt(orderedEntry.flags)
+            hasher.appendInt(orderedEntry.contentFormatVersion)
+            hasher.appendInt(orderedEntry.syncState.rawValue)
+            hasher.appendLengthPrefixed(orderedEntry.remoteId ?? "")
+            hasher.appendLengthPrefixed(orderedEntry.keyId ?? "")
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
     func startUpdatingTotpCode(_ entries: [Entry]) {
         log(.debug, "Starting updating TOTP codes for \(entries.count) entries")
 
@@ -482,6 +531,7 @@ private extension EntryDataService {
             hasNonDecryptableEntries = entryStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
+            backUpEntries()
         } catch {
             log(.error, "Failed to load entries: \(error)")
             if let data = dataState.data, !data.isEmpty { return }
@@ -723,6 +773,22 @@ private extension EntryDataService {
             resultByEntryId[entry.id] = result
         }
         try await repository.updateLocalEntitiesWithRemoteResponse(resultByEntryId)
+    }
+}
+
+private extension SHA256 {
+    /// Length-prefixed UTF-8 string update, removing boundary ambiguity between adjacent fields.
+    mutating func appendLengthPrefixed(_ value: String) {
+        let bytes = Data(value.utf8)
+        var length = UInt32(bytes.count).bigEndian
+        update(data: Data(bytes: &length, count: MemoryLayout<UInt32>.size))
+        update(data: bytes)
+    }
+
+    /// Fixed-width big-endian `Int64` update, stable across 32/64-bit architectures.
+    mutating func appendInt(_ value: Int) {
+        var big = Int64(value).bigEndian
+        update(data: Data(bytes: &big, count: MemoryLayout<Int64>.size))
     }
 }
 

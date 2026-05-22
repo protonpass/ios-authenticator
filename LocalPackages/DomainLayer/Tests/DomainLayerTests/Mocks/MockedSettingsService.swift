@@ -38,6 +38,7 @@ final class MockedSettingsService: SettingsServicing {
     var focusSearchOnLaunch = false
     var folderBackup = false
     var backupFolderBookmark: Data?
+    var lastBackedUpHash: String?
     var iCloudSync = false
     var fullBackUp = false
     var unsupportedScanning = false
@@ -96,6 +97,10 @@ final class MockedSettingsService: SettingsServicing {
 
     func setBackupFolderBookmark(_ data: Data?) {
         backupFolderBookmark = data
+    }
+
+    func setLastBackedUpHash(_ value: String?) {
+        lastBackedUpHash = value
     }
 
     func toggleICloudSync(_ value: Bool) {

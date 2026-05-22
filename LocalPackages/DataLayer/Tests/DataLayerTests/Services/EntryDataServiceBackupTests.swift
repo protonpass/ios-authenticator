@@ -77,6 +77,21 @@ struct EntryDataServiceBackupTests {
         return EntryUiModel(orderedEntry: orderedEntry, code: code, issuerInfo: nil)
     }
 
+    private func makeEntryState(entry: Entry, order: Int = 0) -> EntryState {
+        let orderedEntry = OrderedEntry(entry: entry, keyId: "key-id", remoteId: nil,
+                                        order: order, modifiedTime: Date.now.timeIntervalSince1970,
+                                        revision: 0, contentFormatVersion: 1)
+        let entity = EncryptedEntryEntity(id: entry.id,
+                                          encryptedData: Data(),
+                                          remoteId: "",
+                                          keyId: "key-id",
+                                          order: order,
+                                          syncState: .unsynced,
+                                          creationDate: Date.now.timeIntervalSince1970,
+                                          modifiedTime: Date.now.timeIntervalSince1970)
+        return .decrypted(entity, orderedEntry)
+    }
+
     private func prepareForBackup(entries: [EntryUiModel]) throws {
         sut.updateData(entries)
         mockSettings.folderBackup = true
@@ -269,5 +284,282 @@ struct EntryDataServiceBackupTests {
 
         #expect(mockBackUpManager.writeCalled == 0)
         #expect(mockBackUpManager.lastWrittenData == nil)
+    }
+
+    // MARK: - Load path (iCloud-pushed changes flow through here)
+
+    @Test("loadEntries: backup file reflects entries fetched from local storage")
+    func loadEntries_whenFolderBackupEnabled_writesBackup() async throws {
+        // Simulates iCloud (or any source) populating the local store; loadEntries should
+        // propagate the new state to the backup file even when no explicit mutation occurred.
+        let entry1 = makeEntry(id: "entry-1", name: "First")
+        let entry2 = makeEntry(id: "entry-2", name: "Second")
+        mockRepository.allLocalEntries = [
+            makeEntryState(entry: entry1, order: 0),
+            makeEntryState(entry: entry2, order: 1)
+        ]
+        mockSettings.folderBackup = true
+        try mockKeychain.set("test-password",
+                             for: AppConstants.Settings.backupPassword,
+                             shouldSync: false)
+
+        await sut.loadEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        #expect(mockBackUpManager.lastWrittenData == mockRepository.exportResult.data(using: .utf8))
+        #expect(mockRepository.lastExportedEntries.map(\.id) == ["entry-1", "entry-2"])
+        #expect(mockRepository.lastExportPassword == "test-password")
+    }
+
+    @Test("loadEntries: no backup file written when folder backup is disabled")
+    func loadEntries_whenFolderBackupDisabled_doesNotWriteBackup() async {
+        let entry = makeEntry()
+        mockRepository.allLocalEntries = [makeEntryState(entry: entry)]
+        mockSettings.folderBackup = false
+
+        await sut.loadEntries()
+
+        #expect(mockBackUpManager.writeCalled == 0)
+    }
+
+    @Test("loadEntries: no backup file written when load fails")
+    func loadEntries_whenLoadFails_doesNotWriteBackup() async throws {
+        mockRepository.getAllLocalEntriesError = NSError(domain: "test", code: 1)
+        mockSettings.folderBackup = true
+        try mockKeychain.set("test-password",
+                             for: AppConstants.Settings.backupPassword,
+                             shouldSync: false)
+
+        await sut.loadEntries()
+
+        #expect(mockBackUpManager.writeCalled == 0)
+    }
+
+    @Test("unsyncAllEntries: backup file is written when folder backup is enabled")
+    func unsyncAllEntries_whenFolderBackupEnabled_writesBackup() async throws {
+        let entry = makeEntry()
+        mockRepository.allLocalEntries = [makeEntryState(entry: entry)]
+        mockSettings.folderBackup = true
+        try mockKeychain.set("test-password",
+                             for: AppConstants.Settings.backupPassword,
+                             shouldSync: false)
+
+        try await sut.unsyncAllEntries()
+
+        #expect(mockRepository.unsyncAllEntriesCalled == 1)
+        #expect(mockBackUpManager.writeCalled == 1)
+        #expect(mockBackUpManager.lastWrittenData == mockRepository.exportResult.data(using: .utf8))
+    }
+
+    @Test("unsyncAllEntries: no backup file written when unsync fails")
+    func unsyncAllEntries_whenUnsyncFails_doesNotWriteBackup() async throws {
+        mockRepository.unsyncAllEntriesError = NSError(domain: "test", code: 1)
+        mockSettings.folderBackup = true
+        try mockKeychain.set("test-password",
+                             for: AppConstants.Settings.backupPassword,
+                             shouldSync: false)
+
+        await #expect(throws: Error.self) {
+            try await sut.unsyncAllEntries()
+        }
+
+        #expect(mockBackUpManager.writeCalled == 0)
+    }
+
+    // MARK: - Hash cache (skip redundant writes on load/foreground)
+
+    @Test("backUpEntries: skips a second write when entries are unchanged")
+    func backUpEntries_whenContentUnchanged_skipsSecondWrite() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+
+        let first = sut.backUpEntries()
+        let second = sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        if case .successful = first { } else { Issue.record("expected first write to be .successful") }
+        if case .unchanged = second { } else { Issue.record("expected second call to be .unchanged") }
+    }
+
+    @Test("backUpEntries: writes again after content changes")
+    func backUpEntries_whenContentChanges_writesAgain() throws {
+        let entry1 = makeEntry(id: "entry-1", name: "First")
+        try prepareForBackup(entries: [makeUiModel(entry: entry1, order: 0)])
+
+        sut.backUpEntries()
+
+        // Mutate the data state to a different shape (new entry appended).
+        let entry2 = makeEntry(id: "entry-2", name: "Second")
+        sut.updateData([
+            makeUiModel(entry: entry1, order: 0),
+            makeUiModel(entry: entry2, order: 1)
+        ])
+
+        let result = sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 2)
+        if case .successful = result { } else { Issue.record("expected second write to be .successful") }
+    }
+
+    @Test("backUpEntries: skips when only TOTP code changes (not entry content)")
+    func backUpEntries_whenOnlyCodeChanges_skipsWrite() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+
+        sut.backUpEntries()
+
+        // Replace just the code on the same entry; entry data, order, revision unchanged.
+        // This simulates the TOTP rotation re-render path that shouldn't trigger backups.
+        let original = sut.dataState.data ?? []
+        let rotated = original.map { $0.updateCode(Code(current: "999999", next: "888888", entry: $0.orderedEntry.entry)) }
+        sut.updateData(rotated)
+
+        let result = sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        if case .unchanged = result { } else { Issue.record("expected .unchanged result") }
+    }
+
+    @Test("backUpEntries(force: true): always writes even when content is unchanged")
+    func backUpEntries_forceTrue_bypassesCache() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+
+        sut.backUpEntries()
+        let forced = sut.backUpEntries(force: true)
+
+        #expect(mockBackUpManager.writeCalled == 2)
+        if case .successful = forced { } else { Issue.record("expected forced call to be .successful") }
+    }
+
+    @Test("backUpEntries: failed write does not poison the cache")
+    func backUpEntries_whenWriteFails_doesNotCacheHash() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+        let preCallHash = mockSettings.lastBackedUpHash
+        mockBackUpManager.writeError = NSError(domain: "test", code: 1)
+
+        let failed = sut.backUpEntries()
+        #expect(mockBackUpManager.writeCalled == 1)
+        if case .error = failed { } else { Issue.record("expected failed write to return .error") }
+        // Hash must NOT have been persisted on failure, otherwise a single transient
+        // failure would leave the backup permanently stale until something else changes.
+        #expect(mockSettings.lastBackedUpHash == preCallHash)
+
+        mockBackUpManager.writeError = nil
+        let retry = sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 2)
+        if case .successful = retry { } else { Issue.record("expected retry to be .successful") }
+        #expect(mockSettings.lastBackedUpHash != nil)
+    }
+
+    @Test("loadEntries: second consecutive load with same data skips the backup write")
+    func loadEntries_whenCalledTwiceWithSameData_writesOnceOnly() async throws {
+        let entry = makeEntry()
+        mockRepository.allLocalEntries = [makeEntryState(entry: entry)]
+        mockSettings.folderBackup = true
+        try mockKeychain.set("test-password",
+                             for: AppConstants.Settings.backupPassword,
+                             shouldSync: false)
+
+        await sut.loadEntries()
+        await sut.loadEntries()
+
+        // Models the foreground/background cycle that previously rewrote today's backup
+        // file every time the app came back to the foreground.
+        #expect(mockBackUpManager.writeCalled == 1)
+    }
+
+    // MARK: - Persisted hash across cold launches
+
+    @Test("first launch: lastBackedUpHash is nil → write and persist the digest")
+    func backUpEntries_firstLaunch_persistsHash() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+        #expect(mockSettings.lastBackedUpHash == nil)
+
+        sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        #expect(mockSettings.lastBackedUpHash != nil)
+        // SHA-256 hex digest is 64 lowercase hex characters.
+        #expect(mockSettings.lastBackedUpHash?.count == 64)
+        #expect(mockSettings.lastBackedUpHash?.allSatisfy { $0.isHexDigit && (!$0.isLetter || $0.isLowercase) } == true)
+    }
+
+    @Test("cold launch: persisted hash matches current data → skip without writing")
+    func backUpEntries_coldLaunchMatchingHash_skipsWrite() throws {
+        // First instance writes and persists a hash...
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+        sut.backUpEntries()
+        let persistedHash = try #require(mockSettings.lastBackedUpHash)
+        #expect(mockBackUpManager.writeCalled == 1)
+
+        // ...then a brand-new EntryDataService instance shares the same settings/keychain
+        // (UserDefaults survives process restarts). This simulates a cold relaunch with
+        // identical data and must NOT write a new file.
+        let coldSut = EntryDataService(repository: mockRepository,
+                                       importService: MockImportingService(),
+                                       totpGenerator: mockTotpGenerator,
+                                       totpIssuerMapper: MockTotpIssuerMapper(),
+                                       logger: MockLogger(),
+                                       reachabilityManager: MockReachabilityManager(),
+                                       backUpManager: mockBackUpManager,
+                                       settings: mockSettings,
+                                       keychainService: mockKeychain,
+                                       syncOperation: MockSyncOperationChecker())
+        coldSut.updateData([makeUiModel(entry: entry, order: 0)])
+
+        let result = coldSut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        #expect(mockSettings.lastBackedUpHash == persistedHash)
+        if case .unchanged = result { } else { Issue.record("expected .unchanged on cold relaunch") }
+    }
+
+    @Test("cold launch: persisted hash differs from current data → write and update")
+    func backUpEntries_coldLaunchStaleHash_writesAndUpdatesPersistedHash() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+        // Pre-seed the persisted state with a stale digest, as if data had changed while
+        // the app was killed (e.g. iCloud merged changes from another device).
+        mockSettings.lastBackedUpHash = String(repeating: "0", count: 64)
+
+        let result = sut.backUpEntries()
+
+        #expect(mockBackUpManager.writeCalled == 1)
+        if case .successful = result { } else { Issue.record("expected .successful when stale hash differs") }
+        #expect(mockSettings.lastBackedUpHash != String(repeating: "0", count: 64))
+        #expect(mockSettings.lastBackedUpHash?.count == 64)
+    }
+
+    @Test("computeEntriesHash: digest is stable across two fresh EntryDataService instances")
+    func computeEntriesHash_isDeterministicAcrossInstances() throws {
+        let entry = makeEntry()
+        try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
+        sut.backUpEntries()
+        let firstHash = try #require(mockSettings.lastBackedUpHash)
+
+        // New service instance, same persisted state and same data → should compute the
+        // exact same digest (this is what makes cold-launch comparison meaningful).
+        let secondSut = EntryDataService(repository: mockRepository,
+                                         importService: MockImportingService(),
+                                         totpGenerator: mockTotpGenerator,
+                                         totpIssuerMapper: MockTotpIssuerMapper(),
+                                         logger: MockLogger(),
+                                         reachabilityManager: MockReachabilityManager(),
+                                         backUpManager: mockBackUpManager,
+                                         settings: mockSettings,
+                                         keychainService: mockKeychain,
+                                         syncOperation: MockSyncOperationChecker())
+        secondSut.updateData([makeUiModel(entry: entry, order: 0)])
+        // Bypass cache so we actually exercise the digest computation + write path.
+        mockSettings.lastBackedUpHash = nil
+        secondSut.backUpEntries()
+        let secondHash = try #require(mockSettings.lastBackedUpHash)
+
+        #expect(firstHash == secondHash)
     }
 }
