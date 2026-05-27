@@ -160,7 +160,7 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_whenWriteFails_doesNotThrow() throws {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry)])
-        mockBackUpManager.writeError =  EntryServiceTestError.failTest
+        mockBackUpManager.writeError = EntryServiceTestError.failTest
 
         sut.backUpEntries()
 
@@ -196,7 +196,7 @@ struct EntryDataServiceBackupTests {
     func update_noBackupOnFailure() async throws {
         let entry = makeEntry(id: "entry-1", name: "Original")
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
-        mockRepository.completeUpdateError = NSError(domain: "test", code: 1)
+        mockRepository.completeUpdateError = EntryServiceTestError.failTest
 
         let params = EntryParameters.totp(
             TotpParams(name: "Updated", secret: "ABCDEFGH", issuer: "TestIssuer",
@@ -237,7 +237,7 @@ struct EntryDataServiceBackupTests {
         let entry = makeEntry(id: "entry-1")
         let uiModel = makeUiModel(entry: entry, order: 0)
         try prepareForBackup(entries: [uiModel])
-        mockRepository.completeRemovesError = NSError(domain: "test", code: 1)
+        mockRepository.completeRemovesError = EntryServiceTestError.failTest
 
         await #expect(throws: Error.self) {
             try await sut.delete(uiModel)
@@ -276,7 +276,7 @@ struct EntryDataServiceBackupTests {
             makeUiModel(entry: entry1, order: 0),
             makeUiModel(entry: entry2, order: 1)
         ])
-        mockRepository.completeReorderError = NSError(domain: "test", code: 1)
+        mockRepository.completeReorderError = EntryServiceTestError.failTest
 
         await #expect(throws: Error.self) {
             try await sut.reorderItem(from: 0, to: 1)
@@ -324,7 +324,6 @@ struct EntryDataServiceBackupTests {
 
     @Test("loadEntries: no backup file written when load fails")
     func loadEntries_whenLoadFails_doesNotWriteBackup() async throws {
-        mockRepository.getAllLocalEntriesError = NSError(domain: "test", code: 1)
         mockSettings.folderBackup = true
         try mockKeychain.set("test-password",
                              for: AppConstants.Settings.backupPassword,
@@ -353,7 +352,7 @@ struct EntryDataServiceBackupTests {
 
     @Test("unsyncAllEntries: no backup file written when unsync fails")
     func unsyncAllEntries_whenUnsyncFails_doesNotWriteBackup() async throws {
-        mockRepository.unsyncAllEntriesError = NSError(domain: "test", code: 1)
+        mockRepository.unsyncAllEntriesError = EntryServiceTestError.failTest
         mockSettings.folderBackup = true
         try mockKeychain.set("test-password",
                              for: AppConstants.Settings.backupPassword,
@@ -437,7 +436,7 @@ struct EntryDataServiceBackupTests {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
         let preCallHash = mockSettings.lastBackedUpHash
-        mockBackUpManager.writeError = NSError(domain: "test", code: 1)
+        mockBackUpManager.writeError = EntryServiceTestError.failTest
 
         let failed = sut.backUpEntries()
         #expect(mockBackUpManager.writeCalled == 1)
