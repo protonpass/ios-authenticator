@@ -160,7 +160,7 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_whenWriteFails_doesNotThrow() throws {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry)])
-        mockBackUpManager.writeError = NSError(domain: "test", code: 1)
+        mockBackUpManager.writeError =  EntryServiceTestError.failTest
 
         sut.backUpEntries()
 
@@ -562,4 +562,8 @@ struct EntryDataServiceBackupTests {
 
         #expect(firstHash == secondHash)
     }
+}
+
+enum EntryServiceTestError : Error {
+    case failTest
 }
