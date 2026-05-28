@@ -338,7 +338,7 @@ public extension EntryDataService {
         guard settings.folderBackup else { return .notEnabled }
 
         let currentHash = computeEntriesHash()
-        if !force, let stored = settings.lastBackedUpHash, stored == currentHash {
+        if !force, let stored = settings.lastBackupHash, stored == currentHash {
             return .unchanged
         }
 
@@ -347,7 +347,7 @@ public extension EntryDataService {
                                                            isSynced: false)
             if let exportData = try exportEntries(password: password).data(using: .utf8) {
                 try backUpManager.write(data: exportData)
-                settings.setLastBackedUpHash(currentHash)
+                settings.setLastBackupHash(currentHash)
             }
             return .successful
         } catch {

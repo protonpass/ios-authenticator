@@ -435,7 +435,7 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_whenWriteFails_doesNotCacheHash() throws {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
-        let preCallHash = mockSettings.lastBackedUpHash
+        let preCallHash = mockSettings.lastBackupHash
         mockBackUpManager.writeError = EntryServiceTestError.failTest
 
         let failed = sut.backUpEntries()
@@ -443,14 +443,14 @@ struct EntryDataServiceBackupTests {
         if case .error = failed { } else { Issue.record("expected failed write to return .error") }
         // Hash must NOT have been persisted on failure, otherwise a single transient
         // failure would leave the backup permanently stale until something else changes.
-        #expect(mockSettings.lastBackedUpHash == preCallHash)
+        #expect(mockSettings.lastBackupHash == preCallHash)
 
         mockBackUpManager.writeError = nil
         let retry = sut.backUpEntries()
 
         #expect(mockBackUpManager.writeCalled == 2)
         if case .successful = retry { } else { Issue.record("expected retry to be .successful") }
-        #expect(mockSettings.lastBackedUpHash != nil)
+        #expect(mockSettings.lastBackupHash != nil)
     }
 
     @Test("loadEntries: second consecutive load with same data skips the backup write")
@@ -476,15 +476,15 @@ struct EntryDataServiceBackupTests {
     func backUpEntries_firstLaunch_persistsHash() throws {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
-        #expect(mockSettings.lastBackedUpHash == nil)
+        #expect(mockSettings.lastBackupHash == nil)
 
         sut.backUpEntries()
 
         #expect(mockBackUpManager.writeCalled == 1)
-        #expect(mockSettings.lastBackedUpHash != nil)
+        #expect(mockSettings.lastBackupHash != nil)
         // SHA-256 hex digest is 64 lowercase hex characters.
-        #expect(mockSettings.lastBackedUpHash?.count == 64)
-        #expect(mockSettings.lastBackedUpHash?.allSatisfy { $0.isHexDigit && (!$0.isLetter || $0.isLowercase) } == true)
+        #expect(mockSettings.lastBackupHash?.count == 64)
+        #expect(mockSettings.lastBackupHash?.allSatisfy { $0.isHexDigit && (!$0.isLetter || $0.isLowercase) } == true)
     }
 
     @Test("cold launch: persisted hash matches current data → skip without writing")
@@ -493,7 +493,7 @@ struct EntryDataServiceBackupTests {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
         sut.backUpEntries()
-        let persistedHash = try #require(mockSettings.lastBackedUpHash)
+        let persistedHash = try #require(mockSettings.lastBackupHash)
         #expect(mockBackUpManager.writeCalled == 1)
 
         // ...then a brand-new EntryDataService instance shares the same settings/keychain
@@ -514,7 +514,7 @@ struct EntryDataServiceBackupTests {
         let result = coldSut.backUpEntries()
 
         #expect(mockBackUpManager.writeCalled == 1)
-        #expect(mockSettings.lastBackedUpHash == persistedHash)
+        #expect(mockSettings.lastBackupHash == persistedHash)
         if case .unchanged = result { } else { Issue.record("expected .unchanged on cold relaunch") }
     }
 
@@ -524,14 +524,14 @@ struct EntryDataServiceBackupTests {
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
         // Pre-seed the persisted state with a stale digest, as if data had changed while
         // the app was killed (e.g. iCloud merged changes from another device).
-        mockSettings.lastBackedUpHash = String(repeating: "0", count: 64)
+        mockSettings.lastBackupHash = String(repeating: "0", count: 64)
 
         let result = sut.backUpEntries()
 
         #expect(mockBackUpManager.writeCalled == 1)
         if case .successful = result { } else { Issue.record("expected .successful when stale hash differs") }
-        #expect(mockSettings.lastBackedUpHash != String(repeating: "0", count: 64))
-        #expect(mockSettings.lastBackedUpHash?.count == 64)
+        #expect(mockSettings.lastBackupHash != String(repeating: "0", count: 64))
+        #expect(mockSettings.lastBackupHash?.count == 64)
     }
 
     @Test("computeEntriesHash: digest is stable across two fresh EntryDataService instances")
@@ -539,7 +539,7 @@ struct EntryDataServiceBackupTests {
         let entry = makeEntry()
         try prepareForBackup(entries: [makeUiModel(entry: entry, order: 0)])
         sut.backUpEntries()
-        let firstHash = try #require(mockSettings.lastBackedUpHash)
+        let firstHash = try #require(mockSettings.lastBackupHash)
 
         // New service instance, same persisted state and same data → should compute the
         // exact same digest (this is what makes cold-launch comparison meaningful).
@@ -555,9 +555,9 @@ struct EntryDataServiceBackupTests {
                                          syncOperation: MockSyncOperationChecker())
         secondSut.updateData([makeUiModel(entry: entry, order: 0)])
         // Bypass cache so we actually exercise the digest computation + write path.
-        mockSettings.lastBackedUpHash = nil
+        mockSettings.lastBackupHash = nil
         secondSut.backUpEntries()
-        let secondHash = try #require(mockSettings.lastBackedUpHash)
+        let secondHash = try #require(mockSettings.lastBackupHash)
 
         #expect(firstHash == secondHash)
     }

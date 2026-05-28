@@ -39,7 +39,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var backupFolderBookmark: Data? { get }
     /// SHA-256 hex digest of the entry data that was most recently written to the backup file.
     /// Persisted so cold launches with unchanged data do not blindly overwrite today's backup.
-    var lastBackedUpHash: String? { get }
+    var lastBackupHash: String? { get }
     var fullBackUp: Bool { get }
     var unsupportedScanning: Bool { get }
     var sortOption: SortOption { get }
@@ -59,7 +59,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleICloudSync(_ value: Bool)
     func toggleFolderBackup(_ value: Bool)
     func setBackupFolderBookmark(_ data: Data?)
-    func setLastBackedUpHash(_ value: String?)
+    func setLastBackupHash(_ value: String?)
     func setUnsupportedScanning(_ value: Bool)
     func setSortOption(_ value: SortOption)
     func setICloudDisablePromptDismissed(_ value: Bool)
@@ -87,7 +87,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var iCloudSync: Bool
     public private(set) var folderBackup: Bool
     public private(set) var backupFolderBookmark: Data?
-    public private(set) var lastBackedUpHash: String?
+    public private(set) var lastBackupHash: String?
     public private(set) var fullBackUp: Bool
     public private(set) var unsupportedScanning: Bool
     public private(set) var sortOption: SortOption
@@ -124,7 +124,7 @@ public final class SettingsService: SettingsServicing {
         iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
         folderBackup = store.bool(forKey: AppConstants.Settings.folderBackup)
         backupFolderBookmark = store.data(forKey: AppConstants.Settings.backupFolderBookmark)
-        lastBackedUpHash = store.string(forKey: AppConstants.Settings.lastBackedUpHash)
+        lastBackupHash = store.string(forKey: AppConstants.Settings.lastBackupHash)
         unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
         sortOption = store.value(for: AppConstants.Settings.sortOption)
         iCloudDisablePromptDismissed = store
@@ -221,12 +221,12 @@ public extension SettingsService {
         }
     }
 
-    func setLastBackedUpHash(_ value: String?) {
-        lastBackedUpHash = value
+    func setLastBackupHash(_ value: String?) {
+        lastBackupHash = value
         if let value {
-            store.set(value, forKey: AppConstants.Settings.lastBackedUpHash)
+            store.set(value, forKey: AppConstants.Settings.lastBackupHash)
         } else {
-            store.removeObject(forKey: AppConstants.Settings.lastBackedUpHash)
+            store.removeObject(forKey: AppConstants.Settings.lastBackupHash)
         }
     }
 
