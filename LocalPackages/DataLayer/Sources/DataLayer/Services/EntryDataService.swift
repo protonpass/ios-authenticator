@@ -337,7 +337,7 @@ public extension EntryDataService {
     func backUpEntries(force: Bool) -> BackUpResult {
         guard settings.folderBackup else { return .notEnabled }
 
-        let currentHash = computeEntriesHash()
+        let currentHash = dataState.orderEntries.computeFullHash
         if !force, let stored = settings.lastBackupHash, stored == currentHash {
             return .unchanged
         }
@@ -434,29 +434,6 @@ public extension EntryDataService {
 }
 
 private extension EntryDataService {
-    /// Stable SHA-256 hex digest of the fields that constitute a meaningful change to the
-    /// backed-up dataset. Mirrors the field set in `OrderedEntry.hash(into:)` (intentionally
-    /// excluding `modifiedTime` / `creationDate` so a pure "touch" doesn't trigger a rewrite),
-    /// but uses CryptoKit instead of Swift's `Hasher` so the value is reproducible across
-    /// process restarts and can be persisted via `SettingsServicing.lastBackedUpHash`.
-    ///
-    /// Each variable-length field is length-prefixed (`UInt32` big-endian) to avoid
-    /// ambiguity at boundaries (e.g. "ab" + "c" vs "a" + "bc"); integer fields are written
-    /// as `Int64` big-endian for cross-architecture stability. Entries are sorted by id so
-    /// the digest is independent of the in-memory array order.
-    func computeEntriesHash() -> String {
-        guard let entries = dataState.data, !entries.isEmpty else { return "" }
-        var hasher = SHA256()
-        let sortedOrderedEntries = entries
-            .map(\.orderedEntry)
-            .sorted(by: { $0.id < $1.id })
-
-        for orderedEntry in sortedOrderedEntries {
-            orderedEntry.hashInto(&hasher)
-        }
-        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
-    }
-
     func startUpdatingTotpCode(_ entries: [Entry]) {
         log(.debug, "Starting updating TOTP codes for \(entries.count) entries")
 
@@ -516,7 +493,9 @@ private extension EntryDataService {
             hasNonDecryptableEntries = entryStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
-            backUpEntries()
+            if settings.iCloudSync {
+                backUpEntries()
+            }
         } catch {
             log(.error, "Failed to load entries: \(error)")
             if let data = dataState.data, !data.isEmpty { return }
@@ -761,43 +740,6 @@ private extension EntryDataService {
     }
 }
 
-private extension SHA256 {
-    /// Length-prefixed UTF-8 string update, removing boundary ambiguity between adjacent fields.
-    mutating func appendLengthPrefixed(_ value: String) {
-        let bytes = Data(value.utf8)
-        var length = UInt32(bytes.count).bigEndian
-        update(data: Data(bytes: &length, count: MemoryLayout<UInt32>.size))
-        update(data: bytes)
-    }
-
-    /// Fixed-width big-endian `Int64` update, stable across 32/64-bit architectures.
-    mutating func appendInt(_ value: Int) {
-        var big = Int64(value).bigEndian
-        update(data: Data(bytes: &big, count: MemoryLayout<Int64>.size))
-    }
-}
-
-private extension OrderedEntry {
-    func hashInto(_ hasher: inout SHA256) {
-        hasher.appendLengthPrefixed(entry.id)
-        hasher.appendLengthPrefixed(entry.name)
-        hasher.appendLengthPrefixed(entry.uri)
-        hasher.appendLengthPrefixed(entry.issuer)
-        hasher.appendLengthPrefixed(entry.secret)
-        hasher.appendLengthPrefixed(entry.note ?? "")
-        hasher.appendLengthPrefixed(entry.type.rawValue)
-        hasher.appendInt(entry.period)
-
-        hasher.appendInt(order)
-        hasher.appendInt(revision)
-        hasher.appendInt(flags)
-        hasher.appendInt(contentFormatVersion)
-        hasher.appendInt(syncState.rawValue)
-        hasher.appendLengthPrefixed(remoteId ?? "")
-        hasher.appendLengthPrefixed(keyId ?? "")
-    }
-}
-
 extension [EntryState] {
     var decodedEntries: [OrderedEntry] {
         compactMap(\.entry)
@@ -821,6 +763,28 @@ public extension DataState<[EntryUiModel]> {
 extension [OrderedEntry] {
     func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
         self.first { $0.entry.id == entryId }
+    }
+
+    /// Stable SHA-256 hex digest of the fields that constitute a meaningful change to the
+    /// backed-up dataset. Mirrors the field set in `OrderedEntry.hash(into:)` (intentionally
+    /// excluding `modifiedTime` / `creationDate` so a pure "touch" doesn't trigger a rewrite),
+    /// but uses CryptoKit instead of Swift's `Hasher` so the value is reproducible across
+    /// process restarts and can be persisted via `SettingsServicing.lastBackedUpHash`.
+    ///
+    /// Each variable-length field is length-prefixed (`UInt32` big-endian) to avoid
+    /// ambiguity at boundaries (e.g. "ab" + "c" vs "a" + "bc"); integer fields are written
+    /// as `Int64` big-endian for cross-architecture stability. Entries are sorted by id so
+    /// the digest is independent of the in-memory array order.
+    var computeFullHash: String {
+        guard !self.isEmpty else { return "" }
+        var hasher = SHA256()
+
+        let sortedOrderedEntries = self.sorted(by: { $0.id < $1.id })
+
+        for orderedEntry in sortedOrderedEntries {
+            orderedEntry.hashInto(&hasher)
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 }
 

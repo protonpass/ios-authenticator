@@ -67,6 +67,7 @@ disabled_rules:
  - discouraged_optional_collection
  - incompatible_concurrency_annotation
  - discouraged_default_parameter
+ - variable_shadowing
 
 ##############
 #Opted in rules#
