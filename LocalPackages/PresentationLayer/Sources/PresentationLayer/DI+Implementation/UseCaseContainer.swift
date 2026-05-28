@@ -86,6 +86,15 @@ public extension UseCaseContainer {
         }
     }
 
+    var restoreBackUpDestinationFolder: Factory<any RestoreBackUpDestinationFolderUseCase> {
+        self { @MainActor in
+            RestoreBackUpDestinationFolder(backUpManager: ServiceContainer.shared.backUpManager(),
+                                           settingsService: self.settingsService,
+                                           keychainService: ServiceContainer.shared.keychainService(),
+                                           logger: self.logger)
+        }
+    }
+
     var setUpSentry: Factory<any SetUpSentryUseCase> {
         self { SetUpSentry() }
     }

@@ -183,6 +183,10 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     private(set) var setUpFirstRun
 
     @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.restoreBackUpDestinationFolder)
+    private var restoreBackUpDestinationFolder
+
+    @ObservationIgnored
     @LazyInjected(\ServiceContainer.authenticationService)
     private var authenticationService
 
@@ -207,6 +211,8 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
     init() {
         sentry()
         updateAppAndRustVersion(for: .main, userDefaults: .standard)
+
+        restoreBackUpDestinationFolder()
 
         reviewService.askForReviewEventStream
             .receive(on: DispatchQueue.main)

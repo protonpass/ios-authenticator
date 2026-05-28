@@ -22,6 +22,7 @@
 
 import CommonUtilities
 import DataLayer
+import DomainLayer
 import FactoryKit
 import Foundation
 import Macro
@@ -77,6 +78,10 @@ final class BackUpViewModel {
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.settingsService) private var settingsService
+
+    @ObservationIgnored
+    @LazyInjected(\UseCaseContainer.restoreBackUpDestinationFolder)
+    private var restoreBackUpDestinationFolder
 
     @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
@@ -236,23 +241,10 @@ private extension BackUpViewModel {
     func setUp() {
         backupActivated = settingsService.folderBackup
         guard backupActivated else { return }
-
-        // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade
-        if let legacyData = settingsService.backupFolderBookmark {
-            try? keychainService.set(legacyData,
-                                     for: AppConstants.Settings.backupFolderBookmark,
-                                     shouldSync: false)
-            settingsService.setBackupFolderBookmark(nil)
-        }
-
-        do {
-            let bookmarkData: Data = try keychainService.get(keyId: AppConstants.Settings.backupFolderBookmark,
-                                                             isSynced: false)
-            let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+        if let url = restoreBackUpDestinationFolder() {
             updateFolderDisplay(from: url)
-        } catch {
-            log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
-            settingsService.toggleFolderBackup(false)
+        } else {
+            // Use case already toggled folderBackup off on failure
             backupActivated = false
         }
     }
