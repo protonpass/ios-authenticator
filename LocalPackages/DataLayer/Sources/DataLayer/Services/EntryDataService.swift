@@ -447,23 +447,12 @@ private extension EntryDataService {
     func computeEntriesHash() -> String {
         guard let entries = dataState.data, !entries.isEmpty else { return "" }
         var hasher = SHA256()
-        for orderedEntry in entries.map(\.orderedEntry).sorted(by: { $0.id < $1.id }) {
-            let entry = orderedEntry.entry
-            hasher.appendLengthPrefixed(entry.id)
-            hasher.appendLengthPrefixed(entry.name)
-            hasher.appendLengthPrefixed(entry.uri)
-            hasher.appendLengthPrefixed(entry.issuer)
-            hasher.appendLengthPrefixed(entry.secret)
-            hasher.appendLengthPrefixed(entry.note ?? "")
-            hasher.appendLengthPrefixed(entry.type.rawValue)
-            hasher.appendInt(entry.period)
-            hasher.appendInt(orderedEntry.order)
-            hasher.appendInt(orderedEntry.revision)
-            hasher.appendInt(orderedEntry.flags)
-            hasher.appendInt(orderedEntry.contentFormatVersion)
-            hasher.appendInt(orderedEntry.syncState.rawValue)
-            hasher.appendLengthPrefixed(orderedEntry.remoteId ?? "")
-            hasher.appendLengthPrefixed(orderedEntry.keyId ?? "")
+        let sortedOrderedEntries = entries
+            .map(\.orderedEntry)
+            .sorted(by: { $0.id < $1.id })
+
+        for orderedEntry in sortedOrderedEntries {
+            orderedEntry.hashInto(&hasher)
         }
         return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
@@ -785,6 +774,27 @@ private extension SHA256 {
     mutating func appendInt(_ value: Int) {
         var big = Int64(value).bigEndian
         update(data: Data(bytes: &big, count: MemoryLayout<Int64>.size))
+    }
+}
+
+private extension OrderedEntry {
+    func hashInto(_ hasher: inout SHA256) {
+        hasher.appendLengthPrefixed(entry.id)
+        hasher.appendLengthPrefixed(entry.name)
+        hasher.appendLengthPrefixed(entry.uri)
+        hasher.appendLengthPrefixed(entry.issuer)
+        hasher.appendLengthPrefixed(entry.secret)
+        hasher.appendLengthPrefixed(entry.note ?? "")
+        hasher.appendLengthPrefixed(entry.type.rawValue)
+        hasher.appendInt(entry.period)
+
+        hasher.appendInt(order)
+        hasher.appendInt(revision)
+        hasher.appendInt(flags)
+        hasher.appendInt(contentFormatVersion)
+        hasher.appendInt(syncState.rawValue)
+        hasher.appendLengthPrefixed(remoteId ?? "")
+        hasher.appendLengthPrefixed(keyId ?? "")
     }
 }
 
