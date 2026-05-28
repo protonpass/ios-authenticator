@@ -299,6 +299,7 @@ struct EntryDataServiceBackupTests {
             makeEntryState(entry: entry2, order: 1)
         ]
         mockSettings.folderBackup = true
+        mockSettings.iCloudSync = true
         try mockKeychain.set("test-password",
                              for: AppConstants.Settings.backupPassword,
                              shouldSync: false)
@@ -458,6 +459,7 @@ struct EntryDataServiceBackupTests {
         let entry = makeEntry()
         mockRepository.allLocalEntries = [makeEntryState(entry: entry)]
         mockSettings.folderBackup = true
+        mockSettings.iCloudSync = true
         try mockKeychain.set("test-password",
                              for: AppConstants.Settings.backupPassword,
                              shouldSync: false)
