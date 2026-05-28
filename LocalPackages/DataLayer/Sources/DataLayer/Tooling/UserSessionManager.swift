@@ -415,9 +415,9 @@ extension UserSessionManager: AuthDelegate {
             if let password {
                 credentials.authCredential.update(password: password)
             }
-            let saltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
-            let privateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
-            credentials.authCredential.update(salt: saltToUpdate, privateKey: privateKeyToUpdate)
+            let newSaltToUpdate = salt ?? credentials.authCredential.passwordKeySalt
+            let newPrivateKeyToUpdate = privateKey ?? credentials.authCredential.privateKey
+            credentials.authCredential.update(salt: newSaltToUpdate, privateKey: newPrivateKeyToUpdate)
         }
         saveDataToKeychain(data: cachedCredentials.value, for: credentialsKey)
 

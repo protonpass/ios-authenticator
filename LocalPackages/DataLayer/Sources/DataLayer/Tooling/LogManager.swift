@@ -158,7 +158,7 @@ public extension LoggerProtocol {
     }
 }
 
-public final actor LogManager: LoggerProtocol {
+public actor LogManager: LoggerProtocol {
     private let configuration: LogManagerConfiguration
     private let loggers: [LogCategory: Logger]
     private let localDataManager: any LocalDataManagerProtocol

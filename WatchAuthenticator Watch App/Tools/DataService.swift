@@ -169,8 +169,8 @@ private extension DataService {
                     }
                 }
                 try await repository.upsert(entries)
-                let entries = generateUIEntries(from: entries)
-                updateData(entries)
+                let uiEntries = generateUIEntries(from: entries)
+                updateData(uiEntries)
             } catch {
                 if let data = dataState.data, !data.isEmpty { return }
                 dataState = .failed(error)

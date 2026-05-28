@@ -414,7 +414,7 @@ public extension EntryRepository {
             let encryptedData = try encryptionService.encrypt(entry: entry.entry,
                                                               keyId: localKeyId)
             try await localDataManager.persistentStorage.performTransaction {
-                for entity in entities {
+                for entity in entities { // swiftlint:disable:this variable_shadowing
                     entity.updateEncryptedData(encryptedData,
                                                with: localKeyId,
                                                remoteModifiedTime: entry.modifiedTime)
@@ -1029,7 +1029,7 @@ extension [EncryptedEntryEntity] {
 
 extension Date {
     static var currentTimestamp: TimeInterval {
-        Date.now.timeIntervalSince1970
+        now.timeIntervalSince1970
     }
 }
 

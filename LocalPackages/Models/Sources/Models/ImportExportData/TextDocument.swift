@@ -63,8 +63,8 @@ public struct TextDocument: FileDocument, Transferable, Codable {
         } importing: { received in
             // This is required but won't be used for sharing
             let data = try Data(contentsOf: received.file)
-            let content = String(data: data, encoding: .utf8) ?? ""
-            return Self(content)
+            let encodedContent = String(data: data, encoding: .utf8) ?? ""
+            return Self(encodedContent)
         }
 
         // Add fallback data representation
