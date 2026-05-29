@@ -25,10 +25,12 @@ import Foundation
 final class MockBackUpManager: BackUpServicing {
     private(set) var writeCalled = 0
     private(set) var lastWrittenData: Data?
-    private(set) var resolveDestinationFolderCalled = 0
+    private(set) var saveDestinationFolderCalled = 0
+    private(set) var clearDestinationFolderCalled = 0
 
+    var destinationFolderURL: URL?
     var writeError: Error?
-    var resolveError: Error?
+    var saveError: Error?
 
     func write(data: Data) throws {
         writeCalled += 1
@@ -44,15 +46,14 @@ final class MockBackUpManager: BackUpServicing {
 
     func deleteAllBackupFiles() throws {}
 
-    func openBackupFolder() {}
-
-    func setDestinationFolder(_ url: URL) {}
-
-    func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
-        resolveDestinationFolderCalled += 1
-        if let resolveError { throw resolveError }
-        return URL(fileURLWithPath: "/tmp/mock-backup")
+    func saveDestinationFolder(_ url: URL) throws {
+        saveDestinationFolderCalled += 1
+        if let saveError { throw saveError }
+        destinationFolderURL = url
     }
 
-    func clearDestinationFolder() {}
+    func clearDestinationFolder() {
+        clearDestinationFolderCalled += 1
+        destinationFolderURL = nil
+    }
 }

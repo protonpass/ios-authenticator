@@ -80,10 +80,6 @@ final class BackUpViewModel {
     @LazyInjected(\ServiceContainer.settingsService) private var settingsService
 
     @ObservationIgnored
-    @LazyInjected(\UseCaseContainer.restoreBackUpDestinationFolder)
-    private var restoreBackUpDestinationFolder
-
-    @ObservationIgnored
     @LazyInjected(\ToolsContainer.logManager)
     private(set) var logger
 
@@ -153,9 +149,6 @@ final class BackUpViewModel {
 
     func disableBackup() {
         guard backupActivated else { return }
-        settingsService.toggleFolderBackup(false)
-        try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
-                                    isSynced: false)
         backUpManager.clearDestinationFolder()
         backupActivated = false
         backups = []
@@ -241,10 +234,10 @@ private extension BackUpViewModel {
     func setUp() {
         backupActivated = settingsService.folderBackup
         guard backupActivated else { return }
-        if let url = restoreBackUpDestinationFolder() {
+        if let url = backUpManager.destinationFolderURL {
             updateFolderDisplay(from: url)
         } else {
-            // Use case already toggled folderBackup off on failure
+            // The manager already toggled folderBackup off if restore failed at launch.
             backupActivated = false
         }
     }
@@ -270,17 +263,7 @@ private extension BackUpViewModel {
 
     func setBackupFolder(_ folderUrl: URL) {
         do {
-            let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
-                ? .macSecurityScope
-                : .minimalBookmark
-            let bookmarkData = try folderUrl.bookmarkData(options: bookmarkOptions,
-                                                          includingResourceValuesForKeys: nil,
-                                                          relativeTo: nil)
-            try keychainService.set(bookmarkData,
-                                    for: AppConstants.Settings.backupFolderBookmark,
-                                    shouldSync: false)
-            backUpManager.setDestinationFolder(folderUrl)
-            settingsService.toggleFolderBackup(true)
+            try backUpManager.saveDestinationFolder(folderUrl)
             backupActivated = true
             updateFolderDisplay(from: folderUrl)
 
@@ -293,7 +276,7 @@ private extension BackUpViewModel {
                 loadData()
             }
         } catch {
-            log(.error, "Failed to create bookmark: \(error.localizedDescription)")
+            log(.error, "Failed to set backup folder: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }

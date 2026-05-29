@@ -120,7 +120,10 @@ public extension ServiceContainer {
     }
 
     var backUpManager: Factory<any BackUpServicing> {
-        self { @MainActor in BackUpManager() }
+        self { @MainActor in BackUpManager(keychainService: self.keychainService(),
+                                           settingsService: self.settingsService(),
+                                           logger: self.logger)
+        }
     }
 
     var totpCountdownManager: Factory<any TOTPCountdownProtocol> {
