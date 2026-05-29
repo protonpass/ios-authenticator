@@ -23,7 +23,10 @@ import Foundation
 
 extension SHA256 {
     /// Length-prefixed UTF-8 string update, removing boundary ambiguity between adjacent fields.
-    mutating func appendLengthPrefixed(_ value: String) {
+    mutating func appendLengthPrefixed(_ value: String?) {
+        guard let value else {
+            return
+        }
         let bytes = Data(value.utf8)
         var length = UInt32(bytes.count).bigEndian
         update(data: Data(bytes: &length, count: MemoryLayout<UInt32>.size))

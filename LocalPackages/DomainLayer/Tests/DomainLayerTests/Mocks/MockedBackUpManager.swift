@@ -1,5 +1,5 @@
 //
-// MockBackUpManager.swift
+// MockedBackUpManager.swift
 // Proton Authenticator - Created on 27/05/2026.
 // Copyright (c) 2026 Proton Technologies AG
 //
@@ -22,7 +22,7 @@ import DataLayer
 import Foundation
 
 @MainActor
-final class MockBackUpManager: BackUpServicing {
+final class MockedBackUpManager: BackUpServicing {
     private(set) var resolveDestinationFolderCalled = 0
     private(set) var lastResolvedBookmark: Data?
 

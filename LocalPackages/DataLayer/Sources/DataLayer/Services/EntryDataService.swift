@@ -337,7 +337,7 @@ public extension EntryDataService {
     func backUpEntries(force: Bool) -> BackUpResult {
         guard settings.folderBackup else { return .notEnabled }
 
-        let currentHash = dataState.orderEntries.computeFullHash
+        let currentHash = dataState.orderEntries.computeHashValue()
         if !force, let stored = settings.lastBackupHash, stored == currentHash {
             return .unchanged
         }
@@ -775,7 +775,7 @@ extension [OrderedEntry] {
     /// ambiguity at boundaries (e.g. "ab" + "c" vs "a" + "bc"); integer fields are written
     /// as `Int64` big-endian for cross-architecture stability. Entries are sorted by id so
     /// the digest is independent of the in-memory array order.
-    var computeFullHash: String {
+    func computeHashValue() -> String {
         guard !self.isEmpty else { return "" }
         var hasher = SHA256()
 

@@ -1,5 +1,5 @@
 //
-// MockKeychainService.swift
+// MockedKeychainService.swift
 // Proton Authenticator - Created on 27/05/2026.
 // Copyright (c) 2026 Proton Technologies AG
 //
@@ -25,7 +25,7 @@ enum MockKeychainError: Error {
     case itemNotFound
 }
 
-final class MockKeychainService: @unchecked Sendable, KeychainServicing {
+final class MockedKeychainService: @unchecked Sendable, KeychainServicing {
     private var storage: [String: Any] = [:]
     private(set) var setCallCount = 0
     private(set) var getCallCount = 0

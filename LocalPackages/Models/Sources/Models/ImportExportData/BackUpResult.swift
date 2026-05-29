@@ -24,7 +24,6 @@ public enum BackUpResult: Sendable {
     case notEnabled
     case successful
     case noData
-    /// The current data already matches the most recently written backup; no file was written.
     case unchanged
     case error(any Error)
 }

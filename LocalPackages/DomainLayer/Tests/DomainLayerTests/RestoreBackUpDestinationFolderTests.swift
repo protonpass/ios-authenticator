@@ -27,9 +27,9 @@ import Testing
 
 @MainActor
 struct RestoreBackUpDestinationFolderTests {
-    let backUpManager: MockBackUpManager
+    let backUpManager: MockedBackUpManager
     let settingsService: MockedSettingsService
-    let keychainService: MockKeychainService
+    let keychainService: MockedKeychainService
     let sut: any RestoreBackUpDestinationFolderUseCase
 
     init() {

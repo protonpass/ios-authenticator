@@ -29,7 +29,7 @@ extension OrderedEntry {
         hasher.appendLengthPrefixed(entry.uri)
         hasher.appendLengthPrefixed(entry.issuer)
         hasher.appendLengthPrefixed(entry.secret)
-        hasher.appendLengthPrefixed(entry.note ?? "")
+        hasher.appendLengthPrefixed(entry.note)
         hasher.appendLengthPrefixed(entry.type.rawValue)
         hasher.appendInt(entry.period)
 
@@ -37,7 +37,7 @@ extension OrderedEntry {
         hasher.appendInt(flags)
         hasher.appendInt(contentFormatVersion)
         hasher.appendInt(syncState.rawValue)
-        hasher.appendLengthPrefixed(remoteId ?? "")
-        hasher.appendLengthPrefixed(keyId ?? "")
+        hasher.appendLengthPrefixed(remoteId)
+        hasher.appendLengthPrefixed(keyId)
     }
 }
