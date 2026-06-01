@@ -35,6 +35,8 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
     var completeRemovesError: Error?
     var completeReorderError: Error?
     var allLocalEntries: [EntryState] = []
+    var getAllLocalEntriesError: Error?
+    var unsyncAllEntriesError: Error?
     var createTotpEntryResult: Entry?
     var createSteamEntryResult: Entry?
 
@@ -49,6 +51,8 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
     private(set) var completeReorderCalled = 0
     private(set) var generateCodesCalled = 0
     private(set) var localReorderCalled = 0
+    private(set) var getAllLocalEntriesCalled = 0
+    private(set) var unsyncAllEntriesCalled = 0
 
     // MARK: - EntryRepositoryProtocol
 
@@ -104,7 +108,9 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
 
     @MainActor
     func getAllLocalEntries() async throws -> [EntryState] {
-        allLocalEntries
+        getAllLocalEntriesCalled += 1
+        if let getAllLocalEntriesError { throw getAllLocalEntriesError }
+        return allLocalEntries
     }
 
     @MainActor
@@ -124,7 +130,10 @@ final class MockEntryRepository: @unchecked Sendable, EntryRepositoryProtocol {
         localReorderCalled += 1
     }
 
-    func unsyncAllEntries() async throws {}
+    func unsyncAllEntries() async throws {
+        unsyncAllEntriesCalled += 1
+        if let unsyncAllEntriesError { throw unsyncAllEntriesError }
+    }
 
     func reset(keyIds: [String]) async throws {}
 

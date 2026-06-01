@@ -37,6 +37,9 @@ public protocol SettingsServicing: Sendable, Observable {
     var iCloudSync: Bool { get }
     var folderBackup: Bool { get }
     var backupFolderBookmark: Data? { get }
+    /// SHA-256 hex digest of the entry data that was most recently written to the backup file.
+    /// Persisted so cold launches with unchanged data do not blindly overwrite today's backup.
+    var lastBackupHash: String? { get }
     var fullBackUp: Bool { get }
     var unsupportedScanning: Bool { get }
     var sortOption: SortOption { get }
@@ -56,6 +59,7 @@ public protocol SettingsServicing: Sendable, Observable {
     func toggleICloudSync(_ value: Bool)
     func toggleFolderBackup(_ value: Bool)
     func setBackupFolderBookmark(_ data: Data?)
+    func setLastBackupHash(_ value: String?)
     func setUnsupportedScanning(_ value: Bool)
     func setSortOption(_ value: SortOption)
     func setICloudDisablePromptDismissed(_ value: Bool)
@@ -83,6 +87,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var iCloudSync: Bool
     public private(set) var folderBackup: Bool
     public private(set) var backupFolderBookmark: Data?
+    public private(set) var lastBackupHash: String?
     public private(set) var fullBackUp: Bool
     public private(set) var unsupportedScanning: Bool
     public private(set) var sortOption: SortOption
@@ -119,6 +124,7 @@ public final class SettingsService: SettingsServicing {
         iCloudSync = store.bool(forKey: AppConstants.Settings.iCloudSync)
         folderBackup = store.bool(forKey: AppConstants.Settings.folderBackup)
         backupFolderBookmark = store.data(forKey: AppConstants.Settings.backupFolderBookmark)
+        lastBackupHash = store.string(forKey: AppConstants.Settings.lastBackupHash)
         unsupportedScanning = store.bool(forKey: AppConstants.Settings.unsupportedScanning)
         sortOption = store.value(for: AppConstants.Settings.sortOption)
         iCloudDisablePromptDismissed = store
@@ -212,6 +218,15 @@ public extension SettingsService {
             store.set(data, forKey: AppConstants.Settings.backupFolderBookmark)
         } else {
             store.removeObject(forKey: AppConstants.Settings.backupFolderBookmark)
+        }
+    }
+
+    func setLastBackupHash(_ value: String?) {
+        lastBackupHash = value
+        if let value {
+            store.set(value, forKey: AppConstants.Settings.lastBackupHash)
+        } else {
+            store.removeObject(forKey: AppConstants.Settings.lastBackupHash)
         }
     }
 

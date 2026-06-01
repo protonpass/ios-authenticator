@@ -481,7 +481,7 @@ private final class ImportViewModel: ObservableObject {
                 guard let self else { return }
                 defer { importing = false }
                 var sources = [TwofaImportSource]()
-                for url in urls {
+                for url in urls { // swiftlint:disable:this variable_shadowing
                     if url.startAccessingSecurityScopedResource() {
                         do {
                             let fileHandle = try FileHandle(forReadingFrom: url)

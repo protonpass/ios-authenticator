@@ -24,5 +24,6 @@ public enum BackUpResult: Sendable {
     case notEnabled
     case successful
     case noData
+    case unchanged
     case error(any Error)
 }

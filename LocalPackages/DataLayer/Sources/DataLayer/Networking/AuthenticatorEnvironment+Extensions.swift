@@ -88,14 +88,14 @@ private extension Bundle {
             return [:]
         }
 
-        guard let plist =
+        guard let newPlist =
             try? PropertyListSerialization.propertyList(from: data,
                                                         options: [],
                                                         format: nil) as? [String: String] else {
             assertionFailure("Failed to parse \(name).plist")
             return [:]
         }
-        return plist
+        return newPlist
     }
 }
 

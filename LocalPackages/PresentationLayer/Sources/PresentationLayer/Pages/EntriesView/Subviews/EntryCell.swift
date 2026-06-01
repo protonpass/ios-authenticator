@@ -48,7 +48,7 @@ private struct HighlightedText: View, Equatable {
     }
 
     private var attributedString: AttributedString {
-        var attributedString = AttributedString(text)
+        var attributedString = AttributedString(text) // swiftlint:disable:this variable_shadowing
         var searchRange = attributedString.startIndex..<attributedString.endIndex
 
         while let foundRange = attributedString[searchRange].range(of: highlighted,

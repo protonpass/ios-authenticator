@@ -65,7 +65,7 @@ public final class TOTPCountdownManager: TOTPCountdownProtocol {
     }
 
     public func calculateCountdownInfo(period: Int) -> TOTPCountdownManager.CountdownInfo {
-        let period = Double(period)
+        let period = Double(period) // swiftlint:disable:this variable_shadowing
         let timeRemaining = (period - currentTimestamp.truncatingRemainder(dividingBy: period)).rounded(.down)
         let progress = timeRemaining / period
 

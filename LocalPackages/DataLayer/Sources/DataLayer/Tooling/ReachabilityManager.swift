@@ -51,7 +51,6 @@ public final class ReachabilityManager: ReachabilityServicing {
     private let urlSession: URLSession
 
     public init(monitorInterfaceType: NWInterface.InterfaceType? = nil,
-                // swiftlint:disable:next force_unwrapping
                 connectivityTestURL: URL = URL(string: "https://www.apple.com/library/test/success.html")!,
                 urlSession: URLSession = {
                     let config = URLSessionConfiguration.ephemeral

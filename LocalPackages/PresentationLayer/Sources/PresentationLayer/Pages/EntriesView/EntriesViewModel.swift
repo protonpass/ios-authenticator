@@ -405,8 +405,8 @@ private extension EntriesViewModel {
 
     func executeSearch(query: String) {
         searchTask?.cancel()
-        let query = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if query.isEmpty {
+        let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if cleanQuery.isEmpty {
             searchResults = nil
             updateEntries()
             return

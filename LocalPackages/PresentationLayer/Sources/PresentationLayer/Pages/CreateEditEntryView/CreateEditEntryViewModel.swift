@@ -102,13 +102,13 @@ final class CreateEditEntryViewModel {
                 }
                 shouldDismiss = true
             } catch {
-                if let error = error as? AuthenticatorRustCore.AuthenticatorError {
-                    switch error {
+                if let authError = error as? AuthenticatorRustCore.AuthenticatorError {
+                    switch authError {
                     case .InvalidSecret:
-                        errorMessage = #localized("Invalid secret: %@", bundle: .module, error.message)
+                        errorMessage = #localized("Invalid secret: %@", bundle: .module, authError.message)
 
                     default:
-                        errorMessage = error.message
+                        errorMessage = authError.message
                     }
                 } else {
                     handle(error)

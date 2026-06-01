@@ -22,6 +22,7 @@ import AuthenticatorRustCore
 import Combine
 import CommonUtilities
 import CoreData
+import CryptoKit
 import Foundation
 import Models
 import ProtonCoreNetworking
@@ -45,7 +46,7 @@ public protocol EntryDataServiceProtocol: Sendable, Observable {
 
     func fullRefresh() async throws
     @discardableResult
-    func backUpEntries() -> BackUpResult
+    func backUpEntries(force: Bool) -> BackUpResult
 
     func deleteAllEntries() async throws
 
@@ -68,6 +69,13 @@ public extension EntryDataServiceProtocol {
 public extension EntryDataServiceProtocol {
     func importEntries(from source: TwofaImportSource) async throws -> Int {
         try await importEntries(from: [source])
+    }
+}
+
+public extension EntryDataServiceProtocol {
+    @discardableResult
+    func backUpEntries(force: Bool = false) -> BackUpResult {
+        backUpEntries(force: force)
     }
 }
 
@@ -292,6 +300,7 @@ public extension EntryDataService {
             let entryStates = try await repository.getAllLocalEntries()
             let entries = try await generateUIEntries(from: entryStates.decodedEntries)
             updateData(entries)
+            backUpEntries()
         } catch {
             log(.error, "Failed to unsync all entries: \(error.localizedDescription)")
             throw error
@@ -301,11 +310,7 @@ public extension EntryDataService {
     func deleteAllEntries() async throws {
         log(.debug, "Deleting all entries")
         do {
-            let localEntries = try await repository.getAllLocalEncryptedEntries()
-
-            let entryIdsToRemove = localEntries.map(\.id)
-
-            try await repository.localRemoves(entryIdsToRemove)
+            try await repository.localRemoveAll()
 
             var remoteError: (any Error)?
             if let remoteEntries = try? await repository.fetchAllRemoteEntries() {
@@ -329,14 +334,20 @@ public extension EntryDataService {
     }
 
     @discardableResult
-    func backUpEntries() -> BackUpResult {
+    func backUpEntries(force: Bool) -> BackUpResult {
         guard settings.folderBackup else { return .notEnabled }
+
+        let currentHash = dataState.orderEntries.computeHashValue()
+        if !force, let stored = settings.lastBackupHash, stored == currentHash {
+            return .unchanged
+        }
 
         do {
             let password: String = try keychainService.get(keyId: AppConstants.Settings.backupPassword,
                                                            isSynced: false)
             if let exportData = try exportEntries(password: password).data(using: .utf8) {
                 try backUpManager.write(data: exportData)
+                settings.setLastBackupHash(currentHash)
             }
             return .successful
         } catch {
@@ -482,6 +493,9 @@ private extension EntryDataService {
             hasNonDecryptableEntries = entryStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
             updateData(entries)
+            if settings.iCloudSync {
+                backUpEntries()
+            }
         } catch {
             log(.error, "Failed to load entries: \(error)")
             if let data = dataState.data, !data.isEmpty { return }
@@ -749,6 +763,28 @@ public extension DataState<[EntryUiModel]> {
 extension [OrderedEntry] {
     func getFirstOrderedEntry(for entryId: String) -> OrderedEntry? {
         self.first { $0.entry.id == entryId }
+    }
+
+    /// Stable SHA-256 hex digest of the fields that constitute a meaningful change to the
+    /// backed-up dataset. Mirrors the field set in `OrderedEntry.hash(into:)` (intentionally
+    /// excluding `modifiedTime` / `creationDate` so a pure "touch" doesn't trigger a rewrite),
+    /// but uses CryptoKit instead of Swift's `Hasher` so the value is reproducible across
+    /// process restarts and can be persisted via `SettingsServicing.lastBackedUpHash`.
+    ///
+    /// Each variable-length field is length-prefixed (`UInt32` big-endian) to avoid
+    /// ambiguity at boundaries (e.g. "ab" + "c" vs "a" + "bc"); integer fields are written
+    /// as `Int64` big-endian for cross-architecture stability. Entries are sorted by id so
+    /// the digest is independent of the in-memory array order.
+    func computeHashValue() -> String {
+        guard !self.isEmpty else { return "" }
+        var hasher = SHA256()
+
+        let sortedOrderedEntries = self.sorted(by: { $0.id < $1.id })
+
+        for orderedEntry in sortedOrderedEntries {
+            orderedEntry.hashInto(&hasher)
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 }
 

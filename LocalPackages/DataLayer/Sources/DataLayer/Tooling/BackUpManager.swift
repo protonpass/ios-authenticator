@@ -26,13 +26,14 @@ import UIKit
 
 @MainActor
 public protocol BackUpServicing: Sendable {
+    var destinationFolderURL: URL? { get }
+
     func write(data: Data) throws
     func read(fileName: String) throws -> Data
     func getAllDocumentsData() throws -> [BackUpFileInfo]
     func delete(fileName: String) throws
     func deleteAllBackupFiles() throws
-    func setDestinationFolder(_ url: URL)
-    func resolveDestinationFolder(from bookmarkData: Data) throws -> URL
+    func saveDestinationFolder(_ url: URL) throws
     func clearDestinationFolder()
 }
 
@@ -59,33 +60,48 @@ public final class BackUpManager: BackUpServicing {
     private let coordinator: NSFileCoordinator
     private let maxBackupCount: Int
     private let dateFormatter: DateFormatter
+    private let keychainService: any KeychainServicing
+    private let settingsService: any SettingsServicing
+    private let logger: any LoggerProtocol
     private var documentURL: URL?
 
-    public init(maxBackupCount: Int = 5) {
+    public var destinationFolderURL: URL? {
+        documentURL
+    }
+
+    public init(maxBackupCount: Int = 5,
+                keychainService: any KeychainServicing,
+                settingsService: any SettingsServicing,
+                logger: any LoggerProtocol) {
         coordinator = NSFileCoordinator()
         self.maxBackupCount = maxBackupCount
+        self.keychainService = keychainService
+        self.settingsService = settingsService
+        self.logger = logger
         dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        restoreDestinationFolder()
     }
 
-    public func setDestinationFolder(_ url: URL) {
+    /// Creates a security-scoped bookmark for `url`, persists it to the Keychain, and enables folder
+    /// backup. The caller must hold security-scoped access to `url` (the document picker provides it).
+    public func saveDestinationFolder(_ url: URL) throws {
+        let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
+            ? .macSecurityScope
+            : .minimalBookmark
+        let bookmarkData = try url.bookmarkData(options: bookmarkOptions,
+                                                includingResourceValuesForKeys: nil,
+                                                relativeTo: nil)
+        try keychainService.set(bookmarkData,
+                                for: AppConstants.Settings.backupFolderBookmark,
+                                shouldSync: false)
         documentURL = url
-    }
-
-    public func resolveDestinationFolder(from bookmarkData: Data) throws -> URL {
-        var isStale = false
-        let url = try URL(resolvingBookmarkData: bookmarkData,
-                          options: ProcessInfo.processInfo.isiOSAppOnMac ? .macSecurityScope : [],
-                          relativeTo: nil,
-                          bookmarkDataIsStale: &isStale)
-        if isStale {
-            throw AuthError.backup(.staleBookmark)
-        }
-        documentURL = url
-        return url
+        settingsService.toggleFolderBackup(true)
     }
 
     public func clearDestinationFolder() {
+        settingsService.toggleFolderBackup(false)
+        try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark, isSynced: false)
         documentURL = nil
     }
 
@@ -184,6 +200,43 @@ public final class BackUpManager: BackUpServicing {
 }
 
 private extension BackUpManager {
+    /// Restores `documentURL` from the persisted security-scoped bookmark so that auto-backups
+    /// triggered at cold launch (entry load, sync changes, mutations) can succeed without the user
+    /// first visiting the BackUp screen. Disables folder backup if the bookmark is missing or stale.
+    func restoreDestinationFolder() {
+        guard settingsService.folderBackup else { return }
+
+        // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade.
+        if let legacyData = settingsService.backupFolderBookmark {
+            try? keychainService.set(legacyData,
+                                     for: AppConstants.Settings.backupFolderBookmark,
+                                     shouldSync: false)
+            settingsService.setBackupFolderBookmark(nil)
+        }
+
+        do {
+            let bookmarkData: Data =
+                try keychainService.get(keyId: AppConstants.Settings.backupFolderBookmark,
+                                        isSynced: false)
+            var isStale = false
+            let url = try URL(resolvingBookmarkData: bookmarkData,
+                              options: ProcessInfo.processInfo.isiOSAppOnMac ? .macSecurityScope : [],
+                              relativeTo: nil,
+                              bookmarkDataIsStale: &isStale)
+            if isStale {
+                throw AuthError.backup(.staleBookmark)
+            }
+            documentURL = url
+        } catch {
+            log(.error, "Failed to restore backup destination folder: \(error.localizedDescription)")
+            settingsService.toggleFolderBackup(false)
+        }
+    }
+
+    func log(_ level: LogLevel, _ message: String, function: String = #function, line: Int = #line) {
+        logger.log(level, category: .data, message, function: function, line: line)
+    }
+
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
         return "Proton_Authenticator_backup_\(todayString).json"

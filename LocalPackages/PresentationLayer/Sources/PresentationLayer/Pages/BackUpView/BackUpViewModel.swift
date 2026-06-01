@@ -22,6 +22,7 @@
 
 import CommonUtilities
 import DataLayer
+import DomainLayer
 import FactoryKit
 import Foundation
 import Macro
@@ -148,9 +149,6 @@ final class BackUpViewModel {
 
     func disableBackup() {
         guard backupActivated else { return }
-        settingsService.toggleFolderBackup(false)
-        try? keychainService.delete(keyId: AppConstants.Settings.backupFolderBookmark,
-                                    isSynced: false)
         backUpManager.clearDestinationFolder()
         backupActivated = false
         backups = []
@@ -175,7 +173,8 @@ final class BackUpViewModel {
     }
 
     func backup() {
-        let result = entryDataService.backUpEntries()
+        // User-driven action: bypass the dedup cache so the user always sees a fresh file written.
+        let result = entryDataService.backUpEntries(force: true)
         loadData()
         switch result {
         case .notEnabled:
@@ -186,6 +185,9 @@ final class BackUpViewModel {
 
         case .noData:
             toast = SimpleToast(title: #localized("No data to backup", bundle: .module))
+
+        case .unchanged:
+            break
 
         case let .error(error):
             toast = SimpleToast(title: error.localizedDescription)
@@ -232,23 +234,10 @@ private extension BackUpViewModel {
     func setUp() {
         backupActivated = settingsService.folderBackup
         guard backupActivated else { return }
-
-        // Migration: move bookmark from UserDefaults to Keychain on first launch after upgrade
-        if let legacyData = settingsService.backupFolderBookmark {
-            try? keychainService.set(legacyData,
-                                     for: AppConstants.Settings.backupFolderBookmark,
-                                     shouldSync: false)
-            settingsService.setBackupFolderBookmark(nil)
-        }
-
-        do {
-            let bookmarkData: Data = try keychainService.get(keyId: AppConstants.Settings.backupFolderBookmark,
-                                                             isSynced: false)
-            let url = try backUpManager.resolveDestinationFolder(from: bookmarkData)
+        if let url = backUpManager.destinationFolderURL {
             updateFolderDisplay(from: url)
-        } catch {
-            log(.error, "Failed to resolve backup folder bookmark: \(error.localizedDescription)")
-            settingsService.toggleFolderBackup(false)
+        } else {
+            // The manager already toggled folderBackup off if restore failed at launch.
             backupActivated = false
         }
     }
@@ -274,28 +263,20 @@ private extension BackUpViewModel {
 
     func setBackupFolder(_ folderUrl: URL) {
         do {
-            let bookmarkOptions: URL.BookmarkCreationOptions = ProcessInfo.processInfo.isiOSAppOnMac
-                ? .macSecurityScope
-                : .minimalBookmark
-            let bookmarkData = try folderUrl.bookmarkData(options: bookmarkOptions,
-                                                          includingResourceValuesForKeys: nil,
-                                                          relativeTo: nil)
-            try keychainService.set(bookmarkData,
-                                    for: AppConstants.Settings.backupFolderBookmark,
-                                    shouldSync: false)
-            backUpManager.setDestinationFolder(folderUrl)
-            settingsService.toggleFolderBackup(true)
+            try backUpManager.saveDestinationFolder(folderUrl)
             backupActivated = true
             updateFolderDisplay(from: folderUrl)
 
             loadData()
 
             if backups.isEmpty {
-                entryDataService.backUpEntries()
+                // First write to a newly chosen folder must happen regardless of the cache,
+                // otherwise re-selecting the same folder after emptying it would silently skip.
+                entryDataService.backUpEntries(force: true)
                 loadData()
             }
         } catch {
-            log(.error, "Failed to create bookmark: \(error.localizedDescription)")
+            log(.error, "Failed to set backup folder: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }

@@ -66,6 +66,8 @@ disabled_rules:
  - switch_case_on_newline
  - discouraged_optional_collection
  - incompatible_concurrency_annotation
+ - discouraged_default_parameter
+ - variable_shadowing
 
 ##############
 #Opted in rules#
