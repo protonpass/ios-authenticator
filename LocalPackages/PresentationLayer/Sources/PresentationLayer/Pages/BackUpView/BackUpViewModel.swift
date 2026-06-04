@@ -267,14 +267,8 @@ private extension BackUpViewModel {
             backupActivated = true
             updateFolderDisplay(from: folderUrl)
 
+            entryDataService.backUpEntries(force: true)
             loadData()
-
-            if backups.isEmpty {
-                // First write to a newly chosen folder must happen regardless of the cache,
-                // otherwise re-selecting the same folder after emptying it would silently skip.
-                entryDataService.backUpEntries(force: true)
-                loadData()
-            }
         } catch {
             log(.error, "Failed to set backup folder: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
