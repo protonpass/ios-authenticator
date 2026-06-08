@@ -24,15 +24,6 @@ import SwiftUI
 // MARK: - View builder functions
 
 public extension View {
-    @ViewBuilder
-    func paddingIfNotLiquidGlass() -> some View {
-        if #unavailable(iOS 26, macOS 26) {
-            padding(DesignConstant.padding)
-        } else {
-            self
-        }
-    }
-
     /// Applies the given transform if the given value is not nil.
     /// - Parameters:
     ///   - value: The optional value.
@@ -225,5 +216,15 @@ extension View {
         #else
         self
         #endif
+    }
+
+    @ViewBuilder
+    func paddingIfNotLiquidGlass(_ edges: Edge.Set = [.all],
+                                 _ appliedPadding: CGFloat = DesignConstant.padding) -> some View {
+        if #unavailable(iOS 26, macOS 26) {
+            padding(edges, appliedPadding)
+        } else {
+            self
+        }
     }
 }

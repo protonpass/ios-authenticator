@@ -205,7 +205,6 @@ public struct EntriesView: View {
                     }
                 }
                 .blur(radius: router.noSheetDisplayed ? 0 : 8)
-                .animation(.default, value: router.noSheetDisplayed)
                 .fullScreenMainBackground()
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(item: $viewModel.inAppService.currentMessage,
