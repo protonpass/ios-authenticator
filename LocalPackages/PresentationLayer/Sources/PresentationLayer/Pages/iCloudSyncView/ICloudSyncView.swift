@@ -48,6 +48,8 @@ struct ICloudSyncView: View {
             // swiftlint:disable:next line_length
             Label("Due to reliability issues with Apple's iCloud, we recommend using Proton sync and/or backup system instead.",
                   systemImage: "exclamationmark.triangle")
+                .fixedSize(horizontal: false, vertical: true)
+                .paddingIfNotLiquidGlass([.top, .leading, .trailing])
 
             SettingRow(title: .localized("Sync via iCloud", .module),
                        trailingMode: .toggle(isOn: viewModel.iCloudSync,
