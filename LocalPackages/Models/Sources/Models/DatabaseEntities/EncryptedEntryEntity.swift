@@ -39,6 +39,14 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         syncState == .synced && !remoteId.isEmpty
     }
 
+    /// A detached, `Sendable` value copy of this entity's stored fields.
+    ///
+    /// Use this to hand entry data to other actors or to let it outlive the `ModelContext`,
+    /// instead of passing the live `@Model` instance. See ``EncryptedEntrySnapshot``.
+    public var snapshot: EncryptedEntrySnapshot {
+        EncryptedEntrySnapshot(from: self)
+    }
+
     public init(id: String,
                 encryptedData: Data,
                 remoteId: String,
