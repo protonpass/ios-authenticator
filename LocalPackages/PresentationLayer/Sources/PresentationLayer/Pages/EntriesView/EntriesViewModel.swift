@@ -145,6 +145,8 @@ final class EntriesViewModel {
     private var fullSyncTask: Task<Void, Never>?
     @ObservationIgnored
     private var searchTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var moveItemTask: Task<Void, Never>?
 
     private(set) var deleteTask: Task<Void, Never>?
 
@@ -185,6 +187,12 @@ final class EntriesViewModel {
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
+        defer {
+            if moveItemTask == nil {
+                reorderingEntries = nil
+            }
+        }
+
         // Get the actual index values after removing
         guard let offset = source.first else {
             return
@@ -198,9 +206,12 @@ final class EntriesViewModel {
         guard offset != targetIndex else {
             return
         }
-        Task { [weak self] in
+        moveItemTask = Task { [weak self] in
             guard let self else { return }
-            defer { reorderingEntries = nil }
+            defer {
+                moveItemTask = nil
+                reorderingEntries = nil
+            }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
                 await requestForReview()
@@ -244,6 +255,7 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func reloadData() {
+        reorderingEntries = nil
         if isAuthenticated {
             fullSync()
         } else {

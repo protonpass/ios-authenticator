@@ -113,7 +113,7 @@ struct RestrictedScanningArea: View {
                                 .minimumScaleFactor(0.75)
                                 .lineLimit(1)
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 36)
+                                .padding(.horizontal, 16)
                                 .padding(.vertical, 10)
                                 .ifNoLiquidGlass { view in
                                     view
