@@ -309,7 +309,7 @@ private extension EntriesView {
 
         ScrollView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
-                ForEach(viewModel.reorderingEntries ?? viewModel.entries) { entry in
+                ForEach(viewModel.displayedEntries) { entry in
                     cell(for: entry)
                         .if(viewModel.sortOption.isManual) { view in
                             view

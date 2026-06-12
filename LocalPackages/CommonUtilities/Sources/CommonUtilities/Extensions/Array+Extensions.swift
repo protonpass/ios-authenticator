@@ -37,6 +37,16 @@ public extension Array where Element: Equatable {
     }
 }
 
+public extension Array where Element: Identifiable {
+    /// Whether both arrays contain exactly the same elements by `id`, regardless of order.
+    ///
+    /// Useful to tell a pure reordering of the same set apart from an actual change in membership
+    /// (an element added or removed).
+    func hasSameMembers(as other: [Element]) -> Bool {
+        Set(map(\.id)) == Set(other.map(\.id))
+    }
+}
+
 public extension Array {
     func chunked(into size: Int) -> [[Element]] {
         guard size > 0 else { return [] }

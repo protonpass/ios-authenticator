@@ -35,6 +35,20 @@ final class EntriesViewModel {
 
     private(set) var entries: [EntryUiModel] = []
 
+    /// The entries the grid/list should render.
+    ///
+    /// Prefers the in-progress reorder snapshot (`reorderingEntries`), but only while it still
+    /// represents the same set of entries as `entries`. Once the underlying set changes — e.g. a new
+    /// entry is created after a drag was cancelled without landing on a drop destination, leaving a
+    /// stale snapshot behind — the snapshot is ignored so the change is always reflected on screen.
+    var displayedEntries: [EntryUiModel] {
+        guard let reorderingEntries,
+              reorderingEntries.hasSameMembers(as: entries) else {
+            return entries
+        }
+        return reorderingEntries
+    }
+
     var dataState: DataState<[EntryUiModel]> {
         entryDataService.dataState
     }
@@ -451,6 +465,10 @@ private extension EntriesViewModel {
             entries = data.sorted(by: settingsService.sortOption)
         } else {
             entries = []
+        }
+
+        if let reorderingEntries, !reorderingEntries.hasSameMembers(as: entries) {
+            self.reorderingEntries = nil
         }
     }
 
