@@ -53,12 +53,21 @@ public final class SetUpSentry: SetUpSentryUseCase {
             // EXPERIMENTAL
             #if os(iOS)
             options.enablePreWarmedAppStartTracing = true
-            options.attachScreenshot = true
-            options.attachViewHierarchy = true
             options.enableMetricKit = true
             options.swiftAsyncStacktraces = true
-            options.enableAutoPerformanceTracing = true
-            options.enableUserInteractionTracing = true
+
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                options.attachScreenshot = false
+                options.attachViewHierarchy = false
+                options.enableAutoPerformanceTracing = false
+                options.enableUserInteractionTracing = false
+                options.enableSwizzling = false
+            } else {
+                options.attachScreenshot = true
+                options.attachViewHierarchy = true
+                options.enableAutoPerformanceTracing = true
+                options.enableUserInteractionTracing = true
+            }
             #endif
             options.configureProfiling = {
                 $0.sessionSampleRate = 1
