@@ -95,13 +95,13 @@ public extension ServiceContainer {
 
     var userSessionManager: Factory<any UserSessionTooling> {
         self {
-            UserSessionManager(configuration: APIManagerConfiguration(appVersion: ToolsContainer.shared
-                                   .appVersion(),
-                doh: AuthDoH(userDefaults: .standard)),
-            keychain: self.keychainService(),
-            encryptionService: self.encryptionService(),
-            userDataProvider: RepositoryContainer.shared.userDataSource(),
-            logger: self.logger)
+            UserSessionManager(configuration:
+                APIManagerConfiguration(appVersion: ToolsContainer.shared.appVersion(),
+                                        doh: ToolsContainer.shared.doh()),
+                keychain: self.keychainService(),
+                encryptionService: self.encryptionService(),
+                userDataProvider: RepositoryContainer.shared.userDataSource(),
+                logger: self.logger)
         }
     }
 

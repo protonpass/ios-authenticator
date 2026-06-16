@@ -51,4 +51,18 @@ public enum AuthenticatorEnvironment: Sendable {
             self.sentryDsn = sentryDsn
         }
     }
+
+    /// Used for Sentry only
+    public var name: String {
+        switch self {
+        case .prod:
+            "production"
+
+        case .black:
+            "black"
+
+        case let .scientist(name):
+            "scientist_\(name)"
+        }
+    }
 }

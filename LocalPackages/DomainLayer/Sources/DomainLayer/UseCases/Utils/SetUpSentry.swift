@@ -25,19 +25,19 @@ import Models
 import Sentry
 
 public protocol SetUpSentryUseCase {
-    func execute()
+    func callAsFunction()
 }
 
-public extension SetUpSentryUseCase {
-    func callAsFunction() {
-        execute()
+public struct SetUpSentry: SetUpSentryUseCase {
+    private let bundle: Bundle
+    private let doh: AuthDoH?
+
+    public init(bundle: Bundle, doh: AuthDoH?) {
+        self.bundle = bundle
+        self.doh = doh
     }
-}
 
-public final class SetUpSentry: SetUpSentryUseCase {
-    public init() {}
-
-    public func execute() {
+    public func callAsFunction() {
         SentrySDK.start { options in
             options.dsn = AuthenticatorEnvironment.prod.parameters.sentryDsn
             options.tracesSampleRate = 0.5
@@ -45,33 +45,53 @@ public final class SetUpSentry: SetUpSentryUseCase {
                 options.debug = true
                 options.tracesSampleRate = 1.0
             }
+            if let doh {
+                options.environment = doh.environment.name
+            }
+            options.releaseName = Bundle.main.fullAppVersionName
             options.enableTimeToFullDisplayTracing = true
-
-            options.enableAppHangTracking = false
-            options.enableFileIOTracing = true
+            options.enableAppHangTracking = true
+            options.enableWatchdogTerminationTracking = true
+//            options.enableFileIOTracing = true
             options.enableCoreDataTracing = true
-            // EXPERIMENTAL
-            #if os(iOS)
-            options.enablePreWarmedAppStartTracing = true
-            options.enableMetricKit = true
-            options.swiftAsyncStacktraces = true
-
+//            // EXPERIMENTAL
+//            #if os(iOS)
+//            options.enablePreWarmedAppStartTracing = true
+//            options.enableMetricKit = true
+//            options.swiftAsyncStacktraces = true
+//
             if ProcessInfo.processInfo.isiOSAppOnMac {
                 options.attachScreenshot = false
                 options.attachViewHierarchy = false
                 options.enableAutoPerformanceTracing = false
                 options.enableUserInteractionTracing = false
                 options.enableSwizzling = false
-            } else {
-                options.attachScreenshot = true
-                options.attachViewHierarchy = true
-                options.enableAutoPerformanceTracing = true
-                options.enableUserInteractionTracing = true
             }
-            #endif
-            options.configureProfiling = {
-                $0.sessionSampleRate = 1
-            }
+//            else {
+//                options.attachScreenshot = true
+//                options.attachViewHierarchy = true
+//                options.enableAutoPerformanceTracing = true
+//                options.enableUserInteractionTracing = true
+//            }
+//            #endif
+//            options.configureProfiling = {
+//                $0.sessionSampleRate = 1
+//            }
         }
     }
 }
+
+// SentrySDK.start { options in
+//    options.dsn = bundle.plistString(for: .sentryDSN, in: .prod)
+//    if ProcessInfo.processInfo.environment["me.proton.pass.SentryDebug"] == "1" {
+//        options.debug = true
+//    }
+//    options.enableAppHangTracking = false
+//    options.enableFileIOTracing = true
+//    options.enableCoreDataTracing = true
+//    options.attachViewHierarchy = true // EXPERIMENTAL
+//    let environment = ProtonPassDoH(bundle: bundle).environment
+//    options.environment = environment.name
+//    options.enableCaptureFailedRequests = environment.isProd
+// }
+//

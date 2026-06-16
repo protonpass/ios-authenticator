@@ -23,6 +23,7 @@ import Combine
 import DataLayer
 import FactoryKit
 import LocalAuthentication
+import ProtonCoreDoh
 import SimplyPersist
 import SwiftData
 
@@ -108,5 +109,9 @@ public extension ToolsContainer {
 
     var passphraseRebuilder: Factory<any PassphraseRebuilding> {
         self { DefaultPassphraseRebuilder() }
+    }
+
+    var doh: Factory<any DoHInterface> {
+        self { AuthDoH(userDefaults: .standard) }
     }
 }
