@@ -52,14 +52,8 @@ public struct SetUpSentry: SetUpSentryUseCase {
             options.enableTimeToFullDisplayTracing = true
             options.enableAppHangTracking = true
             options.enableWatchdogTerminationTracking = true
-//            options.enableFileIOTracing = true
             options.enableCoreDataTracing = true
-//            // EXPERIMENTAL
-//            #if os(iOS)
-//            options.enablePreWarmedAppStartTracing = true
-//            options.enableMetricKit = true
-//            options.swiftAsyncStacktraces = true
-//
+
             if ProcessInfo.processInfo.isiOSAppOnMac {
                 options.attachScreenshot = false
                 options.attachViewHierarchy = false
@@ -67,31 +61,6 @@ public struct SetUpSentry: SetUpSentryUseCase {
                 options.enableUserInteractionTracing = false
                 options.enableSwizzling = false
             }
-//            else {
-//                options.attachScreenshot = true
-//                options.attachViewHierarchy = true
-//                options.enableAutoPerformanceTracing = true
-//                options.enableUserInteractionTracing = true
-//            }
-//            #endif
-//            options.configureProfiling = {
-//                $0.sessionSampleRate = 1
-//            }
         }
     }
 }
-
-// SentrySDK.start { options in
-//    options.dsn = bundle.plistString(for: .sentryDSN, in: .prod)
-//    if ProcessInfo.processInfo.environment["me.proton.pass.SentryDebug"] == "1" {
-//        options.debug = true
-//    }
-//    options.enableAppHangTracking = false
-//    options.enableFileIOTracing = true
-//    options.enableCoreDataTracing = true
-//    options.attachViewHierarchy = true // EXPERIMENTAL
-//    let environment = ProtonPassDoH(bundle: bundle).environment
-//    options.environment = environment.name
-//    options.enableCaptureFailedRequests = environment.isProd
-// }
-//

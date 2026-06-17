@@ -1,5 +1,5 @@
 //
-// EncryptedEntrySnapshot.swift
+// EncryptedEntry.swift
 // Proton Authenticator - Created on 11/06/2026.
 // Copyright (c) 2026 Proton Technologies AG
 //
@@ -28,7 +28,7 @@ import Foundation
 /// `_DestroyedBackingData` fatal error. Decrypting and passing data up the stack must therefore
 /// operate on a detached snapshot rather than the live model, so values can safely outlive — and
 /// cross actor boundaries away from — their owning context.
-public struct EncryptedEntrySnapshot: Sendable, Equatable, Hashable {
+public struct EncryptedEntry: Sendable, Equatable, Hashable {
     public let id: String
     public let remoteId: String
     public let encryptedData: Data
@@ -66,11 +66,7 @@ public struct EncryptedEntrySnapshot: Sendable, Equatable, Hashable {
     }
 }
 
-public extension EncryptedEntrySnapshot {
-    /// Captures the current stored values of a live SwiftData entity into a detached value.
-    ///
-    /// - Important: This reads the entity's properties, so it must be called while the entity's
-    /// `ModelContext` is still alive (i.e. before the persistent store is recreated/reset).
+public extension EncryptedEntry {
     init(from entity: EncryptedEntryEntity) {
         self.init(id: entity.id,
                   remoteId: entity.remoteId,

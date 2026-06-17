@@ -308,9 +308,7 @@ public extension EntryRepository {
                 }
             }
 
-            // Detach into value snapshots while `storage` is still pinned, so the decrypted result can
-            // safely outlive this context (e.g. an iCloud-sync toggle recreating the store).
-            let snapshots = entriesToDecrypt.map(\.snapshot)
+            let snapshots = entriesToDecrypt.map(\.encryptedEntry)
             let decryptedEntries = try encryptionService.decrypt(entries: snapshots)
 
             let nonDecryptableCount = decryptedEntries.count(where: { $0.isNonDecryptable })
@@ -617,8 +615,8 @@ private extension EntryRepository {
         for (entryId, olderCopies) in duplicatesByEntryId {
             guard let newest = newLatestEntriesById[entryId] else { continue }
             for olderCopy in olderCopies {
-                let newestStates = try encryptionService.decrypt(entries: [newest.snapshot])
-                let olderStates = try encryptionService.decrypt(entries: [olderCopy.snapshot])
+                let newestStates = try encryptionService.decrypt(entries: [newest.encryptedEntry])
+                let olderStates = try encryptionService.decrypt(entries: [olderCopy.encryptedEntry])
 
                 if case let .decrypted(_, newestOrdered) = newestStates.first,
                    case let .decrypted(_, olderOrdered) = olderStates.first {

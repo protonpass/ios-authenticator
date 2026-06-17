@@ -26,8 +26,8 @@ import Foundation
 import Models
 
 public enum EntryState: Sendable {
-    case decrypted(EncryptedEntrySnapshot, OrderedEntry)
-    case nonDecryptable(EncryptedEntrySnapshot)
+    case decrypted(EncryptedEntry, OrderedEntry)
+    case nonDecryptable(EncryptedEntry)
 
     public var entry: OrderedEntry? {
         switch self {
@@ -39,7 +39,7 @@ public enum EntryState: Sendable {
         }
     }
 
-    public var encryptedEntry: EncryptedEntrySnapshot {
+    public var encryptedEntry: EncryptedEntry {
         switch self {
         case let .decrypted(entry, _):
             entry
@@ -73,8 +73,8 @@ public protocol EncryptionServicing: Sendable {
 
     func encrypt(entry: Entry, keyId: String) throws -> Data
     // periphery:ignore
-    func decrypt(entry: EncryptedEntrySnapshot) throws -> EntryState
-    func decrypt(entries: [EncryptedEntrySnapshot]) throws -> [EntryState]
+    func decrypt(entry: EncryptedEntry) throws -> EntryState
+    func decrypt(entries: [EncryptedEntry]) throws -> [EntryState]
 
     func symmetricEncrypt(object: some Encodable) throws -> Data
     func symmetricDecrypt<T: Decodable>(encryptedData: Data) throws -> T
@@ -132,7 +132,7 @@ public final class EncryptionService: EncryptionServicing {
 }
 
 public extension EncryptionService {
-    func decrypt(entry: EncryptedEntrySnapshot) -> EntryState {
+    func decrypt(entry: EncryptedEntry) -> EntryState {
         log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
 
         let encryptionKey: Data
@@ -175,7 +175,7 @@ public extension EncryptionService {
         }
     }
 
-    func decrypt(entries: [EncryptedEntrySnapshot]) -> [EntryState] {
+    func decrypt(entries: [EncryptedEntry]) -> [EntryState] {
         log(.info, "Decrypting \(entries.count) entries")
         return entries.map { entry in
             decrypt(entry: entry)
