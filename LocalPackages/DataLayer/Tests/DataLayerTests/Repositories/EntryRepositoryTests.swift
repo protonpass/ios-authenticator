@@ -645,7 +645,7 @@ struct EntryRepositoryTests {
                                            modifiedTime: Date.now.timeIntervalSince1970)
             try await throwaway.batchSave(content: [row])
             let rows: [EncryptedEntryEntity] = try await throwaway.fetch(predicate: nil)
-            return try encryptionService.decrypt(entries: rows.map(\.snapshot))
+            return try encryptionService.decrypt(entries: rows.map(\.encryptedEntry))
         }
 
         let states = try await loadDetachedStates()
