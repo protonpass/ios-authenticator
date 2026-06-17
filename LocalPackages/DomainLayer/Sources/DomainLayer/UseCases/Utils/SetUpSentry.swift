@@ -48,7 +48,7 @@ public struct SetUpSentry: SetUpSentryUseCase {
             if let doh {
                 options.environment = doh.environment.name
             }
-            options.releaseName = Bundle.main.fullAppVersionName
+            options.releaseName = bundle.fullAppVersionName
             options.enableTimeToFullDisplayTracing = true
             options.enableAppHangTracking = true
             options.enableWatchdogTerminationTracking = true
