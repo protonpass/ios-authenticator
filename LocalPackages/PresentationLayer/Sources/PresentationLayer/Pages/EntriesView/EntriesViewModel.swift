@@ -89,10 +89,6 @@ final class EntriesViewModel {
     private(set) var entryDataService
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.totpCountdownManager)
-    private(set) var totpCountdownManager
-
-    @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
 
@@ -161,6 +157,19 @@ final class EntriesViewModel {
     private var searchTask: Task<Void, Never>?
     @ObservationIgnored
     private var moveItemTask: Task<Void, Never>?
+
+    /// Timestamp of the last reload triggered on appear/foreground, used to throttle the heavy
+    /// backend refresh + re-decrypt when the app is repeatedly foregrounded in a short window.
+    @ObservationIgnored
+    private var lastForegroundReloadDate: Date?
+
+    /// Whether the code generator is currently paused (sheet shown or app backgrounded). Tracked so
+    /// foregrounding only restarts the generator when it was actually stopped, avoiding churn.
+    @ObservationIgnored
+    private(set) var isCodeRefreshPaused = false
+
+    /// Minimum time between automatic foreground reloads. Pull-to-refresh always bypasses this.
+    private static let foregroundReloadThrottle: TimeInterval = 30
 
     private(set) var deleteTask: Task<Void, Never>?
 
@@ -269,12 +278,29 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func reloadData() {
+        lastForegroundReloadDate = .now
         reorderingEntries = nil
         if isAuthenticated {
             fullSync()
         } else {
             loadEntries()
         }
+    }
+
+    /// Reload entry point for appear/foreground. When we reloaded recently and already have data,
+    /// it skips the heavy backend refresh + re-decrypt and only resumes code generation if it was
+    /// paused (e.g. on returning from the background). Pull-to-refresh calls `reloadData()` directly
+    /// and is never throttled.
+    func reloadDataOnForeground() {
+        if let lastForegroundReloadDate,
+           Date.now.timeIntervalSince(lastForegroundReloadDate) < Self.foregroundReloadThrottle,
+           !entries.isEmpty {
+            if isCodeRefreshPaused {
+                toggleCodeRefresh(false)
+            }
+            return
+        }
+        reloadData()
     }
 
     func copyTokenToClipboard(entryAction: EntryAction) {
@@ -300,11 +326,12 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
+        // The countdown rings pause themselves via their `TimelineView` when off-screen or
+        // backgrounded, so only the (Rust-backed) code generator needs to be started/stopped here.
+        isCodeRefreshPaused = shouldPause
         if shouldPause {
-            totpCountdownManager.stopTimer()
             entryDataService.stopTotpGenerator()
         } else {
-            totpCountdownManager.startTimer()
             entryDataService.startTotpGenerator()
         }
     }

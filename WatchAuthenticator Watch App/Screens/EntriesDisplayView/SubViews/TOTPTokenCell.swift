@@ -18,15 +18,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Pass. If not, see https://www.gnu.org/licenses/.
 
-import Combine
 import CommonUtilities
-import FactoryKit
 import Foundation
 import SwiftUI
 
 struct TOTPTokenCell: View, @preconcurrency Equatable {
     private let entry: UIModel
-    @State private var timerManager = resolve(\WatchDIContainer.countdownTimer)
 
     init(entry: UIModel) {
         self.entry = entry
@@ -45,8 +42,6 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
     }
 
     var body: some View {
-        let progress = timerManager.calculateProgress(period: period)
-
         VStack {
             VStack(alignment: .leading) {
                 Text(verbatim: issuer)
@@ -69,15 +64,26 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
                     .padding(.top, 2)
             }
 
-            ProgressView(value: 1 - progress)
-                .progressViewStyle(RoundedRectProgressViewStyle())
-                .animation(.default, value: progress)
-                .transaction { transaction in
-                    transaction
-                        .disablesAnimations = progress >= 0.96
-                }
+            // `TimelineView` drives (and pauses, when off-screen) this once-a-second redraw, instead
+            // of a shared `@Observable` mutated by a 10x/second `Timer` that re-rendered every cell.
+            TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { context in
+                let progress = TOTPCountdown.make(at: context.date, period: period).fractionRemaining
+
+                ProgressView(value: 1 - progress)
+                    .progressViewStyle(RoundedRectProgressViewStyle())
+                    .animation(.default, value: progress)
+                    .transaction { transaction in
+                        transaction
+                            .disablesAnimations = progress >= 0.96
+                    }
+            }
         }
         .padding(.vertical, 8)
+    }
+
+    /// Aligns the timeline to whole-second boundaries so the progress steps exactly on the second.
+    private var nextSecondBoundary: Date {
+        Date(timeIntervalSince1970: Date.now.timeIntervalSince1970.rounded(.up))
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
@@ -123,38 +129,5 @@ private extension Double {
 private extension String {
     var mainCode: String {
         count > 6 ? self : separatedByGroup(3, delimiter: " ")
-    }
-}
-
-@MainActor
-public protocol CountdownTimerProtocol: Sendable, Observable {
-    func calculateProgress(period: Int) -> Double
-}
-
-@MainActor @Observable
-public final class CountdownTimer: CountdownTimerProtocol {
-    public static let shared = CountdownTimer()
-
-    private var timerCancellable: AnyCancellable?
-
-    private var currentTimestamp: TimeInterval = Date().timeIntervalSince1970
-
-    private init() {
-        startTimer()
-    }
-
-    public func startTimer() {
-        guard timerCancellable == nil else { return }
-
-        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self else { return }
-                currentTimestamp = Date().timeIntervalSince1970
-            }
-    }
-
-    public func calculateProgress(period: Int) -> Double {
-        (Double(period) - currentTimestamp.truncatingRemainder(dividingBy: Double(period))) / Double(period)
     }
 }

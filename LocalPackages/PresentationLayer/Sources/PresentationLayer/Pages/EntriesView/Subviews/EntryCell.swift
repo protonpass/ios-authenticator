@@ -18,9 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Combine
 import CommonUtilities
-import FactoryKit
 import Models
 import SwiftUI
 
@@ -374,8 +372,6 @@ private struct TOTPCountdownView: View {
     private let size: CGFloat
     private let lineWidth: CGFloat
 
-    @State private var timerManager = resolve(\ServiceContainer.totpCountdownManager)
-
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4) {
@@ -385,34 +381,59 @@ private struct TOTPCountdownView: View {
     }
 
     var body: some View {
-        let infos = timerManager.calculateCountdownInfo(period: period)
+        // A `TimelineView` lets SwiftUI drive (and pause, when off-screen or backgrounded) the
+        // per-ring redraw once a second, instead of a global `@Observable` mutated by a `Timer`
+        // that forced every visible ring to recompute twice a second regardless of visibility.
+        TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { context in
+            let countdown = TOTPCountdown.make(at: context.date, period: period)
+            let progress = period > 0 ? Double(countdown.secondsRemaining) / Double(period) : 1
+            let color = color(forSecondsRemaining: countdown.secondsRemaining)
 
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(lineWidth: 4)
-                .foregroundStyle(infos.color.opacity(0.3))
-                .padding(2)
+            ZStack {
+                // Background circle
+                Circle()
+                    .stroke(lineWidth: 4)
+                    .foregroundStyle(color.opacity(0.3))
+                    .padding(2)
 
-            // Progress circle
-            Circle()
-                .trim(from: 1 - infos.progress, to: 1)
-                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(infos.color)
-                .padding(2)
-                .rotationEffect(.degrees(-90))
-                .if(AppConstants.isPhone) { view in
-                    view.animation(.default, value: infos.progress)
-                        .transaction { transaction in
-                            transaction.disablesAnimations = infos.timeRemaining == Int(Double(period) - 1)
-                        }
-                }
+                // Progress circle
+                Circle()
+                    .trim(from: 1 - progress, to: 1)
+                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(color)
+                    .padding(2)
+                    .rotationEffect(.degrees(-90))
+                    .if(AppConstants.isPhone) { view in
+                        view.animation(.default, value: progress)
+                            .transaction { transaction in
+                                transaction.disablesAnimations = countdown.secondsRemaining == period - 1
+                            }
+                    }
 
-            // Countdown text
-            Text(verbatim: "\(infos.timeRemaining)")
-                .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
-                .foregroundStyle(.textNorm)
+                // Countdown text
+                Text(verbatim: "\(countdown.secondsRemaining)")
+                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+                    .foregroundStyle(.textNorm)
+            }
+            .frame(width: size, height: size)
         }
-        .frame(width: size, height: size)
+    }
+
+    /// Aligns the timeline to whole-second boundaries so the countdown changes exactly on the second.
+    private var nextSecondBoundary: Date {
+        Date(timeIntervalSince1970: Date.now.timeIntervalSince1970.rounded(.up))
+    }
+
+    private func color(forSecondsRemaining seconds: Int) -> Color {
+        switch seconds {
+        case 0...5:
+            .timer1
+
+        case 6...10:
+            .timer2
+
+        default:
+            .timer3
+        }
     }
 }

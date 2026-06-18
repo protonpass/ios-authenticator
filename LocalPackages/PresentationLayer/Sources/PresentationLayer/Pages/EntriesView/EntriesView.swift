@@ -132,7 +132,7 @@ public struct EntriesView: View {
                         .autocorrectionDisabled(true)
                 }
                 .onAppear {
-                    viewModel.reloadData()
+                    viewModel.reloadDataOnForeground()
 
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
@@ -151,15 +151,27 @@ public struct EntriesView: View {
                     }
                 }
                 .onChange(of: scenePhase) { _, newValue in
-                    if newValue == .active {
+                    switch newValue {
+                    case .active:
                         viewModel.checkWatchConnectivity()
                         if router.noSheetDisplayed {
                             withAnimation {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch
                             }
+                            // Resume the code generator only if it was paused on backgrounding.
+                            if viewModel.isCodeRefreshPaused {
+                                viewModel.toggleCodeRefresh(false)
+                            }
                         }
-                        viewModel.reloadData()
+                        viewModel.reloadDataOnForeground()
                         viewModel.showICloudDisablePromptIfNeeded()
+
+                    case .background:
+                        // Stop the recurring code generator so it stops waking when not in use.
+                        viewModel.toggleCodeRefresh(true)
+
+                    default:
+                        break
                     }
                 }
                 .onChange(of: searchFieldFocus) { _, focused in
