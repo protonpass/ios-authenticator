@@ -1,3 +1,7 @@
+# Version 1.4.2
+- Added back iCloud sync
+- Some bug fixes and performance improvements
+
 # Version 1.4.1
 Improvements:
 - Prompt before disabling automatic backups
