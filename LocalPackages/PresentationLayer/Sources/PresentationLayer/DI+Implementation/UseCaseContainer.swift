@@ -87,7 +87,7 @@ public extension UseCaseContainer {
     }
 
     var setUpSentry: Factory<any SetUpSentryUseCase> {
-        self { SetUpSentry() }
+        self { SetUpSentry(bundle: .main, doh: ToolsContainer.shared.doh() as? AuthDoH) }
     }
 
     var openAppSettings: Factory<any OpenAppSettingsUseCase> {

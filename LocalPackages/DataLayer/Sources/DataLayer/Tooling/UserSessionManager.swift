@@ -618,6 +618,7 @@ public extension UserSessionManager {
 // MARK: - Tools and extension for user session management
 
 public final class AuthDoH: DoH, ServerConfig {
+    public let environment: AuthenticatorEnvironment
     public let signupDomain: String
     public let captchaHost: String
     public let humanVerificationV3Host: String
@@ -655,6 +656,7 @@ public final class AuthDoH: DoH, ServerConfig {
             // Always point to prod when not in QA build
             environment = .prod
         }
+        self.environment = environment
         signupDomain = environment.parameters.signupDomain
         captchaHost = environment.parameters.captchaHost
         humanVerificationV3Host = environment.parameters.humanVerificationV3Host

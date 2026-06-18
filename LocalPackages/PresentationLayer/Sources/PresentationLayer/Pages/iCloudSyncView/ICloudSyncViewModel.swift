@@ -71,6 +71,9 @@ final class ICloudSyncViewModel {
             await authenticateAndPerform {
                 settingsService.toggleICloudSync(!iCloudSync)
                 iCloudSync.toggle()
+                if iCloudSync {
+                    settingsService.setICloudDisablePromptDismissed(true)
+                }
                 bioAuthenticated = true
             }
             if bioAuthenticated {

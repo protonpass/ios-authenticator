@@ -133,7 +133,6 @@ public struct EntriesView: View {
                 }
                 .onAppear {
                     viewModel.reloadData()
-                    viewModel.showICloudDisablePromptIfNeeded()
 
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
@@ -160,6 +159,7 @@ public struct EntriesView: View {
                             }
                         }
                         viewModel.reloadData()
+                        viewModel.showICloudDisablePromptIfNeeded()
                     }
                 }
                 .onChange(of: searchFieldFocus) { _, focused in
@@ -309,7 +309,7 @@ private extension EntriesView {
 
         ScrollView {
             LazyVGrid(columns: [GridItem](repeating: GridItem(.flexible()), count: columnCount)) {
-                ForEach(viewModel.reorderingEntries ?? viewModel.entries) { entry in
+                ForEach(viewModel.displayedEntries) { entry in
                     cell(for: entry)
                         .if(viewModel.sortOption.isManual) { view in
                             view

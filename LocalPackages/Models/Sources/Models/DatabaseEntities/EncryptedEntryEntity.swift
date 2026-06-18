@@ -39,6 +39,10 @@ public final class EncryptedEntryEntity: Equatable, Hashable, @unchecked Sendabl
         syncState == .synced && !remoteId.isEmpty
     }
 
+    public var encryptedEntry: EncryptedEntry {
+        EncryptedEntry(from: self)
+    }
+
     public init(id: String,
                 encryptedData: Data,
                 remoteId: String,

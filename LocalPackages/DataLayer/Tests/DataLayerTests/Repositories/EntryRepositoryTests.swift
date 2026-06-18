@@ -613,6 +613,54 @@ struct EntryRepositoryTests {
         }
     }
 
+    // Regression test for the top production crash:
+    // "This model instance was destroyed by calling ModelContext.reset and is no longer usable".
+    // `getAllLocalEntries()` used to hand live SwiftData `@Model` rows to `decrypt(...)` and carry them
+    // up inside `EntryState`. When `refreshLocalStorage()` recreated the store (e.g. on an iCloud-sync
+    // toggle) the owning `ModelContext` deallocated and those rows' backing was destroyed, so reading
+    // `entry.creationDate` trapped. Decryption now operates on detached `EncryptedEntrySnapshot` values
+    // that remain valid after their context is gone.
+    @Test("Decrypted entries survive destruction of their SwiftData ModelContext")
+    func getAllLocalEntries_decryptedResultsSurviveContextDestruction() async throws {
+        let localKeyId = encryptionService.localEncryptionKeyId
+        let entry = OrderedEntry(entry: Entry(id: "ctx-id", name: "GitHub",
+                                              // swiftlint:disable:next line_length
+                                              uri: "otpauth://totp/GitHub?secret=CKTQQJVWT5IXTGD&algorithm=SHA1&digits=6&period=30",
+                                              period: 30, issuer: "GitHub", secret: "CKTQQJVWT5IXTGD",
+                                              type: .totp, note: nil),
+                                 order: 0, keyId: localKeyId)
+
+        // Fetch rows from a throwaway store, detach them into value snapshots and decrypt, then let the
+        // store (and its `ModelContext`) deallocate when this function returns — only snapshots escape.
+        func loadDetachedStates() async throws -> [EntryState] {
+            let throwaway = try PersistenceService(with: ModelConfiguration(for: EncryptedEntryEntity.self,
+                                                                            isStoredInMemoryOnly: true))
+            let row = EncryptedEntryEntity(id: "ctx-id",
+                                           encryptedData: try encryptedData(for: entry),
+                                           remoteId: "",
+                                           keyId: localKeyId,
+                                           order: 0,
+                                           syncState: .unsynced,
+                                           creationDate: Date.now.timeIntervalSince1970,
+                                           modifiedTime: Date.now.timeIntervalSince1970)
+            try await throwaway.batchSave(content: [row])
+            let rows: [EncryptedEntryEntity] = try await throwaway.fetch(predicate: nil)
+            return try encryptionService.decrypt(entries: rows.map(\.encryptedEntry))
+        }
+
+        let states = try await loadDetachedStates()
+
+        // Reading the results after the context is gone must not crash and must stay correct.
+        #expect(states.count == 1)
+        #expect(states.first?.encryptedEntry.id == "ctx-id")
+        #expect(states.first?.entry?.entry.name == "GitHub")
+
+        // Re-decrypting the detached snapshot also works without any live ModelContext.
+        let snapshot = try #require(states.first?.encryptedEntry)
+        let redecrypted = try encryptionService.decrypt(entries: [snapshot])
+        #expect(redecrypted.first?.entry?.entry.id == "ctx-id")
+    }
+
     @Test("getAllLocalEntries silently cleans multiple independent duplicate groups")
     func getAllLocalEntries_multipleDuplicateGroups_cleansAll() async throws {
         let localKeyId = encryptionService.localEncryptionKeyId

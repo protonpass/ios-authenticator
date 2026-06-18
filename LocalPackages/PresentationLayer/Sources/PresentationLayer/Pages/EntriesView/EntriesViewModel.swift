@@ -35,6 +35,20 @@ final class EntriesViewModel {
 
     private(set) var entries: [EntryUiModel] = []
 
+    /// The entries the grid/list should render.
+    ///
+    /// Prefers the in-progress reorder snapshot (`reorderingEntries`), but only while it still
+    /// represents the same set of entries as `entries`. Once the underlying set changes — e.g. a new
+    /// entry is created after a drag was cancelled without landing on a drop destination, leaving a
+    /// stale snapshot behind — the snapshot is ignored so the change is always reflected on screen.
+    var displayedEntries: [EntryUiModel] {
+        guard let reorderingEntries,
+              reorderingEntries.hasSameMembers(as: entries) else {
+            return entries
+        }
+        return reorderingEntries
+    }
+
     var dataState: DataState<[EntryUiModel]> {
         entryDataService.dataState
     }
@@ -145,6 +159,8 @@ final class EntriesViewModel {
     private var fullSyncTask: Task<Void, Never>?
     @ObservationIgnored
     private var searchTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var moveItemTask: Task<Void, Never>?
 
     private(set) var deleteTask: Task<Void, Never>?
 
@@ -185,6 +201,12 @@ final class EntriesViewModel {
     }
 
     func moveItem(fromOffsets source: IndexSet, toOffset destination: Int) {
+        defer {
+            if moveItemTask == nil {
+                reorderingEntries = nil
+            }
+        }
+
         // Get the actual index values after removing
         guard let offset = source.first else {
             return
@@ -198,9 +220,12 @@ final class EntriesViewModel {
         guard offset != targetIndex else {
             return
         }
-        Task { [weak self] in
+        moveItemTask = Task { [weak self] in
             guard let self else { return }
-            defer { reorderingEntries = nil }
+            defer {
+                moveItemTask = nil
+                reorderingEntries = nil
+            }
             do {
                 try await entryDataService.reorderItem(from: offset, to: targetIndex)
                 await requestForReview()
@@ -244,6 +269,7 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func reloadData() {
+        reorderingEntries = nil
         if isAuthenticated {
             fullSync()
         } else {
@@ -439,6 +465,10 @@ private extension EntriesViewModel {
             entries = data.sorted(by: settingsService.sortOption)
         } else {
             entries = []
+        }
+
+        if let reorderingEntries, !reorderingEntries.hasSameMembers(as: entries) {
+            self.reorderingEntries = nil
         }
     }
 

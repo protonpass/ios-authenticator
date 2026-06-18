@@ -89,7 +89,7 @@ struct EntryDataServiceBackupTests {
                                           syncState: .unsynced,
                                           creationDate: Date.now.timeIntervalSince1970,
                                           modifiedTime: Date.now.timeIntervalSince1970)
-        return .decrypted(entity, orderedEntry)
+        return .decrypted(entity.encryptedEntry, orderedEntry)
     }
 
     private func prepareForBackup(entries: [EntryUiModel]) throws {
