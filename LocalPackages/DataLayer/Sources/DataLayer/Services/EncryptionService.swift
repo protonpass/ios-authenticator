@@ -133,8 +133,6 @@ public final class EncryptionService: EncryptionServicing {
 
 public extension EncryptionService {
     func decrypt(entry: EncryptedEntry) -> EntryState {
-        // `.debug` (not `.info`): this runs once per entry on every load/refresh; keeping it off the
-        // default log level avoids per-entry string building and disk flushes on a hot path.
         log(.debug, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
 
         let encryptionKey: Data

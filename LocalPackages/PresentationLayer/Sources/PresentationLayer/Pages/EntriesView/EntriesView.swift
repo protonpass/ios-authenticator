@@ -158,7 +158,6 @@ public struct EntriesView: View {
                             withAnimation {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch
                             }
-                            // Resume the code generator only if it was paused on backgrounding.
                             if viewModel.isCodeRefreshPaused {
                                 viewModel.toggleCodeRefresh(false)
                             }
@@ -167,7 +166,6 @@ public struct EntriesView: View {
                         viewModel.showICloudDisablePromptIfNeeded()
 
                     case .background:
-                        // Stop the recurring code generator so it stops waking when not in use.
                         viewModel.toggleCodeRefresh(true)
 
                     default:

@@ -64,8 +64,6 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
                     .padding(.top, 2)
             }
 
-            // `TimelineView` drives (and pauses, when off-screen) this once-a-second redraw, instead
-            // of a shared `@Observable` mutated by a 10x/second `Timer` that re-rendered every cell.
             TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { context in
                 let progress = TOTPCountdown.make(at: context.date, period: period).fractionRemaining
 

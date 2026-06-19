@@ -463,8 +463,6 @@ private extension EntryDataService {
             let localChanged = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                                        entriesStates: entriesStates)
             if Task.isCancelled { return }
-            // When sync changed nothing locally, the pre-sync decrypt is still valid — reuse it
-            // instead of fetching and decrypting the entire store a second time.
             let newOrderedItems = localChanged
                 ? try await reorderItems(remoteEntries: remoteOrderedEntries)
                 : try await reorderItems(remoteEntries: remoteOrderedEntries,
