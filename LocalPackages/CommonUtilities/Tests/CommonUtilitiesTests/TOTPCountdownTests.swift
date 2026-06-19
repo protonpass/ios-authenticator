@@ -25,34 +25,42 @@ import Testing
 struct TOTPCountdownTests {
     @Test
     func `Full ring at the start of a period`() {
-        // 990 is a multiple of 30 → no time elapsed in the period.
+        // 990 is a multiple of 30 → no time elapsed: full ring, number resets to period-1 (29).
         let countdown = TOTPCountdown.make(at: Date(timeIntervalSince1970: 990), period: 30)
         #expect(countdown.fractionRemaining == 1)
-        #expect(countdown.secondsRemaining == 30)
+        #expect(countdown.secondsRemaining == 29)
     }
 
     @Test
     func `Mid period on a whole second`() {
-        // 1000 mod 30 == 10 elapsed → 20 seconds remaining.
+        // 1000 mod 30 == 10 elapsed → 20s left, shown as 19 (counts down to 0).
         let countdown = TOTPCountdown.make(at: Date(timeIntervalSince1970: 1_000), period: 30)
         #expect(abs(countdown.fractionRemaining - (20.0 / 30.0)) < 0.0001)
-        #expect(countdown.secondsRemaining == 20)
+        #expect(countdown.secondsRemaining == 19)
     }
 
     @Test
-    func `Seconds remaining rounds down on a fractional instant`() {
-        // 1000.5 mod 30 == 10.5 elapsed → 19.5 seconds remaining.
+    func `Seconds remaining holds across a fractional instant`() {
+        // 1000.5 mod 30 == 10.5 elapsed → 19.5s left, still shown as 19 (changes on whole seconds).
         let countdown = TOTPCountdown.make(at: Date(timeIntervalSince1970: 1_000.5), period: 30)
         #expect(abs(countdown.fractionRemaining - 0.65) < 0.0001)
         #expect(countdown.secondsRemaining == 19)
     }
 
     @Test
+    func `Reaches zero in the final second`() {
+        // 1019 mod 30 == 29 elapsed → 1s left, shown as 0; the ring is almost empty.
+        let countdown = TOTPCountdown.make(at: Date(timeIntervalSince1970: 1_019), period: 30)
+        #expect(abs(countdown.fractionRemaining - (1.0 / 30.0)) < 0.0001)
+        #expect(countdown.secondsRemaining == 0)
+    }
+
+    @Test
     func `Respects a non standard period`() {
-        // 1000 mod 60 == 40 elapsed → 20 seconds remaining of a 60s window.
+        // 1000 mod 60 == 40 elapsed → 20s left of a 60s window, shown as 19.
         let countdown = TOTPCountdown.make(at: Date(timeIntervalSince1970: 1_000), period: 60)
         #expect(abs(countdown.fractionRemaining - (20.0 / 60.0)) < 0.0001)
-        #expect(countdown.secondsRemaining == 20)
+        #expect(countdown.secondsRemaining == 19)
     }
 
     @Test

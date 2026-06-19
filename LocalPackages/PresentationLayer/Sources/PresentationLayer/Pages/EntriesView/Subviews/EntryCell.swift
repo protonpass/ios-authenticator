@@ -381,12 +381,13 @@ private struct TOTPCountdownView: View {
     }
 
     var body: some View {
-        // A `TimelineView` lets SwiftUI drive (and pause, when off-screen or backgrounded) the
-        // per-ring redraw once a second, instead of a global `@Observable` mutated by a `Timer`
-        // that forced every visible ring to recompute twice a second regardless of visibility.
-        TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { context in
+        // A `TimelineView` drives (and pauses, when off-screen or backgrounded) the per-ring redraw.
+        // The smooth sweep comes from recomputing the exact `fractionRemaining` on each ~10fps tick —
+        // not from an `.animation(_:)` modifier, which re-strokes the `trim` path on the main thread
+        // every display frame and was the source of the sustained CPU/heat. `ringRefreshInterval` is
+        // the single energy/smoothness knob.
+        TimelineView(.periodic(from: nextSecondBoundary, by: ringRefreshInterval)) { context in
             let countdown = TOTPCountdown.make(at: context.date, period: period)
-            let progress = period > 0 ? Double(countdown.secondsRemaining) / Double(period) : 1
             let color = color(forSecondsRemaining: countdown.secondsRemaining)
 
             ZStack {
@@ -396,12 +397,9 @@ private struct TOTPCountdownView: View {
                     .foregroundStyle(color.opacity(0.3))
                     .padding(2)
 
-                // Progress circle. The arc steps discretely on each 1-second `TimelineView` tick.
-                // We intentionally avoid `.animation(_:value:)` here: animating a `Shape`'s `trim`
-                // forces SwiftUI to re-stroke the path on the CPU every frame, which — running once
-                // a second on every visible ring — was the dominant source of sustained CPU/heat.
+                // Progress arc — depletes smoothly as `fractionRemaining` shrinks to 0 at the boundary.
                 Circle()
-                    .trim(from: 1 - progress, to: 1)
+                    .trim(from: 1 - countdown.fractionRemaining, to: 1)
                     .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                     .foregroundStyle(color)
                     .padding(2)
@@ -415,6 +413,11 @@ private struct TOTPCountdownView: View {
             .frame(width: size, height: size)
         }
     }
+
+    /// Redraw cadence for the depleting arc. The number and color only change on whole
+    /// seconds; this finer interval just makes the arc sweep smoothly. Raise it to trade smoothness
+    /// for energy.
+    private let ringRefreshInterval: TimeInterval = 0.5
 
     /// Aligns the timeline to whole-second boundaries so the countdown changes exactly on the second.
     private var nextSecondBoundary: Date {

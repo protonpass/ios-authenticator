@@ -54,7 +54,10 @@ public struct TOTPCountdown: Sendable, Equatable {
         let period = Double(period)
         let elapsedInPeriod = date.timeIntervalSince1970.truncatingRemainder(dividingBy: period)
         let remaining = period - elapsedInPeriod
+        // Count `period-1 … 0` (e.g. 29→0 for a 30s window): the number reaches 0 in the final second
+        // and resets to `period-1` at the boundary, in lockstep with the code change and the ring
+        // emptying. (`rounded(.up) - 1` keeps it in `0...(period-1)` for any `remaining` in `(0, period]`.)
         return Self(fractionRemaining: remaining / period,
-                    secondsRemaining: Int(remaining.rounded(.down)))
+                    secondsRemaining: Int(remaining.rounded(.up)) - 1)
     }
 }
