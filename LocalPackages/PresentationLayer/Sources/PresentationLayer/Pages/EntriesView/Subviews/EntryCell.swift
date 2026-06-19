@@ -396,19 +396,16 @@ private struct TOTPCountdownView: View {
                     .foregroundStyle(color.opacity(0.3))
                     .padding(2)
 
-                // Progress circle
+                // Progress circle. The arc steps discretely on each 1-second `TimelineView` tick.
+                // We intentionally avoid `.animation(_:value:)` here: animating a `Shape`'s `trim`
+                // forces SwiftUI to re-stroke the path on the CPU every frame, which — running once
+                // a second on every visible ring — was the dominant source of sustained CPU/heat.
                 Circle()
                     .trim(from: 1 - progress, to: 1)
                     .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                     .foregroundStyle(color)
                     .padding(2)
                     .rotationEffect(.degrees(-90))
-                    .if(AppConstants.isPhone) { view in
-                        view.animation(.default, value: progress)
-                            .transaction { transaction in
-                                transaction.disablesAnimations = countdown.secondsRemaining == period - 1
-                            }
-                    }
 
                 // Countdown text
                 Text(verbatim: "\(countdown.secondsRemaining)")

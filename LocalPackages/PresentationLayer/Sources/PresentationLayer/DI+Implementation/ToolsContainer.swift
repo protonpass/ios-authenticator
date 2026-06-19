@@ -40,7 +40,10 @@ public extension ToolsContainer {
     var mobileTotpGenerator: Factory<any MobileTotpGeneratorProtocol> {
         self {
             do {
-                return try MobileTotpGenerator(periodMs: UInt32(300),
+                // Poll once a second: the UI countdown only needs per-second granularity and
+                // `onlyOnCodeChange` means the callback still fires only when a code rolls over.
+                // 1s (vs 300ms) cuts background-thread wake-ups ~3x, helping the CPU idle.
+                return try MobileTotpGenerator(periodMs: UInt32(1_000),
                                                onlyOnCodeChange: true,
                                                currentTime: CurrentTimeProviderImpl())
             } catch {
