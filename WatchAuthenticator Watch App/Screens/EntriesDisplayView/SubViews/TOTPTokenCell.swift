@@ -55,13 +55,15 @@ struct TOTPTokenCell: View, @preconcurrency Equatable {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let code = entry.token.currentPassword {
-                Text(verbatim: code.mainCode)
-                    .font(.title2)
-                    .monospaced()
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 2)
+            TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { _ in
+                if let code = entry.token.currentPassword {
+                    Text(verbatim: code.mainCode)
+                        .font(.title2)
+                        .monospaced()
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 2)
+                }
             }
 
             TimelineView(.periodic(from: nextSecondBoundary, by: 1)) { context in
