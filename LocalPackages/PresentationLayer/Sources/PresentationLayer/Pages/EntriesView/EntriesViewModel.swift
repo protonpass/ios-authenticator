@@ -458,16 +458,8 @@ private extension EntriesViewModel {
             if Task.isCancelled {
                 return
             }
-            searchResults = await filterData(query: query, data: data)
+            searchResults = await Self.filterData(query: cleanQuery, data: data)
             updateEntries()
-        }
-    }
-
-    @concurrent
-    func filterData(query: String, data: [EntryUiModel]) async -> [EntryUiModel] {
-        data.filter {
-            $0.orderedEntry.entry.name.lowercased().contains(query) ||
-                $0.orderedEntry.entry.issuer.lowercased().contains(query)
         }
     }
 
@@ -526,6 +518,24 @@ private extension [EntryUiModel] {
 
         case .modificationDateDesc:
             sorted(by: { $0.orderedEntry.modifiedTime > $1.orderedEntry.modifiedTime })
+        }
+    }
+}
+
+// MARK: - Search filtering
+
+extension EntriesViewModel {
+    /// Filters `data` to entries whose name or issuer contains `query`.
+    ///
+    /// The query is normalised (trimmed + lowercased) before matching, so a raw, cased query can
+    /// never silently return zero results — the regression this guards against.
+    @concurrent
+    static func filterData(query: String, data: [EntryUiModel]) async -> [EntryUiModel] {
+        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !normalizedQuery.isEmpty else { return data }
+        return data.filter {
+            $0.orderedEntry.entry.name.lowercased().contains(normalizedQuery) ||
+                $0.orderedEntry.entry.issuer.lowercased().contains(normalizedQuery)
         }
     }
 }
