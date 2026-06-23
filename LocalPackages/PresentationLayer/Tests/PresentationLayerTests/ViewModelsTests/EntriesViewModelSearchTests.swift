@@ -26,7 +26,7 @@ import Testing
 
 /// Regression coverage for the search filtering logic.
 ///
-/// Background: `executeSearch` once passed the raw, un-normalised query to `filterData`, so any
+/// Background: `executeSearch` once passed the raw, un-normalised query to the matcher, so any
 /// search term containing an uppercase letter or surrounding whitespace never matched (the entries
 /// are compared `lowercased()`). These tests pin the normalisation behaviour so the regression
 /// cannot return.
@@ -61,37 +61,37 @@ struct EntriesViewModelSearchTests {
 
     @Test("Uppercase query matches a lowercased issuer")
     func uppercaseQueryMatchesIssuer() async {
-        let result = await EntriesViewModel.filterData(query: "GIT", data: seed)
+        let result = await seed.filtered(matching: "GIT")
         #expect(issuers(result) == ["GitHub"])
     }
 
     @Test("Full mixed-case issuer query matches")
     func mixedCaseQueryMatchesIssuer() async {
-        let result = await EntriesViewModel.filterData(query: "GitHub", data: seed)
+        let result = await seed.filtered(matching: "GitHub")
         #expect(issuers(result) == ["GitHub"])
     }
 
     @Test("Whitespace-padded query is trimmed before matching")
     func whitespacePaddedQueryIsTrimmed() async {
-        let result = await EntriesViewModel.filterData(query: "  github  ", data: seed)
+        let result = await seed.filtered(matching: "  github  ")
         #expect(issuers(result) == ["GitHub"])
     }
 
     @Test("Empty or whitespace-only query returns all entries")
     func emptyQueryReturnsAllEntries() async {
-        let result = await EntriesViewModel.filterData(query: "   ", data: seed)
+        let result = await seed.filtered(matching: "   ")
         #expect(issuers(result) == ["GitHub", "Google", "Amazon"])
     }
 
     @Test("Partial substring matches the issuer")
     func partialSubstringMatchesIssuer() async {
-        let result = await EntriesViewModel.filterData(query: "oog", data: seed)
+        let result = await seed.filtered(matching: "oog")
         #expect(issuers(result) == ["Google"])
     }
 
     @Test("Query matches the entry name as well as the issuer")
     func queryMatchesEntryName() async {
-        let result = await EntriesViewModel.filterData(query: "CAROL", data: seed)
+        let result = await seed.filtered(matching: "CAROL")
         #expect(issuers(result) == ["Amazon"])
     }
 }
