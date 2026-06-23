@@ -36,6 +36,20 @@
         "identifier" : "DataLayerTests",
         "name" : "DataLayerTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:LocalPackages\/PresentationLayer",
+        "identifier" : "PresentationLayerTests",
+        "name" : "PresentationLayerTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:LocalPackages\/Models",
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
     }
   ],
   "version" : 1
