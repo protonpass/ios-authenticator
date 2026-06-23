@@ -89,10 +89,6 @@ final class EntriesViewModel {
     private(set) var entryDataService
 
     @ObservationIgnored
-    @LazyInjected(\ServiceContainer.totpCountdownManager)
-    private(set) var totpCountdownManager
-
-    @ObservationIgnored
     @LazyInjected(\UseCaseContainer.copyTextToClipboard)
     private var copyTextToClipboard
 
@@ -161,6 +157,11 @@ final class EntriesViewModel {
     private var searchTask: Task<Void, Never>?
     @ObservationIgnored
     private var moveItemTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var lastForegroundReloadDate: Date?
+    @ObservationIgnored
+    private(set) var isCodeRefreshPaused = false
+    private static let foregroundReloadThrottle: TimeInterval = 30
 
     private(set) var deleteTask: Task<Void, Never>?
 
@@ -269,12 +270,25 @@ final class EntriesViewModel {
 
 extension EntriesViewModel {
     func reloadData() {
+        lastForegroundReloadDate = .now
         reorderingEntries = nil
         if isAuthenticated {
             fullSync()
         } else {
             loadEntries()
         }
+    }
+
+    func reloadDataOnForeground() {
+        if let lastForegroundReloadDate,
+           Date.now.timeIntervalSince(lastForegroundReloadDate) < Self.foregroundReloadThrottle,
+           !entries.isEmpty {
+            if isCodeRefreshPaused {
+                toggleCodeRefresh(false)
+            }
+            return
+        }
+        reloadData()
     }
 
     func copyTokenToClipboard(entryAction: EntryAction) {
@@ -300,11 +314,10 @@ extension EntriesViewModel {
     }
 
     func toggleCodeRefresh(_ shouldPause: Bool) {
+        isCodeRefreshPaused = shouldPause
         if shouldPause {
-            totpCountdownManager.stopTimer()
             entryDataService.stopTotpGenerator()
         } else {
-            totpCountdownManager.startTimer()
             entryDataService.startTotpGenerator()
         }
     }

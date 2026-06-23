@@ -126,10 +126,6 @@ public extension ServiceContainer {
         }
     }
 
-    var totpCountdownManager: Factory<any TOTPCountdownProtocol> {
-        self { @MainActor in TOTPCountdownManager.shared }
-    }
-
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
         self { @MainActor in IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
                                                             logger: self.logger)

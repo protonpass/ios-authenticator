@@ -133,7 +133,7 @@ public final class EncryptionService: EncryptionServicing {
 
 public extension EncryptionService {
     func decrypt(entry: EncryptedEntry) -> EntryState {
-        log(.info, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
+        log(.debug, "Decrypting entry with id \(entry.id), key id \(entry.keyId)")
 
         let encryptionKey: Data
         do {

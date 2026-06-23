@@ -460,10 +460,13 @@ private extension EntryDataService {
 
             hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
             if Task.isCancelled { return }
-            _ = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
-                                        entriesStates: entriesStates)
+            let localChanged = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
+                                                       entriesStates: entriesStates)
             if Task.isCancelled { return }
-            let newOrderedItems = try await reorderItems(remoteEntries: remoteOrderedEntries)
+            let newOrderedItems = localChanged
+                ? try await reorderItems(remoteEntries: remoteOrderedEntries)
+                : try await reorderItems(remoteEntries: remoteOrderedEntries,
+                                         localEntries: entriesStates.decodedEntries)
             let entries = try await generateUIEntries(from: newOrderedItems)
             updateData(entries)
             backUpEntries()
@@ -671,13 +674,19 @@ private extension EntryDataService {
     @MainActor
     func reorderItems(remoteEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
         let localEntries = try await repository.getAllLocalEntries()
+        return try await reorderItems(remoteEntries: remoteEntries,
+                                      localEntries: localEntries.decodedEntries)
+    }
 
-        guard remoteEntries.map(\.id) != localEntries.decodedEntries.map(\.id) else {
-            return localEntries.decodedEntries
+    @MainActor
+    func reorderItems(remoteEntries: [OrderedEntry],
+                      localEntries: [OrderedEntry]) async throws -> [OrderedEntry] {
+        guard remoteEntries.map(\.id) != localEntries.map(\.id) else {
+            return localEntries
         }
 
         return try await performReordering(remoteEntries: remoteEntries,
-                                           localEntries: localEntries.decodedEntries)
+                                           localEntries: localEntries)
     }
 
     @MainActor

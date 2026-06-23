@@ -18,9 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Proton Authenticator. If not, see https://www.gnu.org/licenses/.
 
-import Combine
 import CommonUtilities
-import FactoryKit
 import Models
 import SwiftUI
 
@@ -374,8 +372,6 @@ private struct TOTPCountdownView: View {
     private let size: CGFloat
     private let lineWidth: CGFloat
 
-    @State private var timerManager = resolve(\ServiceContainer.totpCountdownManager)
-
     init(period: Int,
          size: CGFloat = 32,
          lineWidth: CGFloat = 4) {
@@ -385,34 +381,51 @@ private struct TOTPCountdownView: View {
     }
 
     var body: some View {
-        let infos = timerManager.calculateCountdownInfo(period: period)
+        TimelineView(.periodic(from: nextSecondBoundary, by: ringRefreshInterval)) { context in
+            let countdown = TOTPCountdown.make(at: context.date, period: period)
+            let color = color(forSecondsRemaining: countdown.secondsRemaining)
 
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(lineWidth: 4)
-                .foregroundStyle(infos.color.opacity(0.3))
-                .padding(2)
+            ZStack {
+                // Background circle
+                Circle()
+                    .stroke(lineWidth: 4)
+                    .foregroundStyle(color.opacity(0.3))
+                    .padding(2)
+                Circle()
+                    .trim(from: 1 - countdown.fractionRemaining, to: 1)
+                    .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(color)
+                    .padding(2)
+                    .rotationEffect(.degrees(-90))
 
-            // Progress circle
-            Circle()
-                .trim(from: 1 - infos.progress, to: 1)
-                .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(infos.color)
-                .padding(2)
-                .rotationEffect(.degrees(-90))
-                .if(AppConstants.isPhone) { view in
-                    view.animation(.default, value: infos.progress)
-                        .transaction { transaction in
-                            transaction.disablesAnimations = infos.timeRemaining == Int(Double(period) - 1)
-                        }
-                }
-
-            // Countdown text
-            Text(verbatim: "\(infos.timeRemaining)")
-                .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
-                .foregroundStyle(.textNorm)
+                // Countdown text
+                Text(verbatim: "\(countdown.secondsRemaining)")
+                    .dynamicFont(size: 12, textStyle: .caption1, weight: .semibold)
+                    .foregroundStyle(.textNorm)
+            }
+            .frame(width: size, height: size)
         }
-        .frame(width: size, height: size)
+    }
+
+    /// Redraw cadence for the depleting arc. The number and color only change on whole
+    /// seconds; this finer interval just makes the arc sweep smoothly. Raise it to trade smoothness
+    /// for energy.
+    private let ringRefreshInterval: TimeInterval = 0.5
+
+    private var nextSecondBoundary: Date {
+        Date(timeIntervalSince1970: Date.now.timeIntervalSince1970.rounded(.up))
+    }
+
+    private func color(forSecondsRemaining seconds: Int) -> Color {
+        switch seconds {
+        case 0...5:
+            .timer1
+
+        case 6...10:
+            .timer2
+
+        default:
+            .timer3
+        }
     }
 }

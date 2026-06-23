@@ -132,7 +132,7 @@ public struct EntriesView: View {
                         .autocorrectionDisabled(true)
                 }
                 .onAppear {
-                    viewModel.reloadData()
+                    viewModel.reloadDataOnForeground()
 
                     withAnimation {
                         searchFieldFocus = viewModel.focusSearchOnLaunch
@@ -151,15 +151,25 @@ public struct EntriesView: View {
                     }
                 }
                 .onChange(of: scenePhase) { _, newValue in
-                    if newValue == .active {
+                    switch newValue {
+                    case .active:
                         viewModel.checkWatchConnectivity()
                         if router.noSheetDisplayed {
                             withAnimation {
                                 searchFieldFocus = viewModel.focusSearchOnLaunch
                             }
+                            if viewModel.isCodeRefreshPaused {
+                                viewModel.toggleCodeRefresh(false)
+                            }
                         }
-                        viewModel.reloadData()
+                        viewModel.reloadDataOnForeground()
                         viewModel.showICloudDisablePromptIfNeeded()
+
+                    case .background:
+                        viewModel.toggleCodeRefresh(true)
+
+                    default:
+                        break
                     }
                 }
                 .onChange(of: searchFieldFocus) { _, focused in

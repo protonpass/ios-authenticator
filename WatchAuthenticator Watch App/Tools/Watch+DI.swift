@@ -53,10 +53,6 @@ final class WatchDIContainer: SharedContainer {
         }
     }
 
-    var countdownTimer: Factory<any CountdownTimerProtocol> {
-        self { @MainActor in CountdownTimer.shared }
-    }
-
     var dataService: Factory<any DataServiceProtocol> {
         self { @MainActor in DataService(repository: self.entryRepository(),
                                          communicationService: self.watchToIOSCommunicationManager())
