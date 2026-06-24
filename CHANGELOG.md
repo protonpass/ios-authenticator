@@ -1,3 +1,7 @@
+# Version 1.4.3
+- Improved animations for a smoother scrolling experience
+- Fixed issues with search functionality
+
 # Version 1.4.2
 - Added back iCloud sync
 - Some bug fixes and performance improvements
