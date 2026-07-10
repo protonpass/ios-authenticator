@@ -4250,6 +4250,12 @@
             "value" : "Vanwege betrouwbaarheidsproblemen met Apple's iCloud raden we aan in plaats daarvan het Proton-synchronisatie- en/of back-upsysteem te gebruiken."
           }
         },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devido a problemas de confiabilidade com o iCloud da Apple, recomendamos usar o sistema de sincronização e/ou backup da Proton."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5668,6 +5674,12 @@
             "value" : "ICLOUD INSTELLINGEN"
           }
         },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONFIGURAÇÕES DO ICLOUD"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5718,6 +5730,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud synchronisatie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronização do iCloud"
           }
         },
         "tr" : {
@@ -7676,6 +7694,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geen gegevens om te back-uppen."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem dados para fazer backup"
           }
         },
         "tr" : {
