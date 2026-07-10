@@ -64,8 +64,6 @@ public final class BackUpManager: BackUpServicing {
     private let settingsService: any SettingsServicing
     private let logger: any LoggerProtocol
     private var documentURL: URL?
-    private static let backupFileNamePrefix = "Proton_Authenticator_backup_"
-    private static let backupSubfolderName = "Proton Authenticator"
 
     public var destinationFolderURL: URL? {
         documentURL
@@ -175,7 +173,8 @@ public final class BackUpManager: BackUpServicing {
             // Sweep both the dedicated subfolder and the picked-folder root (in case an earlier
             // migration was interrupted). Only ever delete files this app created — never other
             // apps' files that may live in the same user-chosen folder.
-            let subfolder = parent.appendingPathComponent(Self.backupSubfolderName, isDirectory: true)
+            let subfolder = parent.appendingPathComponent(AppConstants.FileBackup.backupSubfolderName,
+                                                          isDirectory: true)
             for location in [subfolder, parent] {
                 guard let fileURLs = try? FileManager.default.contentsOfDirectory(at: location,
                                                                                   includingPropertiesForKeys: nil,
@@ -183,7 +182,7 @@ public final class BackUpManager: BackUpServicing {
                 else {
                     continue
                 }
-                for fileURL in fileURLs where Self.isOwnedBackupFileName(fileURL.lastPathComponent) {
+                for fileURL in fileURLs where fileURL.lastPathComponent.isOwnedBackupFileName {
                     try FileManager.default.removeItem(at: fileURL)
                 }
             }
@@ -208,7 +207,7 @@ public final class BackUpManager: BackUpServicing {
 
         // Defense in depth: refuse to delete anything that isn't one of our own backup files,
         // even if a caller passes an arbitrary name from outside this manager.
-        guard Self.isOwnedBackupFileName(fileName) else {
+        guard fileName.isOwnedBackupFileName else {
             throw AuthError.backup(.unrecognizedBackupFile)
         }
 
@@ -263,7 +262,8 @@ private extension BackUpManager {
     /// pre-subfolder behaviour) if the subfolder can't be created, so backups never fail.
     /// `parent` must already be security-scoped by the caller.
     func effectiveBackupDirectory(in parent: URL) -> URL {
-        let subfolder = parent.appendingPathComponent(Self.backupSubfolderName, isDirectory: true)
+        let subfolder = parent.appendingPathComponent(AppConstants.FileBackup.backupSubfolderName,
+                                                      isDirectory: true)
 
         var isDirectory: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: subfolder.path, isDirectory: &isDirectory)
@@ -294,7 +294,7 @@ private extension BackUpManager {
             return
         }
 
-        for source in entries where Self.isOwnedBackupFileName(source.lastPathComponent) {
+        for source in entries where source.lastPathComponent.isOwnedBackupFileName {
             let destination = subfolder.appendingPathComponent(source.lastPathComponent)
             do {
                 if FileManager.default.fileExists(atPath: destination.path) {
@@ -326,15 +326,9 @@ private extension BackUpManager {
         return candidate
     }
 
-    /// True only for files this app created — `Proton_Authenticator_backup_<date>.json`.
-    /// The app-specific prefix is the ownership signal; the `.json` extension is a secondary guard.
-    static func isOwnedBackupFileName(_ fileName: String) -> Bool {
-        fileName.hasPrefix(backupFileNamePrefix) && fileName.lowercased().hasSuffix(".json")
-    }
-
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
-        return "\(Self.backupFileNamePrefix)\(todayString).json"
+        return "\(AppConstants.FileBackup.backupFileNamePrefix)\(todayString).json"
     }
 
     func enforceFileRotationPolicy(in directory: URL) throws {
@@ -361,7 +355,7 @@ private extension BackUpManager {
 
         return try fileURLs.compactMap { url -> BackUpFileInfo? in
             // Only recognise files this app created; ignore everything else in the folder.
-            guard Self.isOwnedBackupFileName(url.lastPathComponent) else {
+            guard url.lastPathComponent.isOwnedBackupFileName else {
                 return nil
             }
 

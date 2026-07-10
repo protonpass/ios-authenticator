@@ -79,7 +79,7 @@ struct BackUpManagerTests {
 
     /// The exact naming convention the app uses for its own backups.
     private func ownedBackupName(_ day: String) -> String {
-        "Proton_Authenticator_backup_\(day).json"
+        "\(AppConstants.FileBackup.backupFileNamePrefix)\(day).json"
     }
 
     private func exists(_ name: String, in directory: URL) -> Bool {
@@ -377,11 +377,11 @@ struct BackUpManagerTests {
 
 private extension BackUpManagerTests {
     func subfolder(of directory: URL) -> URL {
-        directory.appendingPathComponent("Proton Authenticator", isDirectory: true)
+        directory.appendingPathComponent(AppConstants.FileBackup.backupSubfolderName, isDirectory: true)
     }
 
     private func isOwnedName(_ name: String) -> Bool {
-        name.hasPrefix("Proton_Authenticator_backup_") && name.hasSuffix(".json")
+        name.hasPrefix(AppConstants.FileBackup.backupFileNamePrefix) && name.hasSuffix(".json")
     }
 
     @Test

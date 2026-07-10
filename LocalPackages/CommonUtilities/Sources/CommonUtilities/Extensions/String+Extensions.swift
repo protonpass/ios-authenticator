@@ -80,3 +80,14 @@ public extension StringProtocol {
         return false
     }
 }
+
+// MARK: - File backup name check
+
+public extension String {
+    /// True only for files this app created — `Proton_Authenticator_backup_<date>.json`.
+    /// The app-specific prefix is the ownership signal; the `.json` extension is a secondary guard.
+    var isOwnedBackupFileName: Bool {
+        hasPrefix(AppConstants.FileBackup.backupFileNamePrefix) && lowercased()
+            .hasSuffix(".json")
+    }
+}
