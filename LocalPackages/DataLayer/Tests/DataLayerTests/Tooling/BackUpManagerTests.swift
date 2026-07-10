@@ -88,8 +88,8 @@ struct BackUpManagerTests {
 
     // MARK: - restoreDestinationFolder() on init
 
-    @Test("Restores the destination folder from a Keychain bookmark on init")
-    func restoresFromKeychainOnInit() throws {
+    @Test
+    func `Restores the destination folder from a Keychain bookmark on init`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
         settings.folderBackup = true
@@ -103,8 +103,8 @@ struct BackUpManagerTests {
         #expect(settings.folderBackup == true)
     }
 
-    @Test("Migrates a legacy UserDefaults bookmark into the Keychain on init")
-    func migratesLegacyBookmarkOnInit() throws {
+    @Test
+    func `Migrates a legacy UserDefaults bookmark into the Keychain on init`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
         settings.folderBackup = true
@@ -120,8 +120,8 @@ struct BackUpManagerTests {
         #expect(settings.folderBackup == true)
     }
 
-    @Test("Is a no-op on init when folder backup is disabled")
-    func disabledFolderBackupIsNoOpOnInit() {
+    @Test
+    func `Is a no-op on init when folder backup is disabled`() {
         settings.folderBackup = false
 
         let sut = makeSUT()
@@ -130,8 +130,8 @@ struct BackUpManagerTests {
         #expect(settings.folderBackup == false)
     }
 
-    @Test("Disables folder backup on init when no bookmark is stored")
-    func missingBookmarkDisablesOnInit() {
+    @Test
+    func `Disables folder backup on init when no bookmark is stored`() {
         settings.folderBackup = true // enabled but nothing persisted
 
         let sut = makeSUT()
@@ -140,8 +140,8 @@ struct BackUpManagerTests {
         #expect(settings.folderBackup == false)
     }
 
-    @Test("Disables folder backup on init when the stored bookmark is unusable")
-    func corruptBookmarkDisablesOnInit() throws {
+    @Test
+    func `Disables folder backup on init when the stored bookmark is unusable`() throws {
         settings.folderBackup = true
         try keychain.set(Data("not-a-real-bookmark".utf8),
                          for: AppConstants.Settings.backupFolderBookmark,
@@ -155,8 +155,8 @@ struct BackUpManagerTests {
 
     // MARK: - saveDestinationFolder()
 
-    @Test("saveDestinationFolder persists the bookmark, sets the URL, and enables folder backup")
-    func saveDestinationFolderPersistsEverything() throws {
+    @Test
+    func `saveDestinationFolder persists the bookmark, sets the URL, and enables folder backup`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
         let sut = makeSUT() // folderBackup defaults to false -> init restore is a no-op
@@ -172,8 +172,8 @@ struct BackUpManagerTests {
 
     // MARK: - clearDestinationFolder()
 
-    @Test("clearDestinationFolder removes the bookmark, the URL, and disables folder backup")
-    func clearDestinationFolderResetsEverything() throws {
+    @Test
+    func `clearDestinationFolder removes the bookmark, the URL, and disables folder backup`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
         let sut = makeSUT()
@@ -195,8 +195,8 @@ struct BackUpManagerTests {
     // apps). The manager must only ever list, rotate, or delete files it created itself, which
     // always follow the "Proton_Authenticator_backup_<yyyy-MM-dd>.json" convention.
 
-    @Test("Automatic backup rotation never deletes files the app did not create")
-    func rotationPreservesForeignFiles() throws {
+    @Test
+    func `Automatic backup rotation never deletes files the app did not create`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -224,8 +224,8 @@ struct BackUpManagerTests {
         }
     }
 
-    @Test("Rotation trims only the app's own backups, keeping foreign files intact")
-    func rotationTrimsOnlyOwnedFiles() throws {
+    @Test
+    func `Rotation trims only the app's own backups, keeping foreign files intact`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -256,14 +256,15 @@ struct BackUpManagerTests {
         for name in foreign {
             #expect(exists(name, in: tmp))
         }
-        // Only the oldest *owned* backup is trimmed; the newer owned backups survive.
-        #expect(!exists(owned[0], in: tmp), "The oldest owned backup should have been trimmed")
-        #expect(exists(owned[1], in: tmp))
-        #expect(exists(owned[2], in: tmp))
+        // Only the oldest *owned* backup is trimmed; the newer owned backups survive. Backups now
+        // live in the dedicated subfolder, so that is where the survivors are.
+        #expect(!exists(owned[0], in: subfolder(of: tmp)), "The oldest owned backup should have been trimmed")
+        #expect(exists(owned[1], in: subfolder(of: tmp)))
+        #expect(exists(owned[2], in: subfolder(of: tmp)))
     }
 
-    @Test("Listing backups returns only the app's own files")
-    func listingReturnsOnlyOwnedFiles() throws {
+    @Test
+    func `Listing backups returns only the app's own files`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -286,8 +287,8 @@ struct BackUpManagerTests {
         #expect(names == Set(owned))
     }
 
-    @Test("deleteAllBackupFiles removes only the app's own files")
-    func deleteAllRemovesOnlyOwnedFiles() throws {
+    @Test
+    func `deleteAllBackupFiles removes only the app's own files`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -313,8 +314,8 @@ struct BackUpManagerTests {
         }
     }
 
-    @Test("delete(fileName:) refuses a file the app did not create")
-    func deleteFileNameRefusesForeignFile() throws {
+    @Test
+    func `delete(fileName:) refuses a file the app did not create`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -331,8 +332,8 @@ struct BackUpManagerTests {
                 "A foreign file must never be deleted via delete(fileName:)")
     }
 
-    @Test("delete(fileName:) removes one of the app's own backups")
-    func deleteFileNameRemovesOwnedFile() throws {
+    @Test
+    func `delete(fileName:) removes one of the app's own backups`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -347,8 +348,8 @@ struct BackUpManagerTests {
         #expect(!exists(ownedName, in: tmp))
     }
 
-    @Test("A freshly written backup follows the recognized naming convention")
-    func writtenBackupIsRecognizedAsOwned() throws {
+    @Test
+    func `A freshly written backup follows the recognized naming convention`() throws {
         let tmp = try makeTempDirectory()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
@@ -365,5 +366,159 @@ struct BackUpManagerTests {
         let name = try #require(listed.first?.name)
         #expect(name.hasPrefix("Proton_Authenticator_backup_"))
         #expect(name.hasSuffix(".json"))
+    }
+}
+
+// MARK: - Dedicated subfolder + migration (defense-in-depth)
+//
+// Backups live inside a "Proton Authenticator" subfolder of the user-picked folder, so every
+// destructive operation runs in a directory that contains only our files. Existing flat
+// backups are migrated into it on first access; foreign files are never moved.
+
+private extension BackUpManagerTests {
+    func subfolder(of directory: URL) -> URL {
+        directory.appendingPathComponent("Proton Authenticator", isDirectory: true)
+    }
+
+    private func isOwnedName(_ name: String) -> Bool {
+        name.hasPrefix("Proton_Authenticator_backup_") && name.hasSuffix(".json")
+    }
+
+    @Test
+    func `A new backup is written inside the Proton Authenticator subfolder, not the folder root`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+
+        try sut.write(data: Data("backup".utf8))
+
+        let inSub = (try? FileManager.default.contentsOfDirectory(atPath: subfolder(of: tmp).path)) ?? []
+        #expect(inSub.contains(where: isOwnedName))
+        let inRoot = (try? FileManager.default.contentsOfDirectory(atPath: tmp.path)) ?? []
+        #expect(!inRoot.contains(where: isOwnedName))
+    }
+
+    @Test
+    func `Legacy flat backups are migrated into the subfolder; foreign files are left in place`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let owned = [ownedBackupName("2026-01-01"), ownedBackupName("2026-02-02")]
+        for name in owned {
+            try makeFile(named: name, in: tmp)
+        }
+        let foreign = ["other_app.json", "notes.txt"]
+        for name in foreign {
+            try makeFile(named: name, in: tmp)
+        }
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+
+        let listed = Set(try sut.getAllDocumentsData().map(\.name))
+
+        #expect(listed == Set(owned))
+        for name in owned {
+            #expect(exists(name, in: subfolder(of: tmp)), "\(name) should be migrated into the subfolder")
+            #expect(!exists(name, in: tmp), "\(name) should be moved out of the folder root")
+        }
+        for name in foreign {
+            #expect(exists(name, in: tmp), "Foreign file \(name) must never be moved")
+            #expect(!exists(name, in: subfolder(of: tmp)))
+        }
+    }
+
+    @Test
+    func `Rotation stays inside the subfolder and never deletes files in the folder root`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let foreign = ["a.json", "b.json", "c.json"]
+        for name in foreign {
+            try makeFile(named: name, in: tmp)
+        }
+        let sub = subfolder(of: tmp)
+        try FileManager.default.createDirectory(at: sub, withIntermediateDirectories: true)
+        let base = Date(timeIntervalSinceReferenceDate: 0)
+        let owned = [ownedBackupName("2026-01-01"), ownedBackupName("2026-01-02")]
+        for (offset, name) in owned.enumerated() {
+            try makeFile(named: name, in: sub, creationDate: base.addingTimeInterval(TimeInterval(offset)))
+        }
+        let sut = makeSUT(maxBackupCount: 2)
+        try sut.saveDestinationFolder(tmp)
+
+        try sut.write(data: Data("today".utf8))
+
+        for name in foreign {
+            #expect(exists(name, in: tmp), "Foreign root file \(name) must never be deleted")
+        }
+        #expect(!exists(owned[0], in: sub), "Oldest owned backup should be trimmed")
+        #expect(exists(owned[1], in: sub))
+    }
+
+    @Test
+    func `deleteAllBackupFiles clears the subfolder but leaves foreign root files`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let foreign = ["keepme.json", "readme.txt"]
+        for name in foreign {
+            try makeFile(named: name, in: tmp)
+        }
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+        try sut.write(data: Data("x".utf8))
+
+        let todayOwned = try #require(try sut.getAllDocumentsData().first?.name)
+        #expect(exists(todayOwned, in: subfolder(of: tmp)))
+
+        try sut.deleteAllBackupFiles()
+
+        #expect(!exists(todayOwned, in: subfolder(of: tmp)))
+        for name in foreign {
+            #expect(exists(name, in: tmp), "Foreign file \(name) must never be deleted")
+        }
+    }
+
+    @Test
+    func `read and delete resolve names inside the subfolder`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+        try sut.write(data: Data("payload".utf8))
+
+        let name = try #require(try sut.getAllDocumentsData().first?.name)
+        #expect(exists(name, in: subfolder(of: tmp)))
+        #expect(String(data: try sut.read(fileName: name), encoding: .utf8) == "payload")
+
+        try sut.delete(fileName: name)
+        #expect(try sut.getAllDocumentsData().isEmpty)
+    }
+
+    @Test
+    func `The subfolder is recreated when it is missing`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+        try sut.write(data: Data("one".utf8))
+        try? FileManager.default.removeItem(at: subfolder(of: tmp))
+
+        try sut.write(data: Data("two".utf8))
+
+        #expect(FileManager.default.fileExists(atPath: subfolder(of: tmp).path))
+        #expect(try !sut.getAllDocumentsData().isEmpty)
+    }
+
+    @Test
+    func `Backup falls back to the folder root when the subfolder name is occupied by a file`() throws {
+        let tmp = try makeTempDirectory()
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        // A regular file occupies the subfolder path, so directory creation must fail.
+        try Data("blocker".utf8).write(to: subfolder(of: tmp))
+        let sut = makeSUT()
+        try sut.saveDestinationFolder(tmp)
+
+        try sut.write(data: Data("backup".utf8))
+
+        #expect(try sut.getAllDocumentsData().contains { isOwnedName($0.name) })
     }
 }
