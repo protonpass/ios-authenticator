@@ -64,6 +64,7 @@ public final class BackUpManager: BackUpServicing {
     private let settingsService: any SettingsServicing
     private let logger: any LoggerProtocol
     private var documentURL: URL?
+    private static let backupFileNamePrefix = "Proton_Authenticator_backup_"
 
     public var destinationFolderURL: URL? {
         documentURL
@@ -79,6 +80,8 @@ public final class BackUpManager: BackUpServicing {
         self.settingsService = settingsService
         self.logger = logger
         dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.calendar = Calendar(identifier: .gregorian)
         dateFormatter.dateFormat = "yyyy-MM-dd"
         restoreDestinationFolder()
     }
@@ -171,7 +174,9 @@ public final class BackUpManager: BackUpServicing {
             let fileURLs = try FileManager.default.contentsOfDirectory(at: url,
                                                                        includingPropertiesForKeys: nil,
                                                                        options: [])
-            for fileURL in fileURLs {
+            // Only ever delete files this app created; never touch other apps' files that may
+            // live in the same user-chosen folder.
+            for fileURL in fileURLs where Self.isOwnedBackupFileName(fileURL.lastPathComponent) {
                 try FileManager.default.removeItem(at: fileURL)
             }
         }
@@ -190,6 +195,12 @@ public final class BackUpManager: BackUpServicing {
     public func delete(fileName: String) throws {
         guard let documentURL else {
             throw AuthError.backup(.noDestinationFolder)
+        }
+
+        // Defense in depth: refuse to delete anything that isn't one of our own backup files,
+        // even if a caller passes an arbitrary name from outside this manager.
+        guard Self.isOwnedBackupFileName(fileName) else {
+            throw AuthError.backup(.unrecognizedBackupFile)
         }
 
         try documentURL.withSecurityScopedAccess { url in
@@ -237,9 +248,15 @@ private extension BackUpManager {
         logger.log(level, category: .data, message, function: function, line: line)
     }
 
+    /// True only for files this app created — `Proton_Authenticator_backup_<date>.json`.
+    /// The app-specific prefix is the ownership signal; the `.json` extension is a secondary guard.
+    static func isOwnedBackupFileName(_ fileName: String) -> Bool {
+        fileName.hasPrefix(backupFileNamePrefix) && fileName.lowercased().hasSuffix(".json")
+    }
+
     func getTodaysBackupFileName() -> String {
         let todayString = dateFormatter.string(from: Date())
-        return "Proton_Authenticator_backup_\(todayString).json"
+        return "\(Self.backupFileNamePrefix)\(todayString).json"
     }
 
     func enforceFileRotationPolicy() throws {
@@ -269,7 +286,8 @@ private extension BackUpManager {
                                                                    options: .skipsHiddenFiles)
 
         return try fileURLs.compactMap { url -> BackUpFileInfo? in
-            guard url.pathExtension.lowercased() == "json" else {
+            // Only recognise files this app created; ignore everything else in the folder.
+            guard Self.isOwnedBackupFileName(url.lastPathComponent) else {
                 return nil
             }
 
@@ -332,28 +350,6 @@ private extension BackUpManager {
         if let coordinationError {
             throw coordinationError
         }
-    }
-
-    // periphery:ignore
-    func getAllDocumentsFileNames() throws -> [String]? {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: [
-                                                                       .isDirectoryKey,
-                                                                       .contentModificationDateKey
-                                                                   ],
-                                                                   options: .skipsHiddenFiles)
-        return fileURLs.compactMap { url -> (String, Date)? in
-            guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey]),
-                  values.isDirectory == false,
-                  let date = values.contentModificationDate else { return nil }
-            return (url.lastPathComponent, date)
-        }
-        .sorted { $0.1 > $1.1 }
-        .map(\.0)
     }
 }
 
