@@ -74,6 +74,11 @@ public enum AppConstants: Sendable {
         public static let iCloudDisablePromptDismissed = "ICloudDisablePromptDismissed"
     }
 
+    public enum FileBackup {
+        public static let backupFileNamePrefix = "Proton_Authenticator_backup_"
+        public static let backupSubfolderName = "Proton Authenticator"
+    }
+
     public enum NetworkSettings {
         public static let batchSize = 100
     }

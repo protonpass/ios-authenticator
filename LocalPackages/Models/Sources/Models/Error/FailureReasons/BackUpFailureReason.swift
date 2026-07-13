@@ -24,6 +24,7 @@ public enum BackUpFailureReason: Sendable, CustomDebugStringConvertible {
     case noData
     case noDestinationFolder
     case staleBookmark
+    case unrecognizedBackupFile
 
     public var debugDescription: String {
         switch self {
@@ -35,6 +36,9 @@ public enum BackUpFailureReason: Sendable, CustomDebugStringConvertible {
 
         case .staleBookmark:
             "The bookmark for the backup folder is stale and needs to be re-created."
+
+        case .unrecognizedBackupFile:
+            "The file is not a Proton Authenticator backup and will not be modified."
         }
     }
 }

@@ -79,6 +79,8 @@ public final class BackUpManager: BackUpServicing {
         self.settingsService = settingsService
         self.logger = logger
         dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.calendar = Calendar(identifier: .gregorian)
         dateFormatter.dateFormat = "yyyy-MM-dd"
         restoreDestinationFolder()
     }
@@ -110,16 +112,16 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try documentURL.withSecurityScopedAccess { url in
-            let todayFileName = getTodaysBackupFileName()
-            let targetURL = url.appendingPathComponent(todayFileName)
+        try documentURL.withSecurityScopedAccess { parent in
+            let directory = effectiveBackupDirectory(in: parent)
+            let targetURL = directory.appendingPathComponent(getTodaysBackupFileName())
 
             if FileManager.default.fileExists(atPath: targetURL.path) {
                 try coordinatedWrite(at: targetURL) { url in
                     try data.write(to: url, options: .atomic)
                 }
             } else {
-                try enforceFileRotationPolicy()
+                try enforceFileRotationPolicy(in: directory)
                 try coordinatedWrite(at: targetURL) { url in
                     try data.write(to: url, options: .atomic)
                 }
@@ -132,8 +134,8 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try documentURL.withSecurityScopedAccess { url in
-            let targetURL = url.appendingPathComponent(fileName)
+        return try documentURL.withSecurityScopedAccess { parent in
+            let targetURL = resolveExistingBackupURL(named: fileName, in: parent)
             var coordinationError: NSError?
             var data: Data?
             var readError: Error?
@@ -167,12 +169,22 @@ public final class BackUpManager: BackUpServicing {
             return
         }
 
-        try documentURL.withSecurityScopedAccess { url in
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: url,
-                                                                       includingPropertiesForKeys: nil,
-                                                                       options: [])
-            for fileURL in fileURLs {
-                try FileManager.default.removeItem(at: fileURL)
+        try documentURL.withSecurityScopedAccess { parent in
+            // Sweep both the dedicated subfolder and the picked-folder root (in case an earlier
+            // migration was interrupted). Only ever delete files this app created — never other
+            // apps' files that may live in the same user-chosen folder.
+            let subfolder = parent.appendingPathComponent(AppConstants.FileBackup.backupSubfolderName,
+                                                          isDirectory: true)
+            for location in [subfolder, parent] {
+                guard let fileURLs = try? FileManager.default.contentsOfDirectory(at: location,
+                                                                                  includingPropertiesForKeys: nil,
+                                                                                  options: [])
+                else {
+                    continue
+                }
+                for fileURL in fileURLs where fileURL.lastPathComponent.isOwnedBackupFileName {
+                    try FileManager.default.removeItem(at: fileURL)
+                }
             }
         }
     }
@@ -182,8 +194,9 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        return try documentURL.withSecurityScopedAccess { _ in
-            try getAllFilesWithMetadata().sorted { $0.creationDate > $1.creationDate }
+        return try documentURL.withSecurityScopedAccess { parent in
+            let directory = effectiveBackupDirectory(in: parent)
+            return try getAllFilesWithMetadata(in: directory).sorted { $0.creationDate > $1.creationDate }
         }
     }
 
@@ -192,8 +205,14 @@ public final class BackUpManager: BackUpServicing {
             throw AuthError.backup(.noDestinationFolder)
         }
 
-        try documentURL.withSecurityScopedAccess { url in
-            let targetURL = url.appendingPathComponent(fileName)
+        // Defense in depth: refuse to delete anything that isn't one of our own backup files,
+        // even if a caller passes an arbitrary name from outside this manager.
+        guard fileName.isOwnedBackupFileName else {
+            throw AuthError.backup(.unrecognizedBackupFile)
+        }
+
+        try documentURL.withSecurityScopedAccess { parent in
+            let targetURL = resolveExistingBackupURL(named: fileName, in: parent)
             try coordinatedDelete(at: targetURL)
         }
     }
@@ -237,13 +256,83 @@ private extension BackUpManager {
         logger.log(level, category: .data, message, function: function, line: line)
     }
 
-    func getTodaysBackupFileName() -> String {
-        let todayString = dateFormatter.string(from: Date())
-        return "Proton_Authenticator_backup_\(todayString).json"
+    /// The directory backups actually live in: a dedicated subfolder of the user-picked folder, so
+    /// every destructive operation runs in a directory that contains only our files. Creates the
+    /// subfolder and migrates any legacy flat backups into it. Falls back to `parent` (the
+    /// pre-subfolder behaviour) if the subfolder can't be created, so backups never fail.
+    /// `parent` must already be security-scoped by the caller.
+    func effectiveBackupDirectory(in parent: URL) -> URL {
+        let subfolder = parent.appendingPathComponent(AppConstants.FileBackup.backupSubfolderName,
+                                                      isDirectory: true)
+
+        var isDirectory: ObjCBool = false
+        let exists = FileManager.default.fileExists(atPath: subfolder.path, isDirectory: &isDirectory)
+        if exists, !isDirectory.boolValue {
+            log(.error, "Backup subfolder path is occupied by a file; using the picked folder root")
+            return parent
+        }
+        if !exists {
+            do {
+                try coordinatedCreateDirectory(at: subfolder)
+            } catch {
+                log(.error, "Failed to create backup subfolder: \(error.localizedDescription); using root")
+                return parent
+            }
+        }
+        migrateLegacyBackups(from: parent, to: subfolder)
+        return subfolder
     }
 
-    func enforceFileRotationPolicy() throws {
-        let files = try getAllFilesWithMetadata().sorted { $0.creationDate < $1.creationDate }
+    /// Moves backups written directly in `parent` by older app versions into `subfolder`. Only
+    /// files this app created are moved — foreign files are never touched. Best-effort and
+    /// idempotent (a no-op once the root holds no owned files).
+    func migrateLegacyBackups(from parent: URL, to subfolder: URL) {
+        guard let entries = try? FileManager.default.contentsOfDirectory(at: parent,
+                                                                         includingPropertiesForKeys: nil,
+                                                                         options: .skipsHiddenFiles)
+        else {
+            return
+        }
+
+        for source in entries where source.lastPathComponent.isOwnedBackupFileName {
+            let destination = subfolder.appendingPathComponent(source.lastPathComponent)
+            do {
+                if FileManager.default.fileExists(atPath: destination.path) {
+                    // The subfolder copy is authoritative; drop the redundant legacy duplicate.
+                    try coordinatedDelete(at: source)
+                } else {
+                    try coordinatedMove(from: source, to: destination)
+                }
+            } catch {
+                log(.error, "Failed to migrate \(source.lastPathComponent): \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Resolves a backup file name to its URL inside the effective backup directory, falling back
+    /// to the picked-folder root for the brief window before migration has run.
+    func resolveExistingBackupURL(named fileName: String, in parent: URL) -> URL {
+        let directory = effectiveBackupDirectory(in: parent)
+        let candidate = directory.appendingPathComponent(fileName)
+        if FileManager.default.fileExists(atPath: candidate.path) {
+            return candidate
+        }
+        if directory != parent {
+            let legacy = parent.appendingPathComponent(fileName)
+            if FileManager.default.fileExists(atPath: legacy.path) {
+                return legacy
+            }
+        }
+        return candidate
+    }
+
+    func getTodaysBackupFileName() -> String {
+        let todayString = dateFormatter.string(from: Date())
+        return "\(AppConstants.FileBackup.backupFileNamePrefix)\(todayString).json"
+    }
+
+    func enforceFileRotationPolicy(in directory: URL) throws {
+        let files = try getAllFilesWithMetadata(in: directory).sorted { $0.creationDate < $1.creationDate }
 
         guard files.count >= maxBackupCount else {
             return
@@ -256,12 +345,8 @@ private extension BackUpManager {
         }
     }
 
-    func getAllFilesWithMetadata() throws -> [BackUpFileInfo] {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
+    func getAllFilesWithMetadata(in directory: URL) throws -> [BackUpFileInfo] {
+        let fileURLs = try FileManager.default.contentsOfDirectory(at: directory,
                                                                    includingPropertiesForKeys: [
                                                                        .creationDateKey,
                                                                        .isDirectoryKey
@@ -269,7 +354,8 @@ private extension BackUpManager {
                                                                    options: .skipsHiddenFiles)
 
         return try fileURLs.compactMap { url -> BackUpFileInfo? in
-            guard url.pathExtension.lowercased() == "json" else {
+            // Only recognise files this app created; ignore everything else in the folder.
+            guard url.lastPathComponent.isOwnedBackupFileName else {
                 return nil
             }
 
@@ -310,6 +396,53 @@ private extension BackUpManager {
         }
     }
 
+    func coordinatedCreateDirectory(at url: URL) throws {
+        var coordinationError: NSError?
+        var operationError: Error?
+
+        coordinator.coordinate(writingItemAt: url, options: [], error: &coordinationError) { coordinatedURL in
+            do {
+                try FileManager.default.createDirectory(at: coordinatedURL, withIntermediateDirectories: true)
+            } catch {
+                operationError = error
+            }
+        }
+
+        if let error = operationError {
+            throw error
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+    }
+
+    func coordinatedMove(from source: URL, to destination: URL) throws {
+        var coordinationError: NSError?
+        var operationError: Error?
+
+        coordinator
+            .coordinate(writingItemAt: source,
+                        options: [.forMoving],
+                        writingItemAt: destination,
+                        options: [.forReplacing],
+                        error: &coordinationError) { sourceURL, destinationURL in
+                do {
+                    try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+                } catch {
+                    operationError = error
+                }
+            }
+
+        if let error = operationError {
+            throw error
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+    }
+
     func coordinatedWrite(at url: URL, block: (URL) throws -> Void) throws {
         var coordinationError: NSError?
         var operationError: Error?
@@ -332,28 +465,6 @@ private extension BackUpManager {
         if let coordinationError {
             throw coordinationError
         }
-    }
-
-    // periphery:ignore
-    func getAllDocumentsFileNames() throws -> [String]? {
-        guard let documentURL else {
-            throw AuthError.backup(.noDestinationFolder)
-        }
-
-        let fileURLs = try FileManager.default.contentsOfDirectory(at: documentURL,
-                                                                   includingPropertiesForKeys: [
-                                                                       .isDirectoryKey,
-                                                                       .contentModificationDateKey
-                                                                   ],
-                                                                   options: .skipsHiddenFiles)
-        return fileURLs.compactMap { url -> (String, Date)? in
-            guard let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .contentModificationDateKey]),
-                  values.isDirectory == false,
-                  let date = values.contentModificationDate else { return nil }
-            return (url.lastPathComponent, date)
-        }
-        .sorted { $0.1 > $1.1 }
-        .map(\.0)
     }
 }
 
