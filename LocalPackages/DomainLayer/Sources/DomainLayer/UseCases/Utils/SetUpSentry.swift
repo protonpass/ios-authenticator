@@ -40,23 +40,23 @@ public struct SetUpSentry: SetUpSentryUseCase {
     public func callAsFunction() {
         SentrySDK.start { options in
             options.dsn = AuthenticatorEnvironment.prod.parameters.sentryDsn
-            options.tracesSampleRate = 0.5
-            if ProcessInfo.processInfo.environment["me.proton.Authenticator.SentryDebug"] == "1" {
-                options.debug = true
-                options.tracesSampleRate = 1.0
-            }
-            if let doh {
-                options.environment = doh.environment.name
-            }
             options.releaseName = bundle.fullAppVersionName
+            options.environment = doh?.environment.name ?? "production"
+            options.tracesSampleRate = 0.5
+            options.attachScreenshot = false
+            options.attachViewHierarchy = false
+
+            #if DEBUG
+            options.debug = true
+            options.tracesSampleRate = 1.0
+            #endif
+
             options.enableTimeToFullDisplayTracing = true
             options.enableAppHangTracking = true
             options.enableWatchdogTerminationTracking = true
             options.enableCoreDataTracing = true
 
             if ProcessInfo.processInfo.isiOSAppOnMac {
-                options.attachScreenshot = false
-                options.attachViewHierarchy = false
                 options.enableAutoPerformanceTracing = false
                 options.enableUserInteractionTracing = false
                 options.enableSwizzling = false
