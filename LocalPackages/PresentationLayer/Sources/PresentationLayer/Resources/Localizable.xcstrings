@@ -2028,6 +2028,16 @@
         }
       }
     },
+    "Check out Proton Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check out Proton Authenticator"
+          }
+        }
+      }
+    },
     "Choose one or more Photos" : {
       "localizations" : {
         "de" : {
@@ -5626,6 +5636,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodları gizle"
+          }
+        }
+      }
+    },
+    "I've been using Proton Authenticator to keep my Totp tokens secure — give it a try:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I've been using Proton Authenticator to keep my Totp tokens secure — give it a try:"
           }
         }
       }
@@ -9778,6 +9798,16 @@
         }
       }
     },
+    "Rate Proton Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate Proton Authenticator"
+          }
+        }
+      }
+    },
     "Report an issue" : {
       "localizations" : {
         "de" : {
@@ -11322,6 +11352,16 @@
         }
       }
     },
+    "SPREAD THE WORD" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SPREAD THE WORD"
+          }
+        }
+      }
+    },
     "Stop syncing" : {
       "localizations" : {
         "de" : {
@@ -12188,6 +12228,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodu panoya kopyalamak için dokunun. Silmek için sola, düzenlemek için sağa kaydırın."
+          }
+        }
+      }
+    },
+    "Tell a friend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell a friend"
           }
         }
       }

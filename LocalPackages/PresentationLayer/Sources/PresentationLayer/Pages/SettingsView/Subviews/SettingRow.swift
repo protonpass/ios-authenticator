@@ -31,7 +31,7 @@ struct SettingRowConfig {
 }
 
 struct SettingRow: View {
-    var icon: ImageResource?
+    var icon: Icon?
     let title: TextContent
     var config: SettingRowConfig = .default
     var subtitle: TextContent?
@@ -55,7 +55,7 @@ struct SettingRow: View {
     private var rowContent: some View {
         HStack(spacing: 0) {
             if let icon {
-                Image(icon)
+                icon.image
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 22)

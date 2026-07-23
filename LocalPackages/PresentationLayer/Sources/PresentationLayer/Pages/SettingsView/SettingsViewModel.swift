@@ -339,7 +339,9 @@ extension SettingsViewModel {
 private extension SettingsViewModel {
     func handle(_ error: any Error) {
         logManager.log(.error, category: .ui, error.localizedDescription)
-        if let laError = error as? LAError, laError.code == .userCancel { return }
+        if let laError = error as? LAError, laError.code == .userCancel {
+            return
+        }
         alertService.showError(error, mainDisplay: false, action: nil)
     }
 

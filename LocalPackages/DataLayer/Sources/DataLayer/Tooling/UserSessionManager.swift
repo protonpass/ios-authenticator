@@ -610,7 +610,9 @@ public extension UserSessionManager {
     private func armorMessage(_ message: Data) throws -> String {
         var error: NSError?
         let result = CryptoGo.ArmorArmorWithType(message, "MESSAGE", &error)
-        if let error { throw error }
+        if let error {
+            throw error
+        }
         return result
     }
 }
