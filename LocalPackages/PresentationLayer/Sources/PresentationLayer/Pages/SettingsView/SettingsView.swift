@@ -376,8 +376,9 @@ private extension SettingsView {
         SettingsSectionContainer(title: "SPREAD THE WORD") {
             if let url = AppConstants.AppStoreLink.url {
                 ShareLink(item: url,
-                          subject: Text("The app that keeps your accounts safe"),
-                          message: Text("Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)")) {
+                          subject: Text("The app that keeps your accounts safe", bundle: .module),
+                          message: Text("Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)",
+                                        bundle: .module)) {
                     SettingRow(icon: .resource(.appInfoSent),
                                title: .localized("Tell a friend", .module),
                                trailingMode: .detailChevronRight)
