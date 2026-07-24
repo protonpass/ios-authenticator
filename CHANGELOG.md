@@ -1,3 +1,9 @@
+# Version 1.4.4
+- Upgraded Rust library from 1.3.0 to 1.7.2
+- Disabled VoiceOver when the app is locked
+- Added options to refer the app and rate it
+- Added the ability to create a dedicated backup folder within the selected directory.
+
 # Version 1.4.3
 - Improved animations for a smoother scrolling experience
 - Fixed issues with search functionality

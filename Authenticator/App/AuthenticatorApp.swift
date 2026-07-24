@@ -78,7 +78,7 @@ private extension MainContentView {
         Group {
             if viewModel.onboarded {
                 EntriesView()
-                    .accessibilityHidden(viewModel.showEntries)
+                    .accessibilityHidden(!viewModel.showEntries)
                     .preferredColorScheme(viewModel.theme.preferredColorScheme)
                     .onOpenURL { url in
                         viewModel.handleDeepLink(url)

@@ -73,16 +73,22 @@ final class DataService: DataServiceProtocol {
 
     func loadEntries() async {
         do {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let entriesStates = try await repository.getAllEntries()
             if entriesStates.isEmpty {
                 askForDataUpdate()
             }
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let entries = generateUIEntries(from: entriesStates)
             updateData(entries)
         } catch {
-            if let data = dataState.data, !data.isEmpty { return }
+            if let data = dataState.data, !data.isEmpty {
+                return
+            }
             dataState = .failed(error)
         }
     }
@@ -94,7 +100,9 @@ final class DataService: DataServiceProtocol {
         do {
             try communicationService.sendMessage(message: .syncData)
         } catch {
-            if let data = dataState.data, !data.isEmpty { return }
+            if let data = dataState.data, !data.isEmpty {
+                return
+            }
             dataState = .failed(error)
         }
     }
@@ -143,7 +151,9 @@ private extension DataService {
                 manageReceivedData(entries)
 
             case let .failure(error):
-                if let data = dataState.data, !data.isEmpty { return }
+                if let data = dataState.data, !data.isEmpty {
+                    return
+                }
                 dataState = .failed(error)
             }
 
@@ -172,7 +182,9 @@ private extension DataService {
                 let uiEntries = generateUIEntries(from: entries)
                 updateData(uiEntries)
             } catch {
-                if let data = dataState.data, !data.isEmpty { return }
+                if let data = dataState.data, !data.isEmpty {
+                    return
+                }
                 dataState = .failed(error)
             }
         }

@@ -23,6 +23,7 @@ import CommonUtilities
 import FactoryKit
 import Macro
 import Models
+import StoreKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -54,6 +55,7 @@ enum SettingsSheet {
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Environment(\.requestReview) private var requestReview
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
@@ -84,6 +86,9 @@ public struct SettingsView: View {
                 if !viewModel.products.isEmpty {
                     discoverySection
                 }
+
+                ratingSection
+
                 deleteAllDataButton
                     .ifNoLiquidGlass { view in
                         view.padding(.vertical, 32)
@@ -355,7 +360,7 @@ private extension SettingsView {
     var discoverySection: some View {
         SettingsSectionContainer(title: "DISCOVER PROTON") {
             ForEach(viewModel.products, id: \.self) { product in
-                SettingRow(icon: product.logo,
+                SettingRow(icon: .resource(product.logo),
                            title: .verbatim(product.name),
                            subtitle: .localized(product.description, .module),
                            onTap: { open(urlString: product.finalUrl) })
@@ -366,6 +371,33 @@ private extension SettingsView {
             }
         }
     }
+
+    // swiftlint:disable line_length
+    var ratingSection: some View {
+        SettingsSectionContainer(title: "SPREAD THE WORD") {
+            if let referralUrl = AppConstants.AppStore.referralUrl {
+                ShareLink(item: referralUrl,
+                          subject: Text("The app that keeps your accounts safe", bundle: .module),
+                          message: Text("Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)",
+                                        bundle: .module)) {
+                    SettingRow(icon: .resource(.appInfoSent),
+                               title: .localized("Tell a friend", .module),
+                               trailingMode: .detailChevronRight)
+                }
+                .buttonStyle(.plain)
+
+                SettingDivider()
+            }
+
+            SettingRow(icon: .resource(.appStarRating),
+                       title: .localized("Rate Proton Authenticator", .module),
+                       trailingMode: .detailChevronRight) {
+                requestReview()
+            }
+        }
+    }
+
+    // swiftlint:enable line_length
 
     var deleteAllDataButton: some View {
         Button(action: {

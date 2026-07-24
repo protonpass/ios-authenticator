@@ -5560,6 +5560,16 @@
         }
       }
     },
+    "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)"
+          }
+        }
+      }
+    },
     "Hide codes" : {
       "localizations" : {
         "de" : {
@@ -9778,6 +9788,16 @@
         }
       }
     },
+    "Rate Proton Authenticator" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate Proton Authenticator"
+          }
+        }
+      }
+    },
     "Report an issue" : {
       "localizations" : {
         "de" : {
@@ -11322,6 +11342,16 @@
         }
       }
     },
+    "SPREAD THE WORD" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SPREAD THE WORD"
+          }
+        }
+      }
+    },
     "Stop syncing" : {
       "localizations" : {
         "de" : {
@@ -12188,6 +12218,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodu panoya kopyalamak için dokunun. Silmek için sola, düzenlemek için sağa kaydırın."
+          }
+        }
+      }
+    },
+    "Tell a friend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell a friend"
+          }
+        }
+      }
+    },
+    "The app that keeps your accounts safe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app that keeps your accounts safe"
           }
         }
       }

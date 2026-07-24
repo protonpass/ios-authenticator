@@ -100,7 +100,9 @@ final class ScannerViewModel {
     }
 
     func processPayload(results: Result<ScanResult, Error>) {
-        if Task.isCancelled { return }
+        if Task.isCancelled {
+            return
+        }
 
         task?.cancel()
         task = Task { [weak self] in
@@ -205,7 +207,9 @@ private extension ScannerViewModel {
     }
 
     func handleError(_ error: String) {
-        if Task.isCancelled { return }
+        if Task.isCancelled {
+            return
+        }
         alertService.showError(error, mainDisplay: false)
         hapticsManager(.notify(.error))
     }
@@ -219,7 +223,9 @@ private extension ScannerViewModel {
                 let content = try await parseImageQRCodeContent(imageSelection: imageSelection)
                 await generateEntry(from: content)
             } catch {
-                if Task.isCancelled { return }
+                if Task.isCancelled {
+                    return
+                }
                 handleError(#localized("Could not process the image", bundle: .module))
             }
         }
@@ -243,19 +249,27 @@ private extension ScannerViewModel {
 
     func generateEntry(from barcodePayload: String) async {
         do {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             try await entryDataService.insertAndRefreshEntry(from: barcodePayload)
             shouldDismiss = true
             hapticsManager(.notify(.success))
         } catch AuthError.generic(.duplicatedEntry) {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             handleError(#localized("This item already exists", bundle: .module))
         } catch AuthenticatorError.Unknown {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             handleError(#localized("The QR code is not valid. Please try scanning a different one.",
                                    bundle: .module))
         } catch {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             handleError(error.localizedDescription)
         }
     }

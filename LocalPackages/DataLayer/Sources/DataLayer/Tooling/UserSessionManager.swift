@@ -130,12 +130,12 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         Self.setUpCertificatePinning()
         injectDefaultCryptoImplementation()
 
-        if let appStoreUrl = URL(string: AppConstants.appStoreUrl) {
+        if let appUrl = AppConstants.AppStore.appUrl {
             #if os(iOS)
-            forceUpgradeHelper = .init(config: .mobile(appStoreUrl))
+            forceUpgradeHelper = .init(config: .mobile(appUrl))
 
             #elseif os(macOS)
-            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appStoreUrl),
+            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appUrl),
                                                     controller: ForceUpgradeControllerImpl())
 
             #endif
@@ -610,7 +610,9 @@ public extension UserSessionManager {
     private func armorMessage(_ message: Data) throws -> String {
         var error: NSError?
         let result = CryptoGo.ArmorArmorWithType(message, "MESSAGE", &error)
-        if let error { throw error }
+        if let error {
+            throw error
+        }
         return result
     }
 }

@@ -174,7 +174,9 @@ public extension EntryDataService {
     }
 
     func insertAndRefreshEntry(from uri: String) async throws {
-        if Task.isCancelled { return }
+        if Task.isCancelled {
+            return
+        }
         log(.info, "Inserting entry from URI")
         let entry = try await repository.entry(for: uri)
         try await save(entry)
@@ -453,16 +455,22 @@ private extension EntryDataService {
         log(.debug, "Full BE refresh")
         do {
             let entriesStates = try await repository.getAllLocalEntries()
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
 
             try await repository.fetchRemoteEncryptionKeyOrPushLocalKey()
             let remoteOrderedEntries = try await repository.fetchAllRemoteEntries()
 
             hasNonDecryptableEntries = entriesStates.containsNonDecryptedEntries
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let localChanged = try await syncOperation(remoteOrderedEntries: remoteOrderedEntries,
                                                        entriesStates: entriesStates)
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let newOrderedItems = localChanged
                 ? try await reorderItems(remoteEntries: remoteOrderedEntries)
                 : try await reorderItems(remoteEntries: remoteOrderedEntries,
@@ -489,9 +497,13 @@ private extension EntryDataService {
     func performLoadingEntries() async {
         log(.debug, "Loading entries")
         do {
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let entryStates = try await repository.getAllLocalEntries()
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                return
+            }
             let entries = try await generateUIEntries(from: entryStates.decodedEntries)
             hasNonDecryptableEntries = entryStates.containsNonDecryptedEntries
             log(.debug, "Loaded \(entries.count) entries.")
@@ -501,7 +513,9 @@ private extension EntryDataService {
             }
         } catch {
             log(.error, "Failed to load entries: \(error)")
-            if let data = dataState.data, !data.isEmpty { return }
+            if let data = dataState.data, !data.isEmpty {
+                return
+            }
             dataState = .failed(error)
         }
     }
@@ -657,7 +671,9 @@ private extension EntryDataService {
                 }
             }
         }
-        if Task.isCancelled { return false }
+        if Task.isCancelled {
+            return false
+        }
         async let localEntriesFetch: () = repository.localUpsert(itemsToUpsertLocally)
         async let remoteSaveResults = repository.remoteSave(entries: itemsToPushToRemote)
         async let remoteUpdateResults = repository.remoteUpdates(entries: itemsToUpdateRemotely)
