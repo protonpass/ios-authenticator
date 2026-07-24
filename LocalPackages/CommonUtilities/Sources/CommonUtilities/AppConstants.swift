@@ -35,17 +35,18 @@ nonisolated(unsafe) public let kSharedUserDefaults: UserDefaults = {
 }()
 
 public enum AppConstants: Sendable {
-    public static let appleID = "6741758667"
+    public static let appID = "6741758667"
     public static let teamId = "2SB5Z68H26"
     public static let service = "me.proton.authenticator"
     public static let accessGroup = "group.me.proton.authenticator"
     public static let keychainGroup = "\(teamId).\(accessGroup)"
-    public static let appStoreUrl = "itms-apps://itunes.apple.com/app/id6741758667"
     public static let maxFileSizeInBytes = 10 * 1_024 * 1_024 // 10 MB
     public static let icloudContainerIdentifier = "iCloud.me.proton.authenticator"
 
-    public enum AppStoreLink {
-        public static let url = URL(string: "https://apps.apple.com/app/id\(appleID)")
+    public enum AppStore {
+        /// Used to open the app on App Store when force upgrading
+        public static let appUrl = URL(string: "itms-apps://itunes.apple.com/app/id\(appID)")
+        public static let referralUrl = URL(string: "https://apps.apple.com/app/id\(appID)")
     }
 
     public enum QA {

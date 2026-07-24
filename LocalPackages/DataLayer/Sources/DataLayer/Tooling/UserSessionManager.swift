@@ -130,12 +130,12 @@ public final class UserSessionManager: @unchecked Sendable, UserSessionTooling {
         Self.setUpCertificatePinning()
         injectDefaultCryptoImplementation()
 
-        if let appStoreUrl = URL(string: AppConstants.appStoreUrl) {
+        if let appUrl = AppConstants.AppStore.appUrl {
             #if os(iOS)
-            forceUpgradeHelper = .init(config: .mobile(appStoreUrl))
+            forceUpgradeHelper = .init(config: .mobile(appUrl))
 
             #elseif os(macOS)
-            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appStoreUrl),
+            forceUpgradeHelper = ForceUpgradeHelper(config: .mobile(appUrl),
                                                     controller: ForceUpgradeControllerImpl())
 
             #endif
