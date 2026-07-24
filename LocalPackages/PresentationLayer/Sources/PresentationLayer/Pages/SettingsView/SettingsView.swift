@@ -537,7 +537,7 @@ private extension View {
     }
 }
 
-enum Icon: Hashable, Sendable {
+enum Icon: Hashable {
     case system(String) // SF Symbol, e.g. "paperplane"
     case resource(ImageResource) // asset-catalog image or symbol image set
 

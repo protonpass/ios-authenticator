@@ -2028,16 +2028,6 @@
         }
       }
     },
-    "Check out Proton Authenticator" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check out Proton Authenticator"
-          }
-        }
-      }
-    },
     "Choose one or more Photos" : {
       "localizations" : {
         "de" : {
@@ -5570,6 +5560,16 @@
         }
       }
     },
+    "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)"
+          }
+        }
+      }
+    },
     "Hide codes" : {
       "localizations" : {
         "de" : {
@@ -5636,16 +5636,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kodları gizle"
-          }
-        }
-      }
-    },
-    "I've been using Proton Authenticator to keep my Totp tokens secure — give it a try:" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I've been using Proton Authenticator to keep my Totp tokens secure — give it a try:"
           }
         }
       }
@@ -12238,6 +12228,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tell a friend"
+          }
+        }
+      }
+    },
+    "The app that keeps your accounts safe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app that keeps your accounts safe"
           }
         }
       }
