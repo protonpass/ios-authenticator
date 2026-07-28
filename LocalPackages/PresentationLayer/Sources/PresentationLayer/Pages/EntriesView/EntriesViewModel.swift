@@ -323,7 +323,8 @@ extension EntriesViewModel {
     }
 
     func delete(_ entry: EntryUiModel) {
-        let action = ActionConfig(title: "Yes",
+        let issuer = entry.orderedEntry.entry.issuer
+        let action = ActionConfig(title: "Delete \"\(issuer)\"",
                                   titleBundle: .module,
                                   role: .destructive,
                                   action: { [weak self] in
@@ -335,7 +336,7 @@ extension EntriesViewModel {
         alertService.showAlert(.main(.init(title: "Delete entry",
                                            titleBundle: .module,
                                            // swiftlint:disable:next line_length
-                                           message: .localized("Are you sure you want to delete this entry? This action is irreversible.",
+                                           message: .localized("You are about to delete \"\(issuer)\", this action is irreversible.",
                                                                .module),
                                            actions: [action])))
     }
