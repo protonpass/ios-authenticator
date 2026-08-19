@@ -786,6 +786,12 @@
             "value" : "Weet u zeker dat u de back-up \"%@\" wilt verwijderen? Dit kan niet ongedaan worden gemaakt."
           }
         },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tem certeza de que deseja excluir o backup \"%@\"? Essa ação não pode ser revertida."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -836,6 +842,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weet u zeker dat u de back-up met de naam %@ wilt herstellen?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você tem certeza de que deseja restaurar o backup chamado %@?"
           }
         },
         "tr" : {
@@ -3288,10 +3300,34 @@
     },
     "Delete \"%@\"" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ löschen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete \"%@\""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina \"%@\""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir \"%@\""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" kaydını sil"
           }
         }
       }
@@ -5502,10 +5538,46 @@
     },
     "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hallo! Ich nutze diese Authentifizierungs-App, um meine Konten vor Hackerangriffen zu schützen. Die Einrichtung ist wirklich ganz einfach. Du solltest sie dir auch mal holen 🙂"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Hola! Uso esta aplicación de Autenticación para proteger mis cuentas de ser hackeadas. Muy fácil de configurar. También debería de usarla :)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salut ! J'utilise cette appli d'authentification pour protéger mes comptes contre le piratage. Elle est super facile à configurer. Tu devrais l'installer toi aussi :)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciao! Io uso quest'app di autenticazione per proteggere i miei account dagli hacker. È facilissima da configurare. Dovresti provarla anche tu :)"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olá! Eu uso esse aplicativo de Autenticação para proteger minhas contas contra invasões. É muito fácil de configurar. Você também deveria baixá-lo :)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selam! Hesaplarımın ele geçirilmesini önlemek için bu kimlik doğrulama uygulamasını kullanıyorum. Kurulumu gerçekten çok kolay. Sen de indirsen iyi olur :)"
           }
         }
       }
@@ -9730,10 +9802,46 @@
     },
     "Rate Proton Authenticator" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proton Authenticator bewerten"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rate Proton Authenticator"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calificar Proton Authenticator"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Évaluer Proton Authenticator"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valuta Proton Authenticator"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avaliar o Proton Authenticator"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proton Authenticator uygulamasını değerlendirin"
           }
         }
       }
@@ -10802,6 +10910,12 @@
             "value" : "Stel automatische, versleutelde back-ups in naar een map naar keuze."
           }
         },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure backups automáticos criptografados para uma pasta de sua escolha."
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -11284,10 +11398,46 @@
     },
     "SPREAD THE WORD" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sag es weiter"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "SPREAD THE WORD"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DIFUNDA LA NOTICIA"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FAITES PASSER LE MOT"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SPARGI LA VOCE"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ESPALHAR A PALAVRA"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HERKESE DUYURUN"
           }
         }
       }
@@ -11710,6 +11860,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud synchronisatie uitschakelen"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativar a sincronização do iCloud"
           }
         },
         "tr" : {
@@ -12164,20 +12320,92 @@
     },
     "Tell a friend" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erzähle es einem Freund"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tell a friend"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuéntele a una amistad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parlez-en à un ami"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dillo ad un amico"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conte a um amigo"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir arkadaşınıza iletin"
           }
         }
       }
     },
     "The app that keeps your accounts safe" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App, die deine Konten schützt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The app that keeps your accounts safe"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La aplicación que mantiene sus cuentas seguras"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'application qui protège vos comptes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'app che protegge i tuoi account"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O aplicativo que mantém suas contas seguras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesaplarınızı güvende tutan uygulama"
           }
         }
       }
@@ -13280,10 +13508,28 @@
     },
     "You are about to delete \"%@\", this action is irreversible." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du bist dabei, „%@“ zu löschen. Dieser Vorgang kann nicht widerrufen werden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You are about to delete \"%@\", this action is irreversible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stai per eliminare \"%@\". Questa azione è irreversibile."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" kaydını silmek üzeresiniz. Bu işlem geri alınamaz."
           }
         }
       }
@@ -13470,6 +13716,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uw eerdere back-ups worden veilig opgeslagen en blijven intact. U kunt automatische back-ups op elk gewenst moment opnieuw inschakelen."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seus backups anteriores estão armazenados com segurança e não serão afetados. Você pode reativar o backup automático a qualquer momento."
           }
         },
         "tr" : {
