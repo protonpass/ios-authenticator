@@ -23,7 +23,6 @@ import CommonUtilities
 import FactoryKit
 import Macro
 import Models
-import StoreKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -55,7 +54,6 @@ enum SettingsSheet {
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-    @Environment(\.requestReview) private var requestReview
 
     @State private var viewModel = SettingsViewModel()
     @State private var router = Router()
@@ -392,7 +390,9 @@ private extension SettingsView {
             SettingRow(icon: .resource(.appStarRating),
                        title: .localized("Rate Proton Authenticator", .module),
                        trailingMode: .detailChevronRight) {
-                requestReview()
+                if let reviewAppUrl = AppConstants.AppStore.reviewAppUrl {
+                    openURL(reviewAppUrl)
+                }
             }
         }
     }
