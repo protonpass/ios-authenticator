@@ -3312,10 +3312,34 @@
             "value" : "Delete \"%@\""
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar \"%@\""
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete «%@»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer « %@ »"
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elimina \"%@\""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijder \"%@\""
           }
         },
         "pt-BR" : {
@@ -5550,6 +5574,12 @@
             "value" : "Hey there! I use this Authenticator app to protect my accounts from getting hacked. Really easy to set up. You should grab it too :)"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hola. Estoy usando la app Authenticator para proteger mis cuentas de posibles hackeos. Es muy fácil de configurar. Deberías probarla tú también. :)"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5566,6 +5596,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ciao! Io uso quest'app di autenticazione per proteggere i miei account dagli hacker. È facilissima da configurare. Dovresti provarla anche tu :)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hé daar! Ik gebruik deze Authenticator-app om te voorkomen dat mijn accounts worden gehackt. Echt eenvoudig in te stellen. Die moet u ook proberen :)"
           }
         },
         "pt-BR" : {
@@ -9814,6 +9850,12 @@
             "value" : "Rate Proton Authenticator"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valora Proton Authenticator"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9830,6 +9872,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valuta Proton Authenticator"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beoordeel Proton Authenticator"
           }
         },
         "pt-BR" : {
@@ -11410,6 +11458,12 @@
             "value" : "SPREAD THE WORD"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CORRE LA VOZ"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -11426,6 +11480,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SPARGI LA VOCE"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VERTEL HET VERDER"
           }
         },
         "pt-BR" : {
@@ -12332,6 +12392,12 @@
             "value" : "Tell a friend"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuéntaselo a un amigo"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -12348,6 +12414,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dillo ad un amico"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel met een vriend"
           }
         },
         "pt-BR" : {
@@ -12378,6 +12450,12 @@
             "value" : "The app that keeps your accounts safe"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La app que mantiene tus cuentas seguras"
+          }
+        },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
@@ -12394,6 +12472,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L'app che protegge i tuoi account"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De app die uw accounts veilig houdt"
           }
         },
         "pt-BR" : {
@@ -13520,10 +13604,34 @@
             "value" : "You are about to delete \"%@\", this action is irreversible."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estás a punto de eliminar \"%@\", esta acción es irreversible."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Está por eliminar «%@», esta acción es irreversible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous êtes sur le point de supprimer « %@ ». Cette action est irréversible."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stai per eliminare \"%@\". Questa azione è irreversibile."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U staat op het punt \"%@\" te verwijderen. Deze actie is onomkeerbaar."
           }
         },
         "tr" : {
