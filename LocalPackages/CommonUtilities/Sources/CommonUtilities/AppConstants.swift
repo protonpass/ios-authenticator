@@ -46,6 +46,8 @@ public enum AppConstants: Sendable {
     public enum AppStore {
         /// Used to open the app on App Store when force upgrading
         public static let appUrl = URL(string: "itms-apps://itunes.apple.com/app/id\(appID)")
+        public static let reviewAppUrl =
+            URL(string: "itms-apps://itunes.apple.com/app/id\(appID)?action=write-review")
         public static let referralUrl = URL(string: "https://apps.apple.com/app/id\(appID)")
     }
 
