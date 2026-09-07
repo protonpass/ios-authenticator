@@ -94,11 +94,11 @@ struct ImportingServiceModifier: ViewModifier {
             .sheet(isPresented: $viewModel.showPasswordSheet) {
                 passwordView()
             }
-        #if os(iOS)
+            #if os(iOS)
             .sheet(isPresented: $showScanner) {
                 scannerView()
             }
-        #endif
+            #endif
             .photosPicker(isPresented: $showPhotosPicker,
                           selection: $viewModel.imageSelection,
                           maxSelectionCount: 10,
@@ -249,9 +249,9 @@ struct ImportingServiceModifier: ViewModifier {
                     .dynamicFont(size: 20, textStyle: .title3)
                     .focused($focusedField, equals: .field)
                     .autocorrectionDisabled(true)
-                #if os(iOS)
+                    #if os(iOS)
                     .textInputAutocapitalization(.never)
-                #endif
+                    #endif
 
                 Rectangle()
                     .foregroundStyle(.clear)

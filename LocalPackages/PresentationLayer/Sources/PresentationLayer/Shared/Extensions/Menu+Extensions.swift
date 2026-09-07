@@ -24,9 +24,9 @@ extension Menu {
     @ViewBuilder
     func adaptiveMenuStyle() -> some View {
         self
-        #if os(macOS)
-        .menuStyle(.borderlessButton)
-        .padding(16)
-        #endif
+            #if os(macOS)
+            .menuStyle(.borderlessButton)
+            .padding(16)
+            #endif
     }
 }

@@ -71,9 +71,11 @@ public extension UserDataSource {
                 log(.info, "Successfully decrypted user data with userId: \(userData.user.ID)")
                 return userData
             } catch {
+                // swiftlint:disable line_length
                 log(.error,
                     "Failed to decrypt user data with id \(encryptedUserData.id): \(error.localizedDescription), error: \(error)")
                 throw AuthError.generic(.corruptedUserData)
+                // swiftlint:enable line_length
             }
         }
 

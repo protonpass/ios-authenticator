@@ -97,37 +97,37 @@ public struct SettingsView: View {
             .animation(.default, value: viewModel.showPassBanner)
             .settingsListStyle()
             #if os(iOS)
-                .toolbar {
-                    ToolbarItem(placement: toolbarItemPlacement) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            if #available(iOS 26, macOS 26, *) {
-                                Image(systemName: "xmark")
-                                    .accessibility(label: Text("Close", bundle: .module))
-                            } else {
-                                Text("Close", bundle: .module)
-                                    .foregroundStyle(.purpleInteraction)
-                                    .adaptiveButtonStyle()
-                            }
+            .toolbar {
+                ToolbarItem(placement: toolbarItemPlacement) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        if #available(iOS 26, macOS 26, *) {
+                            Image(systemName: "xmark")
+                                .accessibility(label: Text("Close", bundle: .module))
+                        } else {
+                            Text("Close", bundle: .module)
+                                .foregroundStyle(.purpleInteraction)
+                                .adaptiveButtonStyle()
                         }
                     }
                 }
-                .listSectionSpacing(DesignConstant.padding * 2)
-                .navigationBarTitleDisplayMode(.inline)
+            }
+            .listSectionSpacing(DesignConstant.padding * 2)
+            .navigationBarTitleDisplayMode(.inline)
             #endif
-                .scrollContentBackground(.hidden)
-                .routingProvided
-                .navigationTitle(Text("Settings", bundle: .module))
-                .task {
-                    await viewModel.setUp()
-                }
-                .fullScreenMainBackground()
-                .sheetAlertService()
-                .importingService($showImportOptions, context: .settings)
-                .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
-                    viewModel.settingSheet?.destination
-                }
+            .scrollContentBackground(.hidden)
+            .routingProvided
+            .navigationTitle(Text("Settings", bundle: .module))
+            .task {
+                await viewModel.setUp()
+            }
+            .fullScreenMainBackground()
+            .sheetAlertService()
+            .importingService($showImportOptions, context: .settings)
+            .sheet(isPresented: $viewModel.settingSheet.mappedToBool()) {
+                viewModel.settingSheet?.destination
+            }
         }
         .animation(.default, value: viewModel.theme)
         .preferredColorScheme(viewModel.theme.preferredColorScheme)

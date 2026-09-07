@@ -184,9 +184,9 @@ public struct EntriesView: View {
                     viewModel.refreshEntries()
                 }
                 .sheetDestinations($router.presentedSheet)
-            #if os(iOS)
+                #if os(iOS)
                 .fullScreenDestination($router.presentedFullscreenSheet)
-            #endif
+                #endif
                 .environment(router)
                 .toolbar {
                     EntriesToolbarContent(sortOption: viewModel.sortOption,
@@ -308,7 +308,7 @@ private extension EntriesView {
         }
         .listStyle(.plain)
         #if os(iOS)
-            .listRowSpacing(12)
+        .listRowSpacing(12)
         #endif
     }
 

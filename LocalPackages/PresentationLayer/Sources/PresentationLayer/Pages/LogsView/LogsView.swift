@@ -69,11 +69,11 @@ struct LogsView: View {
             .scrollContentBackground(.hidden)
             .navigationTitle(Text("Logs", bundle: .module))
             #if os(iOS)
-                .listSectionSpacing(DesignConstant.padding * 2)
-                .navigationBarTitleDisplayMode(.inline)
+            .listSectionSpacing(DesignConstant.padding * 2)
+            .navigationBarTitleDisplayMode(.inline)
             #endif
-                .fullScreenMainBackground()
-                .sheetAlertService()
+            .fullScreenMainBackground()
+            .sheetAlertService()
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)

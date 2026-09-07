@@ -111,9 +111,9 @@ struct BackUpView: View {
                      bundle: .module)
             }
             .toast(toast: $viewModel.toast)
-        #if os(iOS)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
-        #endif
+            #endif
             .toolbar { toolbarContent }
             .navigationTitle(Text("Backups", bundle: .module))
             .fullScreenMainBackground()
