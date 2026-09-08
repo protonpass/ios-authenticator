@@ -139,9 +139,11 @@ public extension EncryptionService {
         do {
             encryptionKey = try getEncryptionKey(for: entry.keyId)
         } catch {
+            // swiftlint:disable line_length
             log(.warning,
                 "Could not retrieve key id \(entry.keyId) for decrypting entry \(entry.id). \(error.localizedDescription)")
             return .nonDecryptable(entry)
+            // swiftlint:enable line_length
         }
 
         if AppConstants.isQaBuild {

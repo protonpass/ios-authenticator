@@ -97,32 +97,32 @@ struct CreateEditEntryView: View {
             .scrollContentBackground(.hidden)
             .errorMessageAlert($viewModel.errorMessage)
             #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
             #endif
-                .toolbar { toolbarContent }
-                .navigationTitle(Text(viewModel.isEditing ? "Update Entry" : "New Entry",
-                                      bundle: .module))
-                .animation(.default, value: viewModel.canSave)
-                .animation(.default, value: viewModel.type)
-                .animation(.default, value: showAdvanceOptions)
-                .fullScreenMainBackground()
-                .task {
-                    try? await Task.sleep(for: .milliseconds(200))
-                    focusFirstField()
-                }
-                .sheetAlertService()
-                .onChange(of: viewModel.shouldDismiss) {
-                    if viewModel.shouldDismiss {
-                        dismiss()
-                        Task {
-                            await requestForReview()
-                        }
+            .toolbar { toolbarContent }
+            .navigationTitle(Text(viewModel.isEditing ? "Update Entry" : "New Entry",
+                                  bundle: .module))
+            .animation(.default, value: viewModel.canSave)
+            .animation(.default, value: viewModel.type)
+            .animation(.default, value: showAdvanceOptions)
+            .fullScreenMainBackground()
+            .task {
+                try? await Task.sleep(for: .milliseconds(200))
+                focusFirstField()
+            }
+            .sheetAlertService()
+            .onChange(of: viewModel.shouldDismiss) {
+                if viewModel.shouldDismiss {
+                    dismiss()
+                    Task {
+                        await requestForReview()
                     }
                 }
-                .onChange(of: focusedField) { _, _ in
-                    viewModel.trimInputs()
-                }
-                .showSpinner(viewModel.saving)
+            }
+            .onChange(of: focusedField) { _, _ in
+                viewModel.trimInputs()
+            }
+            .showSpinner(viewModel.saving)
         }
         #if os(macOS)
         .frame(minWidth: 800, minHeight: 600)
@@ -143,9 +143,9 @@ struct CreateEditEntryView: View {
                 .foregroundStyle(.textNorm)
                 .autocorrectionDisabled(true)
                 .frame(minHeight: 25)
-            #if os(iOS)
+                #if os(iOS)
                 .textInputAutocapitalization(config.capitalization)
-            #endif
+                #endif
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
