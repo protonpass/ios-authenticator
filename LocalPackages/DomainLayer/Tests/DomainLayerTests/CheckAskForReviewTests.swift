@@ -42,6 +42,13 @@ struct CheckAskForReviewTests {
     }
 
     @Test
+    func `Skip asking for review when entries failed to load`() async {
+        entryService.dataState = .failed(CancellationError())
+        let shouldAskForReview = await sut.execute()
+        #expect(!shouldAskForReview)
+    }
+
+    @Test
     func `Skip asking for review when no entries`() async {
         entryService.dataState = .loaded([])
         let shouldAskForReview = await sut.execute()

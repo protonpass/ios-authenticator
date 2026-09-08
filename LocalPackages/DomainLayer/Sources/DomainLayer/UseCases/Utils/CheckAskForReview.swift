@@ -51,9 +51,9 @@ public final class CheckAskForReview: CheckAskForReviewUseCase {
             logger.log(.debug, category: .ui, "Checking if should ask for review")
         }
 
-        guard let entries = await entryDataService.dataState.data, !entries.isEmpty else {
+        guard await entryDataService.dataState.data?.isEmpty == false else {
             if bundle.isQaBuild {
-                logger.log(.debug, category: .ui, "Skipped asking for review because no entries")
+                logger.log(.debug, category: .ui, "Skipped asking for review because no entry is loaded")
             }
             return false
         }

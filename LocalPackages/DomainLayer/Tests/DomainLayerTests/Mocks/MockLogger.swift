@@ -1,5 +1,5 @@
 //
-// MockedSettingsService.swift
+// MockLogger.swift
 // Proton Authenticator - Created on 17/06/2025.
 // Copyright (c) 2025 Proton Technologies AG
 //
