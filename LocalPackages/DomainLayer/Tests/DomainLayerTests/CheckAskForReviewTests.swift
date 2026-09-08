@@ -21,47 +21,36 @@
 
 import DataLayer
 import DomainLayer
-import Foundation
 import Testing
 
 @MainActor
 struct CheckAskForReviewTests {
-    let settingsService: MockedSettingsService
     let entryService: MockedEntryDataService
     let sut: any CheckAskForReviewUseCase
 
     init() {
-        settingsService = .init()
         entryService = .init()
-        sut = CheckAskForReview(settingsService: settingsService,
-                                         entryDataService: entryService,
+        sut = CheckAskForReview(entryDataService: entryService,
                                 logger: MockLogger(),
                                 bundle: .main)
     }
 
-    @Test("Skip asking for review when installed less than 7 days")
-    func tooEarly() async {
-        settingsService.installationTimestamp = Date.now.timeIntervalSince1970
+    @Test
+    func `Skip asking for review when entries are not loaded yet`() async {
         let shouldAskForReview = await sut.execute()
         #expect(!shouldAskForReview)
     }
 
-    @Test("Skip asking for review when less than 4 entries")
-    func tooFewEntries() async throws {
-        let calendar = Calendar.current
-        let sevenDaysBefore = try #require(calendar.date(byAdding: .day, value: -7, to: .now))
-        settingsService.installationTimestamp = sevenDaysBefore.timeIntervalSince1970
+    @Test
+    func `Skip asking for review when no entries`() async {
+        entryService.dataState = .loaded([])
+        let shouldAskForReview = await sut.execute()
+        #expect(!shouldAskForReview)
+    }
+
+    @Test
+    func `Ask for review as soon as there is one entry`() async {
         entryService.dataState = .loaded([.random()])
-        let shouldAskForReview = await sut.execute()
-        #expect(!shouldAskForReview)
-    }
-
-    @Test("Ask for review")
-    func askForReview() async throws {
-        let calendar = Calendar.current
-        let sevenDaysBefore = try #require(calendar.date(byAdding: .day, value: -7, to: .now))
-        settingsService.installationTimestamp = sevenDaysBefore.timeIntervalSince1970
-        entryService.dataState = .loaded([.random(), .random(), .random(), .random()])
         let shouldAskForReview = await sut.execute()
         #expect(shouldAskForReview)
     }

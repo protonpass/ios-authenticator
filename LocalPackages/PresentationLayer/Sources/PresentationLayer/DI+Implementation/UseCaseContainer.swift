@@ -59,8 +59,7 @@ extension UseCaseContainer {
     }
 
     var checkAskForReview: Factory<any CheckAskForReviewUseCase> {
-        self { CheckAskForReview(settingsService: self.settingsService,
-                                 entryDataService: ServiceContainer.shared.entryDataService(),
+        self { CheckAskForReview(entryDataService: ServiceContainer.shared.entryDataService(),
                                  logger: ToolsContainer.shared.logManager(),
                                  bundle: .main)
         }

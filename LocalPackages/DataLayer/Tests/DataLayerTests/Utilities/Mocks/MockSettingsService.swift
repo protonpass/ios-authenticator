@@ -28,7 +28,6 @@ final class MockSettingsService: SettingsServicing {
     init() {}
 
     var isFirstRun = false
-    var installationTimestamp: TimeInterval = 0
     var theme = Theme.system
     var searchBarDisplayMode = SearchBarDisplayMode.top
     var entryCellConfiguration = EntryCellConfiguration.default
@@ -65,7 +64,6 @@ final class MockSettingsService: SettingsServicing {
     func setBackupFolderBookmark(_ data: Data?) { backupFolderBookmark = data }
     func setLastBackupHash(_ value: String?) { lastBackupHash = value }
     func toggleICloudSync(_ value: Bool) { iCloudSync = value }
-    func setInstallationTimestamp(_ value: TimeInterval) { installationTimestamp = value }
     func setFullBackup(_ value: Bool) { fullBackUp = value }
     func setUnsupportedScanning(_ value: Bool) { unsupportedScanning = value }
     func setSortOption(_ value: SortOption) { sortOption = value }

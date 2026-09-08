@@ -43,7 +43,6 @@ struct EntryContent: Identifiable {
 // swiftlint:disable line_length
 @Observable
 final class QAMenuViewModel {
-    var installationDate: Date
     var isLoading = false
     var keychainContent = [KeychainContent]()
     var entriesContent: EntryContent?
@@ -89,16 +88,11 @@ final class QAMenuViewModel {
     private(set) var entryRepository
 
     init() {
-        installationDate = Date(timeIntervalSince1970: appSettings.installationTimestamp)
         onboarded = appSettings.onboarded
         displayPassBanner = appSettings.showPassBanner
         unsupportedScanning = appSettings.unsupportedScanning
         loadKeychainContent()
         loadEntryContent()
-    }
-
-    func updateInstallationTimestamp(_ date: Date) {
-        appSettings.setInstallationTimestamp(date.timeIntervalSince1970)
     }
 
     func deleteAllKeychainData(synchronized: Bool) {

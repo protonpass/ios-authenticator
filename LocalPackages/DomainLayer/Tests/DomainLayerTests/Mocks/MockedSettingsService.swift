@@ -28,7 +28,6 @@ final class MockedSettingsService: SettingsServicing {
     init() {}
 
     var isFirstRun = false
-    var installationTimestamp: TimeInterval = 0
     var theme = Theme.system
     var searchBarDisplayMode = SearchBarDisplayMode.top
     var entryCellConfiguration = EntryCellConfiguration.default
@@ -107,10 +106,6 @@ final class MockedSettingsService: SettingsServicing {
         iCloudSync = value
     }
 
-    func setInstallationTimestamp(_ value: TimeInterval) {
-        installationTimestamp = value
-    }
-    
     func setFullBackup(_ value: Bool) {
         fullBackUp = value
     }

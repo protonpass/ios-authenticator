@@ -26,7 +26,6 @@ import Models
 @MainActor
 public protocol SettingsServicing: Sendable, Observable {
     var isFirstRun: Bool { get }
-    var installationTimestamp: TimeInterval { get }
     var theme: Theme { get }
     var searchBarDisplayMode: SearchBarDisplayMode { get }
     var entryCellConfiguration: EntryCellConfiguration { get }
@@ -65,7 +64,6 @@ public protocol SettingsServicing: Sendable, Observable {
     func setICloudDisablePromptDismissed(_ value: Bool)
 
     /// For QA purpose
-    func setInstallationTimestamp(_ value: TimeInterval)
     func setFullBackup(_ value: Bool)
 }
 
@@ -76,7 +74,6 @@ public final class SettingsService: SettingsServicing {
     private let store: UserDefaults
 
     public private(set) var isFirstRun: Bool
-    public private(set) var installationTimestamp: TimeInterval
     public private(set) var searchBarDisplayMode: SearchBarDisplayMode
     public private(set) var theme: Theme
     public private(set) var entryCellConfiguration: EntryCellConfiguration
@@ -97,7 +94,6 @@ public final class SettingsService: SettingsServicing {
         self.store = store
         store.register(defaults: [
             AppConstants.Settings.isFirstRun: true,
-            AppConstants.Settings.installationTimestamp: Date.now.timeIntervalSince1970,
             AppConstants.Settings.hapticFeedbackEnabled: true,
             AppConstants.Settings.iCloudSync: false,
             AppConstants.Settings.folderBackup: false,
@@ -106,7 +102,6 @@ public final class SettingsService: SettingsServicing {
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
-        installationTimestamp = store.double(forKey: AppConstants.Settings.installationTimestamp)
         fullBackUp = store.bool(forKey: AppConstants.Settings.fullBackUp)
 
         theme = store.value(for: AppConstants.Settings.theme)
@@ -228,11 +223,6 @@ public extension SettingsService {
         } else {
             store.removeObject(forKey: AppConstants.Settings.lastBackupHash)
         }
-    }
-
-    func setInstallationTimestamp(_ value: TimeInterval) {
-        installationTimestamp = value
-        store.set(value, forKey: AppConstants.Settings.installationTimestamp)
     }
 
     func setFullBackup(_ value: Bool) {
