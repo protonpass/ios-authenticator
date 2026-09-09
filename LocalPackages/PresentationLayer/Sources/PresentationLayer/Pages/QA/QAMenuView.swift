@@ -36,7 +36,6 @@ struct QAMenuView: View {
                 actionsSection
                 keychainContent
                 dataContent
-                installationDateSection
             }
             .showSpinner(viewModel.isLoading)
             .navigationTitle(Text(verbatim: "QA menu"))
@@ -197,20 +196,5 @@ private extension QAMenuView {
         }, header: {
             Text(verbatim: "Entry Content")
         })
-    }
-
-    var installationDateSection: some View {
-        Section(content: {
-            DatePicker(selection: $viewModel.installationDate,
-                       in: ...Date.now,
-                       displayedComponents: .date) {
-                Text(verbatim: "Installation date")
-            }
-        }, header: {
-            Text(verbatim: "Installation date")
-        })
-        .onChange(of: viewModel.installationDate) { _, newDate in
-            viewModel.updateInstallationTimestamp(newDate)
-        }
     }
 }

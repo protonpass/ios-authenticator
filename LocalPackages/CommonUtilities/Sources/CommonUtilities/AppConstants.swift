@@ -58,7 +58,6 @@ public enum AppConstants: Sendable {
 
     public enum Settings {
         public static let isFirstRun = "IsFirstRun"
-        public static let installationTimestamp = "InstallationTimestamp"
         public static let searchBarMode = "SearchBarMode"
         public static let theme = "Theme"
         public static let displayCode = "DisplayCode"

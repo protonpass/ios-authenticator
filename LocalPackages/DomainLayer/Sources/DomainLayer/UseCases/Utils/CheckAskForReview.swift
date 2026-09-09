@@ -34,16 +34,13 @@ public extension CheckAskForReviewUseCase {
 }
 
 public final class CheckAskForReview: CheckAskForReviewUseCase {
-    private let settingsService: any SettingsServicing
     private let entryDataService: any EntryDataServiceProtocol
     private let logger: any LoggerProtocol
     private let bundle: Bundle
 
-    public init(settingsService: any SettingsServicing,
-                entryDataService: any EntryDataServiceProtocol,
+    public init(entryDataService: any EntryDataServiceProtocol,
                 logger: any LoggerProtocol,
                 bundle: Bundle) {
-        self.settingsService = settingsService
         self.entryDataService = entryDataService
         self.logger = logger
         self.bundle = bundle
@@ -54,21 +51,9 @@ public final class CheckAskForReview: CheckAskForReviewUseCase {
             logger.log(.debug, category: .ui, "Checking if should ask for review")
         }
 
-        let installationDate = await Date(timeIntervalSince1970: settingsService.installationTimestamp)
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: installationDate, to: .now)
-
-        guard let dayCount = components.day, dayCount >= 7 else {
+        guard await entryDataService.dataState.data?.isEmpty == false else {
             if bundle.isQaBuild {
-                logger.log(.debug, category: .ui, "Skipped asking for review because too early")
-            }
-            return false
-        }
-
-        guard let count = await entryDataService.dataState.data?.count,
-              count >= 4 else {
-            if bundle.isQaBuild {
-                logger.log(.debug, category: .ui, "Skipped asking for review because too few entries")
+                logger.log(.debug, category: .ui, "Skipped asking for review because no entry is loaded")
             }
             return false
         }

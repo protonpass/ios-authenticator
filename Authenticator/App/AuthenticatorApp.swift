@@ -216,7 +216,8 @@ private final class AuthenticatorAppViewModel: @preconcurrency Equatable {
                 if !ProcessInfo.processInfo.isiOSAppOnMac,
                    let scene = UIApplication.shared
                    .connectedScenes
-                   .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                   .compactMap({ $0 as? UIWindowScene })
+                   .first(where: { $0.activationState == .foregroundActive }) {
                     AppStore.requestReview(in: scene)
                 }
                 #endif
