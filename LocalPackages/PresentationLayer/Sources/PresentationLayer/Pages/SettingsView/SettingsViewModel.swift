@@ -146,6 +146,10 @@ final class SettingsViewModel {
         settingsService.focusSearchOnLaunch
     }
 
+    var showFavicons: Bool {
+        settingsService.showFavicons
+    }
+
     var isQaBuild: Bool {
         bundle.isQaBuild
     }
@@ -314,6 +318,10 @@ extension SettingsViewModel {
     func toggleFocusSearchOnLaunch() {
         settingsService.toggleFocusSearchOnLaunch(!focusSearchOnLaunch)
         haptic()
+    }
+
+    func toggleShowFavicons() {
+        settingsService.toggleShowFavicons(!showFavicons)
     }
 
     func exportData(shouldUsePassword: Bool = false) {

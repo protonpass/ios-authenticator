@@ -11240,6 +11240,16 @@
         }
       }
     },
+    "Show website thumbnails" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show website thumbnails"
+          }
+        }
+      }
+    },
     "Sign in" : {
       "localizations" : {
         "de" : {

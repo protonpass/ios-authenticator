@@ -33,6 +33,7 @@ public protocol SettingsServicing: Sendable, Observable {
     var showPassBanner: Bool { get }
     var hapticFeedbackEnabled: Bool { get }
     var focusSearchOnLaunch: Bool { get }
+    var showFavicons: Bool { get }
     var iCloudSync: Bool { get }
     var folderBackup: Bool { get }
     var backupFolderBookmark: Data? { get }
@@ -55,6 +56,7 @@ public protocol SettingsServicing: Sendable, Observable {
     // periphery:ignore
     func toggleHapticFeedback(_ value: Bool)
     func toggleFocusSearchOnLaunch(_ value: Bool)
+    func toggleShowFavicons(_ value: Bool)
     func toggleICloudSync(_ value: Bool)
     func toggleFolderBackup(_ value: Bool)
     func setBackupFolderBookmark(_ data: Data?)
@@ -81,6 +83,7 @@ public final class SettingsService: SettingsServicing {
     public private(set) var showPassBanner: Bool
     public private(set) var hapticFeedbackEnabled: Bool
     public private(set) var focusSearchOnLaunch: Bool
+    public private(set) var showFavicons: Bool
     public private(set) var iCloudSync: Bool
     public private(set) var folderBackup: Bool
     public private(set) var backupFolderBookmark: Data?
@@ -98,7 +101,8 @@ public final class SettingsService: SettingsServicing {
             AppConstants.Settings.iCloudSync: false,
             AppConstants.Settings.folderBackup: false,
             AppConstants.Settings.fullBackUp: false,
-            AppConstants.Settings.unsupportedScanning: false
+            AppConstants.Settings.unsupportedScanning: false,
+            AppConstants.Settings.showFaviconsEnabled: true
         ])
 
         isFirstRun = store.bool(forKey: AppConstants.Settings.isFirstRun)
@@ -124,6 +128,7 @@ public final class SettingsService: SettingsServicing {
         sortOption = store.value(for: AppConstants.Settings.sortOption)
         iCloudDisablePromptDismissed = store
             .bool(forKey: AppConstants.Settings.iCloudDisablePromptDismissed)
+        showFavicons = store.bool(forKey: AppConstants.Settings.showFaviconsEnabled)
     }
 }
 
@@ -190,6 +195,12 @@ public extension SettingsService {
         update(currentValue: &focusSearchOnLaunch,
                newValue: value,
                key: AppConstants.Settings.focusSearchOnLaunchEnabled)
+    }
+
+    func toggleShowFavicons(_ value: Bool) {
+        update(currentValue: &showFavicons,
+               newValue: value,
+               key: AppConstants.Settings.showFaviconsEnabled)
     }
 
     func toggleICloudSync(_ value: Bool) {
