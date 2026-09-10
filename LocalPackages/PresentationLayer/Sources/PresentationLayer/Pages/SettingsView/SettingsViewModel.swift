@@ -322,6 +322,7 @@ extension SettingsViewModel {
 
     func toggleShowFavicons() {
         settingsService.toggleShowFavicons(!showFavicons)
+        haptic()
     }
 
     func exportData(shouldUsePassword: Bool = false) {

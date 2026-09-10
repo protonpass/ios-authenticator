@@ -35,6 +35,7 @@ final class MockSettingsService: SettingsServicing {
     var showPassBanner = false
     var hapticFeedbackEnabled = false
     var focusSearchOnLaunch = false
+    var showFavicons = true
     var folderBackup = false
     var backupFolderBookmark: Data?
     var lastBackupHash: String?
@@ -60,6 +61,7 @@ final class MockSettingsService: SettingsServicing {
     func togglePassBanner(_ value: Bool) { showPassBanner = value }
     func toggleHapticFeedback(_ value: Bool) { hapticFeedbackEnabled = value }
     func toggleFocusSearchOnLaunch(_ value: Bool) { focusSearchOnLaunch = value }
+    func toggleShowFavicons(_ value: Bool) { showFavicons = value }
     func toggleFolderBackup(_ value: Bool) { folderBackup = value }
     func setBackupFolderBookmark(_ data: Data?) { backupFolderBookmark = data }
     func setLastBackupHash(_ value: String?) { lastBackupHash = value }
