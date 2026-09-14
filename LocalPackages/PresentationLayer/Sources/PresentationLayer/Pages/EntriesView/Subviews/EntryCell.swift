@@ -79,6 +79,7 @@ struct EntryCell: View, Equatable {
     let searchTerm: String
     let isHovered: Bool
     let reducedShadow: Bool
+    let showFavicon: Bool
     let onAction: (EntryAction) -> Void
     @Binding var animatingEntryAction: EntryAction?
 
@@ -87,6 +88,7 @@ struct EntryCell: View, Equatable {
          searchTerm: String,
          isHovered: Bool,
          reducedShadow: Bool,
+         showFavicon: Bool,
          onAction: @escaping (EntryAction) -> Void,
          animatingEntryAction: Binding<EntryAction?>) {
         self.entry = entry
@@ -94,6 +96,7 @@ struct EntryCell: View, Equatable {
         self.searchTerm = searchTerm
         self.isHovered = isHovered
         self.reducedShadow = reducedShadow
+        self.showFavicon = showFavicon
         self.onAction = onAction
         _animatingEntryAction = animatingEntryAction
     }
@@ -163,6 +166,7 @@ struct EntryCell: View, Equatable {
             lhs.searchTerm == rhs.searchTerm &&
             lhs.configuration == rhs.configuration &&
             lhs.isHovered == rhs.isHovered &&
+            lhs.showFavicon == rhs.showFavicon &&
             lhs.animatingEntryAction == rhs.animatingEntryAction
     }
 
@@ -177,7 +181,8 @@ private extension EntryCell {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 EntryThumbnail(iconUrl: entry.issuerInfo?.iconUrl,
-                               letter: entry.orderedEntry.entry.capitalLetter)
+                               letter: entry.orderedEntry.entry.capitalLetter,
+                               showFavicon: showFavicon)
                     .equatable()
 
                 VStack(alignment: .leading) {

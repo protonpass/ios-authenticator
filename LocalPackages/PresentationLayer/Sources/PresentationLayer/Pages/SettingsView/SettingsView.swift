@@ -328,6 +328,11 @@ private extension SettingsView {
                                              onToggle: viewModel.toggleFocusSearchOnLaunch))
                 .toggleAccessibilityLabel(#localized("Focus search on launch", bundle: .module),
                                           activateStatus(viewModel.focusSearchOnLaunch))
+            SettingRow(title: .localized("Show website thumbnails", .module),
+                       trailingMode: .toggle(isOn: viewModel.showFavicons,
+                                             onToggle: viewModel.toggleShowFavicons))
+                .toggleAccessibilityLabel(#localized("Show website thumbnails", bundle: .module),
+                                          activateStatus(viewModel.showFavicons))
         }
     }
 

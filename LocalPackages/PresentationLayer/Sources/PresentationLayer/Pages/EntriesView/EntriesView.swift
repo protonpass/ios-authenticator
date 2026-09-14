@@ -386,6 +386,7 @@ private extension EntriesView {
                   searchTerm: viewModel.query,
                   isHovered: hoveringEntry == entry,
                   reducedShadow: reducedShadow,
+                  showFavicon: viewModel.settingsService.showFavicons,
                   onAction: handle(_:),
                   animatingEntryAction: $viewModel.animatingEntry)
             .equatable()

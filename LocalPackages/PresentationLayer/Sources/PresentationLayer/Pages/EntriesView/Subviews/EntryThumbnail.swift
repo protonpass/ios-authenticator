@@ -25,9 +25,10 @@ struct EntryThumbnail: View, @preconcurrency Equatable {
     @Environment(\.colorScheme) private var colorScheme
     let iconUrl: String?
     let letter: String
+    let showFavicon: Bool
 
     var body: some View {
-        if let iconUrl, let url = URL(string: iconUrl) {
+        if showFavicon, let iconUrl, let url = URL(string: iconUrl) {
             WebImage(url: url) { image in
                 image
                     .resizable()
@@ -56,7 +57,7 @@ struct EntryThumbnail: View, @preconcurrency Equatable {
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.iconUrl == rhs.iconUrl && lhs.letter == rhs.letter
+        lhs.iconUrl == rhs.iconUrl && lhs.letter == rhs.letter && lhs.showFavicon == rhs.showFavicon
     }
 }
 

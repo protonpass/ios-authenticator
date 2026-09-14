@@ -76,6 +76,11 @@ public struct Entry: Identifiable, Sendable, Hashable, Equatable, Codable {
         issuer.first?.uppercased() ?? "-"
     }
 
+    /// A non-empty text representing the entry (e.g deletion confirmation)
+    public var displayName: String {
+        issuer.isEmpty ? name : issuer
+    }
+
     private enum CodingKeys: String, CodingKey {
         case id, name, uri, period, issuer, secret, note, type
     }
