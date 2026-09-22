@@ -25,7 +25,7 @@ import Foundation
 import SwiftUI
 
 struct AlertServiceModifier: ViewModifier {
-    @State private var alertService = resolve(\ServiceContainer.alertService)
+    @State private var alertService = dependency(\ServiceContainer.alertService)
     let isMainDisplay: Bool
 
     func body(content: Content) -> some View {

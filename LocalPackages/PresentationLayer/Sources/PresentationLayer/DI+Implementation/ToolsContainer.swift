@@ -53,6 +53,7 @@ public extension ToolsContainer {
         self { TotpGenerator(rustTotpGenerator: self.mobileTotpGenerator()) }
     }
 
+    @MainActor
     var logManager: Factory<any LoggerProtocol> {
         self { LogManager(localDataManager: ServiceContainer.shared.localDataManager()) }
     }
@@ -71,8 +72,9 @@ public extension ToolsContainer {
     }
 
     #if os(iOS)
+    @MainActor
     var hapticsManager: Factory<any HapticsServicing> {
-        self { @MainActor in HapticsManager(settings: ServiceContainer.shared.settingsService()) }
+        self { HapticsManager(settings: ServiceContainer.shared.settingsService()) }
     }
     #endif
 
@@ -81,17 +83,19 @@ public extension ToolsContainer {
     }
 
     #if os(iOS)
+    @MainActor
     var mobileLoginCoordinator: Factory<any MobileCoordinatorProtocol> {
         self {
-            @MainActor in MobileLoginCoordinator(logger: self.logManager())
+            MobileLoginCoordinator(logger: self.logManager())
         }
         .shared
     }
     #endif
 
+    @MainActor
     var apiClient: Factory<any APIClientProtocol> {
-        self { @MainActor in APIClient(manager: ServiceContainer.shared.userSessionManager(),
-                                       logger: self.logManager())
+        self { APIClient(manager: ServiceContainer.shared.userSessionManager(),
+                         logger: self.logManager())
         }
     }
 

@@ -47,15 +47,17 @@ final class WatchDIContainer: SharedContainer {
         self { WatchEncryptionService(keychain: self.keychainService()) }
     }
 
+    @MainActor
     var entryRepository: Factory<any EntryRepositoryProtocol> {
-        self { @MainActor in EntryRepository(localDataManager: self.localDataManager(),
-                                             encryptionService: self.encryptionService())
+        self { EntryRepository(localDataManager: self.localDataManager(),
+                               encryptionService: self.encryptionService())
         }
     }
 
+    @MainActor
     var dataService: Factory<any DataServiceProtocol> {
-        self { @MainActor in DataService(repository: self.entryRepository(),
-                                         communicationService: self.watchToIOSCommunicationManager())
+        self { DataService(repository: self.entryRepository(),
+                           communicationService: self.watchToIOSCommunicationManager())
         }
     }
 }

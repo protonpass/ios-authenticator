@@ -154,7 +154,7 @@ struct RestrictedScanningArea: View {
     }
 }
 
-private struct CornerBorder: Shape {
+nonisolated private struct CornerBorder: Shape {
     let cornerRadius: CGFloat
     let cornerLength: CGFloat
 
