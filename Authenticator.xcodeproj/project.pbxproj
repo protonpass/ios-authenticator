@@ -1915,6 +1915,8 @@
 				kind = upToNextMajorVersion;
 				minimumVersion = 9.1.0;
 			};
+			traits = (
+			);
 		};
 		5B9AD6392E37C096000FC006 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
