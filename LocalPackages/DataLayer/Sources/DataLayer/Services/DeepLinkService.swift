@@ -44,7 +44,7 @@ public protocol DeepLinkServicing: Sendable {
     func handleDeeplink(_ url: URL) async throws
 }
 
-public final class DeepLinkService: DeepLinkServicing {
+public struct DeepLinkService: DeepLinkServicing {
     private let service: any EntryDataServiceProtocol
     private let alertService: any AlertServiceProtocol
 
@@ -81,8 +81,7 @@ private extension DeepLinkService {
         let yes = ActionConfig(title: "Yes",
                                titleBundle: .module,
                                action: {
-                                   Task { [weak self] in
-                                       guard let self else { return }
+                                   Task {
                                        try? await service
                                            .insertAndRefresh(entry: entry)
                                    }
