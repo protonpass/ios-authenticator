@@ -230,7 +230,7 @@ extension SettingsViewModel {
         if !syncEnabled {
             settingSheet = .login(mobileLoginCoordinator)
         } else {
-            let config = AlertConfiguration.logout {
+            let config = AlertConfiguration.logout { [weak self] in
                 Task { [weak self] in
                     guard let self else { return }
                     do {

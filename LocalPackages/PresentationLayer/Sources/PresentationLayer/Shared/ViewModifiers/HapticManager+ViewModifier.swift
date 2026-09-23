@@ -26,7 +26,7 @@ import FactoryKit
 import Foundation
 
 private struct HapticModifier: ViewModifier {
-    private let haptics = resolve(\ToolsContainer.hapticsManager)
+    private let haptics = dependency(\ToolsContainer.hapticsManager)
     let type: HapticFeedbackType
 
     func body(content: Content) -> some View {

@@ -33,39 +33,45 @@ public final class ServiceContainer: SharedContainer, AutoRegistering {
 }
 
 private extension ServiceContainer {
+    @MainActor
     var logger: any LoggerProtocol {
         ToolsContainer.shared.logManager()
     }
 
+    @MainActor
     var entryRepository: any EntryRepositoryProtocol {
         RepositoryContainer.shared.entryRepository()
     }
 }
 
 public extension ServiceContainer {
+    @MainActor
     var settingsService: Factory<any SettingsServicing> {
-        self { @MainActor in SettingsService(store: kSharedUserDefaults) }
+        self { SettingsService(store: kSharedUserDefaults) }
     }
 
+    @MainActor
     var entryDataService: Factory<any EntryDataServiceProtocol> {
-        self { @MainActor in EntryDataService(repository: self.entryRepository,
-                                              importService: self.importService(),
-                                              totpGenerator: ToolsContainer.shared.totpGenerator(),
-                                              totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper(),
-                                              logger: self.logger,
-                                              reachabilityManager: ToolsContainer.shared.reachabilityManager(),
-                                              backUpManager: self.backUpManager(),
-                                              settings: self.settingsService(),
-                                              keychainService: self.keychainService())
+        self { EntryDataService(repository: self.entryRepository,
+                                importService: self.importService(),
+                                totpGenerator: ToolsContainer.shared.totpGenerator(),
+                                totpIssuerMapper: ToolsContainer.shared.totpIssuerMapper(),
+                                logger: self.logger,
+                                reachabilityManager: ToolsContainer.shared.reachabilityManager(),
+                                backUpManager: self.backUpManager(),
+                                settings: self.settingsService(),
+                                keychainService: self.keychainService())
         }
     }
 
+    @MainActor
     var encryptionService: Factory<any EncryptionServicing> {
         self { EncryptionService(keysProvider: self.keysManager(),
                                  logger: self.logger)
         }
     }
 
+    @MainActor
     var keychainService: Factory<any KeychainServicing> {
         self { KeychainService(service: AppConstants.service,
                                accessGroup: AppConstants.keychainGroup,
@@ -73,26 +79,31 @@ public extension ServiceContainer {
         }
     }
 
+    @MainActor
     var deepLinkService: Factory<any DeepLinkServicing> {
         self { DeepLinkService(service: self.entryDataService(),
                                alertService: self.alertService())
         }
     }
 
+    @MainActor
     var alertService: Factory<any AlertServiceProtocol> {
-        self { @MainActor in AlertService() }
+        self { AlertService() }
     }
 
+    @MainActor
     var importService: Factory<any ImportingServicing> {
         self { ImportingService(logger: self.logger) }
     }
 
+    @MainActor
     var authenticationService: Factory<any AuthenticationServicing> {
-        self { @MainActor in AuthenticationService(keychain: self.keychainService(),
-                                                   logger: self.logger)
+        self { AuthenticationService(keychain: self.keychainService(),
+                                     logger: self.logger)
         }
     }
 
+    @MainActor
     var userSessionManager: Factory<any UserSessionTooling> {
         self {
             UserSessionManager(configuration:
@@ -105,38 +116,44 @@ public extension ServiceContainer {
         }
     }
 
+    @MainActor
     var keysManager: Factory<any KeysProvider> {
         self {
             KeysManager(keychain: self.keychainService())
         }
     }
 
+    @MainActor
     var localDataManager: Factory<any LocalDataManagerProtocol> {
-        self { @MainActor in LocalDataManager(settingsService: self.settingsService()) }
+        self { LocalDataManager(settingsService: self.settingsService()) }
     }
 
     var reviewService: Factory<any ReviewServicing> {
         self { ReviewService() }
     }
 
+    @MainActor
     var backUpManager: Factory<any BackUpServicing> {
-        self { @MainActor in BackUpManager(keychainService: self.keychainService(),
-                                           settingsService: self.settingsService(),
-                                           logger: self.logger)
+        self { BackUpManager(keychainService: self.keychainService(),
+                             settingsService: self.settingsService(),
+                             logger: self.logger)
         }
     }
 
+    @MainActor
     var iosToWatchCommunicationManager: Factory<IOSToWatchCommunicationManager> {
-        self { @MainActor in IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
-                                                            logger: self.logger)
+        self { IOSToWatchCommunicationManager(entryDataService: self.entryDataService(),
+                                              logger: self.logger)
         }
     }
 
+    @MainActor
     var cameraManager: Factory<any CameraManagerProtocol> {
-        self { @MainActor in CameraManager() }
+        self { CameraManager() }
     }
 
+    @MainActor
     var inAppMessagingService: Factory<any InAppMessagingServicing> {
-        self { @MainActor in InAppMessagingService(store: ToolsContainer.shared.userDefaultsPersistence()) }
+        self { InAppMessagingService(store: ToolsContainer.shared.userDefaultsPersistence()) }
     }
 }

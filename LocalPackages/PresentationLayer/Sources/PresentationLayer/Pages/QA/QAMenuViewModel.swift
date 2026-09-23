@@ -65,11 +65,8 @@ final class QAMenuViewModel {
         }
     }
 
-    @ObservationIgnored
-    private let appSettings = resolve(\ServiceContainer.settingsService)
-
-    @ObservationIgnored
-    private let keychainService = resolve(\ServiceContainer.keychainService)
+    private let appSettings = dependency(\ServiceContainer.settingsService)
+    private let keychainService = dependency(\ServiceContainer.keychainService)
 
     @ObservationIgnored
     @LazyInjected(\ServiceContainer.alertService)

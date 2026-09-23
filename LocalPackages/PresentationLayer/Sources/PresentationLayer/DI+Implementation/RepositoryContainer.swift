@@ -32,6 +32,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
 
     // MARK: - Repositories
 
+    @MainActor
     var entryRepository: Factory<any EntryRepositoryProtocol> {
         self { EntryRepository(localDataManager: ServiceContainer.shared.localDataManager(),
                                encryptionService: ServiceContainer.shared.encryptionService(),
@@ -42,6 +43,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
         }
     }
 
+    @MainActor
     var eventsRepository: Factory<any EventsRepositoryProtocol> {
         self {
             EventsRepository(apiClient: ToolsContainer.shared.apiClient(),
@@ -52,6 +54,7 @@ final class RepositoryContainer: SharedContainer, AutoRegistering {
 
     // MARK: - Data sources
 
+    @MainActor
     var userDataSource: Factory<any UserDataProvider> {
         self { UserDataSource(logger: ToolsContainer.shared.logManager(),
                               localDataManager: ServiceContainer.shared.localDataManager(),

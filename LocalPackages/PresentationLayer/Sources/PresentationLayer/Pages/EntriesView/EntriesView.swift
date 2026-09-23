@@ -76,7 +76,7 @@ public struct EntriesView: View {
     @State private var attachSearchable = false
     @FocusState private var searchFieldFocus: Bool
 
-    private let alertService = resolve(\ServiceContainer.alertService)
+    private let alertService = dependency(\ServiceContainer.alertService)
 
     private var searchBarAlignment: VerticalAlignment {
         viewModel.settingsService.searchBarDisplayMode == .bottom ? .bottom : .top

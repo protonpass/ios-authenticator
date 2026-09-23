@@ -32,10 +32,12 @@ public final class UseCaseContainer: SharedContainer, AutoRegistering {
 }
 
 private extension UseCaseContainer {
+    @MainActor
     var logger: any LoggerProtocol {
         ToolsContainer.shared.logManager()
     }
 
+    @MainActor
     var settingsService: any SettingsServicing {
         ServiceContainer.shared.settingsService()
     }
@@ -58,6 +60,7 @@ extension UseCaseContainer {
         self { AuthenticateBiometrically() }
     }
 
+    @MainActor
     var checkAskForReview: Factory<any CheckAskForReviewUseCase> {
         self { CheckAskForReview(entryDataService: ServiceContainer.shared.entryDataService(),
                                  logger: ToolsContainer.shared.logManager(),
@@ -65,6 +68,7 @@ extension UseCaseContainer {
         }
     }
 
+    @MainActor
     var requestForReview: Factory<any RequestForReviewUseCase> {
         self { RequestForReview(reviewService: ServiceContainer.shared.reviewService(),
                                 checkAskForReview: self.checkAskForReview())
@@ -77,6 +81,7 @@ public extension UseCaseContainer {
         self { UpdateAppAndRustVersion() }
     }
 
+    @MainActor
     var setUpFirstRun: Factory<any SetUpFirstRunUseCase> {
         self { SetUpFirstRun(settingsService: self.settingsService,
                              authenticationService: ServiceContainer.shared.authenticationService(),
@@ -93,10 +98,12 @@ public extension UseCaseContainer {
         self { OpenAppSettings() }
     }
 
+    @MainActor
     var emptyTempDirectory: Factory<any EmptyTempDirectoryUseCase> {
         self { EmptyTempDirectory(logger: self.logger) }
     }
 
+    @MainActor
     var userDataRefresh: Factory<any RefreshUserDataUseCase> {
         self { UserDataRefresh(userSessionManager: ServiceContainer.shared.userSessionManager(),
                                eventsRepository: RepositoryContainer.shared.eventsRepository(),
