@@ -105,7 +105,7 @@ struct ImportingServiceModifier: ViewModifier {
                           matching: .images,
                           photoLibrary: .shared())
             .fileImporter(isPresented: $viewModel.showImporter.mappedToBool(),
-                          allowedContentTypes: viewModel.showImporter?.authorizedFileExtensions ?? [],
+                          allowedContentTypes: viewModel.showImporter?.authorizedFileExtensions ?? [.item],
                           allowsMultipleSelection: viewModel.showImporter == .googleAuthenticator,
                           onCompletion: viewModel.processImportedFile)
             .showSpinner(viewModel.importing)
