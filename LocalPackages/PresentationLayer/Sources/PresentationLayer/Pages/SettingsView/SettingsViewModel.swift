@@ -235,7 +235,6 @@ extension SettingsViewModel {
                     guard let self else { return }
                     do {
                         try await userSessionManager.logout()
-                        try await entryDataService.unsyncAllEntries()
                     } catch {
                         handle(error)
                     }

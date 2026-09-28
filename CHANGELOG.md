@@ -1,5 +1,6 @@
 # Version 1.4.5
 - Added the ability to disable website thumbnails (favicons)
+- Mark entries as not synced after logging out due to token expiration
 
 # Version 1.4.4
 - Upgraded Rust library from 1.3.0 to 1.7.2
