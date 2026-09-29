@@ -94,35 +94,32 @@ public final class EntryDataService: EntryDataServiceProtocol {
 
     public private(set) var dataState: DataState<[EntryUiModel]> = .loading
     public private(set) var hasNonDecryptableEntries = false
+    private let repository: any EntryRepositoryProtocol
+    private let importService: any ImportingServicing
 
     @ObservationIgnored
-    private let repository: any EntryRepositoryProtocol
-    @ObservationIgnored
-    private let importService: any ImportingServicing
-    @ObservationIgnored
     private var cancellables = Set<AnyCancellable>()
-    @ObservationIgnored
-    private var totpGenerator: any TotpGeneratorProtocol
+
+    private let totpGenerator: any TotpGeneratorProtocol
+
     @ObservationIgnored
     private var entryUpdateTask: Task<Void, Never>?
+
     @ObservationIgnored
     private var fullRefreshTask: Task<Void, Never>?
+
     @ObservationIgnored
     private var loadTask: Task<Void, Never>?
-    @ObservationIgnored
+
     private let totpIssuerMapper: any TOTPIssuerMapperServicing
-    @ObservationIgnored
     private let reachabilityManager: any ReachabilityServicing
-    @ObservationIgnored
-    private var backUpManager: any BackUpServicing
-    @ObservationIgnored
+    private let backUpManager: any BackUpServicing
     private let syncOperation: any SyncOperationCheckerProtocol
-    @ObservationIgnored
     private let logger: LoggerProtocol
-    @ObservationIgnored
     private let settings: SettingsServicing
-    @ObservationIgnored
     private let keychainService: KeychainServicing
+    private let userSessionManager: any UserSessionTooling
+
     @ObservationIgnored
     private var savingEntryIds: Set<String> = []
 
@@ -137,6 +134,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
                 backUpManager: any BackUpServicing,
                 settings: any SettingsServicing,
                 keychainService: any KeychainServicing,
+                userSessionManager: any UserSessionTooling,
                 syncOperation: any SyncOperationCheckerProtocol = SyncOperationChecker()) {
         self.repository = repository
         self.importService = importService
@@ -147,6 +145,7 @@ public final class EntryDataService: EntryDataServiceProtocol {
         self.backUpManager = backUpManager
         self.syncOperation = syncOperation
         self.keychainService = keychainService
+        self.userSessionManager = userSessionManager
         self.settings = settings
         setUp()
     }
@@ -158,6 +157,17 @@ public final class EntryDataService: EntryDataServiceProtocol {
             .sink { [weak self] codes in
                 guard let self else { return }
                 updateCodes(newCodes: codes)
+            }
+            .store(in: &cancellables)
+
+        userSessionManager.userLoggedOut
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self else { return }
+                Task { [weak self] in
+                    guard let self else { return }
+                    try? await unsyncAllEntries()
+                }
             }
             .store(in: &cancellables)
     }

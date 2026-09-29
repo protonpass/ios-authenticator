@@ -57,6 +57,7 @@ struct EntryDataServiceBackupTests {
             backUpManager: backUpManager,
             settings: settings,
             keychainService: keychain,
+            userSessionManager: MockUserSessionTooling(),
             syncOperation: MockSyncOperationChecker()
         )
     }
@@ -510,6 +511,7 @@ struct EntryDataServiceBackupTests {
                                        backUpManager: mockBackUpManager,
                                        settings: mockSettings,
                                        keychainService: mockKeychain,
+                                       userSessionManager: MockUserSessionTooling(),
                                        syncOperation: MockSyncOperationChecker())
         coldSut.updateData([makeUiModel(entry: entry, order: 0)])
 
@@ -554,6 +556,7 @@ struct EntryDataServiceBackupTests {
                                          backUpManager: mockBackUpManager,
                                          settings: mockSettings,
                                          keychainService: mockKeychain,
+                                         userSessionManager: MockUserSessionTooling(),
                                          syncOperation: MockSyncOperationChecker())
         secondSut.updateData([makeUiModel(entry: entry, order: 0)])
         // Bypass cache so we actually exercise the digest computation + write path.

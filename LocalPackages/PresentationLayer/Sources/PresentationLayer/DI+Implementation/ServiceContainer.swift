@@ -60,7 +60,8 @@ public extension ServiceContainer {
                                 reachabilityManager: ToolsContainer.shared.reachabilityManager(),
                                 backUpManager: self.backUpManager(),
                                 settings: self.settingsService(),
-                                keychainService: self.keychainService())
+                                keychainService: self.keychainService(),
+                                userSessionManager: self.userSessionManager())
         }
     }
 
