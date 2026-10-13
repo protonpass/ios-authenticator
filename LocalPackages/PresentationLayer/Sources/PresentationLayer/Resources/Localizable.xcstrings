@@ -1625,7 +1625,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Umrandet"
+            "value" : "Mit Rahmen"
           }
         },
         "en" : {
@@ -7553,7 +7553,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avançar"
+            "value" : "Próximo"
           }
         },
         "ru" : {
@@ -8519,7 +8519,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Einfach"
+            "value" : "Ohne Rahmen"
           }
         },
         "en" : {
@@ -11242,10 +11242,52 @@
     },
     "Show website thumbnails" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miniaturansichten der Websites anzeigen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show website thumbnails"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar miniaturas de sitios web"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar miniaturas del sitio web"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les miniatures des sites web"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra le miniature dei siti web"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar miniaturas do site"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sitelerin küçük görselleri görüntülensin"
           }
         }
       }
@@ -13642,6 +13684,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "U staat op het punt \"%@\" te verwijderen. Deze actie is onomkeerbaar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você está prestes a excluir \"%@\", esta ação é irreversível."
           }
         },
         "tr" : {
